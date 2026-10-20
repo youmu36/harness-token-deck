@@ -1,0 +1,3465 @@
+[
+  {
+    "command": "app.hello",
+    "payload": {
+      "clientProtocol": 1
+    },
+    "response": {
+      "data": {
+        "appVersion": "0.4.2",
+        "capabilities": [
+          "app.hello",
+          "app.openPath",
+          "app.pickPath",
+          "app.sync",
+          "collection.scanNow",
+          "collection.setPaused",
+          "collection.status",
+          "maintenance.backup",
+          "maintenance.commitRecalc",
+          "maintenance.previewRecalc",
+          "maintenance.previewRetention",
+          "maintenance.setRetention",
+          "maintenance.status",
+          "maintenance.vacuum",
+          "migration.activate",
+          "migration.detect",
+          "migration.run",
+          "models.add",
+          "models.fillByMultiplier",
+          "models.pool",
+          "models.remove",
+          "models.restore",
+          "models.saveBaseRates",
+          "models.scan",
+          "preferences.get",
+          "preferences.update",
+          "pricing.activateVersion",
+          "pricing.addVersion",
+          "pricing.catalog",
+          "pricing.createGroup",
+          "pricing.deleteGroup",
+          "pricing.deleteVersion",
+          "pricing.previewSwitch",
+          "pricing.recalculateUnpriced",
+          "pricing.renameGroup",
+          "pricing.resolveUnpriced",
+          "pricing.saveVersionPrices",
+          "pricing.setGroupDisabled",
+          "pricing.setVersionDisabled",
+          "pricing.setVersionLabel",
+          "pricing.switchCurrent",
+          "pricing.unpriced",
+          "pricing.unpricedNotice",
+          "reconciliation.status",
+          "remote.delete",
+          "remote.get",
+          "remote.refresh",
+          "remote.save",
+          "remote.test",
+          "sources.autoDetect",
+          "sources.list",
+          "sources.setPath",
+          "sources.validatePath",
+          "stats.analytics",
+          "stats.auxiliaryCosts",
+          "stats.cacheMonitor",
+          "stats.longTerm",
+          "stats.summary",
+          "tasks.cancel",
+          "tasks.get",
+          "wallet.accountEntries",
+          "wallet.calibrate",
+          "wallet.correctConsumption",
+          "wallet.createScannedVendors",
+          "wallet.createVendor",
+          "wallet.dailyBook",
+          "wallet.deleteVendor",
+          "wallet.entries",
+          "wallet.linkGroups",
+          "wallet.list",
+          "wallet.previewReconcileInterval",
+          "wallet.reclassify",
+          "wallet.reconcileInterval",
+          "wallet.renameVendor",
+          "wallet.restoreVendor",
+          "wallet.scanProviders",
+          "wallet.setLocalTotals",
+          "wallet.topUp"
+        ],
+        "dataDir": "C:\\htu-contract-fixture\\data",
+        "mode": "desktop",
+        "protocol": 1,
+        "revisions": {
+          "account": 0,
+          "auxiliary": 0,
+          "display": 0,
+          "models": 0,
+          "output": 0,
+          "ownership": 0,
+          "preferences": 0,
+          "pricing": 0,
+          "quality": 0,
+          "sources": 1,
+          "usage": 0,
+          "wallet": 0
+        }
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "app.pickPath",
+    "payload": {
+      "kind": "dir"
+    },
+    "response": {
+      "error": {
+        "code": "DESKTOP_REQUIRED",
+        "message": "此操作需要在桌面应用中执行",
+        "retryable": false
+      },
+      "ok": false
+    }
+  },
+  {
+    "command": "app.openPath",
+    "payload": {
+      "kind": "dataDir"
+    },
+    "response": {
+      "error": {
+        "code": "DESKTOP_REQUIRED",
+        "message": "此操作需要在桌面应用中执行",
+        "retryable": false
+      },
+      "ok": false
+    }
+  },
+  {
+    "command": "app.pickPath",
+    "payload": {
+      "kind": "dir"
+    },
+    "response": {
+      "data": {
+        "path": "C:\\htu-contract-fixture\\synthetic sessions"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "app.openPath",
+    "payload": {
+      "kind": "dataDir"
+    },
+    "response": {
+      "data": {
+        "opened": true
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "preferences.get",
+    "payload": {},
+    "response": {
+      "data": {
+        "preferences": {
+          "accountingTimezone": "Asia/Shanghai",
+          "closeToTray": true,
+          "collapsed": false,
+          "filters": {},
+          "guideDismissed": false,
+          "guideSeen": false,
+          "hiddenHarnesses": [],
+          "historyPrompted": false,
+          "lastPage": "codex",
+          "lastRoute": "",
+          "migrationHintDismissed": false,
+          "settingsSection": "display",
+          "showScanCountdown": false,
+          "startAtLogin": false,
+          "theme": "system",
+          "timezone": "system",
+          "unpricedNoticeDismissed": ""
+        },
+        "revision": 0
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "reconciliation.status",
+    "payload": {},
+    "response": {
+      "data": {
+        "notices": []
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.unpriced",
+    "payload": {},
+    "response": {
+      "data": {
+        "archived": [],
+        "end": "2026-10-01T10:00:00.000Z",
+        "ignoredCount": 0,
+        "items": [],
+        "limited": false,
+        "pricingRevision": 0,
+        "readyCount": 0,
+        "recordCount": 0,
+        "start": "2026-09-01T10:00:00.000Z",
+        "usageRevision": 0
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.unpricedNotice",
+    "payload": {},
+    "response": {
+      "data": {
+        "count": 0,
+        "harnesses": [],
+        "signature": "0:0"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.recalculateUnpriced",
+    "payload": {
+      "expectedPricingRevision": 0,
+      "operationId": "00000000-0000-4000-8000-000000000001"
+    },
+    "response": {
+      "data": {
+        "complete": true,
+        "costDeltaPico": "0",
+        "errorCode": null,
+        "recalculated": 0,
+        "remaining": 0,
+        "revision": 0
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "preferences.update",
+    "payload": {
+      "expectedRevision": 0,
+      "operationId": "00000000-0000-4000-8000-000000000002",
+      "patch": {
+        "historyPrompted": true,
+        "theme": "dark"
+      }
+    },
+    "response": {
+      "data": {
+        "preferences": {
+          "accountingTimezone": "Asia/Shanghai",
+          "closeToTray": true,
+          "collapsed": false,
+          "filters": {},
+          "guideDismissed": false,
+          "guideSeen": false,
+          "hiddenHarnesses": [],
+          "historyPrompted": true,
+          "lastPage": "codex",
+          "lastRoute": "",
+          "migrationHintDismissed": false,
+          "settingsSection": "display",
+          "showScanCountdown": false,
+          "startAtLogin": false,
+          "theme": "dark",
+          "timezone": "system",
+          "unpricedNoticeDismissed": ""
+        },
+        "revision": 1
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "preferences.update",
+    "payload": {
+      "expectedRevision": 0,
+      "operationId": "00000000-0000-4000-8000-000000000003",
+      "patch": {}
+    },
+    "response": {
+      "error": {
+        "code": "PREFERENCES_REVISION_CONFLICT",
+        "conflictRevision": 1,
+        "field": "expectedRevision",
+        "message": "偏好设置已更新，请刷新后重试",
+        "retryable": false
+      },
+      "ok": false
+    }
+  },
+  {
+    "command": "app.hello",
+    "payload": {
+      "clientProtocol": 1,
+      "extra": true
+    },
+    "response": {
+      "error": {
+        "code": "INVALID_REQUEST",
+        "field": "extra",
+        "message": "参数格式无效，请检查输入",
+        "retryable": false
+      },
+      "ok": false
+    }
+  },
+  {
+    "command": "sources.list",
+    "payload": {},
+    "response": {
+      "data": {
+        "paused": false,
+        "revision": 1,
+        "sources": [
+          {
+            "diagnostics": [],
+            "harness": "codex",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_codex",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [
+              "source_database_unavailable"
+            ],
+            "harness": "zcode",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_zcode",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "unavailable",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "dsh",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_dsh",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "claude",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_claude",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          }
+        ]
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "sources.autoDetect",
+    "payload": {
+      "expectedRevision": 1,
+      "operationId": "00000000-0000-4000-8000-000000000004"
+    },
+    "response": {
+      "data": {
+        "paused": false,
+        "revision": 1,
+        "sources": [
+          {
+            "diagnostics": [],
+            "harness": "codex",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_codex",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [
+              "source_database_unavailable"
+            ],
+            "harness": "zcode",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_zcode",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "unavailable",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "dsh",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_dsh",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "claude",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_claude",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          }
+        ]
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "sources.setPath",
+    "payload": {
+      "expectedRevision": 1,
+      "harness": "codex",
+      "operationId": "00000000-0000-4000-8000-000000000005",
+      "path": "C:\\htu-contract-fixture\\synthetic sessions"
+    },
+    "response": {
+      "data": {
+        "paused": false,
+        "revision": 2,
+        "sources": [
+          {
+            "diagnostics": [],
+            "harness": "codex",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\synthetic sessions",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [
+              "source_database_unavailable"
+            ],
+            "harness": "zcode",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_zcode",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "unavailable",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "dsh",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_dsh",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "claude",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_claude",
+            "processedCount": 0,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          }
+        ]
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "sources.validatePath",
+    "payload": {
+      "harness": "codex",
+      "path": "C:\\htu-contract-fixture\\synthetic sessions"
+    },
+    "response": {
+      "data": {
+        "available": true,
+        "diagnostics": [],
+        "harness": "codex",
+        "path": "C:\\htu-contract-fixture\\synthetic sessions"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "collection.scanNow",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000006"
+    },
+    "response": {
+      "data": {
+        "completedAt": "2026-10-01T10:00:00.000Z",
+        "nextPeriodicAt": "2026-10-01T10:00:30.000Z"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "collection.setPaused",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000007",
+      "paused": true
+    },
+    "response": {
+      "data": {
+        "paused": true,
+        "revision": 11
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "collection.status",
+    "payload": {},
+    "response": {
+      "data": {
+        "lastCompletedAt": "2026-10-01T10:00:00.000Z",
+        "lastError": null,
+        "nextPeriodicAt": null,
+        "paused": true,
+        "revision": 11,
+        "sources": [
+          {
+            "diagnostics": [],
+            "harness": "codex",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": "2026-10-01T10:00:00.000Z",
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\synthetic sessions",
+            "processedCount": 0,
+            "startedAt": "2026-10-01T10:00:00.000Z",
+            "status": "watching",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [
+              "source_database_unavailable"
+            ],
+            "harness": "zcode",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": "2026-10-01T10:00:00.000Z",
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_zcode",
+            "processedCount": 0,
+            "startedAt": "2026-10-01T10:00:00.000Z",
+            "status": "unavailable",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "dsh",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": "2026-10-01T10:00:00.000Z",
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_dsh",
+            "processedCount": 0,
+            "startedAt": "2026-10-01T10:00:00.000Z",
+            "status": "watching",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "claude",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": "2026-10-01T10:00:00.000Z",
+            "ledgerCount": 0,
+            "path": "C:\\htu-contract-fixture\\htu_source_root_claude",
+            "processedCount": 0,
+            "startedAt": "2026-10-01T10:00:00.000Z",
+            "status": "watching",
+            "unmeteredRequests": null
+          }
+        ],
+        "state": "paused",
+        "trigger": "manual"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.createGroup",
+    "payload": {
+      "expectedRevision": 0,
+      "name": "Fixture Prices",
+      "operationId": "00000000-0000-4000-8000-000000000008"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000009",
+        "revision": 1,
+        "versionId": "00000000-0000-4000-8000-00000000000a"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.renameGroup",
+    "payload": {
+      "expectedRevision": 1,
+      "groupId": "00000000-0000-4000-8000-000000000009",
+      "name": "Recorded Prices",
+      "operationId": "00000000-0000-4000-8000-00000000000b"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000009",
+        "revision": 2,
+        "versionId": null
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.setGroupDisabled",
+    "payload": {
+      "disabled": true,
+      "expectedRevision": 2,
+      "groupId": "00000000-0000-4000-8000-000000000009",
+      "operationId": "00000000-0000-4000-8000-00000000000c"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000009",
+        "revision": 3,
+        "versionId": null
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.setGroupDisabled",
+    "payload": {
+      "disabled": false,
+      "expectedRevision": 3,
+      "groupId": "00000000-0000-4000-8000-000000000009",
+      "operationId": "00000000-0000-4000-8000-00000000000d"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000009",
+        "revision": 4,
+        "versionId": null
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.addVersion",
+    "payload": {
+      "expectedRevision": 4,
+      "groupId": "00000000-0000-4000-8000-000000000009",
+      "label": "Second",
+      "number": 2,
+      "operationId": "00000000-0000-4000-8000-00000000000e"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000009",
+        "revision": 5,
+        "versionId": "00000000-0000-4000-8000-00000000000f"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.activateVersion",
+    "payload": {
+      "expectedRevision": 5,
+      "groupId": "00000000-0000-4000-8000-000000000009",
+      "operationId": "00000000-0000-4000-8000-000000000010",
+      "versionId": "00000000-0000-4000-8000-00000000000f"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000009",
+        "revision": 6,
+        "versionId": "00000000-0000-4000-8000-00000000000f"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.setVersionLabel",
+    "payload": {
+      "expectedRevision": 6,
+      "label": "Recorded",
+      "operationId": "00000000-0000-4000-8000-000000000011",
+      "versionId": "00000000-0000-4000-8000-00000000000a"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": null,
+        "revision": 7,
+        "versionId": "00000000-0000-4000-8000-00000000000a"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.saveVersionPrices",
+    "payload": {
+      "expectedRevision": 7,
+      "hints": [],
+      "models": [
+        {
+          "cache": "0",
+          "input": "1.5",
+          "modelId": "gpt-6-astra",
+          "output": "2"
+        }
+      ],
+      "operationId": "00000000-0000-4000-8000-000000000012",
+      "versionId": "00000000-0000-4000-8000-00000000000a"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": null,
+        "revision": 8,
+        "versionId": "00000000-0000-4000-8000-00000000000a"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.previewSwitch",
+    "payload": {
+      "groupId": "00000000-0000-4000-8000-000000000009",
+      "harness": "codex",
+      "versionId": "00000000-0000-4000-8000-00000000000a"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [
+          "codex"
+        ],
+        "changed": true,
+        "groupId": null,
+        "revision": 8,
+        "versionId": null
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.switchCurrent",
+    "payload": {
+      "expectedRevision": 8,
+      "groupId": "00000000-0000-4000-8000-000000000009",
+      "harness": "codex",
+      "operationId": "00000000-0000-4000-8000-000000000013",
+      "versionId": "00000000-0000-4000-8000-00000000000a"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [
+          "codex"
+        ],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000009",
+        "revision": 9,
+        "versionId": "00000000-0000-4000-8000-00000000000a"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.setVersionDisabled",
+    "payload": {
+      "disabled": true,
+      "expectedRevision": 9,
+      "operationId": "00000000-0000-4000-8000-000000000014",
+      "versionId": "00000000-0000-4000-8000-00000000000f"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000009",
+        "revision": 10,
+        "versionId": "00000000-0000-4000-8000-00000000000f"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.deleteVersion",
+    "payload": {
+      "expectedRevision": 10,
+      "operationId": "00000000-0000-4000-8000-000000000015",
+      "versionId": "00000000-0000-4000-8000-00000000000f"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000009",
+        "revision": 11,
+        "versionId": "00000000-0000-4000-8000-00000000000f"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.createGroup",
+    "payload": {
+      "expectedRevision": 11,
+      "name": "Remove Me",
+      "operationId": "00000000-0000-4000-8000-000000000016"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000017",
+        "revision": 12,
+        "versionId": "00000000-0000-4000-8000-000000000018"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.deleteGroup",
+    "payload": {
+      "expectedRevision": 12,
+      "groupId": "00000000-0000-4000-8000-000000000017",
+      "operationId": "00000000-0000-4000-8000-000000000019"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": "00000000-0000-4000-8000-000000000017",
+        "revision": 13,
+        "versionId": null
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "models.add",
+    "payload": {
+      "expectedRevision": 0,
+      "modelIds": [
+        "gpt-6-astra",
+        "excluded-model"
+      ],
+      "operationId": "00000000-0000-4000-8000-00000000001a"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": null,
+        "revision": 1,
+        "versionId": null
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "models.saveBaseRates",
+    "payload": {
+      "expectedRevision": 1,
+      "models": [
+        {
+          "modelId": "gpt-6-astra",
+          "rates": {
+            "input": "1.5"
+          }
+        }
+      ],
+      "operationId": "00000000-0000-4000-8000-00000000001b"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": null,
+        "revision": 2,
+        "versionId": null
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "models.remove",
+    "payload": {
+      "expectedRevision": 2,
+      "modelId": "excluded-model",
+      "operationId": "00000000-0000-4000-8000-00000000001c"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": null,
+        "revision": 3,
+        "versionId": null
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "models.restore",
+    "payload": {
+      "expectedRevision": 3,
+      "modelIds": [
+        "excluded-model"
+      ],
+      "operationId": "00000000-0000-4000-8000-00000000001d"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": null,
+        "revision": 4,
+        "versionId": null
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "models.pool",
+    "payload": {},
+    "response": {
+      "data": {
+        "excluded": [],
+        "models": [
+          {
+            "modelId": "gpt-6-astra",
+            "rates": {
+              "cache": null,
+              "cacheWrite": null,
+              "input": "1.5",
+              "output": null
+            }
+          },
+          {
+            "modelId": "excluded-model",
+            "rates": {
+              "cache": null,
+              "cacheWrite": null,
+              "input": null,
+              "output": null
+            }
+          }
+        ],
+        "revision": 4
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "models.fillByMultiplier",
+    "payload": {
+      "multiplier": "1.2",
+      "rates": {
+        "cache": "0",
+        "input": "1.5",
+        "output": null
+      }
+    },
+    "response": {
+      "data": {
+        "cache": "0",
+        "cacheWrite": null,
+        "input": "1.8",
+        "output": null
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "models.scan",
+    "payload": {
+      "harness": "codex",
+      "operationId": "00000000-0000-4000-8000-00000000001e"
+    },
+    "response": {
+      "data": {
+        "taskId": "00000000-0000-4000-8000-00000000001f"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "tasks.get",
+    "payload": {
+      "taskId": "00000000-0000-4000-8000-00000000001f"
+    },
+    "response": {
+      "data": {
+        "cancelRequested": false,
+        "completed": 0,
+        "error": null,
+        "result": {
+          "diagnostics": [],
+          "end": "2026-10-01T10:00:00.000Z",
+          "models": [],
+          "revision": 4,
+          "start": "2026-09-28T10:00:00.000Z"
+        },
+        "status": "completed",
+        "taskId": "00000000-0000-4000-8000-00000000001f",
+        "total": 0
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "tasks.cancel",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000020",
+      "taskId": "00000000-0000-4000-8000-00000000001f"
+    },
+    "response": {
+      "data": {
+        "cancelRequested": false,
+        "completed": 0,
+        "error": null,
+        "result": {
+          "diagnostics": [],
+          "end": "2026-10-01T10:00:00.000Z",
+          "models": [],
+          "revision": 4,
+          "start": "2026-09-28T10:00:00.000Z"
+        },
+        "status": "completed",
+        "taskId": "00000000-0000-4000-8000-00000000001f",
+        "total": 0
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.createVendor",
+    "payload": {
+      "initialBalance": "-0.5",
+      "name": "Fixture Vendor",
+      "operationId": "00000000-0000-4000-8000-000000000021"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 13,
+        "revision": 1,
+        "vendor": {
+          "A": "-500000000000",
+          "B": "-500000000000",
+          "C": "0",
+          "R": "0",
+          "account": {
+            "A": "-500000000000",
+            "B": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "coverageStart": null,
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 1
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "-500000000000",
+            "B": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Fixture Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": null,
+          "status": "active",
+          "unpricedCount": 0,
+          "url": null,
+          "walletRevision": 1
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.renameVendor",
+    "payload": {
+      "name": "Recorded Vendor",
+      "operationId": "00000000-0000-4000-8000-000000000023",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 13,
+        "revision": 2,
+        "vendor": {
+          "A": "-500000000000",
+          "B": "-500000000000",
+          "C": "0",
+          "R": "0",
+          "account": {
+            "A": "-500000000000",
+            "B": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "coverageStart": null,
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 1
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "-500000000000",
+            "B": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": null,
+          "status": "active",
+          "unpricedCount": 0,
+          "url": null,
+          "walletRevision": 2
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.linkGroups",
+    "payload": {
+      "expectedRevision": 2,
+      "groupIds": [
+        "00000000-0000-4000-8000-000000000009"
+      ],
+      "operationId": "00000000-0000-4000-8000-000000000024",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 14,
+        "revision": 3,
+        "vendor": {
+          "A": "-500000000000",
+          "B": "-500000000000",
+          "C": "0",
+          "R": "0",
+          "account": {
+            "A": "-500000000000",
+            "B": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "coverageStart": null,
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 1
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [
+            "00000000-0000-4000-8000-000000000009"
+          ],
+          "localWallet": {
+            "A": "-500000000000",
+            "B": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": null,
+          "status": "active",
+          "unpricedCount": 0,
+          "url": null,
+          "walletRevision": 3
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.topUp",
+    "payload": {
+      "amount": "10000.123456",
+      "operationId": "00000000-0000-4000-8000-000000000025",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 14,
+        "revision": 4,
+        "vendor": {
+          "A": "-500000000000",
+          "B": "9999623456000000",
+          "C": "0",
+          "R": "10000123456000000",
+          "account": {
+            "A": "-500000000000",
+            "B": "9999623456000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "coverageStart": null,
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 2
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [
+            "00000000-0000-4000-8000-000000000009"
+          ],
+          "localWallet": {
+            "A": "-500000000000",
+            "B": "9999623456000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": null,
+          "status": "active",
+          "unpricedCount": 0,
+          "url": null,
+          "walletRevision": 4
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.accountEntries",
+    "payload": {
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "entries": [
+          {
+            "A": "0",
+            "C": "0",
+            "R": "10000123456000000",
+            "availablePico": "10000123456000000",
+            "fromAt": null,
+            "id": "00000000-0000-4000-8000-000000000026",
+            "intervalId": null,
+            "kind": "top_up",
+            "note": "",
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "availablePico": "500000000000",
+            "fromAt": null,
+            "id": "00000000-0000-4000-8000-000000000027",
+            "intervalId": null,
+            "kind": "adjustment",
+            "note": "原本地账余额校准",
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          }
+        ],
+        "nextCursor": null,
+        "revision": 2
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.reclassify",
+    "payload": {
+      "amount": "1",
+      "entryId": "00000000-0000-4000-8000-000000000026",
+      "expectedAccountRevision": 2,
+      "note": "人工改判",
+      "operationId": "00000000-0000-4000-8000-000000000028",
+      "targetKind": "adjustment",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 14,
+        "revision": 5,
+        "vendor": {
+          "A": "-500000000000",
+          "B": "9999623456000000",
+          "C": "0",
+          "R": "10000123456000000",
+          "account": {
+            "A": "500000000000",
+            "B": "9999623456000000",
+            "C": "0",
+            "R": "9999123456000000",
+            "coverageStart": null,
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 3
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [
+            "00000000-0000-4000-8000-000000000009"
+          ],
+          "localWallet": {
+            "A": "-500000000000",
+            "B": "9999623456000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": null,
+          "status": "active",
+          "unpricedCount": 0,
+          "url": null,
+          "walletRevision": 5
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.correctConsumption",
+    "payload": {
+      "expectedAccountRevision": 3,
+      "note": "人工校准",
+      "operationId": "00000000-0000-4000-8000-000000000029",
+      "target": "1",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 14,
+        "revision": 6,
+        "vendor": {
+          "A": "-500000000000",
+          "B": "9999623456000000",
+          "C": "0",
+          "R": "10000123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "9999623456000000",
+            "C": "1000000000000",
+            "R": "9999123456000000",
+            "coverageStart": null,
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 4
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [
+            "00000000-0000-4000-8000-000000000009"
+          ],
+          "localWallet": {
+            "A": "-500000000000",
+            "B": "9999623456000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": null,
+          "status": "active",
+          "unpricedCount": 0,
+          "url": null,
+          "walletRevision": 6
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.calibrate",
+    "payload": {
+      "expectedWalletRevision": 6,
+      "operationId": "00000000-0000-4000-8000-00000000002a",
+      "target": "8.75",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 14,
+        "revision": 7,
+        "vendor": {
+          "A": "-9991373456000000",
+          "B": "8750000000000",
+          "C": "0",
+          "R": "10000123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "8750000000000",
+            "C": "9991873456000000",
+            "R": "9999123456000000",
+            "coverageStart": null,
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 5
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [
+            "00000000-0000-4000-8000-000000000009"
+          ],
+          "localWallet": {
+            "A": "-9991373456000000",
+            "B": "8750000000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": null,
+          "status": "active",
+          "unpricedCount": 0,
+          "url": null,
+          "walletRevision": 7
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.deleteVendor",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-00000000002b",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": "archive",
+        "changed": true,
+        "pricingRevision": 15,
+        "revision": 8,
+        "vendor": {
+          "A": "-9991373456000000",
+          "B": "8750000000000",
+          "C": "0",
+          "R": "10000123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "8750000000000",
+            "C": "9991873456000000",
+            "R": "9999123456000000",
+            "coverageStart": null,
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 5
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "-9991373456000000",
+            "B": "8750000000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": null,
+          "status": "archived",
+          "unpricedCount": 0,
+          "url": null,
+          "walletRevision": 8
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.restoreVendor",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-00000000002c",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 15,
+        "revision": 9,
+        "vendor": {
+          "A": "-9991373456000000",
+          "B": "8750000000000",
+          "C": "0",
+          "R": "10000123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "8750000000000",
+            "C": "9991873456000000",
+            "R": "9999123456000000",
+            "coverageStart": null,
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 5
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "-9991373456000000",
+            "B": "8750000000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": null,
+          "status": "active",
+          "unpricedCount": 0,
+          "url": null,
+          "walletRevision": 9
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.list",
+    "payload": {},
+    "response": {
+      "data": {
+        "revision": 9,
+        "vendors": [
+          {
+            "A": "-9991373456000000",
+            "B": "8750000000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "account": {
+              "A": "1500000000000",
+              "B": "8750000000000",
+              "C": "9991873456000000",
+              "R": "9999123456000000",
+              "coverageStart": null,
+              "localEstimatePico": "0",
+              "methods": [
+                "local_estimate"
+              ],
+              "observedAt": null,
+              "remote": false,
+              "revision": 5
+            },
+            "coverageIncomplete": false,
+            "createdAt": "2026-10-01T10:00:00.000Z",
+            "historyCoverageStart": null,
+            "id": "00000000-0000-4000-8000-000000000022",
+            "incompleteCount": 0,
+            "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+            "linkedGroups": [],
+            "localWallet": {
+              "A": "-9991373456000000",
+              "B": "8750000000000",
+              "C": "0",
+              "R": "10000123456000000",
+              "pastConsumptionPico": "0",
+              "pastTopUpPico": "0"
+            },
+            "name": "Recorded Vendor",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0",
+            "remoteWallet": null,
+            "status": "active",
+            "unpricedCount": 0,
+            "url": null,
+            "walletRevision": 9
+          }
+        ]
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.entries",
+    "payload": {
+      "limit": 1,
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "entries": [
+          {
+            "amountPico": "-9990873456000000",
+            "calibration": {
+              "observedBalancePico": "9999623456000000",
+              "targetPico": "8750000000000",
+              "watermarkSeq": 2
+            },
+            "count": 1,
+            "id": "00000000-0000-4000-8000-00000000002d",
+            "kind": "adjustment",
+            "note": "calibration",
+            "noteDetails": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "seq": 3
+          }
+        ],
+        "nextCursor": 3,
+        "revision": 9
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.entries",
+    "payload": {
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "entries": [
+          {
+            "amountPico": "-9990873456000000",
+            "calibration": {
+              "observedBalancePico": "9999623456000000",
+              "targetPico": "8750000000000",
+              "watermarkSeq": 2
+            },
+            "count": 1,
+            "id": "00000000-0000-4000-8000-00000000002d",
+            "kind": "adjustment",
+            "note": "calibration",
+            "noteDetails": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "seq": 3
+          },
+          {
+            "amountPico": "10000123456000000",
+            "calibration": null,
+            "count": 1,
+            "id": "00000000-0000-4000-8000-000000000026",
+            "kind": "top_up",
+            "note": "",
+            "noteDetails": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "seq": 2
+          },
+          {
+            "amountPico": "-500000000000",
+            "calibration": {
+              "observedBalancePico": "0",
+              "targetPico": "-500000000000",
+              "watermarkSeq": 0
+            },
+            "count": 1,
+            "id": "00000000-0000-4000-8000-000000000027",
+            "kind": "adjustment",
+            "note": "calibration",
+            "noteDetails": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "seq": 1
+          }
+        ],
+        "nextCursor": null,
+        "revision": 9
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "remote.get",
+    "payload": {
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "account": null,
+        "error": null,
+        "nextRefreshAt": null,
+        "observation": null,
+        "refreshing": false,
+        "revision": 9,
+        "status": "unconfigured"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "remote.test",
+    "payload": {
+      "authMode": "access_token",
+      "baseUrl": "https://example.test",
+      "credential": "[REDACTED]",
+      "enabled": false,
+      "siteType": "newapi",
+      "userId": "42",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "error": null,
+        "observation": {
+          "accountId": "test-bff8271d3dbd48a18c65745a78111d79",
+          "amountPico": "1975310000001",
+          "canCalibrate": true,
+          "conversionRule": null,
+          "cumulativeUsedPico": null,
+          "currency": "USD",
+          "currencyUncertain": false,
+          "displayInCurrency": true,
+          "fetchedAt": "2026-10-01T10:00:00.000Z",
+          "kind": "account_remaining",
+          "originalCurrency": null,
+          "quotaPerUnit": "500000",
+          "rawQuota": "987655",
+          "source": "example.test",
+          "stale": false,
+          "usageScope": null
+        }
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "remote.save",
+    "payload": {
+      "authMode": "access_token",
+      "baseUrl": "https://example.test",
+      "credential": "[REDACTED]",
+      "enabled": false,
+      "operationId": "00000000-0000-4000-8000-00000000002e",
+      "siteType": "newapi",
+      "userId": "42",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "account": {
+          "authMode": "access_token",
+          "baseUrl": "https://example.test",
+          "enabled": false,
+          "id": "00000000-0000-4000-8000-00000000002f",
+          "maskedCredential": "••••1234",
+          "quotaPerUnit": null,
+          "refreshMinutes": 5,
+          "siteType": "newapi",
+          "userId": "42",
+          "vendorId": "00000000-0000-4000-8000-000000000022"
+        },
+        "error": null,
+        "nextRefreshAt": null,
+        "observation": null,
+        "refreshing": false,
+        "revision": 10,
+        "status": "pending"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "remote.refresh",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000030",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "account": {
+          "authMode": "access_token",
+          "baseUrl": "https://example.test",
+          "enabled": false,
+          "id": "00000000-0000-4000-8000-00000000002f",
+          "maskedCredential": "••••1234",
+          "quotaPerUnit": null,
+          "refreshMinutes": 5,
+          "siteType": "newapi",
+          "userId": "42",
+          "vendorId": "00000000-0000-4000-8000-000000000022"
+        },
+        "error": null,
+        "nextRefreshAt": null,
+        "observation": {
+          "accountId": "00000000-0000-4000-8000-00000000002f",
+          "amountPico": "1975310000001",
+          "canCalibrate": true,
+          "conversionRule": null,
+          "cumulativeUsedPico": null,
+          "currency": "USD",
+          "currencyUncertain": false,
+          "displayInCurrency": true,
+          "fetchedAt": "2026-10-01T10:00:00.000Z",
+          "kind": "account_remaining",
+          "originalCurrency": null,
+          "quotaPerUnit": "500000",
+          "rawQuota": "987655",
+          "source": "example.test",
+          "stale": false,
+          "usageScope": null
+        },
+        "refreshing": false,
+        "revision": 11,
+        "status": "ok"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.topUp",
+    "payload": {
+      "amount": "1",
+      "operationId": "00000000-0000-4000-8000-000000000031",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 15,
+        "revision": 12,
+        "vendor": {
+          "A": "-9991373456000000",
+          "B": "9750000000000",
+          "C": "0",
+          "R": "10001123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "1975310000001",
+            "C": "9991873456000000",
+            "R": "10000123456000000",
+            "coverageStart": "2026-10-01T10:00:00.000Z",
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": "2026-10-01T10:00:00.000Z",
+            "remote": true,
+            "revision": 7
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "-9991373456000000",
+            "B": "9750000000000",
+            "C": "0",
+            "R": "10001123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": {
+            "A": "0",
+            "B": "1975310000001",
+            "C": "0",
+            "R": "1000000000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "status": "active",
+          "unpricedCount": 0,
+          "url": "https://example.test",
+          "walletRevision": 12
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "remote.refresh",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000032",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "account": {
+          "authMode": "access_token",
+          "baseUrl": "https://example.test",
+          "enabled": false,
+          "id": "00000000-0000-4000-8000-00000000002f",
+          "maskedCredential": "••••1234",
+          "quotaPerUnit": null,
+          "refreshMinutes": 5,
+          "siteType": "newapi",
+          "userId": "42",
+          "vendorId": "00000000-0000-4000-8000-000000000022"
+        },
+        "error": null,
+        "nextRefreshAt": null,
+        "observation": {
+          "accountId": "00000000-0000-4000-8000-00000000002f",
+          "amountPico": "1975310000001",
+          "canCalibrate": true,
+          "conversionRule": null,
+          "cumulativeUsedPico": null,
+          "currency": "USD",
+          "currencyUncertain": false,
+          "displayInCurrency": true,
+          "fetchedAt": "2026-10-01T10:10:00.000Z",
+          "kind": "account_remaining",
+          "originalCurrency": null,
+          "quotaPerUnit": "500000",
+          "rawQuota": "987655",
+          "source": "example.test",
+          "stale": false,
+          "usageScope": null
+        },
+        "refreshing": false,
+        "revision": 13,
+        "status": "ok"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.accountEntries",
+    "payload": {
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "entries": [
+          {
+            "A": "0",
+            "C": "0",
+            "R": "1000000000000",
+            "availablePico": "1000000000000",
+            "fromAt": "2026-10-01T10:00:00.000Z",
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "intervalId": "0000000000000000000000000000000000000000000000000000000000000000",
+            "kind": "manual_top_up",
+            "note": "手工充值（待匹配账户区间）",
+            "occurredAt": "2026-10-01T10:10:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:10:00.000Z",
+            "toAt": "2026-10-01T10:10:00.000Z"
+          },
+          {
+            "A": "0",
+            "C": "1000000000000",
+            "R": "0",
+            "availablePico": "1000000000000",
+            "fromAt": "2026-10-01T10:00:00.000Z",
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "intervalId": "0000000000000000000000000000000000000000000000000000000000000000",
+            "kind": "consumption",
+            "note": "区间消费（余额推算）",
+            "occurredAt": "2026-10-01T10:10:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:10:00.000Z",
+            "toAt": "2026-10-01T10:10:00.000Z"
+          },
+          {
+            "A": "0",
+            "C": "0",
+            "R": "10000123456000000",
+            "availablePico": "9999123456000000",
+            "fromAt": null,
+            "id": "00000000-0000-4000-8000-000000000026",
+            "intervalId": null,
+            "kind": "top_up",
+            "note": "",
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "1000000000000",
+            "C": "1000000000000",
+            "R": "0",
+            "availablePico": "1000000000000",
+            "fromAt": null,
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "intervalId": null,
+            "kind": "consumption_correction",
+            "note": "人工校准（0 → 1000000000000 pico，余额不变）",
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "availablePico": "500000000000",
+            "fromAt": null,
+            "id": "00000000-0000-4000-8000-000000000027",
+            "intervalId": null,
+            "kind": "adjustment",
+            "note": "原本地账余额校准",
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "-9990873456000000",
+            "C": "0",
+            "R": "0",
+            "availablePico": "9990873456000000",
+            "fromAt": null,
+            "id": "00000000-0000-4000-8000-00000000002d",
+            "intervalId": null,
+            "kind": "adjustment",
+            "note": "原本地账余额校准",
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "9990873456000000",
+            "C": "9990873456000000",
+            "R": "0",
+            "availablePico": "9990873456000000",
+            "fromAt": null,
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "intervalId": null,
+            "kind": "balance_correction",
+            "note": "余额校准 9999623456000000 → 8750000000000 pico；累计消费 1000000000000 → 9991873456000000 pico",
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "1000000000000",
+            "C": "0",
+            "R": "-1000000000000",
+            "availablePico": "1000000000000",
+            "fromAt": null,
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "intervalId": null,
+            "kind": "correction",
+            "note": "人工改判 (累计充值 10000123456000000 → 9999123456000000 pico，累计消费 0 → 0 pico，余额不变)",
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": "00000000-0000-4000-8000-000000000026",
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          }
+        ],
+        "nextCursor": null,
+        "revision": 8
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.previewReconcileInterval",
+    "payload": {
+      "intervalId": "0000000000000000000000000000000000000000000000000000000000000000",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "accountRevision": 8,
+        "afterA": "0",
+        "afterC": "1000000000000",
+        "afterR": "1000000000000",
+        "beforeA": "0",
+        "beforeC": "1000000000000",
+        "beforeR": "1000000000000",
+        "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "fromAt": "2026-10-01T10:00:00.000Z",
+        "intervalId": "0000000000000000000000000000000000000000000000000000000000000000",
+        "intervalRevision": 1,
+        "localEstimatePico": "0",
+        "method": "balance_estimate",
+        "toAt": "2026-10-01T10:10:00.000Z"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.reconcileInterval",
+    "payload": {
+      "expectedAccountRevision": 8,
+      "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+      "intervalId": "0000000000000000000000000000000000000000000000000000000000000000",
+      "operationId": "00000000-0000-4000-8000-000000000033",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": false,
+        "pricingRevision": 15,
+        "revision": 13,
+        "vendor": {
+          "A": "-9991373456000000",
+          "B": "9750000000000",
+          "C": "0",
+          "R": "10001123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "1975310000001",
+            "C": "9992873456000000",
+            "R": "10000123456000000",
+            "coverageStart": "2026-10-01T10:00:00.000Z",
+            "localEstimatePico": "0",
+            "methods": [
+              "balance_estimate",
+              "local_estimate"
+            ],
+            "observedAt": "2026-10-01T10:10:00.000Z",
+            "remote": true,
+            "revision": 8
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "-9991373456000000",
+            "B": "9750000000000",
+            "C": "0",
+            "R": "10001123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": {
+            "A": "0",
+            "B": "1975310000001",
+            "C": "1000000000000",
+            "R": "1000000000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "status": "active",
+          "unpricedCount": 0,
+          "url": "https://example.test",
+          "walletRevision": 13
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "remote.delete",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000034",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "account": null,
+        "error": null,
+        "nextRefreshAt": null,
+        "observation": null,
+        "refreshing": false,
+        "revision": 14,
+        "status": "unconfigured"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.setLocalTotals",
+    "payload": {
+      "expectedWalletRevision": 14,
+      "operationId": "00000000-0000-4000-8000-000000000035",
+      "pastTopUpPico": "123",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 15,
+        "revision": 15,
+        "vendor": {
+          "A": "-9991373456000000",
+          "B": "9750000000000",
+          "C": "0",
+          "R": "10001123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "1975310000001",
+            "C": "9992873456000000",
+            "R": "10000123456000000",
+            "coverageStart": "2026-10-01T10:00:00.000Z",
+            "localEstimatePico": "0",
+            "methods": [
+              "balance_estimate",
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 9
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:10:00.000Z",
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "-9991373456000000",
+            "B": "9750000000000",
+            "C": "0",
+            "R": "10001123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "123"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": {
+            "A": "0",
+            "B": "1975310000001",
+            "C": "1000000000000",
+            "R": "1000000000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "status": "active",
+          "unpricedCount": 0,
+          "url": "https://example.test",
+          "walletRevision": 15
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.dailyBook",
+    "payload": {
+      "month": "2026-10",
+      "scope": "local",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "A": "0",
+        "C": "0",
+        "R": "0",
+        "days": [],
+        "notice": "仅含已结束业务日，重算差额修订原消费日，人工校准记在操作日。未结或待回填日期可稍后更新。",
+        "pending": false,
+        "providerObservedAt": null,
+        "providerTodayPico": null,
+        "providerTotalPico": null,
+        "revision": 15
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.scanProviders",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000036"
+    },
+    "response": {
+      "data": {
+        "taskId": "00000000-0000-4000-8000-000000000037"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "tasks.get",
+    "payload": {
+      "taskId": "00000000-0000-4000-8000-000000000037"
+    },
+    "response": {
+      "data": {
+        "cancelRequested": false,
+        "completed": 2,
+        "error": null,
+        "result": {
+          "diagnostics": [
+            "source_database_unavailable"
+          ],
+          "end": "2026-10-01T10:10:01.000Z",
+          "kind": "providers",
+          "missingProviderCount": 0,
+          "providers": [
+            {
+              "fromCurrentConfig": false,
+              "harness": "claude",
+              "id": "0000000000000000000000000000000000000000000000000000000000000000",
+              "identifier": "https://fixture-provider.example",
+              "label": null,
+              "url": "https://fixture-provider.example",
+              "vendorId": null
+            }
+          ],
+          "start": "2026-09-28T10:10:01.000Z"
+        },
+        "status": "completed",
+        "taskId": "00000000-0000-4000-8000-000000000037",
+        "total": 2
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.createScannedVendors",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000038",
+      "providers": [
+        {
+          "id": "0000000000000000000000000000000000000000000000000000000000000000",
+          "name": "Scanned Fixture"
+        }
+      ],
+      "taskId": "00000000-0000-4000-8000-000000000037"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 15,
+        "revision": 16,
+        "vendor": {
+          "A": "0",
+          "B": "0",
+          "C": "0",
+          "R": "0",
+          "account": {
+            "A": "0",
+            "B": "0",
+            "C": "0",
+            "R": "0",
+            "coverageStart": null,
+            "localEstimatePico": "0",
+            "methods": [
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 9
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:10:01.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000039",
+          "incompleteCount": 0,
+          "lastCalibratedAt": null,
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "0",
+            "B": "0",
+            "C": "0",
+            "R": "0",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0"
+          },
+          "name": "Scanned Fixture",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": null,
+          "status": "active",
+          "unpricedCount": 0,
+          "url": "https://fixture-provider.example",
+          "walletRevision": 16
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000039"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "collection.setPaused",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-00000000003a",
+      "paused": false
+    },
+    "response": {
+      "data": {
+        "paused": false,
+        "revision": 12
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "collection.scanNow",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-00000000003b"
+    },
+    "response": {
+      "data": {
+        "completedAt": "2026-10-01T10:10:01.000Z",
+        "nextPeriodicAt": "2026-10-01T10:10:31.000Z"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.unpriced",
+    "payload": {},
+    "response": {
+      "data": {
+        "archived": [],
+        "end": "2026-10-01T10:10:01.000Z",
+        "ignoredCount": 0,
+        "items": [
+          {
+            "editable": true,
+            "firstAt": "2026-10-01T10:10:01.000Z",
+            "groupId": null,
+            "groupName": "未选择价格组",
+            "harness": "claude",
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "ignored": false,
+            "lastAt": "2026-10-01T10:10:01.000Z",
+            "modelId": "Model",
+            "multiplier": "",
+            "price": null,
+            "readyCount": 0,
+            "reasons": [
+              "入账时未选择价格组或版本，不能自动指定历史归属"
+            ],
+            "recordCount": 1,
+            "versionId": null,
+            "versionName": "未选择版本"
+          }
+        ],
+        "limited": false,
+        "pricingRevision": 15,
+        "readyCount": 0,
+        "recordCount": 1,
+        "start": "2026-09-01T10:10:01.000Z",
+        "usageRevision": 1
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.resolveUnpriced",
+    "payload": {
+      "action": "ignore",
+      "expectedPricingRevision": 15,
+      "expectedUsageRevision": 1,
+      "itemIds": [
+        "0000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "operationId": "00000000-0000-4000-8000-00000000003c"
+    },
+    "response": {
+      "data": {
+        "changed": 1,
+        "revision": 2
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.auxiliaryCosts",
+    "payload": {
+      "end": "2026-10-01T10:10:02.000Z",
+      "harness": "codex",
+      "start": "2026-10-01T10:10:00.000Z"
+    },
+    "response": {
+      "data": {
+        "costPico": "0",
+        "models": [],
+        "revision": 0
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.longTerm",
+    "payload": {
+      "end": "2026-10-01T10:10:02.000Z",
+      "harness": "codex",
+      "start": "2026-10-01T10:10:00.000Z"
+    },
+    "response": {
+      "data": {
+        "activeMinutes": "0",
+        "basis": "本地历史估算；账户消费另按账户区间累计",
+        "businessTimezone": "Asia/Shanghai",
+        "coveredDays": 0,
+        "includesWholeBoundaryDays": false,
+        "missingCapabilities": [],
+        "totals": {
+          "cache_read": "0",
+          "input": "0",
+          "missing_usage": "0",
+          "output": "0",
+          "pico": "0",
+          "rated_cache": "0",
+          "rated_input": "0",
+          "records": "0",
+          "unknown_model": "0"
+        }
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.analytics",
+    "payload": {
+      "harness": "all",
+      "limit": 1,
+      "period": "all"
+    },
+    "response": {
+      "data": {
+        "basis": "本地用量与估算成本，输出吞吐按完成分钟计算",
+        "businessTimezone": "Asia/Shanghai",
+        "comparison": null,
+        "comparisonNotice": "按业务时区比较相同日历进度，短月与闰日对齐到上期最后一日。零基期不计算增长率。",
+        "end": "2026-10-01T10:10:01.000Z",
+        "generatedAt": "2026-10-01T10:10:01.000Z",
+        "grain": "month",
+        "harnesses": [],
+        "includesWholeBoundaryDays": false,
+        "models": [],
+        "nextOffset": null,
+        "outputReferences": [],
+        "revision": 2,
+        "start": "2026-09-30T16:00:00.000Z",
+        "totalModels": 0,
+        "totals": {
+          "activeMinutes": "0",
+          "cacheCoverageIncomplete": false,
+          "cacheHitRate": null,
+          "cacheReadTokens": "0",
+          "coverageEnd": null,
+          "coverageStart": null,
+          "coveredDays": 0,
+          "incomplete": false,
+          "inputTokens": "0",
+          "lastOutputAt": null,
+          "missingCapabilities": [],
+          "missingUsageCount": "0",
+          "outputTokens": "0",
+          "picoUsd": "0",
+          "recordCount": "0",
+          "tokensPerMinute": null,
+          "tokensPerSecond": null,
+          "totalTokens": "0",
+          "unknownModelCount": "0",
+          "unpriced": false
+        },
+        "trend": [
+          {
+            "activeMinutes": "0",
+            "bucket": "2026-10",
+            "cacheCoverageIncomplete": false,
+            "cacheHitRate": null,
+            "cacheReadTokens": "0",
+            "coverageEnd": null,
+            "coverageStart": null,
+            "coveredDays": 0,
+            "incomplete": false,
+            "inputTokens": "0",
+            "label": "2026-10",
+            "lastOutputAt": null,
+            "missingCapabilities": [],
+            "missingUsageCount": "0",
+            "outputTokens": "0",
+            "picoUsd": "0",
+            "recordCount": "0",
+            "tokensPerMinute": null,
+            "tokensPerSecond": null,
+            "totalTokens": "0",
+            "unknownModelCount": "0",
+            "unpriced": false
+          }
+        ]
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.summary",
+    "payload": {
+      "end": "2026-10-01T10:10:02.000Z",
+      "grain": "hour",
+      "harness": "codex",
+      "offsetMinutes": 480,
+      "start": "2026-10-01T10:10:00.000Z"
+    },
+    "response": {
+      "data": {
+        "end": "2026-10-01T10:10:02.000Z",
+        "grain": "hour",
+        "harnesses": [],
+        "historyNotice": null,
+        "hourly": [
+          {
+            "bucket": "2026-10-01T18:00:00+08:00",
+            "displayName": "gpt-6-astra",
+            "label": "10-01 18:00",
+            "metrics": {
+              "cacheCoverageIncomplete": false,
+              "cacheHitRate": 0.4,
+              "cacheReadTokens": 40,
+              "incomplete": false,
+              "inputTokens": 100,
+              "missingUsageCount": 0,
+              "newInput": 60,
+              "outputTokens": 10,
+              "picoUsd": "110000000",
+              "recordCount": 1,
+              "totalTokens": 110,
+              "unknownModelCount": 0,
+              "unpriced": false
+            },
+            "modelKey": "gpt-6-astra"
+          }
+        ],
+        "hourlyTotals": [
+          {
+            "bucket": "2026-10-01T18:00:00+08:00",
+            "displayName": "全部模型",
+            "label": "10-01 18:00",
+            "metrics": {
+              "cacheCoverageIncomplete": false,
+              "cacheHitRate": 0.4,
+              "cacheReadTokens": 40,
+              "incomplete": false,
+              "inputTokens": 100,
+              "missingUsageCount": 0,
+              "newInput": 60,
+              "outputTokens": 10,
+              "picoUsd": "110000000",
+              "recordCount": 1,
+              "totalTokens": 110,
+              "unknownModelCount": 0,
+              "unpriced": false
+            }
+          }
+        ],
+        "metrics": {
+          "cacheCoverageIncomplete": false,
+          "cacheHitRate": 0.4,
+          "cacheReadTokens": 40,
+          "incomplete": false,
+          "inputTokens": 100,
+          "missingUsageCount": 0,
+          "newInput": 60,
+          "outputTokens": 10,
+          "picoUsd": "110000000",
+          "recordCount": 1,
+          "totalTokens": 110,
+          "unknownModelCount": 0,
+          "unpriced": false
+        },
+        "models": [
+          {
+            "cacheCoverageIncomplete": false,
+            "cacheHitRate": 0.4,
+            "cacheReadTokens": 40,
+            "displayName": "gpt-6-astra",
+            "incomplete": false,
+            "inputTokens": 100,
+            "missingUsageCount": 0,
+            "modelKey": "gpt-6-astra",
+            "newInput": 60,
+            "outputTokens": 10,
+            "picoUsd": "110000000",
+            "recordCount": 1,
+            "totalTokens": 110,
+            "unknownModelCount": 0,
+            "unpriced": false
+          }
+        ],
+        "offsetMinutes": 480,
+        "revision": 2,
+        "start": "2026-10-01T10:10:00.000Z",
+        "trend": [
+          {
+            "bucket": "2026-10-01T18:00:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": 0.4,
+            "cacheLoss": false,
+            "cacheReadTokens": 40,
+            "inputTokens": 100,
+            "label": "10-01 18:00",
+            "outputTokens": 10,
+            "picoUsd": "110000000",
+            "recordCount": 1
+          }
+        ]
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.cacheMonitor",
+    "payload": {
+      "harness": "codex",
+      "mode": "minute",
+      "offsetMinutes": 480
+    },
+    "response": {
+      "data": {
+        "end": "2026-10-01T10:10:00.000Z",
+        "grain": "minute",
+        "nextRefreshAt": "2026-10-01T10:11:00.000Z",
+        "offsetMinutes": 480,
+        "outputSpeeds": [
+          {
+            "activeMinutes": 1,
+            "basis": "minute_estimate",
+            "displayName": "gpt-6-astra",
+            "frozen": false,
+            "lastOutputAt": "2026-10-01T10:10:01.000Z",
+            "modelKey": "gpt-6-astra",
+            "outputTokens": "10",
+            "tokensPerSecond": "0.2"
+          }
+        ],
+        "revision": 2,
+        "start": "2026-10-01T09:10:00.000Z",
+        "trend": [],
+        "windowKey": "2026-10-01T09:10:00.000Z|2026-10-01T10:10:00.000Z|480|minute"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.saveVersionPrices",
+    "payload": {
+      "expectedRevision": 15,
+      "models": [
+        {
+          "cache": "0",
+          "input": "2",
+          "modelId": "gpt-6-astra",
+          "output": "2"
+        }
+      ],
+      "operationId": "00000000-0000-4000-8000-00000000003d",
+      "versionId": "00000000-0000-4000-8000-00000000000a"
+    },
+    "response": {
+      "data": {
+        "affectedHarnesses": [],
+        "changed": true,
+        "groupId": null,
+        "revision": 16,
+        "versionId": "00000000-0000-4000-8000-00000000000a"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "maintenance.previewRecalc",
+    "payload": {
+      "end": "2026-10-01T10:10:02.000Z",
+      "groupId": "00000000-0000-4000-8000-000000000009",
+      "harness": "codex",
+      "start": "2026-10-01T10:10:00.000Z",
+      "versionId": "00000000-0000-4000-8000-00000000000a"
+    },
+    "response": {
+      "data": {
+        "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "groupName": "Recorded Prices",
+        "incompleteCount": 0,
+        "newTotal": "110000000",
+        "oldTotal": "110000000",
+        "recordCount": 1,
+        "unpricedCount": 0,
+        "vendors": [],
+        "versionDisplayName": "Recorded"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "maintenance.commitRecalc",
+    "payload": {
+      "end": "2026-10-01T10:10:02.000Z",
+      "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+      "groupId": "00000000-0000-4000-8000-000000000009",
+      "harness": "codex",
+      "operationId": "00000000-0000-4000-8000-00000000003e",
+      "start": "2026-10-01T10:10:00.000Z",
+      "versionId": "00000000-0000-4000-8000-00000000000a"
+    },
+    "response": {
+      "data": {
+        "batchId": "00000000-0000-4000-8000-00000000003f",
+        "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "groupName": "Recorded Prices",
+        "incompleteCount": 0,
+        "newTotal": "110000000",
+        "oldTotal": "110000000",
+        "recordCount": 1,
+        "revision": 2,
+        "unpricedCount": 0,
+        "vendors": [],
+        "versionDisplayName": "Recorded"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "pricing.catalog",
+    "payload": {},
+    "response": {
+      "data": {
+        "current": {
+          "claude": {
+            "groupId": null,
+            "versionId": null
+          },
+          "codex": {
+            "groupId": "00000000-0000-4000-8000-000000000009",
+            "versionId": "00000000-0000-4000-8000-00000000000a"
+          },
+          "dsh": {
+            "groupId": null,
+            "versionId": null
+          },
+          "zcode": {
+            "groupId": null,
+            "versionId": null
+          }
+        },
+        "groups": [
+          {
+            "canDelete": true,
+            "createdAt": "2026-10-01T10:00:00.000Z",
+            "deleteReason": null,
+            "disabled": false,
+            "harnesses": [
+              "codex"
+            ],
+            "historical": false,
+            "id": "00000000-0000-4000-8000-000000000009",
+            "name": "Recorded Prices",
+            "nextVersionNumber": 3,
+            "vendorId": null,
+            "versions": [
+              {
+                "createdAt": "2026-10-01T10:00:00.000Z",
+                "current": true,
+                "disabled": false,
+                "displayName": "Recorded",
+                "hints": [],
+                "id": "00000000-0000-4000-8000-00000000000a",
+                "label": "Recorded",
+                "models": [
+                  {
+                    "billingRule": null,
+                    "cache": "0",
+                    "cacheWrite": null,
+                    "input": "2",
+                    "modelId": "gpt-6-astra",
+                    "output": "2"
+                  }
+                ],
+                "number": 1,
+                "revisionCount": 3,
+                "revisionId": "00000000-0000-4000-8000-000000000040"
+              }
+            ]
+          }
+        ],
+        "revision": 16
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "maintenance.previewRetention",
+    "payload": {
+      "retention": 90
+    },
+    "response": {
+      "data": {
+        "cutoff": "2026-07-03T10:10:01.001Z",
+        "earliest": null,
+        "identityCount": 2,
+        "inboxCount": 0,
+        "latest": null,
+        "ledgerCount": 0,
+        "retention": 90
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "maintenance.setRetention",
+    "payload": {
+      "expectedRevision": 1,
+      "operationId": "00000000-0000-4000-8000-000000000041",
+      "retention": "forever"
+    },
+    "response": {
+      "data": {
+        "complete": true,
+        "cutoff": null,
+        "deletedLedger": 0,
+        "errorCode": null,
+        "expiredInbox": 0,
+        "retention": "forever",
+        "revision": 1
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "maintenance.backup",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000042"
+    },
+    "response": {
+      "data": {
+        "taskId": "00000000-0000-4000-8000-000000000043"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "tasks.get",
+    "payload": {
+      "taskId": "00000000-0000-4000-8000-000000000043"
+    },
+    "response": {
+      "data": {
+        "cancelRequested": false,
+        "completed": 1,
+        "error": null,
+        "result": {
+          "completedAt": "2026-10-01T10:10:01.001Z",
+          "path": "C:\\htu-contract-fixture\\data\\backups\\htu-20261001-181001.sqlite3"
+        },
+        "status": "completed",
+        "taskId": "00000000-0000-4000-8000-000000000043",
+        "total": 1
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "maintenance.vacuum",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000044"
+    },
+    "response": {
+      "data": {
+        "taskId": "00000000-0000-4000-8000-000000000045"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "tasks.get",
+    "payload": {
+      "taskId": "00000000-0000-4000-8000-000000000045"
+    },
+    "response": {
+      "data": {
+        "cancelRequested": false,
+        "completed": 1,
+        "error": null,
+        "result": {
+          "completedAt": "2026-10-01T10:10:01.001Z",
+          "path": null
+        },
+        "status": "completed",
+        "taskId": "00000000-0000-4000-8000-000000000045",
+        "total": 1
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "maintenance.status",
+    "payload": {},
+    "response": {
+      "data": {
+        "appVersion": "0.4.2",
+        "dataDir": "C:\\htu-contract-fixture\\data",
+        "databaseBytes": 2148408,
+        "lastLogRotationAt": "2026-10-01T10:00:00.000Z",
+        "lastRetentionAt": "2026-10-01T10:10:01.001Z",
+        "lastVacuumAt": "2026-10-01T10:10:01.001Z",
+        "logCount": 3,
+        "paused": false,
+        "pendingExpired": 0,
+        "retention": "forever",
+        "storage": {
+          "allocatedBytes": 1044480,
+          "backupBytes": 1056768,
+          "freePageBytes": 0,
+          "mainFileBytes": 1056768,
+          "migrationBytes": 0,
+          "sampledAt": "2026-10-01T10:10:01.001Z",
+          "shmBytes": 32768,
+          "usedPageBytes": 1044480,
+          "walBytes": 1058872
+        }
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "app.sync",
+    "payload": {},
+    "response": {
+      "data": {
+        "pendingEvents": [
+          {
+            "name": "preferences.changed",
+            "payload": {
+              "revision": 1
+            }
+          },
+          {
+            "name": "sources.changed",
+            "payload": {
+              "revision": 19
+            }
+          },
+          {
+            "name": "collection.tick",
+            "payload": {
+              "lastCompletedAt": "2026-10-01T10:10:01.000Z",
+              "nextPeriodicAt": "2026-10-01T10:10:31.000Z",
+              "status": {
+                "claude": "watching",
+                "codex": "watching",
+                "dsh": "watching",
+                "zcode": "unavailable"
+              },
+              "trigger": "manual"
+            }
+          },
+          {
+            "name": "pricing.changed",
+            "payload": {
+              "revision": 16
+            }
+          },
+          {
+            "name": "models.changed",
+            "payload": {
+              "revision": 4
+            }
+          },
+          {
+            "name": "task.progress",
+            "payload": {
+              "completed": 0,
+              "taskId": "00000000-0000-4000-8000-000000000045",
+              "total": 1
+            }
+          },
+          {
+            "name": "task.done",
+            "payload": {
+              "error": null,
+              "ok": true,
+              "result": {
+                "completedAt": "2026-10-01T10:10:01.001Z",
+                "path": null
+              },
+              "taskId": "00000000-0000-4000-8000-000000000045"
+            }
+          },
+          {
+            "name": "wallet.changed",
+            "payload": {
+              "revision": 16,
+              "vendorIds": [
+                "00000000-0000-4000-8000-000000000039"
+              ]
+            }
+          },
+          {
+            "name": "usage.changed",
+            "payload": {
+              "harnesses": [
+                "codex"
+              ],
+              "revision": 2
+            }
+          },
+          {
+            "name": "quality.changed",
+            "payload": {
+              "revision": 2
+            }
+          },
+          {
+            "name": "output.changed",
+            "payload": {
+              "revision": 1
+            }
+          },
+          {
+            "name": "app.visibility",
+            "payload": {
+              "visible": false
+            }
+          }
+        ],
+        "revisions": {
+          "account": 9,
+          "auxiliary": 0,
+          "display": 0,
+          "models": 4,
+          "output": 1,
+          "ownership": 2,
+          "preferences": 1,
+          "pricing": 16,
+          "quality": 2,
+          "sources": 21,
+          "usage": 2,
+          "wallet": 16
+        }
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "migration.detect",
+    "payload": {},
+    "response": {
+      "data": {
+        "canMigrate": true,
+        "detected": true,
+        "legacyRunning": false,
+        "reason": null,
+        "sourcePath": "C:\\htu-contract-fixture\\synthetic-legacy.sqlite3",
+        "targetEmpty": true
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "migration.run",
+    "payload": {
+      "dryRun": true,
+      "operationId": "00000000-0000-4000-8000-000000000046"
+    },
+    "response": {
+      "data": {
+        "migrationId": "00000000-0000-4000-8000-000000000047",
+        "reportPath": "C:\\htu-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000047\\report.md",
+        "taskId": "00000000-0000-4000-8000-000000000048"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "tasks.get",
+    "payload": {
+      "taskId": "00000000-0000-4000-8000-000000000048"
+    },
+    "response": {
+      "data": {
+        "cancelRequested": false,
+        "completed": 3,
+        "error": null,
+        "result": {
+          "counts": [
+            {
+              "new": 2,
+              "old": 2,
+              "table": "source"
+            },
+            {
+              "new": 2,
+              "old": 2,
+              "table": "checkpoint"
+            },
+            {
+              "new": 9,
+              "old": 9,
+              "table": "identity"
+            },
+            {
+              "new": 0,
+              "old": 0,
+              "table": "inbox"
+            },
+            {
+              "new": 9,
+              "old": 9,
+              "table": "ledger"
+            },
+            {
+              "new": 0,
+              "old": 0,
+              "table": "recalc_batch"
+            },
+            {
+              "new": 0,
+              "old": 0,
+              "table": "recalc_item"
+            },
+            {
+              "new": 0,
+              "old": 0,
+              "table": "retention_run"
+            },
+            {
+              "new": 1,
+              "old": 1,
+              "table": "diagnostic_log"
+            },
+            {
+              "new": 2,
+              "old": 2,
+              "table": "runtime_state"
+            }
+          ],
+          "errors": [],
+          "migrationId": "00000000-0000-4000-8000-000000000047",
+          "newTotal": "22000000000000",
+          "ok": true,
+          "oldTotal": "22000000000000",
+          "reportPath": "C:\\htu-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000047\\report.md",
+          "snapshotPath": "C:\\htu-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000047\\legacy-snapshot.sqlite3",
+          "sourcePath": "C:\\htu-contract-fixture\\synthetic-legacy.sqlite3",
+          "sourceVersion": "0.2.2",
+          "vendors": [],
+          "warnings": []
+        },
+        "status": "completed",
+        "taskId": "00000000-0000-4000-8000-000000000048",
+        "total": 3
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "migration.activate",
+    "payload": {
+      "migrationId": "00000000-0000-4000-8000-000000000047",
+      "operationId": "00000000-0000-4000-8000-000000000049"
+    },
+    "response": {
+      "data": {
+        "activated": true,
+        "reportPath": "C:\\htu-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000047\\report.md",
+        "sourcePath": "C:\\htu-contract-fixture\\synthetic-legacy.sqlite3",
+        "targetPath": "C:\\htu-contract-fixture\\migration-data\\htu.sqlite3"
+      },
+      "ok": true
+    }
+  }
+]

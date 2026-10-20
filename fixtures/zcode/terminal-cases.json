@@ -1,0 +1,8 @@
+[
+  {"id":"completed","session_id":"z-session","logical_request_id":"request-1","attempt_index":0,"model_id":"synthetic-model","status":"completed","completed_at":1788220801000,"raw_usage_json":"{\"inputTokens\":100,\"outputTokens\":10,\"cacheReadTokens\":40}","expected":"event"},
+  {"id":"error","session_id":"z-session","logical_request_id":"request-2","attempt_index":0,"model_id":"synthetic-model","status":"error","completed_at":1788220802000,"raw_usage_json":"{\"inputTokens\":50}","expected":"event"},
+  {"id":"retry","session_id":"z-session","logical_request_id":"request-2","attempt_index":1,"model_id":"synthetic-model","status":"completed","completed_at":1788220803000,"raw_usage_json":"{\"inputTokens\":100,\"cacheReadTokens\":40}","expected":"event"},
+  {"id":"cancelled","session_id":"z-session","logical_request_id":"request-3","attempt_index":0,"model_id":"synthetic-model","status":"cancelled","completed_at":1788220804000,"raw_usage_json":null,"expected":"event"},
+  {"id":"invalid","session_id":"z-session","logical_request_id":"request-4","attempt_index":0,"model_id":"synthetic-model","status":"completed","completed_at":1788220805000,"raw_usage_json":"{\"inputTokens\":-1}","expected":"invalid_token_count"},
+  {"id":"unknown-terminal","session_id":"z-session","logical_request_id":"request-5","attempt_index":0,"model_id":"synthetic-model","status":"unknown-terminal","completed_at":1788220806000,"raw_usage_json":"{}","expected":"source_status_unsupported"}
+]

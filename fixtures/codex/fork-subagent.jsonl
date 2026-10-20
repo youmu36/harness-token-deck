@@ -1,0 +1,4 @@
+{"timestamp":"2026-09-01T00:00:00.000Z","type":"session_meta","payload":{"id":"synthetic-child","originator":"Codex Desktop","source":{"subagent":{"thread_spawn":{"parent_thread_id":"synthetic-parent"}}},"forked_from_id":"synthetic-parent","history_base":2}}
+{"timestamp":"2026-08-31T23:59:00.000Z","type":"session_meta","payload":{"id":"synthetic-parent","originator":"Codex Desktop","source":"vscode"}}
+{"timestamp":"2026-09-01T00:00:00.500Z","type":"turn_context","payload":{"model":"gpt-6-astra","turn_id":"child-turn-1"}}
+{"timestamp":"2026-09-01T00:00:01.000Z","type":"token_usage_record","payload":{"thread_id":"synthetic-child","response_id":"child-response-1","turn_id":"child-turn-1","usage":{"input_tokens":100,"cached_input_tokens":40,"cache_write_input_tokens":0,"output_tokens":10,"reasoning_output_tokens":0}}}

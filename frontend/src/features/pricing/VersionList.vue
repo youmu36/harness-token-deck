@@ -1,0 +1,14 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { Group, Version } from './types';
+import type { TimeZoneMode } from '../../shared/time';
+import { formatDateTime } from '../../shared/format';
+import { versionName } from '../harness/types';
+import Button from '../../ui/Button.vue';
+import Badge from '../../ui/Badge.vue';
+const props = defineProps<{ group: Group; modelValue?: string; mode: TimeZoneMode }>();
+defineEmits<{ 'update:modelValue': [id: string]; add: []; activate: [version: Version]; rename: [version: Version]; disable: [version: Version]; delete: [version: Version] }>();
+const versions = computed(() => [...props.group.versions].sort((a,b) => b.createdAt.localeCompare(a.createdAt) || b.number - a.number));
+</script>
+<template><section class="version-list" aria-label="价格版本"><header><h3>倍率版本管理</h3><Button :disabled="group.disabled || group.nextVersionNumber > 4294967295" @click="$emit('add')">新增版本</Button></header><p class="text-muted">先选择版本，再到价格编辑调整倍率。当前生效版本需先切换后才能停用或删除，历史账单保留。</p><div v-for="version in versions" :key="version.id" class="version" :class="{ selected: modelValue === version.id }"><button class="select-version" :aria-pressed="modelValue === version.id" @click="$emit('update:modelValue', version.id)"><strong>{{ versionName(version) }}</strong><span class="text-muted">v{{ version.number }} · {{ formatDateTime(version.createdAt, mode) }} · {{ version.revisionCount }} 次修订</span></button><Badge v-if="version.disabled" tone="neutral">已停用</Badge><Badge v-if="version.current" tone="success">当前生效</Badge><div class="version-actions"><Button v-if="!version.current" :disabled="group.disabled || version.disabled" @click="$emit('activate', version)">设为生效</Button><Button :disabled="group.disabled" @click="$emit('rename', version)">重命名</Button><Button :disabled="version.current" @click="$emit('disable', version)">{{ version.disabled ? '启用' : '停用' }}</Button><Button :disabled="version.current" @click="$emit('delete', version)">删除</Button></div></div></section></template>
+<style scoped>.version-list { display: grid; gap: 8px; padding: 18px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }header, .version { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }header { justify-content: space-between; }.version { padding: 8px 10px; border: 1px solid var(--border); border-left: 3px solid transparent; border-radius: 6px; background: var(--surface); }.version.selected { border-left-color: var(--accent); background: var(--accent-soft); }.select-version { display: grid; gap: 4px; text-align: left; border: 0; background: transparent; padding: 4px; min-width: 0; flex: 1; }.select-version strong { overflow-wrap: anywhere; }.select-version span { font-size: 11px; }.version-actions { display: flex; flex-wrap: wrap; gap: 6px; }.version-actions button { font-size: 12px; }</style>

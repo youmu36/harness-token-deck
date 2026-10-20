@@ -1,0 +1,3 @@
+<template><span class="badge" :class="`badge--${tone}`"><slot /></span></template>
+<script setup lang="ts">withDefaults(defineProps<{ tone?: 'neutral' | 'success' | 'warning' | 'danger' }>(), { tone: 'neutral' });</script>
+<style scoped>.badge { display: inline-flex; align-items: center; min-height: 22px; padding: 1px 8px; border-radius: 999px; font-size: 12px; background: var(--surface-2); }.badge--success { color: var(--ok); background: var(--ok-soft); }.badge--warning { color: var(--warn); background: var(--warn-soft); }.badge--danger { color: var(--danger); background: var(--danger-soft); }</style>

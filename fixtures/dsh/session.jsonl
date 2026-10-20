@@ -1,0 +1,6 @@
+{"type":"session","id":"synthetic-dsh","time":1786629390000}
+{"type":"request/header","data":{"header":{"config":{"model":"deepseek-v4-flash"}}},"time":1786629391000}
+{"type":"step/turn","data":{"turn":1,"step":1},"time":1786629392000}
+{"type":"assistant/message","data":{"turn":1,"step":1,"usage":{"inputTokens":9838,"outputTokens":374,"cacheReadTokens":0,"reasoningTokens":117}},"time":1786629394116}
+{"type":"step/turn","data":{"turn":1,"step":2},"time":1786629420000}
+{"type":"assistant/message","data":{"turn":1,"step":2,"usage":{"inputTokens":1983,"outputTokens":1005,"cacheReadTokens":10112,"reasoningTokens":413}},"time":1786629427160}

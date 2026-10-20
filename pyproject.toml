@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "harness-token-usage"
+version = "0.4.2"
+description = "Windows local token usage ledger"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "pywebview==6.2.1",
+    "pythonnet==3.1.0",
+    "pydantic==2.13.5",
+    "watchdog==6.0.0",
+    "zstandard==0.25.0",
+    "httpx==0.28.1",
+    "keyring==25.7.0",
+    "tzdata==2025.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "hypothesis==6.168.1",
+    "respx==0.23.1",
+    "ruff==0.16.9",
+    "pyright==1.1.414",
+    "pyinstaller==6.22.3",
+    "psutil==7.2.2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend/src/htu"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF", "PLW", "T20"]
+# Chinese user-facing messages use Chinese punctuation intentionally.
+allowed-confusables = ["，"]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/**/*.py" = ["T201"]
+# Resolve .NET properties inside the dispatched GUI callback, not on the worker thread.
+"scripts/probes/_desktop_probe.py" = ["T201", "PLW0108"]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+pythonVersion = "3.12"
+include = ["backend/src", "backend/tests", "scripts"]
+extraPaths = ["backend/src", "."]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["backend/src", "."]
+markers = ["slow: large data or extended property tests", "desktop: requires Windows desktop session"]

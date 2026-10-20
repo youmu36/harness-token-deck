@@ -1,0 +1,210 @@
+{
+  "snapshotAt": "2026-09-10T00:00:00.000Z",
+  "databases": {
+    "v022.sqlite3": {
+      "sourceVersion": "0.2.2",
+      "userVersion": 6,
+      "sha256": "21e70b593f8415d07f562bffac477c560f834d4223f0409522e623f1071d72bc",
+      "rowCounts": {
+        "collection_checkpoints": 2,
+        "collection_inbox": 0,
+        "collection_sources": 2,
+        "configuration": 1,
+        "diagnostic_logs": 1,
+        "price_groups": 2,
+        "price_model_rates": 3,
+        "price_selections": 3,
+        "price_versions": 3,
+        "retention_runs": 0,
+        "runtime_state": 1,
+        "usage_identities": 9,
+        "usage_ledger": 9,
+        "usage_recalc_batches": 0,
+        "usage_recalc_items": 0
+      },
+      "ledgerPicoUsd": "22000000000000",
+      "harnessPicoUsd": {
+        "codex": "10000000000000",
+        "zcode": "12000000000000",
+        "dsh": "0"
+      },
+      "harnessDatePicoUsd": {
+        "codex:2026-08-31": "0",
+        "codex:2026-09-01": "1000000000000",
+        "codex:2026-09-02": "2000000000000",
+        "codex:2026-09-03": "3000000000000",
+        "codex:2026-09-04": "4000000000000",
+        "codex:2026-09-05": "0",
+        "zcode:2026-09-01": "5000000000000",
+        "zcode:2026-09-02": "2000000000000",
+        "zcode:2026-09-04": "5000000000000"
+      },
+      "vendors": {}
+    },
+    "v023.sqlite3": {
+      "sourceVersion": "0.2.3",
+      "userVersion": 7,
+      "sha256": "d925dc7f202845d30ea8ca05c10c494145ee796050006f562f1455d7cd2488f1",
+      "rowCounts": {
+        "collection_checkpoints": 3,
+        "collection_inbox": 0,
+        "collection_sources": 3,
+        "configuration": 1,
+        "configuration_extensions": 1,
+        "diagnostic_logs": 1,
+        "dsh_price_selections": 0,
+        "price_groups": 2,
+        "price_model_rates": 3,
+        "price_selections": 4,
+        "price_versions": 3,
+        "retention_runs": 0,
+        "runtime_state": 1,
+        "schema_metadata": 1,
+        "usage_identities": 10,
+        "usage_ledger": 10,
+        "usage_recalc_batches": 0,
+        "usage_recalc_items": 0
+      },
+      "ledgerPicoUsd": "26000000000000",
+      "harnessPicoUsd": {
+        "codex": "10000000000000",
+        "zcode": "12000000000000",
+        "dsh": "4000000000000"
+      },
+      "harnessDatePicoUsd": {
+        "codex:2026-08-31": "0",
+        "codex:2026-09-01": "1000000000000",
+        "codex:2026-09-02": "2000000000000",
+        "codex:2026-09-03": "3000000000000",
+        "codex:2026-09-04": "4000000000000",
+        "codex:2026-09-05": "0",
+        "dsh:2026-09-05": "4000000000000",
+        "zcode:2026-09-01": "5000000000000",
+        "zcode:2026-09-02": "2000000000000",
+        "zcode:2026-09-04": "5000000000000"
+      },
+      "vendors": {
+        "vendor-alpha": {
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "groupIds": [
+            "group-b"
+          ],
+          "anchorAt": "2026-09-01T00:00:00.000Z",
+          "anchorInclusive": true,
+          "anchorPicoUsd": "0",
+          "topUpsAfterAnchorPicoUsd": "100000000000000",
+          "consumptionAfterAnchorPicoUsd": "12000000000000",
+          "topUpsPicoUsd": "100000000000000",
+          "balancePicoUsd": "88000000000000"
+        },
+        "vendor-beta": {
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "groupIds": [
+            "group-a"
+          ],
+          "anchorAt": "2026-09-01T00:00:00.000Z",
+          "anchorInclusive": true,
+          "anchorPicoUsd": "0",
+          "topUpsAfterAnchorPicoUsd": "50000000000000",
+          "consumptionAfterAnchorPicoUsd": "14000000000000",
+          "topUpsPicoUsd": "50000000000000",
+          "balancePicoUsd": "36000000000000"
+        }
+      }
+    },
+    "v030.sqlite3": {
+      "sourceVersion": "0.3.0",
+      "userVersion": 6,
+      "sha256": "c21567c9becae73eec2937112eedfda6b45b8baa528b2aa228ab94f4594bdfce",
+      "rowCounts": {
+        "collection_checkpoints": 3,
+        "collection_inbox": 3,
+        "collection_sources": 3,
+        "configuration": 1,
+        "configuration_extensions": 1,
+        "diagnostic_logs": 2,
+        "dsh_price_selections": 1,
+        "price_groups": 2,
+        "price_model_rates": 5,
+        "price_selections": 3,
+        "price_versions": 3,
+        "retention_runs": 1,
+        "runtime_state": 1,
+        "schema_metadata": 1,
+        "usage_identities": 15,
+        "usage_ledger": 11,
+        "usage_recalc_batches": 1,
+        "usage_recalc_items": 1
+      },
+      "ledgerPicoUsd": "26000006000000",
+      "harnessPicoUsd": {
+        "codex": "10000006000000",
+        "zcode": "12000000000000",
+        "dsh": "4000000000000"
+      },
+      "harnessDatePicoUsd": {
+        "codex:2026-08-31": "0",
+        "codex:2026-09-01": "1000000000000",
+        "codex:2026-09-02": "2000000000000",
+        "codex:2026-09-03": "3000000000000",
+        "codex:2026-09-04": "4000000000000",
+        "codex:2026-09-05": "0",
+        "codex:2026-09-06": "6000000",
+        "dsh:2026-09-05": "4000000000000",
+        "zcode:2026-09-01": "5000000000000",
+        "zcode:2026-09-02": "2000000000000",
+        "zcode:2026-09-04": "5000000000000"
+      },
+      "vendors": {
+        "vendor-alpha": {
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "groupIds": [
+            "group-a"
+          ],
+          "anchorAt": "2026-09-03T00:00:00.000Z",
+          "anchorInclusive": false,
+          "anchorPicoUsd": "60500000000000",
+          "topUpsAfterAnchorPicoUsd": "10250000000000",
+          "consumptionAfterAnchorPicoUsd": "8000006000000",
+          "topUpsPicoUsd": "135250000000000",
+          "balancePicoUsd": "62749994000000"
+        },
+        "vendor-beta": {
+          "createdAt": "2026-09-02T00:00:00.000Z",
+          "groupIds": [
+            "group-b"
+          ],
+          "anchorAt": "2026-09-02T00:00:00.000Z",
+          "anchorInclusive": true,
+          "anchorPicoUsd": "0",
+          "topUpsAfterAnchorPicoUsd": "10000500001000000",
+          "consumptionAfterAnchorPicoUsd": "7000000000000",
+          "topUpsPicoUsd": "10000500001000000",
+          "balancePicoUsd": "9993500001000000"
+        },
+        "vendor-gamma": {
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "groupIds": [],
+          "anchorAt": "2026-09-04T00:00:00.000Z",
+          "anchorInclusive": false,
+          "anchorPicoUsd": "-500000000000",
+          "topUpsAfterAnchorPicoUsd": "0",
+          "consumptionAfterAnchorPicoUsd": "0",
+          "topUpsPicoUsd": "0",
+          "balancePicoUsd": "-500000000000"
+        },
+        "vendor-empty": {
+          "createdAt": "2026-09-10T00:00:00.000Z",
+          "groupIds": [],
+          "anchorAt": "2026-09-10T00:00:00.000Z",
+          "anchorInclusive": true,
+          "anchorPicoUsd": "0",
+          "topUpsAfterAnchorPicoUsd": "0",
+          "consumptionAfterAnchorPicoUsd": "0",
+          "topUpsPicoUsd": "0",
+          "balancePicoUsd": "0"
+        }
+      }
+    }
+  }
+}

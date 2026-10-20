@@ -1,0 +1,11 @@
+[
+  {"name":"desktop","originator":"Codex Desktop","source":"vscode","accepted":true,"sourceKind":"desktop"},
+  {"name":"cli","originator":"codex_cli_rs","source":"cli","accepted":false},
+  {"name":"extension","originator":"codex_vscode","source":"vscode","accepted":false},
+  {"name":"subagent","originator":"Codex Desktop","source":{"subagent":{"thread_spawn":{"parent_thread_id":"synthetic-parent"}}},"accepted":true,"sourceKind":"desktop_subagent"},
+  {"name":"future","originator":"Codex Desktop","source":"future-desktop","accepted":false},
+  {"name":"null-originator","originator":null,"source":"vscode","accepted":false},
+  {"name":"exec","originator":"codex_exec","source":"exec","accepted":false},
+  {"name":"desktop-cli","originator":"Codex Desktop","source":"cli","accepted":false},
+  {"name":"missing-source","originator":"Codex Desktop","accepted":false}
+]

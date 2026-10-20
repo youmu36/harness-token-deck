@@ -1,0 +1,10 @@
+CREATE TABLE wallet_validation_job(
+ vendor_id TEXT PRIMARY KEY REFERENCES vendor(id), target_seq INTEGER NOT NULL,
+ captured_r TEXT NOT NULL,captured_c TEXT NOT NULL,captured_a TEXT NOT NULL,
+ captured_unpriced INTEGER NOT NULL,captured_incomplete INTEGER NOT NULL,
+ r TEXT NOT NULL DEFAULT '0',c TEXT NOT NULL DEFAULT '0',a TEXT NOT NULL DEFAULT '0',
+ unpriced INTEGER NOT NULL DEFAULT 0,incomplete INTEGER NOT NULL DEFAULT 0,
+ cursor_seq INTEGER NOT NULL DEFAULT 0,cursor_bucket TEXT NOT NULL DEFAULT '',
+ cursor_archive INTEGER NOT NULL DEFAULT 0,phase INTEGER NOT NULL DEFAULT 0,
+ last_seq INTEGER NOT NULL DEFAULT 0,calibrated_at TEXT
+) STRICT;

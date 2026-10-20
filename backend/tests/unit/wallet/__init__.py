@@ -1,0 +1,1 @@
+"""Pure wallet domain tests."""

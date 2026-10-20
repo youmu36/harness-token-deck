@@ -1,0 +1,2 @@
+-- compact_keys.migrate_keys performs a bounded, restartable shadow migration.
+-- Full SHA-256 bytes replace hexadecimal identity keys and all SQL references.

@@ -1,0 +1,5 @@
+{"timestamp":"2026-09-01T00:00:00.000Z","type":"session_meta","payload":{"id":"synthetic-desktop","originator":"Codex Desktop","source":"vscode"}}
+{"timestamp":"2026-09-01T00:00:00.500Z","type":"turn_context","payload":{"model":"gpt-6-astra","turn_id":"turn-1"}}
+{"timestamp":"2026-09-01T00:00:01.000Z","type":"token_usage_record","payload":{"thread_id":"synthetic-desktop","response_id":"response-1","turn_id":"turn-1","usage":{"input_tokens":100,"cached_input_tokens":40,"cache_write_input_tokens":0,"output_tokens":10,"reasoning_output_tokens":0}}}
+{"timestamp":"2026-09-01T00:00:01.100Z","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":100,"cached_input_tokens":40,"output_tokens":10,"total_tokens":110}}}}
+{"timestamp":"2026-09-01T00:00:01.200Z","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":100,"cached_input_tokens":40,"output_tokens":10,"total_tokens":110}}}}

@@ -1,0 +1,32 @@
+{
+  "name": "harness-token-usage",
+  "version": "0.4.2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen:contracts": "node scripts/gen_contracts.mjs",
+    "dev": "vite --config frontend/vite.config.ts --host 127.0.0.1",
+    "build": "vite build --config frontend/vite.config.ts",
+    "typecheck": "vue-tsc --noEmit -p frontend/tsconfig.json",
+    "test": "vitest run --config frontend/vite.config.ts",
+    "test:dst": "node scripts/test_dst.mjs",
+    "check:imports": "node scripts/check_frontend_imports.mjs",
+    "check:contrast": "node scripts/check_contrast.mjs"
+  },
+  "dependencies": {
+    "vue": "3.5.43",
+    "lucide-vue-next": "1.0.0",
+    "ajv": "8.20.0"
+  },
+  "devDependencies": {
+    "vite": "8.3.1",
+    "@vitejs/plugin-vue": "6.0.9",
+    "typescript": "5.9.3",
+    "vue-tsc": "3.3.11",
+    "vitest": "5.0.2",
+    "@vue/test-utils": "2.5.1",
+    "happy-dom": "20.14.5",
+    "json-schema-to-typescript": "16.0.0",
+    "@types/node": "24.10.1"
+  }
+}

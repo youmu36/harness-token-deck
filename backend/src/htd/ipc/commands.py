@@ -20,6 +20,15 @@ from htd.ipc.dto.collection import (
     SourcesResponse,
     ValidatePathResponse,
 )
+from htd.ipc.dto.explorer import (
+    AcknowledgeQualityRequest,
+    AcknowledgeQualityResponse,
+    ExploreOptions,
+    ExploreRequest,
+    ExploreResponse,
+    OutputReferencesRequest,
+    OutputReferencesResponse,
+)
 from htd.ipc.dto.preferences import PreferencesResponse, PreferencesUpdateRequest
 from htd.ipc.dto.statistics import (
     AnalysisRequest,
@@ -101,6 +110,34 @@ def register_commands(
     )
     def set_paused(request: SetPausedRequest) -> SetPausedResponse:
         return SetPausedResponse.model_validate(collection.set_paused(request.paused, request.operationId))
+
+    @router.register(
+        "stats.acknowledgeQuality",
+        request=AcknowledgeQualityRequest,
+        response=AcknowledgeQualityResponse,
+        kind="write",
+    )
+    def acknowledge_quality(request: AcknowledgeQualityRequest) -> AcknowledgeQualityResponse:
+        return AcknowledgeQualityResponse.model_validate(
+            statistics.acknowledge_quality([item.model_dump() for item in request.items])
+        )
+
+    @router.register("stats.explore", request=ExploreRequest, response=ExploreResponse, kind="read")
+    def explore(request: ExploreRequest) -> ExploreResponse:
+        return ExploreResponse.model_validate(statistics.explore(request.model_dump()))
+
+    @router.register("stats.exploreOptions", request=EmptyRequest, response=ExploreOptions, kind="read")
+    def explore_options(request: EmptyRequest) -> ExploreOptions:
+        return ExploreOptions.model_validate(statistics.explore_options())
+
+    @router.register(
+        "stats.outputReferences",
+        request=OutputReferencesRequest,
+        response=OutputReferencesResponse,
+        kind="read",
+    )
+    def output_references(request: OutputReferencesRequest) -> OutputReferencesResponse:
+        return OutputReferencesResponse.model_validate(statistics.output_references(request.model_dump()))
 
     @router.register("stats.analytics", request=AnalysisRequest, response=AnalysisResponse, kind="read")
     def analytics(request: AnalysisRequest) -> AnalysisResponse:

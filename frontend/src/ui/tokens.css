@@ -30,6 +30,7 @@ html[data-theme='light'] {
   --chart-2: #087a75;
   --chart-3: #73539a;
   --chart-4: #986b00;
+  --chart-5: #b44165;
   --chart-bar-top: #8fc9f3;
   --chart-bar-mid: #8fc9f3;
   --chart-bar-bottom: #62aadf;
@@ -89,6 +90,7 @@ html[data-theme='dark'] {
   --chart-2: #d97975;
   --chart-3: #e18c4f;
   --chart-4: #8bbccf;
+  --chart-5: #b5a0ec;
   --chart-bar-top: #f6de8d;
   --chart-bar-mid: #d4b45a;
   --chart-bar-bottom: #c9a227;

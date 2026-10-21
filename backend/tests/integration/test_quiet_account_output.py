@@ -265,7 +265,7 @@ def test_billing_batches_model_window_once_and_replays_do_not_add_output(tmp_pat
                 work.connection.set_trace_callback(None)
 
         writer.execute(bill)
-        assert len([sql for sql in statements if sql.startswith("INSERT INTO output_live")]) == 1
+        assert len([sql for sql in statements if sql.startswith("INSERT INTO output_session VALUES")]) == 1
         assert live(readers.get(), "codex", balance(0, 1).fetched_at)[0]["outputTokens"] == "3000"
         collect(writer, events, at=balance(0, 2).fetched_at)
         writer.execute(bill)

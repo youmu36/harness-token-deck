@@ -85,6 +85,11 @@ def migrate(
             ).fetchone()
             is None
         )
+        if full_schema and any(
+            connection.execute("SELECT 1 FROM sqlite_schema WHERE name=?", (table,)).fetchone() is None
+            for table in ("usage_dimensions", "wallet_recalc_pending")
+        ):
+            extension_missing = True
         if applied and (pending or extension_missing):
             backups = path.parent / "backups"
             backups.mkdir(exist_ok=True)

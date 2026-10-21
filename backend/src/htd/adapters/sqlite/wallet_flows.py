@@ -381,6 +381,8 @@ def reprice_local(
     occurred: str,
     delta: int,
     identity: str,
+    *,
+    journal: bool = True,
 ) -> Literal["absorbed", "consumption", "adjustment"]:
     from htd.adapters.sqlite.local_wallet import post
 
@@ -411,6 +413,8 @@ def reprice_local(
             (override["flow_id"], override["flow_id"]),
         )
         return "absorbed"
+    if not journal:
+        return "absorbed"
     state = restate_source(db, vendor, "local", "consumption", source_seq, occurred, delta, work)
     return "absorbed" if state == "pending" else "adjustment" if state == "posted" else "consumption"
 
@@ -420,7 +424,8 @@ def flush(work: UnitOfWork, db: sqlite3.Connection, at: Instant) -> tuple[str, .
 
     cutoff = format_instant(Instant(at.value - QUIET))
     vendors = db.execute(
-        "SELECT vendor_id,scope FROM wallet_flow_pending GROUP BY vendor_id,scope "
+        "SELECT vendor_id,scope FROM (SELECT vendor_id,scope,received_at FROM wallet_flow_pending "
+        "UNION ALL SELECT vendor_id,'local',received_at FROM wallet_recalc_pending) GROUP BY vendor_id,scope "
         "HAVING MAX(received_at)<=? LIMIT 200",
         (cutoff,),
     ).fetchall()
@@ -433,10 +438,28 @@ def flush(work: UnitOfWork, db: sqlite3.Connection, at: Instant) -> tuple[str, .
         last, busy = states[vendor]
         if busy or (last is not None and last > cutoff):
             continue
-        rows = db.execute(
-            "SELECT * FROM wallet_flow_pending WHERE vendor_id=? AND scope=? ORDER BY last_at,kind",
-            (vendor, scope),
-        ).fetchall()
+        rows: list[dict[str, Any]] = [
+            dict(row)
+            for row in db.execute(
+                "SELECT * FROM wallet_flow_pending WHERE vendor_id=? AND scope=? ORDER BY last_at,kind",
+                (vendor, scope),
+            )
+        ]
+        if scope == "local":
+            rows.extend(
+                dict(row)
+                | {
+                    "kind": "adjustment",
+                    "last_at": row["occurred_at"],
+                    "r": "0",
+                    "a": "0",
+                    "source_first": 0,
+                    "source_last": 0,
+                    "forced": True,
+                }
+                for row in db.execute("SELECT * FROM wallet_recalc_pending WHERE vendor_id=?", (vendor,))
+            )
+        rows.sort(key=lambda row: (row["last_at"], bool(row.get("forced")), row["kind"]))
         current = summary(db, vendor) if scope == "local" else remote_summary(db, vendor)
         if current is None:
             continue
@@ -446,7 +469,7 @@ def flush(work: UnitOfWork, db: sqlite3.Connection, at: Instant) -> tuple[str, .
         b -= sum(int(row["r"]) - int(row["c"]) + int(row["a"]) for row in rows)
         for row in rows:
             dr, dc, da = (int(row[key]) for key in "rca")
-            if not (dr or dc or da):
+            if not (dr or dc or da) and not row.get("forced"):
                 continue
             after = r + dr, c + dc, b + dr - dc + da
             db.execute(
@@ -477,6 +500,8 @@ def flush(work: UnitOfWork, db: sqlite3.Connection, at: Instant) -> tuple[str, .
             )
             r, c, b = after
         db.execute("DELETE FROM wallet_flow_pending WHERE vendor_id=? AND scope=?", (vendor, scope))
+        if scope == "local":
+            db.execute("DELETE FROM wallet_recalc_pending WHERE vendor_id=?", (vendor,))
         changed.add(vendor)
     # Bounded pruning is shared by the existing background cadence, once per day.
     day = format_instant(at)[:10]

@@ -13,9 +13,10 @@ import { createMockTasks } from './mockTasks';
 import { createMockMaintenance } from './mockMaintenance';
 import { createMockMigration, type MockMigrationOptions } from './mockMigration';
 import { createMockRemote } from './mockRemote';
+import { createMockExplorer } from './mockExplorer';
 import { mockAnalytics } from './mockAnalytics';
 
-const capabilities = ['stats.analytics', 'app.hello', 'app.sync', 'preferences.get', 'preferences.update', 'stats.summary', 'collection.status', 'collection.scanNow', 'stats.cacheMonitor', 'pricing.catalog', 'pricing.unpriced', 'pricing.resolveUnpriced', 'pricing.recalculateUnpriced', 'pricing.previewSwitch', 'pricing.switchCurrent', 'pricing.createGroup', 'pricing.renameGroup', 'pricing.setGroupDisabled', 'pricing.deleteGroup', 'pricing.addVersion', 'pricing.setVersionLabel', 'pricing.setVersionDisabled', 'pricing.deleteVersion', 'pricing.saveVersionPrices', 'pricing.activateVersion', 'models.pool', 'models.fillByMultiplier', 'wallet.list', 'wallet.entries', 'wallet.createVendor', 'wallet.renameVendor', 'wallet.topUp', 'wallet.calibrate', 'wallet.linkGroups', 'wallet.deleteVendor', 'wallet.restoreVendor', 'wallet.setVisibility', 'wallet.correctEntry', 'wallet.dismissNotice'];
+const capabilities = ['stats.explore','stats.exploreOptions','stats.outputReferences','stats.acknowledgeQuality','stats.analytics', 'app.hello', 'app.sync', 'preferences.get', 'preferences.update', 'stats.summary', 'collection.status', 'collection.scanNow', 'stats.cacheMonitor', 'pricing.catalog', 'pricing.unpriced', 'pricing.resolveUnpriced', 'pricing.recalculateUnpriced', 'pricing.previewSwitch', 'pricing.switchCurrent', 'pricing.createGroup', 'pricing.renameGroup', 'pricing.setGroupDisabled', 'pricing.deleteGroup', 'pricing.addVersion', 'pricing.setVersionLabel', 'pricing.setVersionDisabled', 'pricing.deleteVersion', 'pricing.saveVersionPrices', 'pricing.activateVersion', 'models.pool', 'models.fillByMultiplier', 'wallet.list', 'wallet.entries', 'wallet.createVendor', 'wallet.renameVendor', 'wallet.topUp', 'wallet.calibrate', 'wallet.linkGroups', 'wallet.deleteVendor', 'wallet.restoreVendor', 'wallet.setVisibility', 'wallet.correctEntry', 'wallet.dismissNotice'];
 const filterDefaults: UsageFilter1 = {
   range: 'today', harness: 'all', start: null, end: null, grain: 'hour', metric: 'tokens',
   monitorMode: 'minute', modelKey: null, startNow: false, endNow: false,
@@ -24,6 +25,7 @@ const filterDefaults: UsageFilter1 = {
 export function createMockBridge(options: { migration?: MockMigrationOptions } = {}): Bridge {
   const hub = createEventHub();
   const pricing = createMockPricing(hub.emit);
+  const explorer = createMockExplorer();
   const remote = createMockRemote(pricing.wallets);
   pricing.wallets.setRemoteResolver(remote.resolve);
   let preferences: PreferenceValues = {
@@ -116,6 +118,10 @@ export function createMockBridge(options: { migration?: MockMigrationOptions } =
         case 'remote.test': return { ok: true, data: remote.test(payload as RequestMap['remote.test']) };
         case 'remote.save': case 'remote.refresh': case 'remote.delete': return { ok: true, data: remote.change(command, payload as RequestMap[typeof command]) };
         case 'reconciliation.status': case 'reconciliation.dismiss': return { ok: true, data: { notices: [] } };
+        case 'stats.exploreOptions': return {ok:true,data:explorer.options()};
+        case 'stats.explore': return {ok:true,data:explorer.explore(payload as RequestMap['stats.explore'])};
+        case 'stats.outputReferences': return {ok:true,data:explorer.output(payload as RequestMap['stats.outputReferences'])};
+        case 'stats.acknowledgeQuality': return {ok:true,data:explorer.acknowledge((payload as RequestMap['stats.acknowledgeQuality']).items)};
         case 'stats.analytics': return { ok: true, data: mockAnalytics(payload as RequestMap['stats.analytics']) };
         case 'preferences.get': return { ok: true, data: snapshot() };
         case 'preferences.update': return { ok: true, data: update(payload as RequestMap['preferences.update']) };

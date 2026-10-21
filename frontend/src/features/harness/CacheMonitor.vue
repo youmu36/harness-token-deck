@@ -16,9 +16,6 @@ const emit = defineEmits<{ 'update:mode': [value: 'minute' | 'hour'] }>();
 const query = useCacheMonitor(() => props.harness, () => props.mode, () => props.timezone);
 const points = computed<ChartPoint[]>(() => query.data.value?.trend.map(point => ({ label: point.label, value: point.cacheHitRate, flags: { cacheBust: point.cacheBust, cacheLoss: point.cacheLoss, contextCompacted: point.contextCompacted } })) ?? []);
 const speeds = computed(() => query.data.value?.outputSpeeds ?? []);
-const activeSpeeds = computed(() => speeds.value.filter(value => !value.frozen));
-const speed = computed(() => activeSpeeds.value[0] ?? speeds.value[0]);
-const expanded = ref(false);
 const sessionRates = computed(() => {
   const values = [...(query.data.value?.sessionHitRates ?? [])].sort((a, b) => a.startedAt.localeCompare(b.startedAt) || a.sessionKey.localeCompare(b.sessionKey));
   const active = values.filter(value => !value.frozen);
@@ -32,25 +29,37 @@ watch(sessionRates, values => {
   const active = values.find(value => !value.frozen);
   if (!current) selectedSessionKey.value = active?.sessionKey ?? values[0]?.sessionKey ?? '';
 });
-watch(() => props.harness, () => { expanded.value = false; selectedSessionKey.value = ''; });
+watch(() => props.harness, () => { selectedSessionKey.value = ''; selectedSpeedKey.value = ''; });
 function hitRate(value: number | null | undefined) { return value == null ? '—' : `${(value * 100).toFixed(1)}%`; }
-function sessionNote(value: typeof selectedSession.value) {
-  if (!value) return '暂无会话数据';
-  return `${value.cacheCoverageIncomplete ? '部分请求缓存数据未知；' : ''}${value.frozen ? '会话已冻结' : '会话进行中'}`;
-}
+const shortStart = (value: string) => formatDateTime(value, props.timezone).replace(/\//g, '-').replace('T', ' ').slice(5, 16);
+const state = (value: { frozen: boolean }) => value.frozen ? '已冻结' : '监测中';
 const sessionOptions = computed(() => sessionRates.value.map((value, index) => ({ value: value.sessionKey,
-  label: `会话 ${index + 1} · ${hitRate(value.cacheHitRate)} · ${value.displayName}${value.frozen ? ' · 已冻结' : ''} · ${formatDateTime(value.startedAt, props.timezone)}`,
+  label: `会话${sessionNumbers.value.get(value.sessionKey) ?? index + 1}  ${value.displayName}  ${shortStart(value.startedAt)}\n当前会话缓存命中率：${hitRate(value.cacheHitRate)}  ${state(value)}${value.cacheCoverageIncomplete ? '（覆盖不完整）' : ''}`,
 })));
 const sessionLabel = computed(() => selectedSession.value
-  ? `会话 ${sessionRates.value.findIndex(value => value.sessionKey === selectedSession.value?.sessionKey) + 1} · ${hitRate(selectedSession.value.cacheHitRate)}`
+  ? `会话${sessionNumbers.value.get(selectedSession.value.sessionKey) ?? '—'}  缓存命中 ${hitRate(selectedSession.value.cacheHitRate)}  ${state(selectedSession.value)}`
   : '暂无会话数据');
-const sessionTooltip = computed(() => `当前会话缓存命中率：${sessionLabel.value}；${sessionNote(selectedSession.value)}`);
-const speedNote = (value: typeof speed.value) => {
-  if (!value) return '暂无可用速度样本';
-  const basis = value.basis === 'generation' ? '流式计时（含思考输出）'
-    : value.basis === 'request_estimate' ? 'Codex 生成估算（含思考输出）' : '分钟粗估（含思考输出）';
-  return `${basis} · ${value.frozen ? '冻结中' : '监测中'}`;
-};
+const sessionTooltip = '本数值表示当前会话缓存命中率，\n10分钟无新增输入视为会话结束，\n将冻结本次数据';
+const sessionNumbers = computed(() => {
+  const starts = new Map<string, string>();
+  for (const row of [...sessionRates.value, ...speeds.value]) {
+    if (!row.sessionKey || !row.startedAt) continue;
+    starts.set(row.sessionKey, [starts.get(row.sessionKey) ?? row.startedAt, row.startedAt].sort()[0]!);
+  }
+  return new Map([...starts].sort((a, b) => a[1].localeCompare(b[1]) || a[0].localeCompare(b[0])).map(([key], index) => [key, index + 1]));
+});
+const speedKey = (value: typeof speeds.value[number]) => `${value.sessionKey ?? 'legacy'}:${value.modelKey}`;
+const selectedSpeedKey = ref('');
+const speed = computed(() => speeds.value.find(value => speedKey(value) === selectedSpeedKey.value)
+  ?? speeds.value.find(value => !value.frozen) ?? speeds.value[0]);
+const speedSession = (value: typeof speeds.value[number]) => value.sessionKey ? `会话${sessionNumbers.value.get(value.sessionKey) ?? '—'}` : '会话未知';
+const speedOptions = computed(() => speeds.value.map(value => ({ value: speedKey(value),
+  label: `${speedSession(value)}  ${value.displayName}  ${value.startedAt ? shortStart(value.startedAt) : '开始时间未知'}  ${state(value)}\n近似实时tps ${value.tokensPerSecond ?? '—'} t/s  会话平均tps ${value.sessionAverageTps ?? '—'} t/s`,
+})));
+const speedLabel = computed(() => speed.value
+  ? `${speedSession(speed.value)}  近似实时tps ${speed.value.tokensPerSecond ?? '—'} t/s  ${state(speed.value)}` : '暂无会话tps');
+const speedTooltip = '近似实时tps取最近三个有效输出分钟，\n仅供参考，10分钟无新增输入视为会话结束，\n将冻结本次数据';
+
 defineExpose({ refresh: query.refresh });
 </script>
 
@@ -59,12 +68,12 @@ defineExpose({ refresh: query.refresh });
     <header>
       <h2>近期缓存监控</h2>
       <div class="monitor-tools">
-        <details v-if="activeSpeeds.length > 1" class="output-speed multi-speed" aria-label="近60分钟模型输出速度" :open="expanded" @toggle="expanded = ($event.target as HTMLDetailsElement).open">
-          <summary aria-label="展开所有运行模型的TPS">TPS · {{ activeSpeeds.length }} 模型<span aria-hidden="true">⌄</span></summary>
-          <div v-if="expanded" class="speed-list surface" aria-label="正在运行的模型TPS"><p v-for="value in activeSpeeds" :key="value.modelKey" :title="speedNote(value)"><span>{{ value.displayName }}</span><strong>{{ value.tokensPerSecond ?? '—' }} t/s</strong></p></div>
-        </details>
-        <div v-else class="output-speed" aria-label="近60分钟模型输出速度" :title="speedNote(speed)"><strong>{{ speed ? `${speed.displayName} tps：${speed.tokensPerSecond ?? '—'} t/s` : '模型 tps：— t/s' }}</strong></div>
-        <div class="session-rate" aria-label="当前会话缓存命中率" :title="sessionTooltip">
+        <div class="output-speed" aria-label="会话输出速度" >
+          <span class="monitor-help" role="tooltip">{{ speedTooltip }}</span>
+          <ChoiceMenu :key="harness" :model-value="speed ? speedKey(speed) : ''" label="会话输出速度" :show-label="false" :selected-label="speedLabel" placeholder="暂无会话tps" :options="speedOptions" @update:model-value="selectedSpeedKey = $event" />
+        </div>
+        <div class="session-rate" aria-label="当前会话缓存命中率" >
+          <span class="monitor-help" role="tooltip">{{ sessionTooltip }}</span>
           <ChoiceMenu :key="harness" :model-value="selectedSession?.sessionKey ?? ''" label="当前会话缓存命中率" :show-label="false" :selected-label="sessionLabel" placeholder="暂无会话数据" :options="sessionOptions" @update:model-value="selectedSessionKey = $event" />
         </div>
       </div>
@@ -87,10 +96,11 @@ defineExpose({ refresh: query.refresh });
 <style scoped>
 .monitor-panel { padding-block: 28px 8px; border-top: 1px solid var(--border); }header { display: grid; grid-template-columns:auto minmax(0,1fr) auto; align-items: center; gap: 12px; }.monitor-tools{display:flex;align-items:center;justify-self:end;gap:8px;min-width:0;max-width:100%}
 .monitor-note { margin-block: 10px 16px; font-size: 13px; }
-.session-rate{position:relative;width:160px;max-width:100%;min-width:0;flex:0 1 160px;font-size:12px;color:var(--money);font-variant-numeric:tabular-nums;z-index:20}.session-rate :deep(.choice-trigger){width:100%;min-width:0;padding-inline:10px;gap:6px}.session-rate :deep(.choice-label){flex-shrink:0}.session-rate :deep(.choice-value){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.session-rate :deep(.choice-trigger>svg){flex-shrink:0;margin-left:auto}.session-rate :deep(.choice-options){left:auto;right:0;width:min(360px,calc(100vw - 48px));min-width:min(272px,calc(100vw - 48px));max-height:260px;overflow:auto}.session-rate :deep(.choice-options button){font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.output-speed { display:flex;align-items:center;justify-self:stretch;min-width:0;max-width:100%;height:36px;padding:0 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);font-size:12px;color:var(--money);font-variant-numeric:tabular-nums }.output-speed>strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}.multi-speed{position:relative;padding:0}.multi-speed summary{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:100%;min-height:34px;box-sizing:border-box;padding:0 10px;cursor:pointer;list-style:none;white-space:nowrap}.multi-speed summary::-webkit-details-marker{display:none}.speed-list,.session-list{position:absolute;z-index:4;top:calc(100% + 6px);left:0;width:max-content;max-width:min(360px,80vw);max-height:260px;overflow:auto;padding:8px 12px;border:1px solid var(--border);border-radius:6px;box-shadow:0 8px 20px rgb(0 0 0 / 14%)}.speed-list p,.session-list button{display:flex;align-items:baseline;justify-content:space-between;gap:24px;width:100%;padding-block:8px}.speed-list p span,.session-list button span{color:var(--text);overflow-wrap:anywhere}.speed-list strong,.session-list button strong{white-space:nowrap}.session-list button{border:0;background:transparent;text-align:left;color:var(--money)}.session-list button:hover,.session-list button[aria-pressed='true']{background:var(--surface-2)}.multi-session .session-list{left:auto;right:0}
-@media(max-width:760px){header{grid-template-columns:auto minmax(0,1fr)}.monitor-tools{grid-column:1 / -1;justify-self:start;width:100%;flex-wrap:wrap}header>:last-child{grid-column:1 / -1;justify-self:end}}
-@media(max-width:760px){.session-rate :deep(.choice-options){left:0;right:auto;width:min(360px,calc(100vw - 110px));min-width:100%}}
+.session-rate{position:relative;width:max-content;max-width:100%;min-width:0;flex:0 1 auto;font-size:12px;color:var(--money);font-variant-numeric:tabular-nums;z-index:20}.session-rate :deep(.choice-trigger){width:100%;min-width:0;padding-inline:8px;gap:6px}.session-rate :deep(.choice-label){flex-shrink:0}.session-rate :deep(.choice-value){overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-inline-end:1.5ch}.session-rate :deep(.choice-trigger>svg){flex-shrink:0;margin-left:auto}.session-rate :deep(.choice-options){left:auto;right:0;width:min(430px,calc(100vw - 48px));min-width:min(272px,calc(100vw - 48px));max-height:260px;overflow:auto}.session-rate :deep(.choice-options button span){white-space:pre-line;line-height:1.7}.session-rate :deep(.choice-options button){font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.output-speed{position:relative;min-width:0;max-width:100%;width:max-content;flex:0 1 auto;font-size:12px;color:var(--money);font-variant-numeric:tabular-nums;z-index:21}.output-speed :deep(.choice-trigger){width:100%;min-width:0;height:36px;padding-inline:8px;gap:6px}.output-speed :deep(.choice-value){overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-inline-end:1.5ch}.output-speed :deep(.choice-trigger>svg){flex-shrink:0;margin-left:auto}.output-speed :deep(.choice-options){width:min(480px,calc(100vw - 48px));min-width:100%;max-height:280px;overflow:auto}.output-speed :deep(.choice-options button span){white-space:pre-line;overflow-wrap:anywhere;line-height:1.7}
+@media(max-width:1150px){header{grid-template-columns:auto minmax(0,1fr)}.monitor-tools{grid-column:1 / -1;grid-row:2;justify-self:start;width:100%;flex-wrap:wrap}header>:last-child{grid-column:2;grid-row:1;justify-self:end}}
+@media(max-width:760px){header{grid-template-columns:auto minmax(0,1fr)}.monitor-tools{grid-column:1 / -1;justify-self:start;width:100%;flex-wrap:wrap}header>:last-child{grid-column:1 / -1;grid-row:3;justify-self:end}}
+@media(max-width:760px){.session-rate :deep(.choice-options){left:0;right:auto;width:min(430px,calc(100vw - 110px));min-width:100%}}
 header h2 { font-size: 18px; }
 .cache-legend { display: flex; flex-wrap: wrap; gap: 12px 28px; padding-top: 12px; font-size: 13px; color: var(--text-muted); }
 .cache-legend p { display: flex; align-items: start; gap: 10px; }
@@ -98,4 +108,5 @@ header h2 { font-size: 18px; }
 .cache-legend i { width: 16px; height: 8px; margin-top: 6px; border-radius: 2px; flex-shrink: 0; }
 .bust-swatch { background: linear-gradient(180deg, #ff6680 0%, #d31342 55%, #9a0b32 100%); box-shadow: 0 0 7px var(--cache-bust-glow); }
 .loss-swatch { background: linear-gradient(180deg, #b8325c 0%, #7d0f38 60%, #4d0621 100%); box-shadow: 0 0 7px var(--cache-loss-glow); }
+.monitor-help{display:none;position:absolute;bottom:calc(100% + 8px);right:0;width:max-content;max-width:min(320px,80vw);padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;white-space:pre-line;font-size:12px;line-height:1.7;color:var(--text);box-shadow:0 6px 20px #0003;pointer-events:none;z-index:30}.output-speed:hover .monitor-help,.output-speed:focus-within .monitor-help,.session-rate:hover .monitor-help,.session-rate:focus-within .monitor-help{display:block}
 </style>

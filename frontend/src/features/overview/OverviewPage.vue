@@ -15,6 +15,8 @@ import UnpricedNotice from '../usage-common/UnpricedNotice.vue';
 import SectionNav from '../../ui/SectionNav.vue';
 import AnalyticsPanel from './AnalyticsPanel.vue';
 import AnalysisPage from './AnalysisPage.vue';
+import ScopeFilters from './ScopeFilters.vue';
+import { emptyScope, hasScope } from './scope';
 import UsageTrend from '../usage-common/UsageTrend.vue';
 import ModelTable from '../usage-common/ModelTable.vue';
 import HourlyDetails from '../usage-common/HourlyDetails.vue';
@@ -30,8 +32,11 @@ const selectedDay = ref('');
 const navigation = inject(UsageNavigationKey, undefined);
 const preferences = useShellPreferences(props.initialPreferences);
 const section = ref('statistics');
+const scope = ref(emptyScope());
+const scoped = computed(() => hasScope(scope.value));
+const optionsQuery = useQuery('overview.exploreOptions', async () => unwrap(await bridge.call('stats.exploreOptions', {})), { events: ['pricing.changed', 'models.changed', 'wallet.changed'], coalesce: true });
 const period = ref('recent');
-const recent = computed(() => section.value === 'statistics' && period.value === 'recent');
+const recent = computed(() => section.value === 'statistics' && period.value === 'recent' && !scoped.value);
 const status = useQuery('overview.collection', async () => unwrap(await bridge.call('collection.status', { details: false })), { events: ['sources.changed', 'collection.tick'] });
 const summary = useQuery('overview.summary', async () => {
   const range = time.advance();
@@ -49,12 +54,18 @@ async function filter(patch: Partial<UsageFilter>) { try { await time.saveFilter
   <div class="overview-page">
     <Button v-if="canReturn" class="return-link" @click="navigation?.back()">返回 Harness 统计</Button>
     <UsageHeader title="数据统计与分析" harness="all" :status="status.data.value" :error="status.error.value?.message" :mode="time.mode.value" :countdown="preferences.snapshot.value.preferences.showScanCountdown" @scanning="scanning" @scanned="scanned" />
-    <SectionNav v-model="section" label="统计分析子页" :items="[{value:'statistics',label:'数据统计'}, {value:'analysis',label:'数据分析'}]" />
-    <AnalysisPage v-if="section === 'analysis'" :harness="time.filter.value.harness" :range="time.range.value" :filter="time.filter.value" :mode="time.mode.value" @update:harness="filter({harness:$event,modelKey:null})" />
+    <SectionNav v-model="section" label="统计分析子页" :items="[{value:'statistics',label:'数据统计'}, {value:'analysis',label:'数据分析'}, {value:'quality',label:'缺失记录'}]" />
+    <ScopeFilters v-model="scope" :options="optionsQuery.data.value" />
+    <InlineAlert v-if="optionsQuery.error.value" severity="danger" retry @retry="optionsQuery.refresh">{{ optionsQuery.error.value.message }}</InlineAlert>
+    <AnalysisPage v-if="section === 'analysis' || section === 'quality'" :key="section" :scope="scope" :options="optionsQuery.data.value" :kind="section === 'quality' ? 'quality' : undefined" :harness="time.filter.value.harness" :range="time.range.value" :filter="time.filter.value" :mode="time.mode.value" @update:harness="filter({harness:$event,modelKey:null})" />
     <template v-else>
     <p class="text-muted page-purpose">按来源保存和查看 Token 用量、缓存命中率与本地估算成本。</p>
-    <ChoiceMenu v-model="period" label="分析周期" :options="[{value:'recent',label:'近期范围'}, {value:'month',label:'本月'}, {value:'quarter',label:'季度'}, {value:'year',label:'年份'}, {value:'years',label:'多年份'}, {value:'all',label:'全部历史'}]" />
-    <AnalyticsPanel v-if="!recent" :period="period as 'month' | 'quarter' | 'year' | 'years' | 'all'" :models="false" statistics :harness="time.filter.value.harness" :range="time.range.value" :filter="time.filter.value" :mode="time.mode.value" @update:harness="filter({harness:$event,modelKey:null})" />
+    <ChoiceMenu v-if="!scoped" v-model="period" label="分析周期" :options="[{value:'recent',label:'近期范围'}, {value:'month',label:'本月'}, {value:'quarter',label:'季度'}, {value:'year',label:'年份'}, {value:'years',label:'多年份'}, {value:'all',label:'全部历史'}]" />
+    <AnalyticsPanel v-if="!recent && !scoped" :period="period as 'month' | 'quarter' | 'year' | 'years' | 'all'" :models="false" statistics :harness="time.filter.value.harness" :range="time.range.value" :filter="time.filter.value" :mode="time.mode.value" @update:harness="filter({harness:$event,modelKey:null})" />
+    <template v-if="scoped">
+      <TimeRangeBar :model-value="time.selection.value" :range="time.range.value" :mode="time.mode.value" :custom-start="time.filter.value.start" :custom-end="time.filter.value.end" @update:model-value="select" @apply="apply" />
+      <AnalysisPage kind="statistics" :scope="scope" :options="optionsQuery.data.value" :harness="time.filter.value.harness" :range="time.range.value" :filter="time.filter.value" :mode="time.mode.value" />
+    </template>
     <template v-if="recent">
     <ReconciliationNotice :harness="time.filter.value.harness === 'all' ? undefined : time.filter.value.harness" />
     <TimeRangeBar :model-value="time.selection.value" :range="time.range.value" :mode="time.mode.value" :custom-start="time.filter.value.start" :custom-end="time.filter.value.end" @update:model-value="select" @apply="apply">

@@ -111,5 +111,5 @@ def test_tokens_are_conserved_across_partial_minutes_and_state_is_bounded() -> N
         window.add(stamp(second), 1, 1000, str(second), stamp(second))
     assert len(window.cursors) == 100
     window.add(stamp(7200), 3600, 7_200_000, "long", stamp(7200))
-    assert len(window.minutes) <= 60
-    assert window.totals() == (1800 * SCALE, 3_600_000, True)
+    assert len(window.minutes) <= 3
+    assert window.totals() == (90 * SCALE, 180_000, True)

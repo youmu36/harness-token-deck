@@ -11,6 +11,8 @@ import ConfirmDialog from '../../ui/ConfirmDialog.vue';
 import InlineAlert from '../../ui/InlineAlert.vue';
 import ExcludedModels from './ExcludedModels.vue';
 import ModelScanDialog from './ModelScanDialog.vue';
+import { vGuideFocus } from '../../shared/guideFocus';
+defineProps<{ guideFocus?: boolean }>();
 const bridge = inject(BridgeKey)!;
 const pool = useQuery('models.pool', () => bridge.call('models.pool', {}).then(unwrap), { events: ['models.changed', 'pricing.changed'] });
 type Draft = { modelId: string; input: string; cache: string; cacheWrite: string; output: string; original: string; missing?: boolean };
@@ -56,7 +58,7 @@ window.addEventListener('beforeunload', unload);
 onBeforeUnmount(() => { release?.(); window.removeEventListener('beforeunload', unload); });
 </script>
 <template><section class="models-tab" aria-label="模型池">
-  <header><label>搜索模型<input v-model="search" type="search" placeholder="模型名称" /></label><div class="actions"><Button :disabled="busy || !!dirty.length || !pool.data.value || pool.data.value.models.length >= 5000" @click="adding = true">添加模型</Button><Button :disabled="busy || !!dirty.length || !pool.data.value" @click="scanning = true">查找最近使用的模型</Button></div></header>
+  <header><label>搜索模型<input v-model="search" type="search" placeholder="模型名称" /></label><div class="actions"><Button :disabled="busy || !!dirty.length || !pool.data.value || pool.data.value.models.length >= 5000" @click="adding = true">添加模型</Button><Button v-guide-focus="!!guideFocus" :disabled="busy || !!dirty.length || !pool.data.value" @click="scanning = true">查找最近使用的模型</Button></div></header>
   <p class="text-muted">模型池价格用于填充价格版本，单位 USD / 百万 token；缓存创建价格留空按 0，其余留空表示未定价。{{ pool.data.value?.models.length ?? 0 }}/5000 个模型。</p>
   <InlineAlert v-if="pool.error.value" severity="danger" retry @retry="refreshed">{{ pool.error.value.message }}</InlineAlert><InlineAlert v-if="error && !adding && !removing" severity="danger">{{ error }}</InlineAlert><InlineAlert v-if="conflict" severity="warning">价格目录已变化，已刷新目录并保留草稿；请检查后重新确认保存。</InlineAlert>
   <div class="table-scroll"><table><thead><tr><th>模型</th><th>输入价格</th><th>输出价格</th><th>缓存命中价格</th><th>缓存创建价格</th><th>操作</th></tr></thead><tbody><tr v-for="row in filtered" :key="row.modelId" :class="{ dirty: signature(row) !== row.original }"><th scope="row">{{ row.modelId }}<span v-if="signature(row) !== row.original" class="text-muted"> · {{ row.missing ? '模型已被移出，草稿保留' : '未保存' }}</span></th><td v-for="field in (['input', 'output', 'cache', 'cacheWrite'] as const)" :key="field"><input v-model="row[field]" :aria-label="`${row.modelId} ${{ input: '输入价格', cache: '缓存命中价格', cacheWrite: '缓存创建价格', output: '输出价格' }[field]}`" inputmode="decimal" :placeholder="field === 'cacheWrite' ? '0' : '未定价'" :disabled="busy" /></td><td><Button :disabled="busy || !!dirty.length" @click="error = ''; removing = row.modelId">移出</Button></td></tr></tbody></table></div>

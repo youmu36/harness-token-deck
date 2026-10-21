@@ -137,6 +137,11 @@ def display(
             (vendor, scope),
         )
     ] + list(staged)
+    if scope == "local":
+        amounts.extend(
+            (0, int(row[0]))
+            for row in db.execute("SELECT c FROM wallet_recalc_pending WHERE vendor_id=?", (vendor,))
+        )
     pr, pc = sum(r for r, _ in amounts), sum(c for _, c in amounts)
     rr, rc = _remote(db, vendor) if scope == "remote" else (0, 0)
     return {

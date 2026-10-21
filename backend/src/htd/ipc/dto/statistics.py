@@ -98,6 +98,9 @@ class SummaryResponse(StrictModel):
 
 
 class OutputSpeed(StrictModel):
+    sessionKey: Annotated[str, Field(pattern=r"^[0-9a-f]{16}$")] | None = None
+    startedAt: InstantStr | None = None
+    sessionAverageTps: str | None = None
     modelKey: str
     displayName: str
     tokensPerSecond: str | None

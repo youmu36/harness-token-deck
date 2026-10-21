@@ -11,17 +11,18 @@ const emit = defineEmits<{close: []; saved: []}>();
 const command = useCommand('wallet.setLocalTotals');
 const source = props.vendor.localWallet ?? props.vendor;
 const decimal = walletAmountInput;
-const fields = ref({C:decimal(source.C),pastTopUpPico:decimal(source.pastTopUpPico ?? '0'),pastConsumptionPico:decimal(source.pastConsumptionPico ?? '0')});
+const pastInput = (value?: string) => !value || BigInt(value) === 0n ? '' : decimal(value);
+const fields = ref({C:decimal(source.C),pastTopUpPico:pastInput(source.pastTopUpPico),pastConsumptionPico:pastInput(source.pastConsumptionPico)});
 const labels = {C:'累计消费',pastTopUpPico:'过往充值',pastConsumptionPico:'过往消费'};
 const originalFields = {...fields.value};
 const balance = ref(decimal(source.B));
 const calibrateBalance = ref(false);
 const error = ref('');
 function pico(value: string) {if(!/^-?[0-9]{1,26}(?:\.[0-9]{1,6})?$/.test(value))return;const [whole,fraction='']=value.replace('-','').split('.');return (BigInt(whole!)*10n**12n+BigInt(fraction.padEnd(12,'0')))*(value.startsWith('-')?-1n:1n);}
-const valid = computed(() => Object.values(fields.value).every(v=>pico(v)!==undefined && pico(v)!>=0n) && (!calibrateBalance.value || pico(balance.value)!==undefined));
+const valid = computed(() => Object.entries(fields.value).every(([key,v])=>{const amount=pico(key === 'C' ? v : v || '0');return amount!==undefined && amount>=0n;}) && (!calibrateBalance.value || pico(balance.value)!==undefined));
 async function save() {
   if(!valid.value)return;
-  try {await command.run({vendorId:props.vendor.id,expectedWalletRevision:props.vendor.walletRevision,...Object.fromEntries(Object.entries(fields.value).filter(([key,value])=>value !== originalFields[key as keyof typeof originalFields]).map(([key,value])=>[key,pico(value)!.toString()])),...(calibrateBalance.value?{B:pico(balance.value)!.toString()}:{})});emit('saved');emit('close');}
+  try {await command.run({vendorId:props.vendor.id,expectedWalletRevision:props.vendor.walletRevision,...Object.fromEntries(Object.entries(fields.value).filter(([key,value])=>value !== originalFields[key as keyof typeof originalFields]).map(([key,value])=>[key,pico(value || '0')!.toString()])),...(calibrateBalance.value?{B:pico(balance.value)!.toString()}:{})});emit('saved');emit('close');}
   catch(failure){error.value=asAppError(failure).message;}
 }
 </script>

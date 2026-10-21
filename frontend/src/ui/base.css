@@ -54,3 +54,5 @@ svg { display: block; }
     scroll-behavior: auto !important;
   }
 }
+
+.guide-target:focus { outline: 2px solid var(--accent); outline-offset: 4px; scroll-margin-block: 80px; }

@@ -13,7 +13,15 @@ from htd.domain.common.errors import (
 )
 from htd.domain.common.hashing import identity_key
 from htd.domain.common.time import Instant, format_instant, from_epoch_ms, parse_instant
-from htd.domain.usage.model import Diagnostic, Harness, Tokens, UsageEvent, UsageStatus, optional_text
+from htd.domain.usage.model import (
+    OUTPUT_TIMING_UNCERTAIN,
+    Diagnostic,
+    Harness,
+    Tokens,
+    UsageEvent,
+    UsageStatus,
+    optional_text,
+)
 
 type StatusClass = Literal["pending", "terminal", "unsupported"]
 _TERMINAL = ("completed", "error", "cancelled")
@@ -112,6 +120,19 @@ def normalize_row(row: ZcodeRow) -> UsageEvent | Diagnostic:
             output=count("outputTokens", row.output_tokens),
             reasoning=count("reasoningTokens", row.reasoning_tokens),
         )
+        elapsed = generation_milliseconds(row)
+        # Native request clocks with no valid first-token boundary cannot
+        # distinguish image processing / first-token wait from generation.
+        # Falling back to the previous completion would count that wait as output.
+        has_native_clock = any(
+            value is not None
+            for value in (
+                row.started_at,
+                row.first_token_at,
+                row.duration_ms,
+                row.time_to_first_token_ms,
+            )
+        )
         return UsageEvent(
             harness=Harness.ZCODE,
             dedupe_key=identity_key(
@@ -124,7 +145,8 @@ def normalize_row(row: ZcodeRow) -> UsageEvent | Diagnostic:
             tokens=tokens,
             status=cast(UsageStatus, row.status),
             provider_name=optional_text(row.provider_id),
-            generation_milliseconds=generation_milliseconds(row),
+            generation_milliseconds=elapsed,
+            issues=(OUTPUT_TIMING_UNCERTAIN,) if elapsed is None and has_native_clock else (),
         )
     except DomainError as error:
         return Diagnostic(error.code.lower())

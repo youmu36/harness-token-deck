@@ -37,7 +37,7 @@ async function save() {
     <form id="flow-correction" class="fields" @submit.prevent="save">
       <p>原金额：<Money :pico="original" />。校准后更新当前钱包的累计金额，并修订原日期的记账。</p>
       <p class="text-muted">{{scope === 'local' ? '本地余额随充值或消费差额变化。' : '远程余额保持最近观测值；这里只纠正充值或消费的记账金额。'}} 校准记录会在本地数据静默十分钟后出现在流水中。</p>
-      <p v-if="scope==='local' && entry.kind==='consumption'" class="text-muted">人工校准后的金额会保留。后续重算只更新估算依据，不再改变该流水或钱包；如有差额会提示核对，提醒可单独关闭。</p>
+      <p v-if="scope==='local' && entry.kind==='consumption'" class="text-muted">人工校准后的金额会保留。后续重算保留人工金额，并以调整流水说明估算变化；如有差额会提示核对，提醒可单独关闭。</p>
       <label>校准后的金额（USD）<input v-model="amount" aria-label="流水校准金额" inputmode="decimal" :disabled="command.pending.value" /></label>
       <label>备注<textarea v-model="note" aria-label="流水校准备注" maxlength="500" :disabled="command.pending.value" /></label>
     </form>

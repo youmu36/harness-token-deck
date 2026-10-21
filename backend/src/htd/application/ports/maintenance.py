@@ -9,7 +9,7 @@ from htd.domain.common.time import Instant
 from htd.domain.pricing.catalog import Catalog
 from htd.domain.pricing.model import ModelRate
 from htd.domain.usage.model import Harness, UsageEvent
-from htd.domain.wallet.model import Calibration, WalletEntry
+from htd.domain.wallet.model import Calibration, VendorLink, WalletEntry
 
 type Retention = Literal[90, 180, 360, "forever"]
 
@@ -40,6 +40,7 @@ class RecalcSnapshot:
     calibrations: dict[str, tuple[Calibration, ...]]
     usage_revision: int = 0
     remote_vendors: frozenset[str] = frozenset()
+    links: tuple[VendorLink, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

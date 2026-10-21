@@ -193,9 +193,7 @@ def test_billed_delayed_output_uses_the_same_session_gap_without_ignoring_new_un
         current = live(readers.get(), "codex", later)[0]
         assert current["tokensPerSecond"] == "65.0" and current["basis"] == "minute_estimate"
         assert current["outputTokens"] == "7800"
-        metadata = json.loads(readers.get().execute("SELECT timing_json FROM output_live").fetchone()[0])[
-            "!window"
-        ]
+        metadata = json.loads(readers.get().execute("SELECT window_json FROM output_session").fetchone()[0])
         assert len(metadata["minutes"]) == 2 and len(metadata["cursors"]) == 1
         assert first.session_id not in json.dumps(metadata)
         # A replay cannot allocate the completed interval a second time.
@@ -321,9 +319,7 @@ def test_interaction_exclusion_survives_inbox_restart_without_losing_billing(tmp
         )
         current = live(readers.get(), "codex", AT)[0]
         assert current["tokensPerSecond"] == "60.0" and current["outputTokens"] == "1200"
-        window = json.loads(readers.get().execute("SELECT timing_json FROM output_live").fetchone()[0])[
-            "!window"
-        ]
+        window = json.loads(readers.get().execute("SELECT window_json FROM output_session").fetchone()[0])
         assert window["cursors"] == {}  # No inference can bridge the ambiguous sample.
         parse_record(
             {"type": "response_item", "timestamp": stamp(200), "payload": {"type": "function_call_output"}},
@@ -340,5 +336,5 @@ def test_interaction_exclusion_survives_inbox_restart_without_losing_billing(tmp
         assert len(rows) == 3 and sum(row[0] for row in rows) == 3000
         assert sum(int(row[1]) for row in rows) == 3 * 84_000_000
         writer.execute(lambda w: close_quiet(w.connection, parse_instant(stamp(900))))
-        row = readers.get().execute("SELECT timed_output,decode_ms FROM output_reference").fetchone()
+        row = readers.get().execute("SELECT output_tokens,duration_ms FROM output_session_day").fetchone()
         assert tuple(row) == ("1800", "40000")

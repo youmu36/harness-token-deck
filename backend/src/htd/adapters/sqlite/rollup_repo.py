@@ -104,6 +104,9 @@ class RollupRepository:
                     int(loss or (old["large_miss"] if old else False)),
                 ),
             )
+            from htd.adapters.sqlite.explorer_storage import retire
+
+            retire(self.db, dict(row))
             compact_consumption(self.db, row["harness"], row["dedupe_key"])
             self.db.execute(
                 "DELETE FROM ledger WHERE harness=? AND dedupe_key=?",
@@ -138,6 +141,23 @@ class RollupRepository:
         from htd.adapters.sqlite.usage_daily import publish
 
         daily = publish(self.db, work, at=at) if publish_daily else 0
+        from htd.adapters.sqlite.explorer_storage import compact as compact_dimensions
+
+        dimensions = compact_dimensions(self.db, at)
+        from zoneinfo import ZoneInfo
+
+        from htd.adapters.sqlite.wallet_closing import timezone
+
+        oldest_output = (
+            at.value.astimezone(ZoneInfo(timezone(self.db))).date() - timedelta(days=29)
+        ).isoformat()
+        self.db.execute(
+            "DELETE FROM output_session_scope WHERE "
+            "(day,harness,session_key,model_key,vendor_id,group_id,version_id) IN (SELECT "
+            "day,harness,session_key,model_key,vendor_id,group_id,version_id FROM "
+            "output_session_scope WHERE day<? LIMIT 200)",
+            (oldest_output,),
+        )
         audits = compact_audits(self.db)
         finance = compact_finance(self.db, at=at, limit=limit)
         if optimized:
@@ -149,4 +169,4 @@ class RollupRepository:
             ).fetchone()
             or self.db.execute("SELECT 1 FROM recalc_item WHERE payload IS NULL LIMIT 1").fetchone()
         )
-        return 500 if pending or daily else max(count, rebuilt, optimized, audits, finance)
+        return 500 if pending or daily else max(count, rebuilt, optimized, audits, finance, dimensions)

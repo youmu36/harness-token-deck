@@ -9,7 +9,8 @@ from typing import Literal
 from htd.adapters.sqlite.command_store import read_snapshot
 from htd.adapters.sqlite.connection import ReadPool
 from htd.adapters.sqlite.ledger_read import LedgerReader
-from htd.application.ports import StatisticsSnapshot
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.ports import StatisticsSnapshot, UnitOfWork
 from htd.domain.common.time import Instant, format_instant
 from htd.domain.statistics.analysis import AnalysisQuery
 from htd.domain.statistics.model import LedgerRow
@@ -68,21 +69,60 @@ class SqliteStatisticsSnapshot:
 
 
 class SqliteStatisticsStore:
-    def __init__(self, readers: ReadPool) -> None:
+    def __init__(self, readers: ReadPool, writer: WriteExecutor | None = None) -> None:
         self.readers = readers
+        self.writer = writer
 
     def monitor_data(self, harness: str, now: Instant) -> dict[str, list[dict[str, object]]]:
         from htd.adapters.sqlite.output_speed import live
         from htd.adapters.sqlite.session_hit_rate import read
 
         with read_snapshot(self.readers) as db:
-            return {"outputSpeeds": live(db, harness, now), "sessionHitRates": read(db, harness, now)}
+            sessions = read(db, harness, now)
+            return {"outputSpeeds": live(db, harness, now, sessions), "sessionHitRates": sessions}
 
     def analytics(self, query: AnalysisQuery, now: Instant) -> dict[str, object]:
         from htd.adapters.sqlite.analysis_read import analyze
 
         with read_snapshot(self.readers) as db:
             return analyze(db, query, now)
+
+    def explore(self, query: dict[str, object], now: Instant) -> dict[str, object]:
+        from htd.adapters.sqlite.explorer_read import explore
+
+        with read_snapshot(self.readers) as db:
+            return explore(db, query, now)
+
+    def explore_options(self) -> dict[str, object]:
+        from htd.adapters.sqlite.explorer_read import options
+
+        with read_snapshot(self.readers) as db:
+            return options(db)
+
+    def output_references(self, query: dict[str, object], now: Instant) -> dict[str, object]:
+        from htd.adapters.sqlite.output_reference_read import read
+
+        with read_snapshot(self.readers) as db:
+            return read(db, query, now)
+
+    def acknowledge_quality(self, items: list[dict[str, str]], now: Instant) -> dict[str, object]:
+        from htd.adapters.sqlite.command_store import connection
+        from htd.domain.common.errors import DomainError
+
+        if self.writer is None:
+            raise DomainError("UNAVAILABLE", "当前统计连接不可写")
+
+        def commit(work: UnitOfWork) -> dict[str, object]:
+            db = connection(work)
+            for item in items:
+                db.execute(
+                    "INSERT INTO quality_notice_ack VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET "
+                    "fingerprint=excluded.fingerprint,acknowledged_at=excluded.acknowledged_at",
+                    (item["id"], item["fingerprint"], format_instant(now)),
+                )
+            return {"acknowledged": len(items)}
+
+        return self.writer.execute(commit)
 
     @contextmanager
     def snapshot(self) -> Generator[StatisticsSnapshot, None, None]:

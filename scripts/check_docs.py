@@ -39,6 +39,8 @@ def check(root: Path) -> tuple[list[str], list[str]]:
         path
         for path in (
             root / "CONTRIBUTING.md",
+            root / "CHANGELOG.md",
+            root / ".github/release-notes/archive/README.md",
             root / "SECURITY.md",
             root / "fixtures/README.md",
             root / "fixtures/legacy/README.md",

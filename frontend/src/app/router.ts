@@ -2,7 +2,8 @@ import { computed, onScopeDispose, ref } from 'vue';
 import type { PreferenceValues } from '../infra/generated/contracts';
 
 export type Page = PreferenceValues['lastPage'];
-export interface Route { page: Page; path: string; detail?: string; models?: boolean; unpriced?: boolean; background?: boolean; versions?: boolean }
+export type GuideTarget = 'models' | 'group' | 'versions' | 'rates' | 'vendor';
+export interface Route { page: Page; path: string; detail?: string; models?: boolean; unpriced?: boolean; background?: boolean; versions?: boolean; guideTarget?: GuideTarget }
 export const pagePaths: Record<Page, string> = {
   overview: '/overview', claude: '/harness/claude', codex: '/harness/codex', zcode: '/harness/zcode', dsh: '/harness/dsh',
   wallet: '/wallet', pricing: '/pricing', settings: '/settings',
@@ -12,7 +13,11 @@ export function parseRoute(hash: string): Route | undefined {
   const page = (Object.keys(pagePaths) as Page[]).find(name => pagePaths[name] === path);
   if (page) return { page, path };
   if (path === '/models') return { page: 'pricing', path, models: true };
-  if (path === '/pricing/versions') return { page: 'pricing', path, versions: true };
+  if (path === '/models/setup') return { page: 'pricing', path, models: true, guideTarget: 'models' };
+  if (path === '/pricing/groups') return { page: 'pricing', path, guideTarget: 'group' };
+  if (path === '/pricing/rates') return { page: 'pricing', path, guideTarget: 'rates' };
+  if (path === '/pricing/versions') return { page: 'pricing', path, versions: true, guideTarget: 'versions' };
+  if (path === '/wallet/setup/new') return { page: 'wallet', path, guideTarget: 'vendor' };
   if (path === '/settings/background') return { page: 'settings', path, background: true };
   if (path === '/unpriced') return { page: 'pricing', path, unpriced: true };
   if (/^\/wallet\/[^/]+$/.test(path)) {

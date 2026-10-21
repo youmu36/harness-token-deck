@@ -60,13 +60,31 @@ def install(db: sqlite3.Connection) -> None:
     )
     for statement in statements:
         db.execute(statement)
+    from htd.adapters.sqlite.session_speed import install as install_session_speed
+
+    install_session_speed(db)
+    from htd.adapters.sqlite.explorer_storage import install as install_explorer
+
+    install_explorer(db)
+    from htd.adapters.sqlite.output_scope import install as install_scoped_output
+
+    install_scoped_output(db)
+    from htd.adapters.sqlite.zcode_speed_repair import install as install_zcode_repair
+
+    install_zcode_repair(db)
     from htd.adapters.sqlite.wallet_flows import install as install_flows
     from htd.adapters.sqlite.wallet_inheritance import inherit
     from htd.adapters.sqlite.wallet_pending import install as install_pending
 
     install_flows(db)
+    from htd.adapters.sqlite.wallet_recalc_journal import install as install_recalc_journal
+
+    install_recalc_journal(db)
     install_pending(db)
     inherit(db)
     from htd.adapters.sqlite.wallet_flows import seed_recent
 
     seed_recent(db)
+    from htd.adapters.sqlite.wallet_recovery import install as install_wallet_recovery
+
+    install_wallet_recovery(db)

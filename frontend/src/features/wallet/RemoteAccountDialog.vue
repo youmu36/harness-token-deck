@@ -62,8 +62,8 @@ async function deleteAccount() { if (!confirmDelete.value) { confirmDelete.value
       <p v-if="saved?.account?.maskedCredential" class="text-muted">已保存 {{ saved.account.maskedCredential }}，{{ needsCredential ? '查询身份已变更，请重新填写对应令牌。' : '留空不修改。' }}</p>
       <label v-if="siteType === 'newapi'">换算系数（可选覆盖）<input v-model="quotaPerUnit" aria-label="换算系数" inputmode="numeric" placeholder="由 /api/status 自动获取" :disabled="pending" /></label>
       <p v-if="siteType === 'deepseek'" class="text-muted">官方查询仍需 API 密钥进行 Bearer 认证，无需用户 ID 或换算系数。余额以 1:1 的比例从 CNY 转换为 USD 进行计算。</p>
-      <p v-else-if="siteType === 'sub2api'" class="text-muted">使用 API 令牌直接查询 sub2api 账户余额。</p>
-      <p v-else-if="siteType === 'newapi'" class="text-muted">使用访问令牌和用户 ID 查询 New API 账户余额；API 密钥不能用于此查询。</p>
+      <p v-else-if="siteType === 'sub2api'" class="text-muted">使用该供应商账户下的任意 API 密钥查询 sub2api 账户余额；可在供应商网站的 API 密钥页面创建或复制。</p>
+      <p v-else-if="siteType === 'newapi'" class="text-muted">在供应商网站的“个人资料 → 安全 → 访问令牌”中生成并复制访问令牌，再填写同一账户的用户 ID。用于调用模型的 API 密钥不能用于此查询。</p>
       <label class="check"><input v-model="enabled" type="checkbox" :disabled="pending" />自动刷新</label>
       <label v-if="enabled">刷新间隔（分钟） *<input v-model.number="refreshMinutes" type="number" aria-label="刷新间隔" aria-required="true" :aria-invalid="attempted && (!Number.isInteger(refreshMinutes) || refreshMinutes < 1 || refreshMinutes > 60)" min="1" max="60" :disabled="pending" /><span class="text-muted">{{ refreshMinutes < 5 ? '低于 5 分钟，失败后等待下个同步周期，不自动重试。' : '同步失败后每隔 10 秒重试，最多两次。' }}</span></label>
       <Button :pending="testing" :disabled="pending" @click="test">测试连接</Button>

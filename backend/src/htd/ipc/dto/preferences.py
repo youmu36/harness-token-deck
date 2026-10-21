@@ -15,7 +15,7 @@ type RoutePath = Annotated[
     str,
     StringConstraints(
         max_length=512,
-        pattern=r"^(?:|/overview|/harness/(?:claude|codex|zcode|dsh)|/wallet(?:/[^/?#\s]+)?|/pricing(?:/versions)?|/models|/unpriced|/settings(?:/background)?)$",
+        pattern=r"^(?:|/overview|/harness/(?:claude|codex|zcode|dsh)|/wallet(?:/[^/?#\s]+|/setup/new)?|/pricing(?:/versions|/groups|/rates)?|/models(?:/setup)?|/unpriced|/settings(?:/background)?)$",
     ),
 ]
 

@@ -16,6 +16,7 @@ PUBLIC_FILES = {
     ".gitignore",
     "README.md",
     "CONTRIBUTING.md",
+    "CHANGELOG.md",
     "SECURITY.md",
     "LICENSE",
     "VERSION",

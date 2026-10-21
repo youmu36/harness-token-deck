@@ -22,7 +22,9 @@ import ManagementLayout from '../../ui/ManagementLayout.vue';
 import Money from '../../ui/Money.vue';
 import EmptyState from '../../ui/EmptyState.vue';
 import { useCommand } from '../../shared/command';
-const props = defineProps<{ detail?: string; initialPreferences: CommandData<'preferences.get'> }>();
+import type { GuideTarget } from '../../app/router';
+import { vGuideFocus } from '../../shared/guideFocus';
+const props = defineProps<{ detail?: string; initialPreferences: CommandData<'preferences.get'>; guideTarget?: GuideTarget }>();
 const wallet = useWallet(props.initialPreferences); const action = ref<WalletAction>(); const vendor = ref<Vendor>();
 const remoteVendor = ref<Vendor>(); const remoteObservation = ref<RemoteObservation>();
 const scanningProviders = ref(false);
@@ -88,7 +90,7 @@ async function saved(id: string) {
 }
 </script>
 <template>
-  <div class="wallet-page"><header><div><p class="breadcrumb">管理 / 供应商</p><h1>{{ detail ? '供应商钱包' : '供应商与钱包' }}</h1></div><div class="header-actions"><Button @click="scanningProviders = true">查找最近使用的供应商</Button><Button variant="primary" @click="open('create')"><Plus :size="16" />添加供应商</Button></div></header>
+  <div class="wallet-page"><header><div><p class="breadcrumb">管理 / 供应商</p><h1>{{ detail ? '供应商钱包' : '供应商与钱包' }}</h1></div><div class="header-actions"><Button @click="scanningProviders = true">查找最近使用的供应商</Button><Button v-guide-focus="guideTarget === 'vendor'" variant="primary" @click="open('create')"><Plus :size="16" />添加供应商</Button></div></header>
     <InlineAlert v-if="wallet.query.error.value || wallet.catalog.error.value" severity="danger" retry @retry="wallet.query.refresh(); wallet.catalog.refresh()">{{ wallet.query.error.value?.message || wallet.catalog.error.value?.message }}</InlineAlert>
     <p v-if="wallet.query.loading.value" class="text-muted">正在读取供应商…</p>
     <a v-if="detail" href="#/wallet">返回供应商列表</a>

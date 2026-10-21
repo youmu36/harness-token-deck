@@ -1,23 +1,21 @@
 """Current and recently frozen per-session cache ratios, retained only until the next session."""
 
-import hashlib
 import sqlite3
-from datetime import timedelta
 from decimal import Decimal
 from typing import Any, cast
 
-from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.adapters.sqlite.session_state import frozen, session_key
+from htd.adapters.sqlite.token_activity import QUIET
+from htd.domain.common.time import Instant, format_instant
 from htd.domain.usage.model import Harness, UsageEvent
 from htd.domain.usage.model_key import model_key
-
-QUIET = timedelta(minutes=10)
 
 
 def record(db: sqlite3.Connection, event: UsageEvent, at: Instant) -> None:
     if event.session_id is None:
         return
     harness = event.harness.value
-    key = hashlib.sha256(event.session_id.encode("utf-8")).hexdigest()[:16]
+    key = session_key(event.session_id)
     stamp = format_instant(at)
     cutoff = format_instant(Instant(at.value - QUIET))
     previous = cast(
@@ -102,7 +100,7 @@ def read(db: sqlite3.Connection, harness: str, now: Instant) -> list[dict[str, A
                 "lastActivityAt": row["last_received_at"],
                 "cacheHitRate": float(Decimal(numerator) / Decimal(denominator)) if denominator else None,
                 "cacheCoverageIncomplete": bool(row["missing_input"] or row["missing_cache"]),
-                "frozen": now.value - parse_instant(row["last_received_at"]).value >= QUIET,
+                "frozen": frozen(row["last_received_at"], now),
             }
         )
     active = [value for value in values if not value["frozen"]]

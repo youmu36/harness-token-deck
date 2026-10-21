@@ -26,6 +26,26 @@ def rate_ms(output: int, milliseconds: int) -> str | None:
         return str((Decimal(output) * 1000 / milliseconds).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
 
 
+def daily_sum(db: sqlite3.Connection, key: tuple[str, str, str, str], old: sqlite3.Row | None) -> Decimal:
+    """Accept authoritative daily changes made by a released binary after downgrade."""
+    if old is None:
+        return Decimal(0)
+    accumulator = db.execute(
+        "SELECT total_tps FROM output_speed_sum WHERE day=? AND timezone=? AND harness=? AND model_key=?",
+        key,
+    ).fetchone()
+    with localcontext() as context:
+        context.prec = 60
+        if accumulator and old["samples"]:
+            total = Decimal(accumulator[0])
+            published = (total / old["samples"]).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+            if published == Decimal(old["tps"]):
+                return total
+        # Old binaries ignore the additive sum; retain their new daily values
+        # at the rounded precision they published.
+        return Decimal(old["tps"]) * old["samples"]
+
+
 def recent_estimate(row: sqlite3.Row) -> tuple[str | None, bool]:
     """Use the last three reconstructed positive minutes; never average empty polls."""
     timing = json.loads(row["timing_json"])
@@ -142,6 +162,8 @@ def begin_run(db: sqlite3.Connection) -> None:
 
 
 def close_quiet(db: sqlite3.Connection, at: Instant) -> bool:
+    from htd.adapters.sqlite.session_speed import close_quiet as close_sessions
+
     cutoff = format_instant(Instant(at.value - QUIET))
     today = at.value.astimezone(ZoneInfo(timezone(db))).date().isoformat()
     midnight = format_instant(bounds(today, timezone(db))[0])
@@ -160,7 +182,8 @@ def close_quiet(db: sqlite3.Connection, at: Instant) -> bool:
     ).fetchall():
         finalize(db, row)
         changed = True
-    return compact_days(db, at) or changed
+    compacted = compact_days(db, at)
+    return close_sessions(db, at) or compacted or changed
 
 
 def compact_days(db: sqlite3.Connection, at: Instant) -> bool:
@@ -182,9 +205,13 @@ def compact_days(db: sqlite3.Connection, at: Instant) -> bool:
                 key,
             ).fetchone()
             samples = row["samples"] + (old["samples"] if old else 0)
-            value = (
-                Decimal(speed) * row["samples"] + (Decimal(old["tps"]) * old["samples"] if old else 0)
-            ) / samples
+            total_tps = Decimal(speed) * row["samples"] + daily_sum(db, key, old)
+            value = total_tps / samples
+            db.execute(
+                "INSERT INTO output_speed_sum VALUES(?,?,?,?,?) "
+                "ON CONFLICT DO UPDATE SET total_tps=excluded.total_tps",
+                (*key, str(total_tps)),
+            )
             rounded = str(value.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
             db.execute(
                 "INSERT INTO output_daily_speed VALUES(?,?,?,?,?,?,?) ON CONFLICT DO UPDATE SET "
@@ -245,6 +272,18 @@ def record(
     generation_milliseconds: int | None = None,
     session_ids: list[str | None] | None = None,
 ) -> None:
+    if session_ids and model_key:
+        from htd.adapters.sqlite.session_speed import record as record_sessions
+
+        records = samples if samples is not None else [(occurred_at, output, generation_milliseconds)]
+        record_sessions(db, harness, model_key, display_name, records, session_ids, at)
+        # Rows with no session evidence retain the released fallback. Never
+        # count the same known-session contribution in both reference paths.
+        unknown = [sample for sample, session in zip(records, session_ids, strict=True) if not session]
+        if not unknown:
+            return
+        samples = unknown
+        session_ids = [None for _ in unknown]
     zone = ZoneInfo(timezone(db))
     grouped: dict[str, list[tuple[tuple[str, int | None, int | None], str | None]]] = {}
     for index, sample in enumerate(
@@ -359,7 +398,17 @@ def _record_window(
     )
 
 
-def live(db: sqlite3.Connection, harness: str, at: Instant) -> list[dict[str, Any]]:
+def live(
+    db: sqlite3.Connection,
+    harness: str,
+    at: Instant,
+    sessions: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    from htd.adapters.sqlite.session_speed import live as session_live
+
+    speeds = session_live(db, harness, at, sessions)
+    if speeds:
+        return speeds
     return [
         {
             "modelKey": row["model_key"],

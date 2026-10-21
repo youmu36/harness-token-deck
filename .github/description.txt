@@ -1,0 +1,1 @@
+面向同时使用多个 AI Harness 和 New API、sub2api 等第三方网关的 Windows 本地用量与钱包工具。汇总 Token 与费用，管理供应商价格、倍率方案及本地/远程账本。目前支持 Claude Code、Codex、Zcode、DSH，持续扩展中。

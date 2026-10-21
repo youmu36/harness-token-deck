@@ -148,8 +148,8 @@ onBeforeUnmount(() => {
       <main id="main-content" ref="main" class="content page-content" tabindex="-1">
         <OverviewPage v-if="router.page.value === 'overview'" :initial-preferences="snapshot" :analysis-filter="analysisFilter" :can-return="!!returnPage" />
         <HarnessPage v-else-if="router.page.value === 'claude' || router.page.value === 'codex' || router.page.value === 'zcode' || router.page.value === 'dsh'" :key="router.page.value" :harness="router.page.value" :initial-preferences="snapshot" @ready="restoreUsageScroll" />
-        <WalletPage v-else-if="router.page.value === 'wallet'" :initial-preferences="snapshot" :detail="router.route.value.detail" />
-        <PricingPage v-else-if="router.page.value === 'pricing'" :models="router.route.value.models" :unpriced="router.route.value.unpriced" :versions="router.route.value.versions" />
+        <WalletPage v-else-if="router.page.value === 'wallet'" :initial-preferences="snapshot" :detail="router.route.value.detail" :guide-target="router.route.value.guideTarget" />
+        <PricingPage v-else-if="router.page.value === 'pricing'" :models="router.route.value.models" :unpriced="router.route.value.unpriced" :versions="router.route.value.versions" :guide-target="router.route.value.guideTarget" />
         <SettingsPage v-else :initial="snapshot" :background="router.route.value.background" @migration="openMigration" />
       </main>
     </div>

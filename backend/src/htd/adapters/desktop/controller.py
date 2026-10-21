@@ -37,7 +37,11 @@ def page_from_url(url: str) -> str | None:
         "/wallet": "wallet",
         "/pricing": "pricing",
         "/pricing/versions": "pricing",
+        "/pricing/groups": "pricing",
+        "/pricing/rates": "pricing",
+        "/wallet/setup/new": "wallet",
         "/models": "pricing",
+        "/models/setup": "pricing",
         "/settings": "settings",
         "/settings/background": "settings",
     }

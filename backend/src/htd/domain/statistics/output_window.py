@@ -9,7 +9,6 @@ from htd.domain.common.time import Instant, format_instant, parse_instant
 
 SCALE = 1_000_000
 MINUTE = 60_000
-HOUR = 60 * MINUTE
 QUIET = 10 * MINUTE
 RECENT_MINUTES = 3
 # Below 100 ms, millisecond clocks and buffered delivery cannot support a useful
@@ -51,7 +50,7 @@ class OutputWindow:
 
     def add(
         self, stamp: str, count: int | None, duration: int | None, session: str | None, received: str
-    ) -> None:
+    ) -> int | None:
         key = hashlib.sha256(session.encode("utf-8")).hexdigest()[:16] if session else "unknown"
         if count is None or count <= 0 or (duration is not None and duration < MIN_TIMING_MS):
             # A zero-output request breaks timing continuity, but never changes
@@ -91,7 +90,10 @@ class OutputWindow:
             ]
         self.latest = max(self.latest or stamp, stamp)
         assert duration is not None and duration > 0
-        cursor = max(start, end - timedelta(milliseconds=HOUR))
+        # Only the last three effective output minutes affect the live rate.
+        # Keep them across idle gaps, without imposing a wall-clock window.
+        last_minute = (end - timedelta(milliseconds=1)).replace(second=0, microsecond=0)
+        cursor = max(start, last_minute - timedelta(minutes=RECENT_MINUTES - 1))
         allocated = count * SCALE * ((cursor - start) // timedelta(milliseconds=1)) // duration
         while cursor < end:
             minute = cursor.replace(second=0, microsecond=0)
@@ -105,12 +107,12 @@ class OutputWindow:
             values[1] += milliseconds
             values[2] += milliseconds if source_timed else 0
             allocated, cursor = accumulated, stop
-        if self.latest:
-            edge = format_instant(Instant(parse_instant(self.latest).value - timedelta(hours=1)))
-            self.minutes = {key: values for key, values in self.minutes.items() if key >= edge}
-            self.minutes = dict(sorted(self.minutes.items())[-60:])
+        self.minutes = dict(sorted(self.minutes.items())[-RECENT_MINUTES:])
         if len(self.cursors) > 100:
             self.cursors = dict(sorted(self.cursors.items(), key=lambda pair: pair[1][1])[-100:])
+        # The rolling window may clip old minutes; callers that keep a lifetime
+        # average still need the complete duration of this accepted request.
+        return duration
 
     def totals(self, recent: bool = False) -> tuple[int, int, bool]:
         keys = sorted(key for key, values in self.minutes.items() if values[0] > 0 and values[1] > 0)

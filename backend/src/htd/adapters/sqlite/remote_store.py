@@ -156,6 +156,11 @@ class SqliteRemoteStore(SqliteCommandStore):
         self.execute(lambda work: work.emit(WalletChanged((vendor_id,), work.revision("wallet"))))
 
     def flush_pending(self, at: Instant) -> None:
+        from htd.adapters.sqlite.wallet_recovery import repair as repair_wallet
+        from htd.adapters.sqlite.zcode_speed_repair import repair as repair_zcode_speed
+
+        repair_wallet(self.readers, self.writer, at)
+        repair_zcode_speed(self.readers, self.writer, at)
         from datetime import timedelta
 
         from htd.adapters.sqlite.token_activity import QUIET
@@ -178,14 +183,19 @@ class SqliteRemoteStore(SqliteCommandStore):
                 "SELECT 1 FROM output_live o LEFT JOIN token_activity t USING(harness,model_key) "
                 "WHERE o.finalized=0 AND "
                 "(MAX(o.last_received_at,COALESCE(t.last_received_at,o.last_received_at))<=? "
-                "OR o.last_output_at<?) UNION ALL SELECT 1 FROM output_reference WHERE day<? LIMIT 1",
-                (format_instant(at), cutoff, cutoff, cutoff, midnight, today),
+                "OR o.last_output_at<?) UNION ALL SELECT 1 FROM output_reference WHERE day<? "
+                "UNION ALL SELECT 1 FROM output_session_day d LEFT JOIN session_hit_rate s "
+                "ON s.harness=d.harness AND s.session_key=d.session_key WHERE d.pending=1 "
+                "AND (MAX(d.last_received_at,COALESCE(s.last_received_at,d.last_received_at))<=? "
+                "OR d.day<?) LIMIT 1",
+                (format_instant(at), cutoff, cutoff, cutoff, midnight, today, cutoff, today),
             ).fetchone()
             if due is None:
                 due = db.execute(
                     "SELECT 1 FROM wallet_flow_pending WHERE received_at<=? UNION ALL "
+                    "SELECT 1 FROM wallet_recalc_pending WHERE received_at<=? UNION ALL "
                     "SELECT 1 FROM wallet_flow WHERE posted_at<? LIMIT 1",
-                    (cutoff, format_instant(Instant(at.value - timedelta(days=30)))),
+                    (cutoff, cutoff, format_instant(Instant(at.value - timedelta(days=30)))),
                 ).fetchone()
         if due is None:
             return

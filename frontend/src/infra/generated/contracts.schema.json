@@ -388,6 +388,37 @@
       "title": "AccountSummary",
       "type": "object"
     },
+    "AcknowledgeQualityRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/QualityAcknowledgement"
+          },
+          "maxItems": 100,
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "AcknowledgeQualityRequest",
+      "type": "object"
+    },
+    "AcknowledgeQualityResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "acknowledged": {
+          "$ref": "#/$defs/SafeInt-Output"
+        }
+      },
+      "required": [
+        "acknowledged"
+      ],
+      "title": "AcknowledgeQualityResponse",
+      "type": "object"
+    },
     "ActivateVersionRequest": {
       "additionalProperties": false,
       "properties": {
@@ -1795,6 +1826,14 @@
       "title": "ChangeResponse",
       "type": "object"
     },
+    "Choices": {
+      "items": {
+        "maxLength": 160,
+        "type": "string"
+      },
+      "maxItems": 50,
+      "type": "array"
+    },
     "CollectionRecord": {
       "additionalProperties": false,
       "properties": {
@@ -2655,6 +2694,767 @@
           "$ref": "#/$defs/TaskDoneRecord"
         }
       ]
+    },
+    "ExploreBreakdown": {
+      "additionalProperties": false,
+      "properties": {
+        "cacheCoverageIncomplete": {
+          "title": "Cachecoverageincomplete",
+          "type": "boolean"
+        },
+        "cacheHitRate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HitRate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cacheReadTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "cacheWriteTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "displayName": {
+          "title": "Displayname",
+          "type": "string"
+        },
+        "eligibleCostPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "eligibleTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "groupId": {
+          "title": "Groupid",
+          "type": "string"
+        },
+        "harness": {
+          "title": "Harness",
+          "type": "string"
+        },
+        "incomplete": {
+          "title": "Incomplete",
+          "type": "boolean"
+        },
+        "inputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "modelKey": {
+          "title": "Modelkey",
+          "type": "string"
+        },
+        "newInput": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "outputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "parts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/PicoStr-Output"
+          },
+          "title": "Parts",
+          "type": "object"
+        },
+        "perDollar": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Perdollar",
+          "type": "object"
+        },
+        "picoUsd": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "recordCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "tokensPerDollar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tokensperdollar"
+        },
+        "totalTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unpriced": {
+          "title": "Unpriced",
+          "type": "boolean"
+        },
+        "vendorId": {
+          "title": "Vendorid",
+          "type": "string"
+        },
+        "versionId": {
+          "title": "Versionid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recordCount",
+        "inputTokens",
+        "cacheReadTokens",
+        "outputTokens",
+        "cacheWriteTokens",
+        "newInput",
+        "totalTokens",
+        "picoUsd",
+        "cacheHitRate",
+        "incomplete",
+        "unpriced",
+        "cacheCoverageIncomplete",
+        "tokensPerDollar",
+        "perDollar",
+        "parts",
+        "eligibleCostPico",
+        "eligibleTokens",
+        "harness",
+        "vendorId",
+        "groupId",
+        "versionId",
+        "modelKey",
+        "displayName"
+      ],
+      "title": "ExploreBreakdown",
+      "type": "object"
+    },
+    "ExploreMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "cacheCoverageIncomplete": {
+          "title": "Cachecoverageincomplete",
+          "type": "boolean"
+        },
+        "cacheHitRate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HitRate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cacheReadTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "cacheWriteTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "eligibleCostPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "eligibleTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "incomplete": {
+          "title": "Incomplete",
+          "type": "boolean"
+        },
+        "inputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "newInput": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "outputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "parts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/PicoStr-Output"
+          },
+          "title": "Parts",
+          "type": "object"
+        },
+        "perDollar": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Perdollar",
+          "type": "object"
+        },
+        "picoUsd": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "recordCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "tokensPerDollar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tokensperdollar"
+        },
+        "totalTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unpriced": {
+          "title": "Unpriced",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "recordCount",
+        "inputTokens",
+        "cacheReadTokens",
+        "outputTokens",
+        "cacheWriteTokens",
+        "newInput",
+        "totalTokens",
+        "picoUsd",
+        "cacheHitRate",
+        "incomplete",
+        "unpriced",
+        "cacheCoverageIncomplete",
+        "tokensPerDollar",
+        "perDollar",
+        "parts",
+        "eligibleCostPico",
+        "eligibleTokens"
+      ],
+      "title": "ExploreMetrics",
+      "type": "object"
+    },
+    "ExploreModel": {
+      "additionalProperties": false,
+      "properties": {
+        "cacheCoverageIncomplete": {
+          "title": "Cachecoverageincomplete",
+          "type": "boolean"
+        },
+        "cacheHitRate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HitRate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cacheReadTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "cacheWriteTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "displayName": {
+          "title": "Displayname",
+          "type": "string"
+        },
+        "eligibleCostPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "eligibleTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "incomplete": {
+          "title": "Incomplete",
+          "type": "boolean"
+        },
+        "inputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "modelKey": {
+          "title": "Modelkey",
+          "type": "string"
+        },
+        "newInput": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "outputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "parts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/PicoStr-Output"
+          },
+          "title": "Parts",
+          "type": "object"
+        },
+        "perDollar": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Perdollar",
+          "type": "object"
+        },
+        "picoUsd": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "recordCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "tokensPerDollar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tokensperdollar"
+        },
+        "totalTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unpriced": {
+          "title": "Unpriced",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "recordCount",
+        "inputTokens",
+        "cacheReadTokens",
+        "outputTokens",
+        "cacheWriteTokens",
+        "newInput",
+        "totalTokens",
+        "picoUsd",
+        "cacheHitRate",
+        "incomplete",
+        "unpriced",
+        "cacheCoverageIncomplete",
+        "tokensPerDollar",
+        "perDollar",
+        "parts",
+        "eligibleCostPico",
+        "eligibleTokens",
+        "modelKey",
+        "displayName"
+      ],
+      "title": "ExploreModel",
+      "type": "object"
+    },
+    "ExploreOption": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "parentId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parentid"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "parentId"
+      ],
+      "title": "ExploreOption",
+      "type": "object"
+    },
+    "ExploreOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "groups": {
+          "items": {
+            "$ref": "#/$defs/ExploreOption"
+          },
+          "title": "Groups",
+          "type": "array"
+        },
+        "models": {
+          "items": {
+            "$ref": "#/$defs/ExploreOption"
+          },
+          "title": "Models",
+          "type": "array"
+        },
+        "vendors": {
+          "items": {
+            "$ref": "#/$defs/ExploreOption"
+          },
+          "title": "Vendors",
+          "type": "array"
+        },
+        "versions": {
+          "items": {
+            "$ref": "#/$defs/ExploreOption"
+          },
+          "title": "Versions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "vendors",
+        "groups",
+        "versions",
+        "models"
+      ],
+      "title": "ExploreOptions",
+      "type": "object"
+    },
+    "ExplorePoint": {
+      "additionalProperties": false,
+      "properties": {
+        "bucket": {
+          "title": "Bucket",
+          "type": "string"
+        },
+        "cacheCoverageIncomplete": {
+          "title": "Cachecoverageincomplete",
+          "type": "boolean"
+        },
+        "cacheHitRate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HitRate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cacheReadTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "cacheWriteTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "eligibleCostPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "eligibleTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "incomplete": {
+          "title": "Incomplete",
+          "type": "boolean"
+        },
+        "inputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "newInput": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "outputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "parts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/PicoStr-Output"
+          },
+          "title": "Parts",
+          "type": "object"
+        },
+        "perDollar": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Perdollar",
+          "type": "object"
+        },
+        "picoUsd": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "recordCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "tokensPerDollar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tokensperdollar"
+        },
+        "totalTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unpriced": {
+          "title": "Unpriced",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "recordCount",
+        "inputTokens",
+        "cacheReadTokens",
+        "outputTokens",
+        "cacheWriteTokens",
+        "newInput",
+        "totalTokens",
+        "picoUsd",
+        "cacheHitRate",
+        "incomplete",
+        "unpriced",
+        "cacheCoverageIncomplete",
+        "tokensPerDollar",
+        "perDollar",
+        "parts",
+        "eligibleCostPico",
+        "eligibleTokens",
+        "bucket",
+        "label"
+      ],
+      "title": "ExplorePoint",
+      "type": "object"
+    },
+    "ExploreRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "grain": {
+          "default": "day",
+          "enum": [
+            "hour",
+            "day",
+            "month",
+            "year"
+          ],
+          "title": "Grain",
+          "type": "string"
+        },
+        "groupIds": {
+          "$ref": "#/$defs/Choices"
+        },
+        "harnesses": {
+          "items": {
+            "enum": [
+              "claude",
+              "codex",
+              "zcode",
+              "dsh"
+            ],
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Harnesses",
+          "type": "array"
+        },
+        "limit": {
+          "default": 50,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "modelKeys": {
+          "$ref": "#/$defs/Choices"
+        },
+        "offset": {
+          "default": 0,
+          "maximum": 5000,
+          "minimum": 0,
+          "title": "Offset",
+          "type": "integer"
+        },
+        "qualityOffset": {
+          "default": 0,
+          "maximum": 30000,
+          "minimum": 0,
+          "title": "Qualityoffset",
+          "type": "integer"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "vendorIds": {
+          "$ref": "#/$defs/Choices"
+        },
+        "versionIds": {
+          "$ref": "#/$defs/Choices"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "ExploreRequest",
+      "type": "object"
+    },
+    "ExploreResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "breakdowns": {
+          "items": {
+            "$ref": "#/$defs/ExploreBreakdown"
+          },
+          "title": "Breakdowns",
+          "type": "array"
+        },
+        "businessTimezone": {
+          "title": "Businesstimezone",
+          "type": "string"
+        },
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "generatedAt": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "grain": {
+          "enum": [
+            "hour",
+            "day",
+            "month",
+            "year"
+          ],
+          "title": "Grain",
+          "type": "string"
+        },
+        "missingVersionRecords": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "models": {
+          "items": {
+            "$ref": "#/$defs/ExploreModel"
+          },
+          "title": "Models",
+          "type": "array"
+        },
+        "nextOffset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SafeInt-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "notices": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notices",
+          "type": "array"
+        },
+        "quality": {
+          "items": {
+            "$ref": "#/$defs/QualityItem"
+          },
+          "title": "Quality",
+          "type": "array"
+        },
+        "qualityNextOffset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SafeInt-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "qualityTotal": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "qualityUnacknowledged": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "revision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "totalModels": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "totals": {
+          "$ref": "#/$defs/ExploreMetrics"
+        },
+        "trend": {
+          "items": {
+            "$ref": "#/$defs/ExplorePoint"
+          },
+          "title": "Trend",
+          "type": "array"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "generatedAt",
+        "businessTimezone",
+        "grain",
+        "totals",
+        "models",
+        "trend",
+        "breakdowns",
+        "totalModels",
+        "nextOffset",
+        "missingVersionRecords",
+        "notices",
+        "revision",
+        "quality",
+        "qualityTotal",
+        "qualityUnacknowledged",
+        "qualityNextOffset"
+      ],
+      "title": "ExploreResponse",
+      "type": "object"
     },
     "Failure": {
       "additionalProperties": false,
@@ -3987,6 +4787,46 @@
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
       "type": "string"
     },
+    "OutputDaily": {
+      "additionalProperties": false,
+      "properties": {
+        "day": {
+          "title": "Day",
+          "type": "string"
+        },
+        "displayName": {
+          "title": "Displayname",
+          "type": "string"
+        },
+        "modelKey": {
+          "title": "Modelkey",
+          "type": "string"
+        },
+        "samples": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "tokensPerSecond": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tokenspersecond"
+        }
+      },
+      "required": [
+        "day",
+        "modelKey",
+        "displayName",
+        "tokensPerSecond",
+        "samples"
+      ],
+      "title": "OutputDaily",
+      "type": "object"
+    },
     "OutputReference": {
       "additionalProperties": false,
       "properties": {
@@ -4025,6 +4865,70 @@
         "samples"
       ],
       "title": "OutputReference",
+      "type": "object"
+    },
+    "OutputReferencesRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "groupIds": {
+          "$ref": "#/$defs/Choices"
+        },
+        "harnesses": {
+          "items": {
+            "enum": [
+              "claude",
+              "codex",
+              "zcode",
+              "dsh"
+            ],
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Harnesses",
+          "type": "array"
+        },
+        "modelKeys": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Modelkeys",
+          "type": "array"
+        },
+        "vendorIds": {
+          "$ref": "#/$defs/Choices"
+        },
+        "versionIds": {
+          "$ref": "#/$defs/Choices"
+        }
+      },
+      "title": "OutputReferencesRequest",
+      "type": "object"
+    },
+    "OutputReferencesResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "generatedAt": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "references": {
+          "items": {
+            "$ref": "#/$defs/OutputDaily"
+          },
+          "title": "References",
+          "type": "array"
+        },
+        "today": {
+          "title": "Today",
+          "type": "string"
+        }
+      },
+      "required": [
+        "today",
+        "references",
+        "generatedAt"
+      ],
+      "title": "OutputReferencesResponse",
       "type": "object"
     },
     "OutputSpeed": {
@@ -4068,6 +4972,42 @@
         "outputTokens": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "sessionAverageTps": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sessionaveragetps"
+        },
+        "sessionKey": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{16}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sessionkey"
+        },
+        "startedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InstantStr"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "tokensPerSecond": {
           "anyOf": [
             {
@@ -4081,6 +5021,9 @@
         }
       },
       "required": [
+        "sessionKey",
+        "startedAt",
+        "sessionAverageTps",
         "modelKey",
         "displayName",
         "tokensPerSecond",
@@ -4640,6 +5583,110 @@
         "versionId"
       ],
       "title": "PreviewSwitchRequest",
+      "type": "object"
+    },
+    "QualityAcknowledgement": {
+      "additionalProperties": false,
+      "properties": {
+        "fingerprint": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "fingerprint"
+      ],
+      "title": "QualityAcknowledgement",
+      "type": "object"
+    },
+    "QualityItem": {
+      "additionalProperties": false,
+      "properties": {
+        "acknowledged": {
+          "title": "Acknowledged",
+          "type": "boolean"
+        },
+        "costDifferencePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "date": {
+          "title": "Date",
+          "type": "string"
+        },
+        "displayName": {
+          "title": "Displayname",
+          "type": "string"
+        },
+        "fingerprint": {
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "groupId": {
+          "title": "Groupid",
+          "type": "string"
+        },
+        "harness": {
+          "title": "Harness",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "modelKey": {
+          "title": "Modelkey",
+          "type": "string"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "recordCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "vendorId": {
+          "title": "Vendorid",
+          "type": "string"
+        },
+        "versionId": {
+          "title": "Versionid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "fingerprint",
+        "date",
+        "harness",
+        "vendorId",
+        "groupId",
+        "versionId",
+        "modelKey",
+        "displayName",
+        "reasons",
+        "recordCount",
+        "acknowledged",
+        "costDifferencePico"
+      ],
+      "title": "QualityItem",
       "type": "object"
     },
     "RateStr": {
@@ -5882,7 +6929,7 @@
     },
     "RoutePath": {
       "maxLength": 512,
-      "pattern": "^(?:|/overview|/harness/(?:claude|codex|zcode|dsh)|/wallet(?:/[^/?#\\s]+)?|/pricing(?:/versions)?|/models|/unpriced|/settings(?:/background)?)$",
+      "pattern": "^(?:|/overview|/harness/(?:claude|codex|zcode|dsh)|/wallet(?:/[^/?#\\s]+|/setup/new)?|/pricing(?:/versions|/groups|/rates)?|/models(?:/setup)?|/unpriced|/settings(?:/background)?)$",
       "type": "string"
     },
     "Rule-Input": {
@@ -6848,6 +7895,39 @@
       "title": "Success[AccountEntriesResponse]",
       "type": "object"
     },
+    "Success_AcknowledgeQualityResponse_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/AcknowledgeQualityResponse"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[AcknowledgeQualityResponse]",
+      "type": "object"
+    },
     "Success_AnalysisResponse_": {
       "additionalProperties": false,
       "properties": {
@@ -7112,6 +8192,72 @@
       "title": "Success[EntriesResponse]",
       "type": "object"
     },
+    "Success_ExploreOptions_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/ExploreOptions"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[ExploreOptions]",
+      "type": "object"
+    },
+    "Success_ExploreResponse_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/ExploreResponse"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[ExploreResponse]",
+      "type": "object"
+    },
     "Success_HelloResponse_": {
       "additionalProperties": false,
       "properties": {
@@ -7374,6 +8520,39 @@
         "data"
       ],
       "title": "Success[OpenPathResponse]",
+      "type": "object"
+    },
+    "Success_OutputReferencesResponse_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/OutputReferencesResponse"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[OutputReferencesResponse]",
       "type": "object"
     },
     "Success_PickPathResponse_": {
@@ -10050,6 +11229,9 @@
         "sources.validatePath": {
           "$ref": "#/$defs/SourcePathRequest"
         },
+        "stats.acknowledgeQuality": {
+          "$ref": "#/$defs/AcknowledgeQualityRequest"
+        },
         "stats.analytics": {
           "$ref": "#/$defs/AnalysisRequest"
         },
@@ -10059,8 +11241,17 @@
         "stats.cacheMonitor": {
           "$ref": "#/$defs/CacheMonitorRequest"
         },
+        "stats.explore": {
+          "$ref": "#/$defs/ExploreRequest"
+        },
+        "stats.exploreOptions": {
+          "$ref": "#/$defs/EmptyRequest"
+        },
         "stats.longTerm": {
           "$ref": "#/$defs/AuxiliaryRequest"
+        },
+        "stats.outputReferences": {
+          "$ref": "#/$defs/OutputReferencesRequest"
         },
         "stats.summary": {
           "$ref": "#/$defs/SummaryRequest"
@@ -10190,10 +11381,14 @@
         "sources.list",
         "sources.setPath",
         "sources.validatePath",
+        "stats.acknowledgeQuality",
         "stats.analytics",
         "stats.auxiliaryCosts",
         "stats.cacheMonitor",
+        "stats.explore",
+        "stats.exploreOptions",
         "stats.longTerm",
+        "stats.outputReferences",
         "stats.summary",
         "tasks.cancel",
         "tasks.get",
@@ -10764,6 +11959,16 @@
             }
           ]
         },
+        "stats.acknowledgeQuality": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_AcknowledgeQualityResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
         "stats.analytics": {
           "oneOf": [
             {
@@ -10794,10 +11999,40 @@
             }
           ]
         },
+        "stats.explore": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_ExploreResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "stats.exploreOptions": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_ExploreOptions_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
         "stats.longTerm": {
           "oneOf": [
             {
               "$ref": "#/$defs/Success_LongTermResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "stats.outputReferences": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_OutputReferencesResponse_"
             },
             {
               "$ref": "#/$defs/Failure"
@@ -11100,10 +12335,14 @@
         "sources.list",
         "sources.setPath",
         "sources.validatePath",
+        "stats.acknowledgeQuality",
         "stats.analytics",
         "stats.auxiliaryCosts",
         "stats.cacheMonitor",
+        "stats.explore",
+        "stats.exploreOptions",
         "stats.longTerm",
+        "stats.outputReferences",
         "stats.summary",
         "tasks.cancel",
         "tasks.get",

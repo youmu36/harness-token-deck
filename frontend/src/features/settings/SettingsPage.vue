@@ -37,7 +37,7 @@ const hello = useQuery('settings.hello', () => bridge.call('app.hello', { client
     <Background v-else-if="section === 'background'" :initial="saved.snapshot.value" />
     <template v-else-if="section === 'data'"><Data :mode="saved.snapshot.value.preferences.timezone" /><HistoryAndMigration @history="$emit('history')" @migration="$emit('migration')" /></template>
     <template v-else>
-      <section class="settings-card"><h2>使用指南</h2><p class="text-muted">从模型池、价格组与倍率版本开始，再配置供应商与钱包。</p><div class="settings-actions"><Button @click="guideOpen = true">查看简要使用指南</Button></div></section>
+      <section class="settings-card"><h2>使用指南</h2><p class="text-muted">从模型池、价格组与倍率版本开始，再配置供应商与钱包。</p><div class="settings-actions"><Button @click="guideOpen = true">查看使用指南</Button></div></section>
       <InlineAlert v-if="hello.error.value" severity="danger" retry @retry="hello.refresh">{{ hello.error.value.message }}</InlineAlert>
       <About v-if="hello.data.value" :version="hello.data.value.appVersion" :data-dir="hello.data.value.dataDir" />
     </template>

@@ -250,6 +250,7 @@ class WalletStore:
                 format_instant(entry.occurred_at),
                 entry.amount_pico,
                 entry.id,
+                journal=not entry.note.startswith("重算调整"),
             )
             absorbed = state == "absorbed"
             delta_kind = state if state != "absorbed" else "adjustment"

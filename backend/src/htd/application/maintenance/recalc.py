@@ -13,7 +13,9 @@ from htd.domain.billing.estimate import estimate_cost
 from htd.domain.common.errors import DomainError
 from htd.domain.common.time import Clock, Instant, format_instant, parse_instant
 from htd.domain.pricing.catalog import Resolution
+from htd.domain.pricing.history import HISTORY_GROUP_ID
 from htd.domain.usage.model import Harness
+from htd.domain.wallet.ledger import attribute_consumption
 
 
 def validate_window(start: Instant, end: Instant, now: Instant) -> None:
@@ -68,9 +70,21 @@ def plan(
                 },
             )
         )
-        if row.consumption is not None:
-            vendor_id = row.consumption.vendor_id
-            delta = 0 if row.local_override else cost.pico_usd - int(cast(str, row.old["pico"]))
+        vendor_id = (
+            row.consumption.vendor_id
+            if row.consumption is not None
+            else attribute_consumption(snapshot.links, group.id, at)
+            if group.id != HISTORY_GROUP_ID
+            else None
+        )
+        if vendor_id is not None:
+            delta = (
+                0
+                if row.local_override
+                else cost.pico_usd - int(cast(str, row.old["pico"]))
+                if row.consumption is not None
+                else cost.pico_usd
+            )
             aggregate = vendors.setdefault(vendor_id, [0, 0])
             aggregate[0] += delta
             aggregate[1] -= delta
@@ -105,6 +119,9 @@ def plan(
             for r in snapshot.rows
         ],
         "localProjectionVendors": sorted(snapshot.vendors),
+        "links": [
+            asdict(link) | {"effective_at": format_instant(link.effective_at)} for link in snapshot.links
+        ],
         "calibrations": {
             v: [(c.entry_id, format_instant(c.at), c.seq) for c in records]
             for v, records in sorted(snapshot.calibrations.items())

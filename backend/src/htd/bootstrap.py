@@ -201,7 +201,7 @@ class Application:
             self.preferences = Preferences(self.store, self.clock, set_startup=set_startup)
             self.collection = CollectionCommands(self.store, locator, self.scheduler, self.clock)
             self.statistics = Statistics(
-                SqliteStatisticsStore(self.readers), self.clock, capacity=cache_capacity
+                SqliteStatisticsStore(self.readers, self.writer), self.clock, capacity=cache_capacity
             )
 
             self.events = EventForwarder(self.bus)

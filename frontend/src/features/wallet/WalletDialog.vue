@@ -18,8 +18,10 @@ const commands = { create: useCommand('wallet.createVendor'), topup: useCommand(
 const pending = computed(() => commands[props.action].pending.value);
 const title = { create: '添加供应商', topup: '充值', calibrate: '校准余额', link: '关联价格组', rename: '编辑供应商', delete: '删除供应商', restore: '恢复供应商' };
 const url = ref(props.vendor?.url ?? '');
-const pastTopUp = ref(remoteAmount(props.vendor?.pastTopUpPico ?? '0'));
-const pastConsumption = ref(remoteAmount(props.vendor?.pastConsumptionPico ?? '0'));
+const pastInput = (value?: string) => !value || BigInt(value) === 0n ? '' : remoteAmount(value);
+const pastTopUp = ref(pastInput(props.vendor?.pastTopUpPico));
+const pastConsumption = ref(pastInput(props.vendor?.pastConsumptionPico));
+const originalPast = { topUp: pastTopUp.value, consumption: pastConsumption.value };
 const pastValid = computed(() => [pastTopUp.value, pastConsumption.value].every(amount => { const value = amountPico(amount || '0'); return value !== undefined && value >= 0n; }));
 const name = ref(props.vendor?.name ?? ''); const amount = ref(props.remoteObservation?.amountPico ? remoteAmount(props.remoteObservation.amountPico) : ''); const error = ref('');
 const localVendor = ref(props.vendor); const groupIds = ref([...(props.vendor?.linkedGroups ?? [])]);
@@ -45,7 +47,7 @@ async function submit() {
     else if (props.action === 'topup') { await commands.topup.run({ vendorId, amount: amount.value, ...(props.walletScope ? {walletScope:props.walletScope} : {}) }); toast.success(`已充值 ${formatMoney(parsed.value!, 'usd4')}`); }
     else if (props.action === 'calibrate') await commands.calibrate.run({ vendorId, ...(props.walletScope === 'remote' ? {walletScope:'remote' as const} : {}), target: amount.value, expectedWalletRevision: localVendor.value!.walletRevision, ...(remoteSelected.value ? { remoteFetchedAt: props.remoteObservation!.fetchedAt } : {}) });
     else if (props.action === 'link') await commands.link.run({ vendorId, groupIds: groupIds.value, expectedRevision: revision.value });
-    else if (props.action === 'rename') await commands.rename.run({ vendorId, name: name.value.trim(), ...(props.hidePast ? {} : {pastTopUp: pastTopUp.value || '0', pastConsumption: pastConsumption.value || '0'}), ...(url.value !== (props.vendor?.url ?? '') ? { url: url.value.trim() || null } : {}) });
+    else if (props.action === 'rename') await commands.rename.run({ vendorId, name: name.value.trim(), ...(!props.hidePast && pastTopUp.value !== originalPast.topUp ? {pastTopUp: pastTopUp.value || '0'} : {}), ...(!props.hidePast && pastConsumption.value !== originalPast.consumption ? {pastConsumption: pastConsumption.value || '0'} : {}), ...(url.value !== (props.vendor?.url ?? '') ? { url: url.value.trim() || null } : {}) });
     else if (props.action === 'delete') await commands.delete.run({ vendorId });
     else await commands.restore.run({ vendorId });
     emit('saved', vendorId); emit('close');
@@ -63,8 +65,8 @@ async function submit() {
     <form id="wallet-command" class="fields" @submit.prevent="submit">
       <p v-if="vendor">{{ vendor.name }}</p>
       <label v-if="action === 'create' || action === 'rename'">名称<input v-model="name" aria-label="名称" maxlength="60" :disabled="pending" /></label>
-      <label v-if="action === 'create' || (action === 'rename' && !hidePast)">过往充值金额（USD，选填）<input v-model="pastTopUp" aria-label="过往充值金额" inputmode="decimal" :disabled="pending" placeholder="0" /><span class="text-muted">记录使用本软件前的充值，可随时修改；单独展示，不改变当前余额或资金流水。</span><span v-if="!pastValid" role="alert">请输入非负金额，最多 6 位小数。</span></label>
-      <label v-if="action === 'create' || (action === 'rename' && !hidePast)">过往消费金额（USD，选填）<input v-model="pastConsumption" aria-label="过往消费金额" inputmode="decimal" :disabled="pending" placeholder="0" /><span class="text-muted">记录使用本软件前的消费，可随时修改；单独展示，不改变当前余额或资金流水。</span></label>
+      <label v-if="action === 'create' || (action === 'rename' && !hidePast)">过往充值金额（USD，选填）<input v-model="pastTopUp" aria-label="过往充值金额" inputmode="decimal" :disabled="pending" placeholder="留空按 0" /><span class="text-muted">记录使用本软件前的充值，可随时修改；单独展示，不改变当前余额或资金流水。</span><span v-if="!pastValid" role="alert">请输入非负金额，最多 6 位小数。</span></label>
+      <label v-if="action === 'create' || (action === 'rename' && !hidePast)">过往消费金额（USD，选填）<input v-model="pastConsumption" aria-label="过往消费金额" inputmode="decimal" :disabled="pending" placeholder="留空按 0" /><span class="text-muted">记录使用本软件前的消费，可随时修改；单独展示，不改变当前余额或资金流水。</span></label>
       <label v-if="action === 'create' || action === 'rename'">供应商网址（选填）<input v-model="url" aria-label="供应商网址" maxlength="2048" :disabled="pending" placeholder="https://example.com" /><span class="text-muted">将作为远程账户的站点地址；已配置的站点请在远程账户中修改。</span></label>
       <p v-if="action === 'calibrate'">当前显示余额：<Money v-if="localVendor" :pico="localVendor.account?.B ?? localVendor.B" mode="usd4" /></p>
       <p v-if="remoteObservation">远程来源：{{ remoteObservation.source }} · {{ kindLabels[remoteObservation.kind] }} · 获取于 {{ remoteObservation.fetchedAt }}；远程额度 <Money v-if="remoteObservation.amountPico !== null" :pico="remoteObservation.amountPico" mode="usd4" /></p>

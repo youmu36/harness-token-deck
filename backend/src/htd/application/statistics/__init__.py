@@ -189,6 +189,21 @@ class Statistics:
     def long_term(self, start: Instant, end: Instant, harness: str) -> dict[str, object]:
         return self.store.long_term(start, end, harness)
 
+    def acknowledge_quality(self, items: list[dict[str, str]]) -> dict[str, object]:
+        return self.store.acknowledge_quality(items, self.clock.now_utc())
+
+    def explore(self, query: dict[str, object]) -> dict[str, object]:
+        with self._slots:
+            return self.store.explore(query, self.clock.now_utc())
+
+    def explore_options(self) -> dict[str, object]:
+        with self._slots:
+            return self.store.explore_options()
+
+    def output_references(self, query: dict[str, object]) -> dict[str, object]:
+        with self._slots:
+            return self.store.output_references(query, self.clock.now_utc())
+
     def analytics(self, query: AnalysisQuery) -> dict[str, object]:
         with self._slots:
             return self.store.analytics(query, self.clock.now_utc())

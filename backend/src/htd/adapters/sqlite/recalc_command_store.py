@@ -104,7 +104,7 @@ class SqliteRecalcStore(SqliteManualMaintenanceStore):
         return RecalcSnapshot(
             catalog if catalog is not None else PricingRepository(db).load(),
             tuple(rows),
-            {v.id: v.name for v in wallet.list_vendors(include_archived=True) if v.id in vendor_ids},
+            {v.id: v.name for v in wallet.list_vendors(include_archived=True)},
             {
                 v: (
                     ()
@@ -123,6 +123,7 @@ class SqliteRecalcStore(SqliteManualMaintenanceStore):
                     "SELECT vendor_id FROM account_segment WHERE kind='remote' AND ended_at IS NULL"
                 )
             ),
+            links=wallet.links(),
         )
 
     @staticmethod
@@ -171,6 +172,7 @@ class SqliteRecalcStore(SqliteManualMaintenanceStore):
                 recalc_batch_id=batch.id,
                 unpriced=bool(change.new["unpriced"]),
                 incomplete=bool(change.new["incomplete"]),
+                note="重算调整",
             )
             wallet.append_with_offsets(work, entry, at=at)
             changed.add(original.vendor_id)
@@ -185,4 +187,13 @@ class SqliteRecalcStore(SqliteManualMaintenanceStore):
             on_updated=on_updated,
             record_receipt=False,
         )
+        from htd.adapters.sqlite.wallet_recalc_journal import stage
+        from htd.adapters.sqlite.wallet_recovery import append_missing
+
+        for update in updates:
+            if update.row.consumption is None:
+                entry = append_missing(db, work, update.row.event, update.new, batch.id, at)
+                if entry is not None:
+                    changed.add(entry.vendor_id)
+        changed.update(stage(db, work, updates, batch.id, at))
         return batch.id, tuple(sorted(changed))

@@ -378,14 +378,21 @@ class WalletRepository(WalletStore):
         return decode_entry(row) if row else None
 
     def append_consumption(
-        self, work: UnitOfWork, billed: BilledUsage, *, at: Instant, migration: bool = False
+        self,
+        work: UnitOfWork,
+        billed: BilledUsage,
+        *,
+        at: Instant,
+        migration: bool = False,
+        recalc_batch_id: str | None = None,
+        ownership_at: Instant | None = None,
     ) -> WalletEntry | None:
         require_transaction(work, self.connection)
         event = billed.event
         ownership = self.connection.execute(
             "SELECT vendor_id FROM vendor_link WHERE group_id=? AND effective_at<=? "
             "ORDER BY effective_at DESC,seq DESC LIMIT 1",
-            (billed.group_id, event.occurred_at),
+            (billed.group_id, format_instant(ownership_at) if ownership_at else event.occurred_at),
         ).fetchone()
         vendor_id = ownership[0] if ownership else None
         if (
@@ -407,6 +414,8 @@ class WalletRepository(WalletStore):
             parse_instant(event.occurred_at),
             self.next_seq(),
             usage_ref=UsageRef(event.harness, event.dedupe_key),
+            recalc_batch_id=recalc_batch_id,
+            note="补价补记消费" if recalc_batch_id is not None else "",
             unpriced=billed.cost.unpriced,
             incomplete=billed.cost.incomplete,
         )

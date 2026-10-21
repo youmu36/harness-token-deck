@@ -57,6 +57,11 @@ def sha256(path: Path) -> str:
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
+def asset_name(path: Path) -> str:
+    # GitHub canonicalizes spaces in upload names.
+    return path.name.replace(" ", ".")
+
+
 def network_command(args: tuple[str, ...], gh: str) -> tuple[str, ...]:
     if args[:2] not in (("git", "push"), ("git", "fetch")):
         return args
@@ -161,8 +166,17 @@ class Publisher:
         try:
             return json.loads(self.capture(self.gh, "api", endpoint))
         except subprocess.CalledProcessError as error:
-            if missing_ok and "HTTP 404" in (error.stderr or ""):
-                return None
+            if "HTTP 404" in (error.stderr or ""):
+                # Drafts are visible to the owner in the list, but not the tag endpoint.
+                if endpoint == f"repos/{self.repo}/releases/tags/{self.tag}":
+                    releases: list[dict[str, Any]] = json.loads(
+                        self.capture(self.gh, "api", f"repos/{self.repo}/releases?per_page=100")
+                    )
+                    found = next((item for item in releases if item["tag_name"] == self.tag), None)
+                    if found is not None:
+                        return found
+                if missing_ok:
+                    return None
             raise
 
     def changed(self) -> set[str]:
@@ -246,10 +260,10 @@ class Publisher:
 
     def verify_assets(self, release: dict[str, Any], paths: list[Path]) -> None:
         assets = {asset["name"]: asset for asset in release["assets"]}
-        if set(assets) != {path.name for path in paths}:
+        if set(assets) != {asset_name(path) for path in paths}:
             raise ReleaseError("Release attachments do not match the planned four files")
         for path in paths:
-            asset = assets[path.name]
+            asset = assets[asset_name(path)]
             expected = sha256(path)
             if asset["size"] != path.stat().st_size or asset.get("state") != "uploaded":
                 raise ReleaseError(f"Incomplete upload: {path.name}")
@@ -266,11 +280,11 @@ class Publisher:
                         "--repo",
                         self.repo,
                         "--pattern",
-                        path.name,
+                        asset_name(path),
                         "--dir",
                         temporary,
                     )
-                    if sha256(Path(temporary) / path.name) != expected:
+                    if sha256(Path(temporary) / asset_name(path)) != expected:
                         raise ReleaseError(f"Downloaded checksum mismatch: {path.name}")
 
     def finish(self, release: dict[str, Any], notes: str) -> str:
@@ -345,11 +359,14 @@ class Publisher:
             git_tag=self.tag,
             installer_sha256=sha256(installer),
             source_sha256=sha256(source),
+            installer_asset=asset_name(installer),
         )
         manifest.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         files = [installer, source, manifest]
         checksum = folder / "SHA256SUMS.txt"
-        checksum.write_text("".join(f"{sha256(path)} *{path.name}\n" for path in files), encoding="utf-8")
+        checksum.write_text(
+            "".join(f"{sha256(path)} *{asset_name(path)}\n" for path in files), encoding="utf-8"
+        )
         files.append(checksum)
         notes_file = folder / f"notes-{self.version}.md"
         notes_file.write_text(notes, encoding="utf-8")

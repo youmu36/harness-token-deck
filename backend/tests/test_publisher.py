@@ -1,6 +1,7 @@
 """Publishing gates use temporary files and a fake CLI, never a GitHub account."""
 
 import json
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,7 @@ from scripts.publish_release import (
     Publisher,
     ReleaseError,
     archive_notes,
+    asset_name,
     current_notes,
     network_command,
     repository,
@@ -97,7 +99,7 @@ class FakePublisher(Publisher):
             "draft": not public,
             "assets": [
                 {
-                    "name": path.name,
+                    "name": asset_name(path),
                     "size": path.stat().st_size,
                     "state": "uploaded",
                     "digest": "sha256:" + sha256(path),
@@ -204,3 +206,37 @@ def test_changed_notes_and_unverified_build_cannot_be_released(tmp_path: Path) -
     path.write_text(json.dumps(report), encoding="utf-8")
     with pytest.raises(ReleaseError, match="successful release build"):
         validate_build(path, VERSION)
+
+
+def test_draft_lookup_uses_owner_list_when_tag_endpoint_returns_404(tmp_path: Path) -> None:
+    publisher = FakePublisher(tmp_path)
+    draft = {"tag_name": "v0.4.3", "draft": True, "id": 1}
+
+    def capture(*args: str) -> str:
+        if args[-1].endswith("/tags/v0.4.3"):
+            raise subprocess.CalledProcessError(1, args, stderr="gh: Not Found (HTTP 404)")
+        assert args[-1].endswith("/releases?per_page=100")
+        return json.dumps([draft])
+
+    publisher.capture = capture
+    assert Publisher.api(publisher, "repos/example/project/releases/tags/v0.4.3") == draft
+
+
+def test_installer_asset_name_matches_github_and_checksum(tmp_path: Path) -> None:
+    publisher = FakePublisher(tmp_path)
+    path = tmp_path / "Harness Token Deck_0.4.3_x64-setup.exe"
+    path.write_bytes(b"synthetic")
+    assert asset_name(path) == "Harness.Token.Deck_0.4.3_x64-setup.exe"
+    publisher.verify_assets(
+        {
+            "assets": [
+                {
+                    "name": asset_name(path),
+                    "size": path.stat().st_size,
+                    "state": "uploaded",
+                    "digest": "sha256:" + sha256(path),
+                }
+            ]
+        },
+        [path],
+    )

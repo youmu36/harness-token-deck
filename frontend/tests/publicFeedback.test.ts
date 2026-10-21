@@ -23,24 +23,24 @@ it('keeps a permanent session selector, orders by opening time and selects every
   const wrapper = mount(CacheMonitor, { props: { harness: 'codex', mode: 'minute', timezone: 'UTC' }, attachTo: document.body, global: { provide: { [BridgeKey as symbol]: bridge } } });
   cleanup.push(() => wrapper.unmount()); await flushPromises();
   const trigger = () => wrapper.get('.session-rate .choice-trigger');
-  expect(trigger().text()).toBe('会话 1 · 40.0%');
-  expect(wrapper.get('.session-rate').attributes('title')).toContain('当前会话缓存命中率');
+  expect(trigger().text().replace(/\s+/g, ' ')).toBe('会话1 缓存命中 40.0% 监测中');
+  expect(wrapper.get('.session-rate [role=tooltip]').text()).toContain('本数值表示当前会话缓存命中率');
   const reads = call.mock.calls.length;
   await trigger().trigger('click');
   const options = wrapper.findAll('.session-rate [role="radio"]');
-  expect(options.map(option => option.text())).toEqual([expect.stringContaining('会话 1 · 40.0% · First'), expect.stringContaining('会话 2 · 70.0% · Later')]);
+  expect(options.map(option => option.text().replace(/\s+/g, ' '))).toEqual([expect.stringContaining('会话1 First'), expect.stringContaining('会话2 Later')]);
   await options[1]!.trigger('click');
-  expect(trigger().text()).toBe('会话 2 · 70.0%');
+  expect(trigger().text().replace(/\s+/g, ' ')).toBe('会话2 缓存命中 70.0% 监测中');
   expect(trigger().attributes('aria-expanded')).toBe('false');
   await trigger().trigger('click'); await trigger().trigger('keydown', { key: 'Escape' });
   expect(trigger().attributes('aria-expanded')).toBe('false');
   expect(call.mock.calls.length).toBe(reads);
   rates = [{ ...rates[0]!, frozen: true }, rates[1]!];
   await wrapper.vm.refresh(); await flushPromises();
-  expect(trigger().text()).toContain('会话 1 · 40.0%');
+  expect(trigger().text().replace(/\s+/g, ' ')).toContain('会话1 缓存命中 40.0% 监测中');
   await trigger().trigger('click'); expect(wrapper.findAll('.session-rate [role="radio"]')).toHaveLength(1);
   rates = []; await wrapper.vm.refresh(); await flushPromises();
-  expect(trigger().text()).toContain('暂无会话数据');
+  expect(trigger().text().replace(/\s+/g, ' ')).toContain('暂无会话数据');
 });
 
 it('dismisses a displayed observation through IPC and allows a newer notice to appear', async () => {

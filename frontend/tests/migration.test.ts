@@ -111,7 +111,7 @@ it('first launch retains legacy migration after the setup guide and settings kee
   cleanup.push(() => { wrapper.unmount(); bridge.dispose(); }); await flushPromises();
   expect(wrapper.text()).toContain('打开使用指南');
   await button(wrapper, '打开使用指南').trigger('click'); await flushPromises();
-  expect(wrapper.text()).toContain('欢迎使用 · 简要使用指南');
+  expect(wrapper.text()).toContain('欢迎使用 · 初次配置');
   await button(wrapper, '稍后设置').trigger('click'); await flushPromises();
   expect(wrapper.text()).toContain('检测到旧版数据'); expect(wrapper.findComponent(MigrationWizard).exists()).toBe(false);
   await button(wrapper, '导入旧版数据…').trigger('click'); await flushPromises(); expect(wrapper.findComponent(MigrationWizard).exists()).toBe(true);

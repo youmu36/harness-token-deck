@@ -165,7 +165,7 @@ test('new user reminder repeatedly opens the guide and dismissal persists', asyn
   await open().trigger('click'); await flushPromises();
   expect(document.querySelector('dialog[open]')?.textContent).toContain('欢迎使用');
   const titles = Array.from(document.querySelectorAll('dialog h3')).map(n => n.textContent);
-  expect(titles.indexOf('准备倍率版本')).toBeLessThan(titles.indexOf('编辑价格组并添加模型'));
+  expect(titles.indexOf('配置倍率版本')).toBeLessThan(titles.indexOf('编辑实际计费价格'));
   (Array.from(document.querySelectorAll('dialog[open] button')).find(b => b.textContent === '稍后设置') as HTMLButtonElement).click(); await flushPromises();
   await open().trigger('click'); await flushPromises();
   expect(document.querySelector('dialog[open]')).not.toBeNull();
@@ -175,8 +175,8 @@ test('new user reminder repeatedly opens the guide and dismissal persists', asyn
   wrapper.unmount(); const restored = await render(bridge); expect(restored.text()).not.toContain('打开使用指南');
   await restored.get('nav a[aria-label="设置"]').trigger('click'); await flushPromises();
   await restored.findAll('button').find(b => b.text() === '指南与关于')!.trigger('click'); await flushPromises();
-  await restored.findAll('button').find(b => b.text() === '查看简要使用指南')!.trigger('click'); await flushPromises();
-  expect(document.querySelector('dialog[open]')?.textContent).toContain('扫描并添加模型池');
+  await restored.findAll('button').find(b => b.text() === '查看使用指南')!.trigger('click'); await flushPromises();
+  expect(document.querySelector('dialog[open]')?.textContent).toContain('在模型池配置基准价格');
 });
 test('models route survives a startup without a hash and cancelled navigation preserves it', async () => {
   const bridge = createMockBridge();

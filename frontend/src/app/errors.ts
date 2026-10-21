@@ -1,6 +1,8 @@
 import type { Error as ErrorInfo } from '../infra/generated/contracts';
 
 export const errorMessages: Readonly<Record<string, string>> = {
+  ANALYSIS_INVALID: '历史分析维度与汇总不一致，请缩小范围并检查日志',
+  UNAVAILABLE: '统计存储暂不可写，请稍后重试',
   ANALYSIS_LIMIT: '分析分组超过显示或内存预算，请缩小年份范围或选择单个模型',
   ACCOUNT_REVISION_CONFLICT: '账户记录已变化，请刷新后重试',
   ACCOUNT_ENTRY_INVALID: '原资金流水不存在或不支持改判',

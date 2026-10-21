@@ -26,12 +26,14 @@ it('loads long history and model analysis on demand, without supplier queries or
   bridge.receiveEvent('usage.changed', { harnesses: ['codex'], revision: 9 }); await flushPromises();
   expect(call.mock.calls.filter(([name]) => name === 'stats.summary')).toHaveLength(count);
   await wrapper.findAll('[aria-label="统计分析子页"] button').find(b => b.text() === '数据分析')!.trigger('click'); await flushPromises();
-  expect(wrapper.get('[aria-label="输出吞吐参考"]').text()).toContain('不代表真实生成速度');
+  expect(wrapper.get('[aria-label="输出吞吐参考"]').text()).toContain('今日平均tps');
   expect(wrapper.find('[aria-label="长期来源结构"]').exists()).toBe(false);
-  await wrapper.get('[aria-label="比较 gpt-6"]').setValue(true);
-  expect(wrapper.get('[aria-label="模型比较"]').text()).toContain('gpt-6');
-  await wrapper.findAll('[aria-label="模型长期排名"] button').find(b => b.text() === '查看历史')!.trigger('click'); await flushPromises();
-  expect(call.mock.calls.filter(([name]) => name === 'stats.analytics').at(-1)?.[1]).toHaveProperty('modelKey', 'claude-sonnet-4-6');
+  await wrapper.findAll('button').find(b => b.text() === '比较模型')!.trigger('click'); await flushPromises();
+  expect(wrapper.text()).toContain('选择比较模型');
+  expect(wrapper.text()).toContain('最多再添加四个模型');
+  await wrapper.findAll('button').find(b => b.text() === '完成选择')!.trigger('click'); await flushPromises();
+  await wrapper.findAll('[aria-label="筛选模型排名"] button').find(b => b.text() === '模型详情')!.trigger('click'); await flushPromises();
+  expect((call.mock.calls.filter(([name]) => name === 'stats.explore').at(-1)?.[1] as {modelKeys?:string[]}).modelKeys).toHaveLength(1);
 });
 
 it('keeps exact large counts visible and preserves zero-baseline comparisons', async () => {

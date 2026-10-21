@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -54,6 +55,22 @@ def find_gh(root: Path, explicit: str | None) -> str:
 def sha256(path: Path) -> str:
     with path.open("rb") as stream:
         return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def network_command(args: tuple[str, ...], gh: str) -> tuple[str, ...]:
+    if args[:2] not in (("git", "push"), ("git", "fetch")):
+        return args
+    helper = "!" + shlex.quote(str(Path(gh).resolve()).replace("\\", "/")) + " auth git-credential"
+    return (
+        "git",
+        "-c",
+        "credential.helper=",
+        "-c",
+        "credential.https://github.com.helper=",
+        "-c",
+        "credential.https://github.com.helper=" + helper,
+        *args[1:],
+    )
 
 
 def validate_build(path: Path, version: str) -> dict[str, Any]:
@@ -138,7 +155,7 @@ class Publisher:
 
     def live(self, *args: str) -> None:
         print("Running:", " ".join(args[:4]), flush=True)
-        subprocess.run(args, cwd=self.root, check=True, timeout=1800)
+        subprocess.run(network_command(args, self.gh), cwd=self.root, check=True, timeout=1800)
 
     def api(self, endpoint: str, *, missing_ok: bool = False) -> dict[str, Any] | None:
         try:

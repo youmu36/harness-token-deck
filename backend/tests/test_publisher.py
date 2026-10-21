@@ -12,6 +12,7 @@ from scripts.publish_release import (
     ReleaseError,
     archive_notes,
     current_notes,
+    network_command,
     repository,
     sha256,
     validate_build,
@@ -113,6 +114,18 @@ def test_origin_repository_is_derived_without_another_destination(url: str) -> N
     assert repository(url) == "example/project"
     with pytest.raises(ReleaseError):
         repository("https://example.test/example/project.git")
+
+
+def test_network_git_uses_current_cli_without_changing_global_credentials(tmp_path: Path) -> None:
+    gh = tmp_path / "GitHub CLI/gh.exe"
+    gh.parent.mkdir()
+    gh.touch()
+    command = network_command(("git", "push", "origin", "HEAD:main"), str(gh))
+    assert command[-3:] == ("push", "origin", "HEAD:main")
+    assert "credential.helper=" in command and "credential.https://github.com.helper=" in command
+    assert command[-4].endswith("' auth git-credential")
+    assert "GitHub CLI/gh.exe" in command[-4] and "--global" not in command
+    assert network_command(("git", "commit", "-m", "release"), str(gh)) == ("git", "commit", "-m", "release")
 
 
 def test_dry_run_cannot_build_commit_push_or_archive(tmp_path: Path) -> None:

@@ -9,7 +9,7 @@ from typing import Any
 from uuid import uuid4
 
 import psutil
-from htu.adapters.desktop._win32 import native_function
+from htd.adapters.desktop._win32 import native_function
 
 from scripts.probes.ui_probe import ROOT, UiProbe
 

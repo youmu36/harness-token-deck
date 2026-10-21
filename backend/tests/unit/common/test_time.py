@@ -3,8 +3,8 @@ from datetime import UTC, datetime, timedelta, timezone
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import INVALID_TIMESTAMP, DomainError
-from htu.domain.common.time import Instant, format_instant, from_epoch_ms, parse_instant
+from htd.domain.common.errors import INVALID_TIMESTAMP, DomainError
+from htd.domain.common.time import Instant, format_instant, from_epoch_ms, parse_instant
 from hypothesis import given
 from hypothesis import strategies as st
 

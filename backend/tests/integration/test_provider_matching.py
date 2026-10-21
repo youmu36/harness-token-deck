@@ -4,16 +4,16 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.collection_store import SqliteCollectionStore
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.pricing_repo import PricingRepository
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.collection.billing import BillInbox
-from htu.domain.common.testing import FakeClock
-from htu.domain.pricing import rules
-from htu.domain.pricing.model import ModelRate
-from htu.domain.usage.model import Harness
+from htd.adapters.sqlite.collection_store import SqliteCollectionStore
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.pricing_repo import PricingRepository
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.collection.billing import BillInbox
+from htd.domain.common.testing import FakeClock
+from htd.domain.pricing import rules
+from htd.domain.pricing.model import ModelRate
+from htd.domain.usage.model import Harness
 
 from .collection_helpers import AT, collect, usage
 

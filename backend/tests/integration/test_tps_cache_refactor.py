@@ -5,13 +5,13 @@ from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.output_speed import begin_run, close_quiet, live, record
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.domain.common.time import Instant, format_instant
-from htu.domain.sources.codex import CodexContext, parse_record
-from htu.domain.usage.model import Tokens, UsageEvent
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.output_speed import begin_run, close_quiet, live, record
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.sources.codex import CodexContext, parse_record
+from htd.domain.usage.model import OUTPUT_TIMING_UNCERTAIN, Tokens, UsageEvent
 
 from .collection_helpers import AT, collect, quote, usage
 
@@ -191,17 +191,17 @@ def test_billed_delayed_output_uses_the_same_session_gap_without_ignoring_new_un
         collect(writer, (second,), at=later)
         writer.execute(lambda w: IngestRepository(w.connection).bill_batch(w, quote, at=later))
         current = live(readers.get(), "codex", later)[0]
-        assert current["tokensPerSecond"] == "43.3" and current["basis"] == "minute_estimate"
+        assert current["tokensPerSecond"] == "65.0" and current["basis"] == "minute_estimate"
         assert current["outputTokens"] == "7800"
         metadata = json.loads(readers.get().execute("SELECT timing_json FROM output_live").fetchone()[0])[
             "!window"
         ]
-        assert len(metadata["minutes"]) == 3 and len(metadata["cursors"]) == 1
+        assert len(metadata["minutes"]) == 2 and len(metadata["cursors"]) == 1
         assert first.session_id not in json.dumps(metadata)
         # A replay cannot allocate the completed interval a second time.
         collect(writer, (second,), at=later)
         writer.execute(lambda w: IngestRepository(w.connection).bill_batch(w, quote, at=later))
-        assert live(readers.get(), "codex", later)[0]["tokensPerSecond"] == "43.3"
+        assert live(readers.get(), "codex", later)[0]["tokensPerSecond"] == "65.0"
 
 
 def test_an_existing_minute_window_upgrades_without_losing_its_previous_output(tmp_path: Path) -> None:
@@ -270,3 +270,75 @@ def test_zero_output_after_freezing_keeps_the_last_value_instead_of_clearing_it(
         )
         current = live(readers.get(), "codex", later)[0]
         assert current["tokensPerSecond"] == "60.0" and current["frozen"]
+
+
+def test_interaction_exclusion_survives_inbox_restart_without_losing_billing(tmp_path: Path) -> None:
+    ctx = CodexContext(
+        file_session_id="s",
+        raw_file_session_id="s",
+        saw_session_meta=True,
+        originator_ok=True,
+        kind="desktop",
+    )
+
+    def turn(second: int, name: str) -> None:
+        parse_record(
+            {"type": "turn_context", "timestamp": stamp(second), "payload": {"turn_id": name, "model": "M"}},
+            ctx,
+        )
+
+    def request(second: int, name: str, count: int) -> UsageEvent:
+        event = parse_record(
+            {
+                "type": "token_usage_record",
+                "timestamp": stamp(second),
+                "payload": {"turn_id": name, "response_id": str(second), "usage": {"output_tokens": count}},
+            },
+            ctx,
+        )
+        assert isinstance(event, UsageEvent)
+        return event
+
+    path = tmp_path / "timing.db"
+    with WriteExecutor(path) as writer, ReadPool(path) as readers:
+        turn(0, "first")
+        first = request(20, "first", 1200)
+        collect(writer, (first,), at=parse_instant(stamp(20)))
+        writer.execute(
+            lambda w: IngestRepository(w.connection).bill_batch(w, quote, at=parse_instant(stamp(20)))
+        )
+        assert live(readers.get(), "codex", AT)[0]["tokensPerSecond"] == "60.0"
+        turn(100, "second")
+        parse_record({"type": "event_msg", "timestamp": stamp(110), "payload": {"type": "user_message"}}, ctx)
+        ctx = CodexContext.from_dict(ctx.to_dict())
+        second = request(120, "second", 1200)
+        assert OUTPUT_TIMING_UNCERTAIN in second.issues
+        collect(writer, (second,), at=parse_instant(stamp(120)))
+    # Pending events retain the timing flag through durable JSON encoding.
+    with WriteExecutor(path) as writer, ReadPool(path) as readers:
+        writer.execute(
+            lambda w: IngestRepository(w.connection).bill_batch(w, quote, at=parse_instant(stamp(120)))
+        )
+        current = live(readers.get(), "codex", AT)[0]
+        assert current["tokensPerSecond"] == "60.0" and current["outputTokens"] == "1200"
+        window = json.loads(readers.get().execute("SELECT timing_json FROM output_live").fetchone()[0])[
+            "!window"
+        ]
+        assert window["cursors"] == {}  # No inference can bridge the ambiguous sample.
+        parse_record(
+            {"type": "response_item", "timestamp": stamp(200), "payload": {"type": "function_call_output"}},
+            ctx,
+        )
+        third = request(220, "second", 600)
+        collect(writer, (third, second), at=parse_instant(stamp(220)))  # Replay remains idempotent.
+        writer.execute(
+            lambda w: IngestRepository(w.connection).bill_batch(w, quote, at=parse_instant(stamp(220)))
+        )
+        current = live(readers.get(), "codex", AT)[0]
+        assert current["tokensPerSecond"] == "45.0" and current["outputTokens"] == "1800"
+        rows = readers.get().execute("SELECT output,pico FROM ledger").fetchall()
+        assert len(rows) == 3 and sum(row[0] for row in rows) == 3000
+        assert sum(int(row[1]) for row in rows) == 3 * 84_000_000
+        writer.execute(lambda w: close_quiet(w.connection, parse_instant(stamp(900))))
+        row = readers.get().execute("SELECT timed_output,decode_ms FROM output_reference").fetchone()
+        assert tuple(row) == ("1800", "40000")

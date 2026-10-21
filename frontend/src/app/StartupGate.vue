@@ -15,8 +15,8 @@ const preferences = shallowRef<CommandData<'preferences.get'>>();
 const error = shallowRef<AppError>();
 const pending = ref(true);
 const logPath = computed(() => hello.value?.dataDir
-  ? `${hello.value.dataDir.replace(/[\\/]$/, '')}\\logs\\htu.log`
-  : new URLSearchParams(location.hash.split('?')[1]).get('logPath') ?? '本机账本目录下的 logs/htu.log');
+  ? `${hello.value.dataDir.replace(/[\\/]$/, '')}\\logs\\htd.log`
+  : new URLSearchParams(location.hash.split('?')[1]).get('logPath') ?? '本机账本目录下的 logs/htd.log');
 const incompatible = computed(() => error.value?.code === 'PROTOCOL_MISMATCH' || error.value?.code === 'CONTRACT_MISMATCH');
 let generation = 0;
 async function start() {
@@ -42,7 +42,7 @@ onBeforeUnmount(() => { generation++; guard.setWritable(false); });
 </script>
 
 <template>
-  <div v-if="pending" class="startup" role="status"><Activity :size="30" aria-hidden="true" /><h1>Harness Token Usage</h1><p class="text-muted">正在连接本机账本…</p></div>
+  <div v-if="pending" class="startup" role="status"><Activity :size="30" aria-hidden="true" /><h1>Harness Token Deck</h1><p class="text-muted">正在连接本机账本…</p></div>
   <main v-else-if="error" class="startup">
     <div class="failure surface" role="alert">
       <AlertTriangle :size="32" class="danger" aria-hidden="true" />

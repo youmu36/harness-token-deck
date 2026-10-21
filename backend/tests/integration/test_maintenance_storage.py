@@ -7,19 +7,19 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.history_repo import HistoryRepository
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.key_codec import key_bytes
-from htu.adapters.sqlite.maintenance_files import run_backup, run_vacuum
-from htu.adapters.sqlite.maintenance_repo import MaintenanceRepository, RetentionFailure, run_retention
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.adapters.sqlite.usage_codec import encode_event
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.domain.common.time import Instant, format_instant
-from htu.domain.usage.model import Harness
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.history_repo import HistoryRepository
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.key_codec import key_bytes
+from htd.adapters.sqlite.maintenance_files import run_backup, run_vacuum
+from htd.adapters.sqlite.maintenance_repo import MaintenanceRepository, RetentionFailure, run_retention
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.adapters.sqlite.usage_codec import encode_event
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.domain.common.time import Instant, format_instant
+from htd.domain.usage.model import Harness
 
 from backend.tests.integration.collection_helpers import AT, collect, ensure_source, quote, usage
 from backend.tests.integration.test_pricing_storage import create
@@ -209,7 +209,7 @@ def test_vacuum_backup_openable_retention_and_writer_continues(tmp_path: Path) -
         writer.execute(seed)
         for index in range(12):
             run_backup(writer, at=Instant(AT.value + timedelta(seconds=index)))
-        backups = sorted((tmp_path / "backups").glob("htu-*.sqlite3"))
+        backups = sorted((tmp_path / "backups").glob("htd-*.sqlite3"))
         assert len(backups) == 10
         with closing(sqlite3.connect(backups[-1])) as copy:
             assert copy.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
@@ -279,7 +279,7 @@ def test_history_import_rolls_back_all_rows(tmp_path: Path, failure: str) -> Non
 
 
 def test_history_source_path_changed(tmp_path: Path) -> None:
-    from htu.domain.common.errors import DomainError
+    from htd.domain.common.errors import DomainError
 
     with WriteExecutor(tmp_path / "data.sqlite3") as writer:
         ensure_source(writer)
@@ -308,20 +308,20 @@ def test_P23_upgrade_preserves_data_and_backs_up(tmp_path: Path) -> None:
         )
         assert MaintenanceRepository(connection).retention() == 180
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
-    copies = list((tmp_path / "backups").glob("htu-*.sqlite3"))
+    copies = list((tmp_path / "backups").glob("htd-*.sqlite3"))
     assert len(copies) == 1
     with closing(sqlite3.connect(copies[0])) as before:
         assert before.execute("SELECT COUNT(*) FROM schema_migration").fetchone()[0] == 3
     migrate(path, now=AT)
-    assert len(list((tmp_path / "backups").glob("htu-*.sqlite3"))) == 1
+    assert len(list((tmp_path / "backups").glob("htd-*.sqlite3"))) == 1
 
 
 def test_backups_with_identical_timestamp_keep_returned_files(tmp_path: Path) -> None:
     with WriteExecutor(tmp_path / "data.sqlite3") as writer:
-        stem = f"htu-{AT.value.astimezone().strftime('%Y%m%d-%H%M%S')}"
+        stem = f"htd-{AT.value.astimezone().strftime('%Y%m%d-%H%M%S')}"
         for index in range(12):
             result = run_backup(writer, at=AT)
             assert result.is_file()
             if index < 10:
                 assert result.name == f"{stem}{'' if index == 0 else f'-{index + 1}'}.sqlite3"
-        assert len(list((tmp_path / "backups").glob("htu-*.sqlite3"))) == 10
+        assert len(list((tmp_path / "backups").glob("htd-*.sqlite3"))) == 10

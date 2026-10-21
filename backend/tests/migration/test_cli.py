@@ -8,17 +8,17 @@ from collections.abc import Callable
 from pathlib import Path
 
 import pytest
-from htu.domain.common.errors import DomainError
-from htu.migration.__main__ import activate, main
-from htu.migration.convert import convert
-from htu.migration.legacy import reader
+from htd.domain.common.errors import DomainError
+from htd.migration.__main__ import activate, main
+from htd.migration.convert import convert
+from htd.migration.legacy import reader
 
 from .helpers import FIXTURES
 
 
 @pytest.fixture
 def isolated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    monkeypatch.setenv("HTU_DATA_DIR", str(tmp_path / "app"))
+    monkeypatch.setenv("HTD_DATA_DIR", str(tmp_path / "app"))
 
     def stopped(*, detector: Callable[[], bool] | None = None) -> bool:
         return detector() if detector else False
@@ -43,13 +43,13 @@ def test_inspect_snapshot_dry_run_verify_and_activate(
     assert main(["import", str(frozen), "--dry-run", "--output-dir", str(dry)]) == 0
     imported = json.loads(capsys.readouterr().out)
     assert imported["ok"] and not imported["activated"]
-    assert (dry / "staging.sqlite3").exists() and not (isolated / "htu.sqlite3").exists()
+    assert (dry / "staging.sqlite3").exists() and not (isolated / "htd.sqlite3").exists()
     assert main(["verify", str(frozen), str(dry / "staging.sqlite3")]) == 0
     assert json.loads(capsys.readouterr().out)["ok"]
     live = isolated / "migration/live"
     assert main(["import", str(frozen), "--output-dir", str(live)]) == 0
     result = json.loads(capsys.readouterr().out)
-    assert result["activated"] and (isolated / "htu.sqlite3").exists()
+    assert result["activated"] and (isolated / "htd.sqlite3").exists()
     assert not (live / "staging.sqlite3").exists() and (live / "report.md").exists()
     assert source.read_bytes() == before
 
@@ -57,7 +57,7 @@ def test_inspect_snapshot_dry_run_verify_and_activate(
 def test_failure_preserves_active_target_and_writes_report(
     isolated: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    target = isolated / "htu.sqlite3"
+    target = isolated / "htd.sqlite3"
     convert(FIXTURES / "legacy/v030.sqlite3", target)
     before = target.read_bytes()
     directory = isolated / "migration/failure"
@@ -69,7 +69,7 @@ def test_failure_preserves_active_target_and_writes_report(
 
 
 def test_active_database_sidecars_refuse_activation(isolated: Path) -> None:
-    target = isolated / "htu.sqlite3"
+    target = isolated / "htd.sqlite3"
     target.parent.mkdir(parents=True)
     staging = isolated / "staging.sqlite3"
     convert(FIXTURES / "legacy/v022.sqlite3", staging)
@@ -88,7 +88,7 @@ def test_actual_module_inspect_and_verify_entrypoints(isolated: Path) -> None:
     environment = os.environ | {"PYTHONIOENCODING": "utf-8"}
     for args in (["inspect", str(source)], ["verify", str(source), str(staging)]):
         result = subprocess.run(
-            [sys.executable, "-m", "htu.migration", *args],
+            [sys.executable, "-m", "htd.migration", *args],
             capture_output=True,
             text=True,
             encoding="utf-8",

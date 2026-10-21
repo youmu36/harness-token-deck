@@ -11,15 +11,15 @@ from typing import BinaryIO, cast
 
 import pytest
 import zstandard
-from htu.adapters.collectors import codex_reader
-from htu.adapters.collectors.codex_reader import CodexReader
-from htu.adapters.collectors.discovery import Discovery, source_key
-from htu.adapters.collectors.dsh_reader import DshReader
-from htu.adapters.collectors.shared_file import open_shared
-from htu.adapters.collectors.zcode_reader import ZcodeReader
-from htu.application.ports import CheckpointRecord
-from htu.domain.common.time import parse_instant
-from htu.domain.usage.model import Harness, UsageEvent
+from htd.adapters.collectors import codex_reader
+from htd.adapters.collectors.codex_reader import CodexReader
+from htd.adapters.collectors.discovery import Discovery, source_key
+from htd.adapters.collectors.dsh_reader import DshReader
+from htd.adapters.collectors.shared_file import open_shared
+from htd.adapters.collectors.zcode_reader import ZcodeReader
+from htd.application.ports import CheckpointRecord
+from htd.domain.common.time import parse_instant
+from htd.domain.usage.model import Harness, UsageEvent
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures"
 START = parse_instant("2026-08-01T00:00:00Z")
@@ -74,7 +74,7 @@ def test_discovery_defaults_roots_and_whitelist(tmp_path: Path) -> None:
     assert not discovery.available(Harness.CODEX, "relative")
     assert not discovery.available(Harness.ZCODE, str(sessions))
     assert not discovery.discover(Harness.DSH, str(tmp_path / "missing")).available
-    env = {"CODEX_HOME": str(tmp_path / "custom"), "HTU_SOURCE_ROOT_DSH": str(sessions)}
+    env = {"CODEX_HOME": str(tmp_path / "custom"), "HTD_SOURCE_ROOT_DSH": str(sessions)}
     overrides = Discovery(home=tmp_path, environ=env)
     assert overrides.default_path(Harness.CODEX) == source_key(tmp_path / "custom" / "sessions")
     assert overrides.default_path(Harness.DSH) == source_key(sessions)

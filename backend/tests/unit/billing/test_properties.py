@@ -3,11 +3,11 @@
 from datetime import timedelta
 from decimal import Decimal, localcontext
 
-from htu.domain.billing import estimate_cost
-from htu.domain.common.money import MAX_SCALED_RATE, Rate
-from htu.domain.common.time import from_epoch_ms, parse_instant
-from htu.domain.pricing.model import BillingRule, ModelRate, PriceRates
-from htu.domain.usage.model import MAX_TOKEN_COUNT, Tokens
+from htd.domain.billing import estimate_cost
+from htd.domain.common.money import MAX_SCALED_RATE, Rate
+from htd.domain.common.time import from_epoch_ms, parse_instant
+from htd.domain.pricing.model import BillingRule, ModelRate, PriceRates
+from htd.domain.usage.model import MAX_TOKEN_COUNT, Tokens
 from hypothesis import given
 from hypothesis import strategies as st
 

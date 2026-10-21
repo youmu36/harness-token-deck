@@ -5,11 +5,11 @@ from contextlib import closing
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.installer_backup import backup_data
+from htd.adapters.sqlite.installer_backup import backup_data
 
 
 def test_backup_includes_committed_wal_and_preserves_source(tmp_path: Path) -> None:
-    source = tmp_path / "htu.sqlite3"
+    source = tmp_path / "htd.sqlite3"
     destination = tmp_path / "desktop/backup.sqlite3"
     with closing(sqlite3.connect(source)) as connection:
         connection.execute("PRAGMA journal_mode=WAL")
@@ -27,7 +27,7 @@ def test_backup_includes_committed_wal_and_preserves_source(tmp_path: Path) -> N
 
 
 def test_backup_failure_keeps_data_and_previous_backup(tmp_path: Path) -> None:
-    source = tmp_path / "htu.sqlite3"
+    source = tmp_path / "htd.sqlite3"
     source.write_bytes(b"invalid SQLite file")
     destination = tmp_path / "backup.sqlite3"
     destination.write_bytes(b"previous backup")
@@ -39,7 +39,7 @@ def test_backup_failure_keeps_data_and_previous_backup(tmp_path: Path) -> None:
 
 
 def test_existing_backup_is_never_overwritten(tmp_path: Path) -> None:
-    with closing(sqlite3.connect(tmp_path / "htu.sqlite3")) as connection:
+    with closing(sqlite3.connect(tmp_path / "htd.sqlite3")) as connection:
         connection.execute("CREATE TABLE ledger (value TEXT)")
     destination = tmp_path / "backup.sqlite3"
     destination.write_bytes(b"previous backup")

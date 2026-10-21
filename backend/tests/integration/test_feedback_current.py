@@ -10,21 +10,21 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite import compact_keys
-from htu.adapters.sqlite.command_store import SqliteCommandStore
-from htu.adapters.sqlite.connection import ReadPool, open_connection
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.adapters.sqlite.recalc_codec import audit
-from htu.adapters.sqlite.recalc_repo import RecalcRepository
-from htu.adapters.sqlite.wallet_command_store import SqliteWalletCommandStore
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.application.preferences import Preferences
-from htu.bootstrap import Application
-from htu.domain.common.errors import DomainError
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant
-from htu.domain.usage.model import Harness
+from htd.adapters.sqlite import compact_keys
+from htd.adapters.sqlite.command_store import SqliteCommandStore
+from htd.adapters.sqlite.connection import ReadPool, open_connection
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.adapters.sqlite.recalc_codec import audit
+from htd.adapters.sqlite.recalc_repo import RecalcRepository
+from htd.adapters.sqlite.wallet_command_store import SqliteWalletCommandStore
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.preferences import Preferences
+from htd.bootstrap import Application
+from htd.domain.common.errors import DomainError
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant
+from htd.domain.usage.model import Harness
 
 from .collection_helpers import AT
 from .test_history_rollup import seed as history_seed
@@ -260,8 +260,8 @@ def test_insufficient_upgrade_space_leaves_original_tables_untouched(
 
 
 def test_cold_finance_preserves_paging_offsets_quality_and_monotonic_sequences(tmp_path: Path) -> None:
-    from htu.adapters.sqlite.rollup_repo import RollupRepository
-    from htu.adapters.sqlite.wallet_archive import compact
+    from htd.adapters.sqlite.rollup_repo import RollupRepository
+    from htd.adapters.sqlite.wallet_archive import compact
 
     path = tmp_path / "data.sqlite3"
     later = Instant(AT.value + timedelta(days=40))
@@ -301,8 +301,8 @@ def test_storage_sizes_do_not_count_wal_twice(tmp_path: Path) -> None:
 
 
 def test_unpriced_minute_directory_survives_cold_archival(tmp_path: Path) -> None:
-    from htu.adapters.sqlite.rollup_repo import RollupRepository
-    from htu.adapters.sqlite.unpriced_store import SqliteUnpricedStore
+    from htd.adapters.sqlite.rollup_repo import RollupRepository
+    from htd.adapters.sqlite.unpriced_store import SqliteUnpricedStore
 
     path = tmp_path / "data.sqlite3"
     end = Instant(AT.value + timedelta(days=1))
@@ -350,7 +350,7 @@ def test_key_final_switch_failure_rolls_back_all_tables_and_can_resume(tmp_path:
 
 
 def test_audit_conversion_preserves_evidence_and_rejects_business_rewrites(tmp_path: Path) -> None:
-    from htu.adapters.sqlite.recalc_codec import compact_audits, pack
+    from htd.adapters.sqlite.recalc_codec import compact_audits, pack
 
     path = old_key_database(tmp_path, 3)
     migrate(path)
@@ -368,8 +368,8 @@ def test_audit_conversion_preserves_evidence_and_rejects_business_rewrites(tmp_p
 
 
 def test_cold_corrections_deep_paging_and_late_original_spending(tmp_path: Path) -> None:
-    from htu.adapters.sqlite.rollup_repo import RollupRepository
-    from htu.domain.wallet.model import WalletEntry
+    from htd.adapters.sqlite.rollup_repo import RollupRepository
+    from htd.domain.wallet.model import WalletEntry
 
     path = tmp_path / "data.sqlite3"
     later = Instant(AT.value + timedelta(days=80))
@@ -411,7 +411,7 @@ def test_cold_corrections_deep_paging_and_late_original_spending(tmp_path: Path)
                 if cursor is None:
                     return result
 
-        from htu.adapters.sqlite.wallet_closing import close_days
+        from htd.adapters.sqlite.wallet_closing import close_days
 
         writer.execute(lambda w: close_days(w, w.connection, at=later))
         expected = {offset: pages(offset) for offset in (0, 345, -210)}
@@ -435,9 +435,9 @@ def test_cold_corrections_deep_paging_and_late_original_spending(tmp_path: Path)
 
 
 def test_0023_audit_reads_legacy_counters_without_migrating_the_database(tmp_path: Path) -> None:
-    from htu.adapters.sqlite.codex_audit import read_audit_ledger
-    from htu.adapters.sqlite.counter_codec import compress
-    from htu.adapters.sqlite.rollup_repo import RollupRepository
+    from htd.adapters.sqlite.codex_audit import read_audit_ledger
+    from htd.adapters.sqlite.counter_codec import compress
+    from htd.adapters.sqlite.rollup_repo import RollupRepository
 
     with WriteExecutor(tmp_path / "current.sqlite3") as writer:
         history_seed(writer)

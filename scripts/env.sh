@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-export UV_PROJECT_ENVIRONMENT='D:\Tools for agent\htu-venv'
-export UV_CACHE_DIR='D:\Tools for agent\uv-cache'
-export UV_PYTHON='D:\Python3.12\python.exe'
+# Optional convenience settings. Explicit user overrides take precedence.
+export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-.venv}"
+export UV_PYTHON="${UV_PYTHON:-3.12}"

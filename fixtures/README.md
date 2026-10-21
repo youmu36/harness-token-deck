@@ -10,7 +10,7 @@
 - `zcode/schema.sql`：基础列；`schema-native.sql`：带可选原生 token 列。测试在临时库执行其中一版。
 - `dsh/session.jsonl`：C-12 两条请求。C-13 的第二条未缓存输入 200 与多帧压缩由对应测试派生。
 - `format/money.json`：跨语言金额显示向量，包含 FB-04 截断、半单位舍入、负零、千分位与超过 JS 安全整数的 pico 值；金额输入以字符串存储。
-- `ipc/responses.json`：由 `backend/tests/contracts/test_recorded_contracts.py` 在合成临时账本上录制全部 76 个命令的请求/成功响应、校验/冲突错误及 11 类缓冲事件；运行相关 UUID、路径和指纹归一化，供前端 Ajv 契约测试使用。
-- `legacy/`：P9.1 的三份合成旧库及按库索引的 `expected.json`；用 `scripts/make_legacy_fixtures.py` 重建，固定时间/ID，精确旧余额和版本差异见 [说明](legacy/README.md)。
+- `ipc/responses.json`：由 `backend/tests/contracts/test_recorded_contracts.py` 在合成临时账本上录制已登记命令的请求/成功响应、校验/冲突错误及缓冲事件；运行相关 UUID、路径和指纹归一化，供前端 Ajv 契约测试使用。测试环境隔离本机数据与来源，凭据为合成字符串并在录制结果中脱敏。
+- `legacy/`：三份合成旧库及按库索引的 `expected.json`；用 `scripts/make_legacy_fixtures.py` 重建，固定时间/ID，精确旧余额和版本差异见 [说明](legacy/README.md)。
 
-JSON/JSONL 可解析性与 SQLite 两版 schema 由 `backend/tests/test_fixtures.py` 检查；业务解析验收在 P1/P3 实施。
+JSON/JSONL 可解析性与 SQLite 两版 schema 由 `backend/tests/test_fixtures.py` 检查；来源解析和计费行为由相关单元、集成测试验证。

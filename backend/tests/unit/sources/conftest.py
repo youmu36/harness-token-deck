@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from htu.domain.sources.codex import CodexContext, parse_record
+from htd.domain.sources.codex import CodexContext, parse_record
 
 CODEX_FIXTURES = Path(__file__).resolve().parents[4] / "fixtures/codex"
 

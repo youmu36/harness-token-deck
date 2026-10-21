@@ -142,7 +142,11 @@ export function generateMockMonitor(request: RequestMap['stats.cacheMonitor'], n
   const summary = generateMockSummary({ harness: request.harness, start: new Date(start).toISOString(), end: new Date(end).toISOString(), offsetMinutes: request.offsetMinutes, grain: request.mode });
   return { start: summary.start, end: summary.end, offsetMinutes: request.offsetMinutes, grain: request.mode,
     outputSpeeds: summary.models.filter(model => model.outputTokens > 0).map(model => ({modelKey:model.modelKey,displayName:model.displayName,tokensPerSecond:(model.outputTokens / Math.max(1, summary.trend.filter(point => point.outputTokens > 0).length) / 60).toFixed(1),outputTokens:String(model.outputTokens),activeMinutes:summary.trend.filter(point => point.outputTokens > 0).length,lastOutputAt:summary.end,frozen:false,basis:'minute_estimate'})),
-    sessionHitRates: summary.metrics.recordCount ? [{sessionKey:'0123456789abcdef',displayName:'预览模型',startedAt:new Date(end-8*minute).toISOString(),lastActivityAt:new Date(end-minute).toISOString(),cacheHitRate:summary.metrics.cacheHitRate,cacheCoverageIncomplete:summary.metrics.cacheCoverageIncomplete,frozen:false}] : [],
+    sessionHitRates: summary.metrics.recordCount ? [
+      {sessionKey:'0123456789abcdef',displayName:'预览模型',startedAt:new Date(end-8*minute).toISOString(),lastActivityAt:new Date(end-minute).toISOString(),cacheHitRate:summary.metrics.cacheHitRate,cacheCoverageIncomplete:summary.metrics.cacheCoverageIncomplete,frozen:false},
+      {sessionKey:'123456789abcdef0',displayName:'并行会话示例',startedAt:new Date(end-5*minute).toISOString(),lastActivityAt:new Date(end-minute).toISOString(),cacheHitRate:0.82,cacheCoverageIncomplete:false,frozen:false},
+      {sessionKey:'23456789abcdef01',displayName:'并行会话示例',startedAt:new Date(end-3*minute).toISOString(),lastActivityAt:new Date(end-minute).toISOString(),cacheHitRate:0.56,cacheCoverageIncomplete:false,frozen:false},
+    ] : [],
     trend: summary.trend, revision: 1, nextRefreshAt: new Date(end + minute).toISOString(),
     windowKey: `${summary.start}/${summary.end}/${request.offsetMinutes}/${request.mode}` };
 }

@@ -23,7 +23,7 @@ def main() -> int:
         "--onedir",
         "--console",
         "--name",
-        "htu-probe",
+        "htd-probe",
         "--distpath",
         str(target / "dist"),
         "--workpath",
@@ -31,7 +31,7 @@ def main() -> int:
         "--specpath",
         str(target),
         "--add-data",
-        f"{ROOT / 'backend/src/htu/web'};web",
+        f"{ROOT / 'backend/src/htd/web'};web",
         "--hidden-import",
         "webview",
         "--hidden-import",
@@ -45,10 +45,10 @@ def main() -> int:
     subprocess.run(command, cwd=ROOT, check=True, timeout=300)
     output = target / "smoke.json"
     started = time.monotonic()
-    with tempfile.TemporaryDirectory(prefix="htu-frozen-") as temporary:
-        environment = {**os.environ, "HTU_DATA_DIR": temporary}
+    with tempfile.TemporaryDirectory(prefix="htd-frozen-") as temporary:
+        environment = {**os.environ, "HTD_DATA_DIR": temporary}
         smoke = subprocess.run(
-            [str(target / "dist/htu-probe/htu-probe.exe"), "--output", str(output)],
+            [str(target / "dist/htd-probe/htd-probe.exe"), "--output", str(output)],
             cwd=ROOT,
             env=environment,
             check=False,

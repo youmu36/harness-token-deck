@@ -7,23 +7,23 @@ from contextlib import closing
 from pathlib import Path
 
 import pytest
-from htu.adapters.collectors.codex_reader import CodexReader
-from htu.adapters.collectors.dsh_reader import DshReader
-from htu.adapters.collectors.zcode_reader import ZcodeReader
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.maintenance_repo import MaintenanceRepository
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.adapters.sqlite.pricing_load import load_catalog
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.application.ports import CheckpointRecord
-from htu.bootstrap import Application
-from htu.domain.common.errors import DomainError
-from htu.domain.common.time import parse_instant
-from htu.ipc.dto.preferences import PreferencesResponse
-from htu.migration.convert import convert
-from htu.migration.report import write_report
-from htu.migration.verify import verify
+from htd.adapters.collectors.codex_reader import CodexReader
+from htd.adapters.collectors.dsh_reader import DshReader
+from htd.adapters.collectors.zcode_reader import ZcodeReader
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.maintenance_repo import MaintenanceRepository
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.adapters.sqlite.pricing_load import load_catalog
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.ports import CheckpointRecord
+from htd.bootstrap import Application
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import parse_instant
+from htd.ipc.dto.preferences import PreferencesResponse
+from htd.migration.convert import convert
+from htd.migration.report import write_report
+from htd.migration.verify import verify
 
 from .helpers import FIXTURES, change_state, copy_legacy
 
@@ -234,7 +234,7 @@ def test_converted_checkpoints_resume_all_three_sources(tmp_path: Path) -> None:
 
 
 def test_imported_database_opens_with_normal_application_writer(tmp_path: Path) -> None:
-    target = tmp_path / "htu.sqlite3"
+    target = tmp_path / "htd.sqlite3"
     convert(FIXTURES / "legacy/v030.sqlite3", target, detector=lambda: False)
     with WriteExecutor(target) as writer:
         assert (
@@ -244,7 +244,7 @@ def test_imported_database_opens_with_normal_application_writer(tmp_path: Path) 
 
 
 def test_imported_preferences_and_maintenance_are_usable_through_ipc(tmp_path: Path) -> None:
-    target = tmp_path / "htu.sqlite3"
+    target = tmp_path / "htd.sqlite3"
     convert(FIXTURES / "legacy/v030.sqlite3", target, detector=lambda: False)
     with Application(tmp_path, start_scheduler=False) as app:
         response = app.bridge.call("preferences.get", {})

@@ -11,13 +11,13 @@ from scripts.check_architecture import check
         ("domain/usage/parser.py", "import os"),
         ("domain/usage/parser.py", "import httpx"),
         ("domain/usage/parser.py", "from ...adapters import sqlite"),
-        ("domain/usage/parser.py", "from htu.domain.pricing._private import rule"),
-        ("application/service.py", "from htu.adapters import sqlite"),
+        ("domain/usage/parser.py", "from htd.domain.pricing._private import rule"),
+        ("application/service.py", "from htd.adapters import sqlite"),
         ("application/service.py", "import sqlite3"),
-        ("adapters/sqlite/repository.py", "from htu.adapters.collectors import read"),
-        ("adapters/desktop/window.py", "from htu.domain.billing import bill"),
-        ("ipc/bridge.py", "from htu.adapters import collectors"),
-        ("jobs/scheduler.py", "from htu.migration import run"),
+        ("adapters/sqlite/repository.py", "from htd.adapters.collectors import read"),
+        ("adapters/desktop/window.py", "from htd.domain.billing import bill"),
+        ("ipc/bridge.py", "from htd.adapters import collectors"),
+        ("jobs/scheduler.py", "from htd.migration import run"),
         ("domain/common/money.py", "amount: list[float]"),
         ("domain/wallet/model.py", 'def total() -> "float": pass'),
     ],
@@ -36,6 +36,6 @@ def test_allows_pure_rules_and_type_only_adapters(tmp_path: Path) -> None:
     ipc = tmp_path / "ipc"
     ipc.mkdir()
     (ipc / "bridge.py").write_text(
-        "from typing import TYPE_CHECKING\nif TYPE_CHECKING:\n    from htu.adapters.desktop import Window"
+        "from typing import TYPE_CHECKING\nif TYPE_CHECKING:\n    from htd.adapters.desktop import Window"
     )
     assert check(tmp_path) == []

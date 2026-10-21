@@ -190,7 +190,7 @@ def main() -> int:
 
             click("备份数据库")
             wait("document.querySelector('section[aria-label=\"数据\"]').textContent.includes('备份已完成')")
-            with sqlite3.connect(directory / "htu.sqlite3") as connection:
+            with sqlite3.connect(directory / "htd.sqlite3") as connection:
                 assert connection.execute("PRAGMA integrity_check").fetchone() == ("ok",)
             assert list((directory / "backups").glob("*.sqlite3"))
             click("回收空闲空间")

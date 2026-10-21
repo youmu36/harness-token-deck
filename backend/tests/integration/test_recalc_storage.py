@@ -6,14 +6,14 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.recalc_repo import RecalcBatch, RecalcChange, RecalcRepository
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.ports import UnitOfWork as WorkPort
-from htu.domain.common.errors import DomainError
-from htu.domain.common.time import Instant
-from htu.domain.usage.model import Harness
-from htu.domain.wallet.model import WalletEntry
+from htd.adapters.sqlite.recalc_repo import RecalcBatch, RecalcChange, RecalcRepository
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.ports import UnitOfWork as WorkPort
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import Instant
+from htd.domain.usage.model import Harness
+from htd.domain.wallet.model import WalletEntry
 
 from backend.tests.integration.collection_helpers import AT, usage
 from backend.tests.integration.test_maintenance_storage import RECENT, seed

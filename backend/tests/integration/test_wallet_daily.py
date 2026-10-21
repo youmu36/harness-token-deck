@@ -4,13 +4,13 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
-from htu.adapters.sqlite.rollup_repo import RollupRepository
-from htu.adapters.sqlite.wallet_closing import bounds, close_days
-from htu.adapters.sqlite.wallet_entries import daily_spending, wallet_entries
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.domain.common.time import Instant, parse_instant
-from htu.domain.wallet.model import WalletEntry
+from htd.adapters.sqlite.rollup_repo import RollupRepository
+from htd.adapters.sqlite.wallet_closing import bounds, close_days
+from htd.adapters.sqlite.wallet_entries import daily_spending, wallet_entries
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.domain.common.time import Instant, parse_instant
+from htd.domain.wallet.model import WalletEntry
 
 from .collection_helpers import AT
 from .test_wallet_storage import USD, consumption, vendor

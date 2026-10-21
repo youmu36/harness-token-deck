@@ -6,12 +6,12 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.adapters.sqlite.window_state import WindowGeometry
-from htu.application.ports import BilledUsage, UnitOfWork
-from htu.bootstrap import Application
-from htu.domain.common.time import Instant
-from htu.domain.usage.model import Harness
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.adapters.sqlite.window_state import WindowGeometry
+from htd.application.ports import BilledUsage, UnitOfWork
+from htd.bootstrap import Application
+from htd.domain.common.time import Instant
+from htd.domain.usage.model import Harness
 
 from .collection_helpers import collect, usage
 from .scan_helpers import seed_prices
@@ -79,7 +79,7 @@ def test_shutdown_finishes_billing_transaction_and_drains_writer(
             stopped.result(timeout=5)
         assert drained.result(timeout=2) == 1
         app.close()
-        with sqlite3.connect(tmp_path / "htu.sqlite3") as db:
+        with sqlite3.connect(tmp_path / "htd.sqlite3") as db:
             assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
             assert db.execute("SELECT COUNT(*) FROM inbox").fetchone()[0] == 0
             assert db.execute("SELECT COUNT(*) FROM ledger").fetchone()[0] == 1

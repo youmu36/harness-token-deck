@@ -18,7 +18,7 @@ const series = [
 <template>
   <main class="content preview">
     <header>
-      <div><p class="text-muted">Harness Token Usage</p><h1>视觉基础</h1><p class="text-muted">颜色、排版与控件状态</p></div>
+      <div><p class="text-muted">Harness Token Deck</p><h1>视觉基础</h1><p class="text-muted">颜色、排版与控件状态</p></div>
       <div class="themes" aria-label="预览主题">
         <button :aria-pressed="theme === 'light'" @click="theme = 'light'">浅色</button>
         <button :aria-pressed="theme === 'dark'" @click="theme = 'dark'">深色</button>

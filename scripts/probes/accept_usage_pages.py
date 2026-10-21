@@ -87,7 +87,7 @@ def main() -> None:
             "{operationId:crypto.randomUUID()}).then(r => window.__acceptance=r)"
         )
         assert wait("window.__acceptance")["ok"]
-        with sqlite3.connect(directory / "htu.sqlite3") as connection:
+        with sqlite3.connect(directory / "htd.sqlite3") as connection:
             initial = connection.execute("SELECT harness,pico FROM ledger ORDER BY harness").fetchall()
         assert [row[0] for row in initial] == ["codex", "dsh", "zcode"], initial
         for name, title in (
@@ -145,7 +145,7 @@ def main() -> None:
             "{operationId:crypto.randomUUID()}).then(r=>window.__acceptance=r)"
         )
         assert wait("window.__acceptance")["ok"]
-        with sqlite3.connect(directory / "htu.sqlite3") as connection:
+        with sqlite3.connect(directory / "htd.sqlite3") as connection:
             rows = connection.execute(
                 "SELECT harness,pico FROM ledger ORDER BY harness,occurred_at"
             ).fetchall()
@@ -280,7 +280,7 @@ def accept_management(
     wait("document.querySelector('.price-editor footer').textContent.includes('未保存修改 0 项')")
     command("append")
     api("collection.scanNow", {"operationId": str(uuid4())})
-    with sqlite3.connect(directory / "htu.sqlite3") as connection:
+    with sqlite3.connect(directory / "htd.sqlite3") as connection:
         costs = [
             int(row[0])
             for row in connection.execute(

@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 import pytest
-from htu.adapters.desktop.evaluation import evaluation_worker
+from htd.adapters.desktop.evaluation import evaluation_worker
 
 
 class Event:
@@ -48,7 +48,7 @@ def test_worker_reused_results_errors_and_reentrant_calls_preserved() -> None:
         assert window.evaluate_js("reentrant") == "nested"
     assert window.evaluate_js == original
     assert window.before_show.items == []
-    assert not any(thread.name.startswith("htu-webview-evaluate") for thread in threading.enumerate())
+    assert not any(thread.name.startswith("htd-webview-evaluate") for thread in threading.enumerate())
 
 
 def test_gui_thread_is_not_dispatched_to_avoid_invoke_deadlock() -> None:

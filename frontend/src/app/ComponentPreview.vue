@@ -41,7 +41,7 @@ const trendPoints: ChartPoint[] = Array.from({ length: 24 }, (_, i) => ({
 
 <template>
   <main class="content preview">
-    <header><div><p class="text-muted">Harness Token Usage</p><h1>通用组件</h1><p class="text-muted">控件、金额和日期时间</p></div>
+    <header><div><p class="text-muted">Harness Token Deck</p><h1>通用组件</h1><p class="text-muted">控件、金额和日期时间</p></div>
       <SegmentedControl v-model="theme" label="预览主题" :options="[{ value: 'light', label: '浅色' }, { value: 'dark', label: '深色' }]" />
     </header>
     <section class="metrics">

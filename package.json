@@ -1,6 +1,7 @@
 {
-  "name": "harness-token-usage",
+  "name": "harness-token-deck",
   "version": "0.4.2",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {

@@ -2,9 +2,9 @@ from datetime import timedelta
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import DomainError
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.statistics.window import (
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.statistics.window import (
     Grain,
     MonitorMode,
     Window,

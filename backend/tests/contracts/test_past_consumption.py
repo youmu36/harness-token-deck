@@ -3,8 +3,8 @@
 from pathlib import Path
 from uuid import uuid4
 
-from htu.bootstrap import Application
-from htu.ipc.dto.wallet import EntriesResponse, WalletChangeResponse, WalletListResponse
+from htd.bootstrap import Application
+from htd.ipc.dto.wallet import EntriesResponse, WalletChangeResponse, WalletListResponse
 
 from .command_helpers import failure, invoke
 

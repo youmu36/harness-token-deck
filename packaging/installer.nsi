@@ -6,26 +6,26 @@ ManifestDPIAware true
 !include "nsDialogs.nsh"
 !include "x64.nsh"
 
-!ifndef HTU_VERSION
-  !error "HTU_VERSION must be supplied by build_release.py"
+!ifndef HTD_VERSION
+  !error "HTD_VERSION must be supplied by build_release.py"
 !endif
-!define PRODUCT "Harness Token Usage"
-!define KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\HarnessTokenUsage"
+!define PRODUCT "Harness Token Deck"
+!define KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\HarnessTokenDeck"
 !define WVKEY "Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
 Name "${PRODUCT}"
-OutFile "..\release\Harness Token Usage_${HTU_VERSION}_x64-setup.exe"
-InstallDir "$LOCALAPPDATA\Programs\Harness Token Usage"
+OutFile "..\release\Harness Token Deck_${HTD_VERSION}_x64-setup.exe"
+InstallDir "$LOCALAPPDATA\Programs\Harness Token Deck"
 InstallDirRegKey HKCU "${KEY}" "InstallLocation"
 RequestExecutionLevel user
 SetCompressor /SOLID lzma
 Icon "app.ico"
 UninstallIcon "app.ico"
-VIProductVersion "${HTU_VERSION}.0"
+VIProductVersion "${HTD_VERSION}.0"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT}"
 VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT} Setup"
-VIAddVersionKey /LANG=1033 "FileVersion" "${HTU_VERSION}"
-VIAddVersionKey /LANG=1033 "ProductVersion" "${HTU_VERSION}"
-VIAddVersionKey /LANG=1033 "LegalCopyright" "Harness Token Usage contributors"
+VIAddVersionKey /LANG=1033 "FileVersion" "${HTD_VERSION}"
+VIAddVersionKey /LANG=1033 "ProductVersion" "${HTD_VERSION}"
+VIAddVersionKey /LANG=1033 "LegalCopyright" "Harness Token Deck contributors"
 
 Var RegistryKey
 Var StartupKey
@@ -49,7 +49,7 @@ Page custom ReplacePage ReplaceLeave
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE CheckDirectory
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
-!define MUI_FINISHPAGE_RUN "$INSTDIR\HarnessTokenUsage.exe"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\HarnessTokenDeck.exe"
 !define MUI_FINISHPAGE_SHOWREADME ""
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "$(DesktopShortcut)"
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION CreateDesktop
@@ -71,22 +71,22 @@ Function ${PREFIX}InitPaths
   SetRegView 64
   StrCpy $RegistryKey "${KEY}"
   StrCpy $StartupKey "Software\Microsoft\Windows\CurrentVersion\Run"
-  StrCpy $DataDir "$LOCALAPPDATA\HarnessTokenUsage"
+  StrCpy $DataDir "$LOCALAPPDATA\HarnessTokenDeck"
   StrCpy $MenuDir "$SMPROGRAMS"
   StrCpy $DesktopDir "$DESKTOP"
-  ReadEnvStr $TestRoot HTU_INSTALLER_TEST_ROOT
+  ReadEnvStr $TestRoot HTD_INSTALLER_TEST_ROOT
   ${If} $TestRoot != ""
     IfSilent +2
       Abort
-    IfFileExists "$TestRoot\.htu-installer-test" +2
+    IfFileExists "$TestRoot\.htd-installer-test" +2
       Abort
     StrCpy $RegistryKey "${KEY}-Acceptance"
-    StrCpy $StartupKey "Software\HarnessTokenUsage-Acceptance\Run"
+    StrCpy $StartupKey "Software\HarnessTokenDeck-Acceptance\Run"
     StrCpy $DataDir "$TestRoot\data"
     StrCpy $MenuDir "$TestRoot\start-menu"
     StrCpy $DesktopDir "$TestRoot\desktop"
   ${EndIf}
-  System::Call 'kernel32::SetEnvironmentVariableW(w "HTU_DATA_DIR", w "$DataDir")'
+  System::Call 'kernel32::SetEnvironmentVariableW(w "HTD_DATA_DIR", w "$DataDir")'
 FunctionEnd
 !macroend
 !insertmacro InitPaths ""
@@ -173,8 +173,8 @@ FunctionEnd
 
 Function CreateDesktop
   CreateDirectory "$DesktopDir"
-  CreateShortCut "$DesktopDir\${PRODUCT}.lnk" "$INSTDIR\HarnessTokenUsage.exe"
-  ExecWait '"$INSTDIR\HarnessTokenUsage.exe" --set-shortcut-app-id "$DesktopDir\${PRODUCT}.lnk"' $0
+  CreateShortCut "$DesktopDir\${PRODUCT}.lnk" "$INSTDIR\HarnessTokenDeck.exe"
+  ExecWait '"$INSTDIR\HarnessTokenDeck.exe" --set-shortcut-app-id "$DesktopDir\${PRODUCT}.lnk"' $0
 FunctionEnd
 
 Section "Install"
@@ -195,8 +195,8 @@ Section "Install"
   ${EndIf}
   InitPluginsDir
   SetOutPath "$PLUGINSDIR\payload"
-  File /r "..\dist\HarnessTokenUsage\*.*"
-  ExecWait '"$PLUGINSDIR\payload\HarnessTokenUsage.exe" --quit --wait-for-exit' $0
+  File /r "..\dist\HarnessTokenDeck\*.*"
+  ExecWait '"$PLUGINSDIR\payload\HarnessTokenDeck.exe" --quit --wait-for-exit' $0
   ${If} $0 != 0
     MessageBox MB_OK|MB_ICONSTOP "$(RunningError)" /SD IDOK
     SetErrorLevel 1
@@ -215,29 +215,29 @@ Section "Install"
   CreateDirectory "$INSTDIR"
   SetOutPath "$INSTDIR"
   ClearErrors
-  File /r "..\dist\HarnessTokenUsage\*.*"
+  File /r "..\dist\HarnessTokenDeck\*.*"
   ${If} ${Errors}
     SetErrorLevel 1
     Abort
   ${EndIf}
   SetOutPath "$INSTDIR"
   CopyFiles /SILENT "$INSTDIR\_internal\THIRD_PARTY_NOTICES.md" "$INSTDIR"
-  CopyFiles /SILENT "$INSTDIR\_internal\LICENSE.pending" "$INSTDIR"
+  CopyFiles /SILENT "$INSTDIR\_internal\LICENSE" "$INSTDIR"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   WriteINIStr "$INSTDIR\installer-state.ini" "install" "testRoot" "$TestRoot"
   WriteINIStr "$INSTDIR\installer-state.ini" "install" "language" "$LANGUAGE"
   WriteINIStr "$INSTDIR\installer-state.ini" "install" "dataDir" "$DataDir"
   WriteRegStr HKCU "$RegistryKey" "DisplayName" "${PRODUCT}"
-  WriteRegStr HKCU "$RegistryKey" "DisplayVersion" "${HTU_VERSION}"
+  WriteRegStr HKCU "$RegistryKey" "DisplayVersion" "${HTD_VERSION}"
   WriteRegStr HKCU "$RegistryKey" "InstallLocation" "$INSTDIR"
-  WriteRegStr HKCU "$RegistryKey" "DisplayIcon" "$INSTDIR\HarnessTokenUsage.exe"
+  WriteRegStr HKCU "$RegistryKey" "DisplayIcon" "$INSTDIR\HarnessTokenDeck.exe"
   WriteRegStr HKCU "$RegistryKey" "UninstallString" '$\"$INSTDIR\Uninstall.exe$\"'
   WriteRegStr HKCU "$RegistryKey" "QuietUninstallString" '$\"$INSTDIR\Uninstall.exe$\" /S'
   WriteRegDWORD HKCU "$RegistryKey" "NoModify" 1
   WriteRegDWORD HKCU "$RegistryKey" "NoRepair" 1
   CreateDirectory "$MenuDir"
-  CreateShortCut "$MenuDir\${PRODUCT}.lnk" "$INSTDIR\HarnessTokenUsage.exe"
-  ExecWait '"$INSTDIR\HarnessTokenUsage.exe" --set-shortcut-app-id "$MenuDir\${PRODUCT}.lnk"' $0
+  CreateShortCut "$MenuDir\${PRODUCT}.lnk" "$INSTDIR\HarnessTokenDeck.exe"
+  ExecWait '"$INSTDIR\HarnessTokenDeck.exe" --set-shortcut-app-id "$MenuDir\${PRODUCT}.lnk"' $0
   ${If} $0 != 0
     SetErrorLevel 1
     Abort
@@ -295,25 +295,25 @@ Function un.DataLeave
 FunctionEnd
 
 Section "Uninstall"
-  ExecWait '"$INSTDIR\HarnessTokenUsage.exe" --quit --wait-for-exit' $0
+  ExecWait '"$INSTDIR\HarnessTokenDeck.exe" --quit --wait-for-exit' $0
   ${If} $0 != 0
     MessageBox MB_OK|MB_ICONSTOP "$(RunningError)" /SD IDOK
     SetErrorLevel 1
     Abort
   ${EndIf}
   ${If} $BackupRequested == 1
-    IfFileExists "$DataDir\htu.sqlite3" 0 no_database
+    IfFileExists "$DataDir\htd.sqlite3" 0 no_database
     CreateDirectory "$DesktopDir"
     ${GetTime} "" "L" $0 $1 $2 $3 $4 $5 $6
-    StrCpy $BackupPath "$DesktopDir\htu-$2$1$0-$4$5$6.sqlite3"
+    StrCpy $BackupPath "$DesktopDir\htd-$2$1$0-$4$5$6.sqlite3"
     StrCpy $7 1
 backup_name:
     IfFileExists "$BackupPath" 0 backup_ready
     IntOp $7 $7 + 1
-    StrCpy $BackupPath "$DesktopDir\htu-$2$1$0-$4$5$6-$7.sqlite3"
+    StrCpy $BackupPath "$DesktopDir\htd-$2$1$0-$4$5$6-$7.sqlite3"
     Goto backup_name
 backup_ready:
-    ExecWait '"$INSTDIR\HarnessTokenUsage.exe" --backup-data "$BackupPath"' $0
+    ExecWait '"$INSTDIR\HarnessTokenDeck.exe" --backup-data "$BackupPath"' $0
     ${If} $0 != 0
       Goto backup_failed
     ${EndIf}
@@ -331,13 +331,14 @@ no_database:
   Delete "$MenuDir\${PRODUCT}.lnk"
   Delete "$DesktopDir\${PRODUCT}.lnk"
   DeleteRegKey HKCU "$RegistryKey"
-  DeleteRegValue HKCU "$StartupKey" "HarnessTokenUsage"
+  DeleteRegValue HKCU "$StartupKey" "HarnessTokenDeck"
   ; Delete only owned payload files, leaving unrelated files in a custom directory.
   !include "..\build\uninstall_files.nsh"
   ; These application-owned trees can contain caches or files from older builds.
   RMDir /r "$INSTDIR\_internal"
-  RMDir /r "$INSTDIR\HarnessTokenUsage.exe.WebView2"
+  RMDir /r "$INSTDIR\HarnessTokenDeck.exe.WebView2"
   Delete "$INSTDIR\THIRD_PARTY_NOTICES.md"
+  Delete "$INSTDIR\LICENSE"
   Delete "$INSTDIR\LICENSE.pending"
   Delete "$INSTDIR\installer-state.ini"
   Delete "$INSTDIR\Uninstall.exe"

@@ -6,8 +6,8 @@ import re
 from pathlib import Path
 from uuid import UUID
 
-from htu.bootstrap import Application
-from htu.ipc.dto.base import Failure, Success
+from htd.bootstrap import Application
+from htd.ipc.dto.base import Failure, Success
 
 UUID_PATTERN = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")
 
@@ -33,7 +33,9 @@ class Recorder:
         self.records.append({"command": command, "payload": payload, "response": envelope})
 
     def save(self, destination: Path) -> None:
-        assert {str(record["command"]) for record in self.records} == set(self.app.router.commands)
+        recorded = {str(record["command"]) for record in self.records}
+        registered = set(self.app.router.commands)
+        assert recorded == registered, {"missing": registered - recorded, "extra": recorded - registered}
         serialized = json.dumps(self.records, ensure_ascii=False, indent=2, sort_keys=True)
         replacements: dict[str, str] = {}
 
@@ -46,7 +48,7 @@ class Recorder:
         serialized = UUID_PATTERN.sub(replace, serialized)
         # JSON-escaped paths cover both raw Windows and normalized source paths.
         for temporary in {str(self.temporary), os.path.normcase(str(self.temporary))}:
-            serialized = serialized.replace(json.dumps(temporary)[1:-1], "C:\\\\htu-contract-fixture")
+            serialized = serialized.replace(json.dumps(temporary)[1:-1], "C:\\\\htd-contract-fixture")
         serialized = re.sub(r"[0-9a-f]{64}", "0" * 64, serialized)
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(serialized + "\n", encoding="utf-8")

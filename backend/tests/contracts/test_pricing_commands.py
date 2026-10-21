@@ -6,14 +6,14 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.adapters.sqlite.writer import UnitOfWork
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import format_instant, parse_instant
-from htu.domain.usage.model import Harness
-from htu.ipc.dto.pricing import ChangeResponse, PoolResponse, Rates
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.adapters.sqlite.writer import UnitOfWork
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import format_instant, parse_instant
+from htd.domain.usage.model import Harness
+from htd.ipc.dto.pricing import ChangeResponse, PoolResponse, Rates
 from pydantic import JsonValue
 
 from backend.tests.integration.collection_helpers import usage

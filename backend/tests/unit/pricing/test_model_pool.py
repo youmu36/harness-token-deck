@@ -2,9 +2,9 @@ from dataclasses import FrozenInstanceError
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import MODEL_NOT_FOUND, MODEL_POOL_LIMIT, DomainError
-from htu.domain.pricing.model import PriceRates
-from htu.domain.pricing.model_pool import (
+from htd.domain.common.errors import MODEL_NOT_FOUND, MODEL_POOL_LIMIT, DomainError
+from htd.domain.pricing.model import PriceRates
+from htd.domain.pricing.model_pool import (
     BasePrice,
     ModelPool,
     add_models,

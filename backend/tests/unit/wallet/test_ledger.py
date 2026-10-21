@@ -3,14 +3,14 @@
 from dataclasses import replace
 
 import pytest
-from htu.domain.common.errors import (
+from htd.domain.common.errors import (
     OPERATION_ID_REUSED,
     WALLET_INVALID,
     WALLET_REVISION_CONFLICT,
     DomainError,
 )
-from htu.domain.common.money import PICO_PER_USD
-from htu.domain.wallet.ledger import (
+from htd.domain.common.money import PICO_PER_USD
+from htd.domain.wallet.ledger import (
     apply,
     attribute_consumption,
     late_offsets,
@@ -18,7 +18,7 @@ from htu.domain.wallet.ledger import (
     plan_initial_balance,
     top_up,
 )
-from htu.domain.wallet.model import Vendor, VendorLink, WalletEntry
+from htd.domain.wallet.model import Vendor, VendorLink, WalletEntry
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -77,7 +77,7 @@ def test_invalid_initial_amounts_are_not_silently_empty(value: str) -> None:
 def test_late_offset_checks_both_completion_time_and_insertion_sequence(at: object, seq: int) -> None:
     from typing import cast
 
-    from htu.domain.common.time import Instant
+    from htd.domain.common.time import Instant
 
     _, audit = calibrated((entry("up", "top_up", "50", 8),), "50", 10)
     cost = entry("cost", "consumption", "3", seq, at=cast(Instant, at))
@@ -166,7 +166,7 @@ def test_quality_counts_requests_not_deltas_or_adjustments() -> None:
 
 
 def test_same_dedupe_key_in_different_harnesses_is_distinct() -> None:
-    from htu.domain.usage.model import Harness
+    from htd.domain.usage.model import Harness
 
     first = entry("a", "consumption", "1", 1, usage_ref=usage("x", Harness.CODEX), unpriced=True)
     second = entry("b", "consumption", "1", 2, usage_ref=usage("x", Harness.ZCODE), incomplete=True)

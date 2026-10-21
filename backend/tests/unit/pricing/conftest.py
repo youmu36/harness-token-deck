@@ -1,7 +1,7 @@
 import pytest
-from htu.domain.common.time import parse_instant
-from htu.domain.pricing.catalog import Catalog
-from htu.domain.pricing.model import (
+from htd.domain.common.time import parse_instant
+from htd.domain.pricing.catalog import Catalog
+from htd.domain.pricing.model import (
     HarnessSelection,
     ModelRate,
     PriceGroup,
@@ -9,7 +9,7 @@ from htu.domain.pricing.model import (
     PriceVersion,
     VersionActivation,
 )
-from htu.domain.usage.model import Harness
+from htd.domain.usage.model import Harness
 
 
 @pytest.fixture

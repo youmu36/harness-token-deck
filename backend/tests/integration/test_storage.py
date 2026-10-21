@@ -7,11 +7,11 @@ from pathlib import Path
 from threading import Barrier, Event, get_ident
 
 import pytest
-from htu.adapters.sqlite.connection import ReadPool, open_connection
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.domain.common.errors import DomainError
-from htu.version import app_version
+from htd.adapters.sqlite.connection import ReadPool, open_connection
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.domain.common.errors import DomainError
+from htd.version import app_version
 
 
 def test_migration_is_idempotent_and_strict(tmp_path: Path) -> None:
@@ -214,7 +214,7 @@ def test_existing_schema_is_backed_up_before_next_migration(tmp_path: Path) -> N
         connection.execute("INSERT INTO preference VALUES ('theme','\"dark\"')")
     (migrations / "0002_extra.sql").write_text("CREATE TABLE extra(id INTEGER PRIMARY KEY) STRICT;")
     migrate(path, migrations=migrations)
-    backups = list((tmp_path / "backups").glob("htu-*.sqlite3"))
+    backups = list((tmp_path / "backups").glob("htd-*.sqlite3"))
     assert len(backups) == 1
     with closing(open_connection(backups[0], query_only=True)) as connection:
         assert (

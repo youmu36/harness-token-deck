@@ -1,19 +1,19 @@
 from dataclasses import replace
 
 import pytest
-from htu.domain.common.errors import DomainError
-from htu.domain.common.money import parse_rate
-from htu.domain.common.time import parse_instant
-from htu.domain.pricing.catalog import Catalog, Resolution
-from htu.domain.pricing.model import (
+from htd.domain.common.errors import DomainError
+from htd.domain.common.money import parse_rate
+from htd.domain.common.time import parse_instant
+from htd.domain.pricing.catalog import Catalog, Resolution
+from htd.domain.pricing.model import (
     EditorHints,
     HarnessSelection,
     ModelRate,
     PriceRevision,
     VersionActivation,
 )
-from htu.domain.pricing.rules import rename_group, save_editor_hints, set_version_label
-from htu.domain.usage.model import Harness
+from htd.domain.pricing.rules import rename_group, save_editor_hints, set_version_label
+from htd.domain.usage.model import Harness
 
 T0 = parse_instant("2026-09-01T00:00:00Z")
 T1 = parse_instant("2026-09-01T01:00:00Z")

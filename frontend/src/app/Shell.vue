@@ -85,9 +85,9 @@ watch([router.page, () => snapshot.value.preferences.hiddenHarnesses], ([page, h
 const preview = bridge.mode === 'preview';
 const resize = () => { compact.value = window.innerWidth < 1100; };
 function savePage() { void save({ lastPage: router.page.value, lastRoute: router.route.value.path }).catch(() => {}); }
-const hostWindow = window as Window & { __htuFlushPreferences?: () => Promise<void> };
+const hostWindow = window as Window & { __htdFlushPreferences?: () => Promise<void> };
 const flushPreferences = async () => { savePage(); await flush(); };
-hostWindow.__htuFlushPreferences = flushPreferences;
+hostWindow.__htdFlushPreferences = flushPreferences;
 watch(router.route, savePage, { immediate: true, flush: 'sync' });
 const unsubscribe = bridge.events.onVisibility(visible => { if (!visible) { resetSkipLink(); savePage(); } });
 async function toggleCollapsed() {
@@ -112,7 +112,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', skipKeyDown); window.removeEventListener('keyup', skipKeyUp);
   window.removeEventListener('pointerdown', skipPointer); window.removeEventListener('blur', resetSkipLink);
   document.removeEventListener('visibilitychange', skipVisibility);
-  if (hostWindow.__htuFlushPreferences === flushPreferences) delete hostWindow.__htuFlushPreferences;
+  if (hostWindow.__htdFlushPreferences === flushPreferences) delete hostWindow.__htdFlushPreferences;
   unsubscribe(); theme.dispose(); window.removeEventListener('resize', resize);
   window.removeEventListener('beforeunload', savePage); window.removeEventListener('pagehide', savePage);
 });
@@ -122,7 +122,7 @@ onBeforeUnmount(() => {
   <div class="shell" :class="{ collapsed }">
     <a ref="skipLink" class="skip-link" :class="{ 'keyboard-focus': skipLinkVisible }" href="#main-content" @focus="focusSkipLink" @blur="skipLinkVisible = false" @click.prevent="skipToContent">跳到内容</a>
     <aside class="sidebar" aria-label="侧栏">
-      <div class="brand" :title="collapsed ? 'Harness Token Usage' : undefined"><span class="brand-icon"><Activity :size="25" aria-hidden="true" /></span><span v-if="!collapsed">Harness<br />Token Usage</span></div>
+      <div class="brand" :title="collapsed ? 'Harness Token Deck' : undefined"><span class="brand-icon"><Activity :size="25" aria-hidden="true" /></span><span v-if="!collapsed">Harness<br />Token Deck</span></div>
       <nav aria-label="主导航">
         <section v-for="group in groups" :key="group.label" :aria-label="group.label" class="nav-group">
           <h2 class="sr-only">{{ group.label }}</h2>

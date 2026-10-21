@@ -3,9 +3,9 @@
 from datetime import timedelta
 
 import pytest
-from htu.domain.common.time import Instant, parse_instant
-from htu.domain.statistics import Aggregator, LedgerRow, Metrics
-from htu.domain.usage.model import Harness
+from htd.domain.common.time import Instant, parse_instant
+from htd.domain.statistics import Aggregator, LedgerRow, Metrics
+from htd.domain.usage.model import Harness
 from hypothesis import given, settings
 from hypothesis import strategies as st
 

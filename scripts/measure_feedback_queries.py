@@ -15,15 +15,15 @@ from typing import Any
 from unittest.mock import patch
 
 import psutil
-from htu.adapters.sqlite import ledger_read, usage_archive
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.statistics_store import SqliteStatisticsSnapshot
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.statistics.aggregator import Aggregator
-from htu.domain.usage.model import Harness
+from htd.adapters.sqlite import ledger_read, usage_archive
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.statistics_store import SqliteStatisticsSnapshot
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.statistics.aggregator import Aggregator
+from htd.domain.usage.model import Harness
 
 from backend.tests.contracts.command_helpers import seed_rows
 from backend.tests.unit.statistics.helpers import row
@@ -188,7 +188,7 @@ def measurements(app: Application):
             counts["aggregationMicroseconds"] += (perf_counter() - began) * 1_000_000
 
     stack = ExitStack()
-    stack.enter_context(patch("htu.adapters.sqlite.connection.open_connection", opened))
+    stack.enter_context(patch("htd.adapters.sqlite.connection.open_connection", opened))
     stack.enter_context(patch.object(SqliteStatisticsSnapshot, "__init__", snapshot))
     stack.enter_context(patch.object(usage_archive, "unpack", unpack))
     stack.enter_context(patch.object(Aggregator, "push", push))
@@ -196,7 +196,7 @@ def measurements(app: Application):
 
 
 def run(label: str, output: Path, *, concurrency_only: bool = False) -> None:
-    with tempfile.TemporaryDirectory(prefix="htu-feedback-") as directory:  # noqa: SIM117
+    with tempfile.TemporaryDirectory(prefix="htd-feedback-") as directory:  # noqa: SIM117
         with Application(Path(directory), clock=FakeClock(END), start_scheduler=False) as app:
             seed(app)
             app.readers.release_idle()

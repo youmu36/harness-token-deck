@@ -1,9 +1,9 @@
 """W-series wallet accounting, revision guards, and display vectors."""
 
 import pytest
-from htu.domain.common.errors import WALLET_REVISION_CONFLICT, DomainError
-from htu.domain.common.money import PICO_PER_USD, format_pico, parse_usd_amount
-from htu.domain.wallet.ledger import (
+from htd.domain.common.errors import WALLET_REVISION_CONFLICT, DomainError
+from htd.domain.common.money import PICO_PER_USD, format_pico, parse_usd_amount
+from htd.domain.wallet.ledger import (
     apply,
     attribute_consumption,
     late_offsets,
@@ -11,7 +11,7 @@ from htu.domain.wallet.ledger import (
     plan_initial_balance,
     top_up,
 )
-from htu.domain.wallet.model import Vendor, VendorLink
+from htd.domain.wallet.model import Vendor, VendorLink
 
 from .conftest import AFTER, BEFORE, T0, T1, T2, calibrated, entry
 

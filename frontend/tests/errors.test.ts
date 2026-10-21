@@ -5,7 +5,7 @@ import { AppError, asAppError, errorMessage, errorMessages } from '../src/app/er
 
 describe('localized application errors', () => {
   it('covers defined backend codes, literal business errors and status failure codes', () => {
-    const root = path.resolve(process.cwd(), 'backend/src/htu');
+    const root = path.resolve(process.cwd(), 'backend/src/htd');
     const codes = new Set(['INTERNAL_ERROR', 'COLLECTION_FAILED', 'RETENTION_FAILED']);
     for (const name of fs.readdirSync(root, { recursive: true })) {
       if (typeof name !== 'string' || !name.endsWith('.py')) continue;

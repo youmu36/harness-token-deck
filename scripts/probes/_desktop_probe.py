@@ -35,11 +35,11 @@ def run(mode: str) -> int:
     report: dict[str, Any] = {"mode": mode, "passed": False, "frozen": bool(getattr(sys, "frozen", False))}
     frozen_root = getattr(sys, "_MEIPASS", None)
     root = Path(frozen_root) if frozen_root else Path(__file__).resolve().parents[2]
-    html = root / ("web/index.html" if frozen_root else "backend/src/htu/web/index.html")
+    html = root / ("web/index.html" if frozen_root else "backend/src/htd/web/index.html")
     if not html.is_file():
         raise FileNotFoundError(f"Build frontend first: {html}")
     webview: Any = importlib.import_module("webview")
-    window: Any = webview.create_window("HTU P0 Probe", str(html), js_api=Bridge(), width=720, height=480)
+    window: Any = webview.create_window("HTD P0 Probe", str(html), js_api=Bridge(), width=720, height=480)
     allow_exit = threading.Event()
     closed_count = 0
     tray: Any = None
@@ -83,7 +83,7 @@ def run(mode: str) -> int:
             assert report.get("ping") == {"ok": True, "data": "pong"}
             report["public_methods"] = window.evaluate_js("Object.keys(window.pywebview.api)")
             assert report["public_methods"] == ["call"]
-            assert window.evaluate_js("document.querySelector('h1').textContent") == "Harness Token Usage"
+            assert window.evaluate_js("document.querySelector('h1').textContent") == "Harness Token Deck"
             server = webview.http.global_server
             report["http_bind"] = list(server.httpd.server_address)
             report["static_root"] = server.root_path
@@ -96,12 +96,12 @@ def run(mode: str) -> int:
                     report[f"http_{method}_{endpoint}"] = error.code
                     assert error.code in {403, 405, 501}
             window.evaluate_js(
-                "window.__htu = { emit: (name, payload) => { window.__probe.event = {name,payload}; } }"
+                "window.__htd = { emit: (name, payload) => { window.__probe.event = {name,payload}; } }"
             )
             pushed = threading.Event()
 
             def push() -> None:
-                window.evaluate_js("window.__htu.emit('probe.tick', {value: 1})")
+                window.evaluate_js("window.__htd.emit('probe.tick', {value: 1})")
                 pushed.set()
 
             timer = threading.Timer(3, push)
@@ -127,7 +127,7 @@ def run(mode: str) -> int:
                     report["gui_thread"] = int(system.Threading.Thread.CurrentThread.ManagedThreadId)
                     tray = forms.NotifyIcon()
                     tray.Icon = drawing.SystemIcons.Application
-                    tray.Text = "HTU P0 Probe"
+                    tray.Text = "HTD P0 Probe"
                     menu = forms.ContextMenuStrip()
                     menu.Items.Add("打开").Click += restore
                     menu.Items.Add("退出").Click += quit_probe
@@ -188,8 +188,8 @@ def run(mode: str) -> int:
                 report["tray_disposed"] = True
             window.destroy()
 
-    with tempfile.TemporaryDirectory(prefix="htu-probe-") as temporary:
-        os.environ["HTU_DATA_DIR"] = temporary
+    with tempfile.TemporaryDirectory(prefix="htd-probe-") as temporary:
+        os.environ["HTD_DATA_DIR"] = temporary
         try:
             webview.start(
                 worker,

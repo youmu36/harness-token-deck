@@ -151,14 +151,14 @@ def isolated_environment(directory: Path) -> dict[str, str]:
         "APPDATA",
         "LOCALAPPDATA",
         "CODEX_HOME",
-        "HTU_DATA_DIR",
-        "HTU_SOURCE_ROOT_CODEX",
-        "HTU_SOURCE_ROOT_ZCODE",
-        "HTU_SOURCE_ROOT_DSH",
+        "HTD_DATA_DIR",
+        "HTD_SOURCE_ROOT_CODEX",
+        "HTD_SOURCE_ROOT_ZCODE",
+        "HTD_SOURCE_ROOT_DSH",
     ):
         destination = directory / name.lower()
         destination.mkdir(parents=True, exist_ok=True)
         environment[name] = str(destination)
-    environment.pop("HTU_DEV_URL", None)
-    environment.update(HTU_TEST_HOOKS="1", HTU_DEBUG="0", PYTHONIOENCODING="utf-8")
+    environment.pop("HTD_DEV_URL", None)
+    environment.update(HTD_TEST_HOOKS="1", HTD_DEBUG="0", PYTHONIOENCODING="utf-8")
     return environment

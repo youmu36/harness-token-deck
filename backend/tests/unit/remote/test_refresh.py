@@ -7,16 +7,16 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.account_book import AccountBook
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.remote_store import SqliteRemoteStore
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.application.remote.ports import MemoryCredentialStore
-from htu.application.remote.service import Remote
-from htu.domain.common.errors import DomainError
-from htu.domain.common.testing import FakeClock
-from htu.domain.remote.model import BalanceKind, BalanceObservation, RemoteAccount, RemoteFailure
+from htd.adapters.sqlite.account_book import AccountBook
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.remote_store import SqliteRemoteStore
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.remote.ports import MemoryCredentialStore
+from htd.application.remote.service import Remote
+from htd.domain.common.errors import DomainError
+from htd.domain.common.testing import FakeClock
+from htd.domain.remote.model import BalanceKind, BalanceObservation, RemoteAccount, RemoteFailure
 
 from backend.tests.integration.test_wallet_storage import vendor
 
@@ -62,7 +62,7 @@ class Provider:
 
 @pytest.fixture
 def remote(tmp_path: Path) -> Generator[Remote, None, None]:
-    with WriteExecutor(tmp_path / "htu.sqlite3") as writer:
+    with WriteExecutor(tmp_path / "htd.sqlite3") as writer:
         writer.execute(vendor)
         with ReadPool(writer.path) as readers:
             clock = FakeClock()

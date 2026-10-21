@@ -392,7 +392,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "groupId": {
           "$ref": "#/$defs/Identifier"
@@ -417,7 +417,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "modelIds": {
           "items": {
@@ -455,7 +455,7 @@
           "default": null
         },
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "groupId": {
           "$ref": "#/$defs/Identifier"
@@ -1405,7 +1405,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "operationId": {
           "$ref": "#/$defs/OperationId"
@@ -1634,7 +1634,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedWalletRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "operationId": {
           "$ref": "#/$defs/OperationId"
@@ -1991,7 +1991,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedAccountRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "note": {
           "default": "",
@@ -2058,7 +2058,7 @@
           "$ref": "#/$defs/Identifier"
         },
         "expectedEntryRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "note": {
           "default": "",
@@ -2108,7 +2108,7 @@
           "default": null
         },
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "name": {
           "$ref": "#/$defs/Name"
@@ -2343,6 +2343,26 @@
         "A"
       ],
       "title": "DailyBookRow",
+      "type": "object"
+    },
+    "DismissNoticeRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "observedAt": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "vendorId": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendorId",
+        "observedAt"
+      ],
+      "title": "DismissNoticeRequest",
       "type": "object"
     },
     "DismissWalletNoticeRequest": {
@@ -2775,7 +2795,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "groupId": {
           "$ref": "#/$defs/Identifier"
@@ -2894,7 +2914,7 @@
       "additionalProperties": false,
       "properties": {
         "clientProtocol": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__1"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__1"
         }
       },
       "required": [
@@ -3133,7 +3153,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "groupIds": {
           "items": {
@@ -4584,7 +4604,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "operationId": {
           "$ref": "#/$defs/OperationId"
@@ -4877,7 +4897,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedPricingRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "operationId": {
           "$ref": "#/$defs/OperationId"
@@ -4963,7 +4983,7 @@
           "$ref": "#/$defs/Identifier"
         },
         "expectedAccountRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "note": {
           "default": "",
@@ -5011,7 +5031,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedAccountRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "fingerprint": {
           "pattern": "^[0-9a-f]{64}$",
@@ -5456,7 +5476,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "modelId": {
           "$ref": "#/$defs/Identifier"
@@ -5477,7 +5497,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "groupId": {
           "$ref": "#/$defs/Identifier"
@@ -5572,10 +5592,10 @@
           "type": "string"
         },
         "expectedPricingRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "expectedUsageRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "groupId": {
           "anyOf": [
@@ -5994,7 +6014,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "models": {
           "items": {
@@ -6107,7 +6127,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "hints": {
           "items": {
@@ -6338,7 +6358,7 @@
           "type": "boolean"
         },
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "groupId": {
           "$ref": "#/$defs/Identifier"
@@ -6393,7 +6413,7 @@
           "default": null
         },
         "expectedWalletRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "operationId": {
           "$ref": "#/$defs/OperationId"
@@ -6436,7 +6456,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "harness": {
           "$ref": "#/$defs/HarnessName"
@@ -6497,7 +6517,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "operationId": {
           "$ref": "#/$defs/OperationId"
@@ -6522,7 +6542,7 @@
           "type": "boolean"
         },
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "operationId": {
           "$ref": "#/$defs/OperationId"
@@ -6544,7 +6564,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "label": {
           "maxLength": 60,
@@ -8343,7 +8363,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "groupId": {
           "$ref": "#/$defs/Identifier"
@@ -9505,7 +9525,7 @@
       "additionalProperties": false,
       "properties": {
         "expectedRevision": {
-          "$ref": "#/$defs/htu__ipc__dto__base__SafeInt__2"
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
         },
         "operationId": {
           "$ref": "#/$defs/OperationId"
@@ -9794,18 +9814,18 @@
       "title": "WriteRequest",
       "type": "object"
     },
-    "htu__ipc__dto__base__SafeInt__1": {
+    "htd__ipc__dto__base__SafeInt__1": {
       "maximum": 9007199254740991,
       "minimum": 1,
       "type": "integer"
     },
-    "htu__ipc__dto__base__SafeInt__2": {
+    "htd__ipc__dto__base__SafeInt__2": {
       "maximum": 9007199254740991,
       "minimum": 0,
       "type": "integer"
     }
   },
-  "$id": "https://harness-token-usage.local/ipc",
+  "$id": "https://harness-token-deck.local/ipc",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,
   "properties": {
@@ -9997,6 +10017,9 @@
         "pricing.unpricedNotice": {
           "$ref": "#/$defs/EmptyRequest"
         },
+        "reconciliation.dismiss": {
+          "$ref": "#/$defs/DismissNoticeRequest"
+        },
         "reconciliation.status": {
           "$ref": "#/$defs/EmptyRequest"
         },
@@ -10156,6 +10179,7 @@
         "pricing.switchCurrent",
         "pricing.unpriced",
         "pricing.unpricedNotice",
+        "reconciliation.dismiss",
         "reconciliation.status",
         "remote.delete",
         "remote.get",
@@ -10630,6 +10654,16 @@
             }
           ]
         },
+        "reconciliation.dismiss": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_ReconciliationResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
         "reconciliation.status": {
           "oneOf": [
             {
@@ -11055,6 +11089,7 @@
         "pricing.switchCurrent",
         "pricing.unpriced",
         "pricing.unpricedNotice",
+        "reconciliation.dismiss",
         "reconciliation.status",
         "remote.delete",
         "remote.get",

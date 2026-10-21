@@ -5,13 +5,13 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import parse_instant
-from htu.domain.pricing.history import HISTORY_GROUP_ID, HISTORY_VERSION_ID
-from htu.domain.usage.model import Tokens
-from htu.ipc.dto.pricing import CatalogResponse, ResolveUnpricedResponse
-from htu.ipc.dto.wallet import WalletListResponse
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import parse_instant
+from htd.domain.pricing.history import HISTORY_GROUP_ID, HISTORY_VERSION_ID
+from htd.domain.usage.model import Tokens
+from htd.ipc.dto.pricing import CatalogResponse, ResolveUnpricedResponse
+from htd.ipc.dto.wallet import WalletListResponse
 
 from backend.tests.integration.collection_helpers import usage
 
@@ -212,6 +212,6 @@ def test_direct_price_replaces_a_case_equivalent_multiplier_hint(tmp_path: Path)
 
 
 def invoke_model():
-    from htu.ipc.dto.pricing import ModelPrice
+    from htd.ipc.dto.pricing import ModelPrice
 
     return ModelPrice.model_validate(MODEL).price()

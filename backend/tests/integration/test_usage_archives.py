@@ -6,17 +6,17 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.codex_audit import read_audit_ledger
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.ledger_read import LedgerReader
-from htu.adapters.sqlite.maintenance_repo import MaintenanceRepository
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.adapters.sqlite.rollup_repo import RollupRepository
-from htu.adapters.sqlite.usage_archive import unpack
-from htu.bootstrap import Application
-from htu.domain.common.time import Instant, parse_instant
-from htu.domain.statistics import Summary, Window
-from htu.domain.usage.model import Harness
+from htd.adapters.sqlite.codex_audit import read_audit_ledger
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.ledger_read import LedgerReader
+from htd.adapters.sqlite.maintenance_repo import MaintenanceRepository
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.adapters.sqlite.rollup_repo import RollupRepository
+from htd.adapters.sqlite.usage_archive import unpack
+from htd.bootstrap import Application
+from htd.domain.common.time import Instant, parse_instant
+from htd.domain.statistics import Summary, Window
+from htd.domain.usage.model import Harness
 
 from backend.tests.contracts.command_helpers import seed_rows
 from backend.tests.unit.statistics.helpers import row
@@ -32,7 +32,7 @@ def test_upgrade_from_0015_preserves_values_and_creates_a_recoverable_backup(tmp
     for migration in MIGRATIONS.glob("*.sql"):
         if migration.name < "0016":
             (old / migration.name).write_bytes(migration.read_bytes())
-    path = tmp_path / "htu.sqlite3"
+    path = tmp_path / "htd.sqlite3"
     migrate(path, migrations=old)
     with closing(open_connection(path)) as db:
         db.execute("INSERT INTO preference VALUES('theme','\"dark\"')")
@@ -108,7 +108,7 @@ def test_month_partitions_preserve_all_statistics_and_late_rows_after_restart(tm
         with app.readers.connection() as db:
             assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
             assert db.execute("PRAGMA foreign_key_check").fetchall() == []
-    audit = read_audit_ledger(directory / "htu.sqlite3", START, END)
+    audit = read_audit_ledger(directory / "htd.sqlite3", START, END)
     assert audit.compacted_records == 301
     assert audit.compacted_pico == before[Harness.CODEX, 0].metrics.record_count * 9_007_199_254_740_993 + 123
 

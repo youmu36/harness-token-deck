@@ -1,8 +1,8 @@
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import MODEL_NAME_INVALID, DomainError
-from htu.domain.usage.model_key import model_key
+from htd.domain.common.errors import MODEL_NAME_INVALID, DomainError
+from htd.domain.usage.model_key import model_key
 
 
 @pytest.mark.parametrize(

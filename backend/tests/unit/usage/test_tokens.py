@@ -2,13 +2,13 @@ from dataclasses import FrozenInstanceError, replace
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import (
+from htd.domain.common.errors import (
     CACHE_EXCEEDS_INPUT,
     INVALID_TOKEN_COUNT,
     REASONING_EXCEEDS_OUTPUT,
     DomainError,
 )
-from htu.domain.usage.model import MAX_TOKEN_COUNT, Tokens
+from htd.domain.usage.model import MAX_TOKEN_COUNT, Tokens
 from hypothesis import given
 from hypothesis import strategies as st
 

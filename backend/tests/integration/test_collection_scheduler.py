@@ -7,21 +7,21 @@ from pathlib import Path
 from threading import Condition, Event, Thread
 
 import pytest
-from htu.adapters.collectors.claude_reader import ClaudeReader
-from htu.adapters.collectors.codex_reader import CodexReader
-from htu.adapters.collectors.discovery import Discovery
-from htu.adapters.collectors.dsh_reader import DshReader
-from htu.adapters.collectors.zcode_reader import ZcodeReader
-from htu.adapters.sqlite.collection_store import SqliteCollectionStore
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.scheduler_store import SqliteSchedulerStore
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.adapters.watch.watcher import Watcher
-from htu.application.collection.billing import BillInbox
-from htu.application.collection.scan import ScanRound
-from htu.application.ports import (
+from htd.adapters.collectors.claude_reader import ClaudeReader
+from htd.adapters.collectors.codex_reader import CodexReader
+from htd.adapters.collectors.discovery import Discovery
+from htd.adapters.collectors.dsh_reader import DshReader
+from htd.adapters.collectors.zcode_reader import ZcodeReader
+from htd.adapters.sqlite.collection_store import SqliteCollectionStore
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.scheduler_store import SqliteSchedulerStore
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.adapters.watch.watcher import Watcher
+from htd.application.collection.billing import BillInbox
+from htd.application.collection.scan import ScanRound
+from htd.application.ports import (
     CollectionCompleted,
     CommitBatchResult,
     SourceRecord,
@@ -29,11 +29,11 @@ from htu.application.ports import (
     UsageChanged,
     WalletChanged,
 )
-from htu.domain.common.errors import DomainError
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant
-from htu.domain.usage.model import Harness, UsageEvent
-from htu.jobs.scheduler import Scheduler
+from htd.domain.common.errors import DomainError
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant
+from htd.domain.usage.model import Harness, UsageEvent
+from htd.jobs.scheduler import Scheduler
 
 from .scan_helpers import AT, count, headers, request, scanner, seed_prices, sessions
 

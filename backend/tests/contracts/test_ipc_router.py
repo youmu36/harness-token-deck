@@ -8,16 +8,16 @@ from collections.abc import Iterator
 from threading import Event
 
 import pytest
-from htu.application.events import InProcessEventBus
-from htu.application.ports import UsageChanged
-from htu.domain.common.errors import DomainError
-from htu.domain.usage.model import Harness
-from htu.ipc.app import register_app_commands
-from htu.ipc.bridge import Bridge
-from htu.ipc.dto.app import HelloResponse, SyncResponse
-from htu.ipc.dto.base import Envelope, Failure, RateStr, Revisions, StrictModel, Success
-from htu.ipc.events import EventForwarder
-from htu.ipc.router import Router
+from htd.application.events import InProcessEventBus
+from htd.application.ports import UsageChanged
+from htd.domain.common.errors import DomainError
+from htd.domain.usage.model import Harness
+from htd.ipc.app import register_app_commands
+from htd.ipc.bridge import Bridge
+from htd.ipc.dto.app import HelloResponse, SyncResponse
+from htd.ipc.dto.base import Envelope, Failure, RateStr, Revisions, StrictModel, Success
+from htd.ipc.events import EventForwarder
+from htd.ipc.router import Router
 from pydantic import TypeAdapter
 
 

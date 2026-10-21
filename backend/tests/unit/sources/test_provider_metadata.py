@@ -3,8 +3,8 @@
 import json
 from pathlib import Path
 
-from htu.adapters.collectors.provider_metadata import provider_metadata, public_url
-from htu.domain.usage.model import Harness
+from htd.adapters.collectors.provider_metadata import provider_metadata, public_url
+from htd.domain.usage.model import Harness
 
 
 def test_codex_public_names_and_urls_exclude_credentials(tmp_path: Path) -> None:

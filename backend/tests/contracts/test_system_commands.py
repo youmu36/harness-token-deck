@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from htu.bootstrap import Application
+from htd.bootstrap import Application
 
 
 def test_system_actions_are_unavailable_headless_and_paths_are_whitelisted(tmp_path: Path) -> None:

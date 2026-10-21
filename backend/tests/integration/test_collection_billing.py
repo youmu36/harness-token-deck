@@ -5,16 +5,16 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.collection_store import SqliteCollectionStore
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.pricing_repo import PricingRepository
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.collection.billing import BillInbox
-from htu.application.ports import UsageChanged, WalletChanged
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, parse_instant
-from htu.domain.pricing.model import ModelRate, PriceRevision
+from htd.adapters.sqlite.collection_store import SqliteCollectionStore
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.pricing_repo import PricingRepository
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.collection.billing import BillInbox
+from htd.application.ports import UsageChanged, WalletChanged
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, parse_instant
+from htd.domain.pricing.model import ModelRate, PriceRevision
 
 from .scan_helpers import AT, count, headers, request, scanner, seed_prices, sessions
 

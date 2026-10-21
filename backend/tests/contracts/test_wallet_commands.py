@@ -5,16 +5,16 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.maintenance_repo import MaintenanceRepository
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.application.ports import BilledUsage
-from htu.bootstrap import Application
-from htu.domain.billing import CostEstimate
-from htu.domain.common.money import PICO_PER_USD
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, parse_instant
-from htu.ipc.dto.wallet import EntriesResponse, WalletChangeResponse, WalletListResponse
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.maintenance_repo import MaintenanceRepository
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.application.ports import BilledUsage
+from htd.bootstrap import Application
+from htd.domain.billing import CostEstimate
+from htd.domain.common.money import PICO_PER_USD
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, parse_instant
+from htd.ipc.dto.wallet import EntriesResponse, WalletChangeResponse, WalletListResponse
 
 from backend.tests.integration.collection_helpers import usage
 
@@ -151,7 +151,7 @@ def test_W08_association_boundary_transfer_and_unlink_events(app: Application) -
     assert [row[0] for row in links] == [old.id, None, new.id]
     cost(app, g, 3, 2, at=app.clock.now_utc())
     assert balances(app, old.id)[1] == 3 and balances(app, new.id)[1] == 2
-    from htu.application.ports import WalletChanged
+    from htd.application.ports import WalletChanged
 
     assert any(isinstance(e, WalletChanged) and set(e.vendor_ids) == {old.id, new.id} for e in events)
     assert catalog(app).groups[0].vendorId == new.id
@@ -305,7 +305,7 @@ def test_W10_real_ledger_retention_preserves_wallet_snapshot_and_vouchers(app: A
     link(app, supplier.id, [g])
     wallet(app, "wallet.topUp", vendorId=supplier.id, amount="100")
     root = app.store.sources().sources[0].path
-    from htu.domain.usage.model import Harness
+    from htd.domain.usage.model import Harness
 
     app.writer.execute(
         lambda work: IngestRepository(work.connection).commit_batch(

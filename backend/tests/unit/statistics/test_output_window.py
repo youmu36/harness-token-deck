@@ -2,8 +2,8 @@
 
 from datetime import timedelta
 
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.statistics.output_window import SCALE, OutputWindow
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.statistics.output_window import SCALE, OutputWindow
 
 START = parse_instant("2026-10-20T00:10:00.000Z")
 
@@ -12,14 +12,13 @@ def stamp(seconds: int) -> str:
     return format_instant(Instant(START.value + timedelta(seconds=seconds)))
 
 
-def test_delayed_report_is_distributed_over_its_three_minute_span() -> None:
+def test_untimed_report_does_not_fill_intervening_empty_minutes() -> None:
     window = OutputWindow()
     window.add(stamp(0), 600, 10_000, "session", stamp(0))
     window.add(stamp(180), 5400, None, "session", stamp(180))
-    minutes = [window.minutes[stamp(seconds)] for seconds in (0, 60, 120)]
-    assert minutes == [[1800 * SCALE, 60_000, 0]] * 3
-    assert window.totals(recent=True) == (5400 * SCALE, 180_000, False)
-    assert window.totals() == (6000 * SCALE, 190_000, False)
+    assert stamp(0) not in window.minutes and stamp(60) not in window.minutes
+    assert window.minutes[stamp(120)] == [5400 * SCALE, 60_000, 0]
+    assert window.totals(recent=True) == (6000 * SCALE, 70_000, False)
 
 
 def test_no_polling_sample_is_added_before_the_delayed_report_arrives() -> None:
@@ -32,6 +31,16 @@ def test_no_polling_sample_is_added_before_the_delayed_report_arrives() -> None:
     assert window.totals(recent=True) == original
 
 
+def test_buffered_millisecond_burst_keeps_prior_speed_and_breaks_the_inferred_clock() -> None:
+    window = OutputWindow()
+    window.add(stamp(0), 600, 10_000, "session", stamp(0))
+    prior = window.totals()
+    window.add(stamp(1), 93, 3, "session", stamp(1))
+    assert window.totals() == prior and not window.cursors
+    window.add(stamp(2), 600, None, "session", stamp(2))
+    assert window.totals() == (1200 * SCALE, 70_000, False)
+
+
 def test_a_different_session_does_not_borrow_the_previous_sessions_silence() -> None:
     window = OutputWindow()
     window.add(stamp(0), 600, 10_000, "one", stamp(0))
@@ -40,14 +49,34 @@ def test_a_different_session_does_not_borrow_the_previous_sessions_silence() -> 
     assert stamp(60) not in window.minutes and stamp(120) not in window.minutes
 
 
-def test_shared_coarse_timestamp_uses_one_span_across_pagination_and_restart() -> None:
+def test_distinct_requests_with_one_coarse_timestamp_keep_their_own_duration() -> None:
     window = OutputWindow()
     for _ in range(250):
         window.add(stamp(0), 60, None, "session", stamp(0))
     window = OutputWindow.load(window.dump())
     for _ in range(250):
         window.add(stamp(0), 60, None, "session", stamp(1))
-    assert window.totals() == (30_000 * SCALE, 60_000, False)
+    assert window.totals() == (30_000 * SCALE, 30_000_000, False)
+
+
+def test_zero_output_breaks_inferred_clock_without_lowering_the_last_speed() -> None:
+    window = OutputWindow()
+    window.add(stamp(0), 600, None, "session", stamp(0))
+    original = window.totals()
+    for seconds in (60, 120, 180, 240, 300):
+        window.add(stamp(seconds), 0, None, "session", stamp(seconds))
+        assert window.totals() == original
+    window.add(stamp(301), 600, None, "session", stamp(301))
+    assert window.totals() == (1200 * SCALE, 120_000, False)
+
+
+def test_continuous_timed_minutes_preserve_the_source_rate_with_parallel_sessions() -> None:
+    window = OutputWindow()
+    for minute in range(8):
+        for session in ("one", "two"):
+            window.add(stamp(minute * 60), 27000, 60_000, session, stamp(minute * 60))
+        tokens, milliseconds, timed = window.totals(recent=True)
+        assert tokens * 1000 == 450 * milliseconds * SCALE and timed
 
 
 def test_source_timing_excludes_the_gap_even_when_usage_was_delayed() -> None:

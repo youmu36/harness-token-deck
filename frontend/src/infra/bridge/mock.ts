@@ -115,7 +115,7 @@ export function createMockBridge(options: { migration?: MockMigrationOptions } =
         case 'remote.get': return { ok: true, data: remote.get((payload as RequestMap['remote.get']).vendorId) };
         case 'remote.test': return { ok: true, data: remote.test(payload as RequestMap['remote.test']) };
         case 'remote.save': case 'remote.refresh': case 'remote.delete': return { ok: true, data: remote.change(command, payload as RequestMap[typeof command]) };
-        case 'reconciliation.status': return { ok: true, data: { notices: [] } };
+        case 'reconciliation.status': case 'reconciliation.dismiss': return { ok: true, data: { notices: [] } };
         case 'stats.analytics': return { ok: true, data: mockAnalytics(payload as RequestMap['stats.analytics']) };
         case 'preferences.get': return { ok: true, data: snapshot() };
         case 'preferences.update': return { ok: true, data: update(payload as RequestMap['preferences.update']) };

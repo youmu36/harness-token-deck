@@ -8,16 +8,16 @@ from io import StringIO
 from pathlib import Path
 from uuid import uuid4
 
-from htu.application.events import InProcessEventBus
-from htu.ipc.app import register_app_commands
-from htu.ipc.bridge import Bridge
-from htu.ipc.dto.app import HelloResponse, SyncResponse
-from htu.ipc.dto.base import Envelope, Failure, Revisions, Success
-from htu.ipc.dto.collection import CollectionStatusResponse, SetPausedResponse
-from htu.ipc.dto.preferences import PreferencesResponse
-from htu.ipc.events import EventForwarder
-from htu.ipc.headless import serve
-from htu.ipc.router import Router
+from htd.application.events import InProcessEventBus
+from htd.ipc.app import register_app_commands
+from htd.ipc.bridge import Bridge
+from htd.ipc.dto.app import HelloResponse, SyncResponse
+from htd.ipc.dto.base import Envelope, Failure, Revisions, Success
+from htd.ipc.dto.collection import CollectionStatusResponse, SetPausedResponse
+from htd.ipc.dto.preferences import PreferencesResponse
+from htd.ipc.events import EventForwarder
+from htd.ipc.headless import serve
+from htd.ipc.router import Router
 from pydantic import TypeAdapter
 
 
@@ -65,9 +65,9 @@ def test_headless_invalid_lines_do_not_stop_next_request() -> None:
 
 def test_headless_process_uses_only_stdout_json() -> None:
     project = Path(__file__).resolve().parents[3]
-    configured = Path(os.environ["HTU_DATA_DIR"])
+    configured = Path(os.environ["HTD_DATA_DIR"])
     process = subprocess.run(
-        [sys.executable, "-m", "htu", "--headless-bridge"],
+        [sys.executable, "-m", "htd", "--headless-bridge"],
         input='{"command":"app.hello","payload":{"clientProtocol":1}}\n'
         '{"command":"missing.command","payload":{}}\n'
         '{"command":"app.sync","payload":{}}\n',
@@ -95,7 +95,7 @@ def test_headless_process_uses_only_stdout_json() -> None:
         and synced.data.revisions["preferences"] == 0
         and synced.data.revisions["usage"] == 0
     )
-    assert (configured / "htu.sqlite3").is_file()
+    assert (configured / "htd.sqlite3").is_file()
     assert "preferences.update" in hello.data.capabilities
     assert "stats.summary" in hello.data.capabilities
 
@@ -105,7 +105,7 @@ def test_headless_preference_and_pause_survive_process_restart() -> None:
 
     def exchange(requests: list[dict[str, object]]) -> list[dict[str, object]]:
         process = subprocess.run(
-            [sys.executable, "-m", "htu", "--headless-bridge"],
+            [sys.executable, "-m", "htd", "--headless-bridge"],
             input="".join(json.dumps(request) + "\n" for request in requests),
             text=True,
             capture_output=True,

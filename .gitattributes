@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.sqlite3 binary
+/docs export-ignore
+/AGENTS.md export-ignore
+/Main export-ignore
+/.verify export-ignore
+/release export-ignore

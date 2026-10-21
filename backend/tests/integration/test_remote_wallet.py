@@ -6,17 +6,17 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.remote_repo import RemoteRepository
-from htu.adapters.sqlite.remote_store import SqliteRemoteStore
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.domain.common.time import Instant
-from htu.domain.remote.model import BalanceKind, BalanceObservation, RemoteAccount, RemoteFailure
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.remote_repo import RemoteRepository
+from htd.adapters.sqlite.remote_store import SqliteRemoteStore
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.domain.common.time import Instant
+from htd.domain.remote.model import BalanceKind, BalanceObservation, RemoteAccount, RemoteFailure
 
 from .test_wallet_storage import LATER, USD, vendor
 
 ACCOUNT = RemoteAccount(
-    "account", "vendor", "https://example.test", "HarnessTokenUsage/remote/account", site_type="sub2api"
+    "account", "vendor", "https://example.test", "HarnessTokenDeck/remote/account", site_type="sub2api"
 )
 
 
@@ -35,7 +35,7 @@ def balance(amount: int = 20 * USD, minute: int = 0) -> BalanceObservation:
 def test_first_observation_is_baseline_and_retry_never_creates_recharge(
     tmp_path: Path, initial: str | None
 ) -> None:
-    from htu.adapters.sqlite.account_book import AccountBook
+    from htd.adapters.sqlite.account_book import AccountBook
 
     target = 20 * USD + 123_456_789_012
     with WriteExecutor(tmp_path / "ledger.sqlite3") as writer, ReadPool(writer.path) as readers:
@@ -91,7 +91,7 @@ def test_ineligible_observations_never_create_account_contributions(tmp_path: Pa
 
 
 def test_observation_interval_postings_and_aggregate_roll_back_together(tmp_path: Path) -> None:
-    from htu.adapters.sqlite.account_book import AccountBook
+    from htd.adapters.sqlite.account_book import AccountBook
 
     with WriteExecutor(tmp_path / "ledger.sqlite3") as writer, ReadPool(writer.path) as readers:
         writer.execute(vendor)

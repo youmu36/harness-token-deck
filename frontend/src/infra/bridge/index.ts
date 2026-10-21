@@ -6,7 +6,7 @@ export { BridgeKey } from '../../app/ports';
 export { unwrap } from '../../app/errors';
 
 declare global {
-  interface Window { __htu: { emit(name: string, payload: unknown): void } }
+  interface Window { __htd: { emit(name: string, payload: unknown): void } }
 }
 
 export async function createBridge(): Promise<Bridge> {
@@ -19,7 +19,7 @@ export function installEvents(bridge: Bridge): () => void {
   const receiver = { emit: (name: string, payload: unknown) => {
     if (bridge.receiveEvent(name, payload)) window.dispatchEvent(new CustomEvent(name, { detail: payload }));
   } };
-  window.__htu = receiver;
+  window.__htd = receiver;
   let syncing = false;
   let disposed = false;
   const unsubscribe = bridge.events.onVisibility(visible => {
@@ -35,6 +35,6 @@ export function installEvents(bridge: Bridge): () => void {
   return () => {
     disposed = true;
     unsubscribe();
-    if (window.__htu === receiver) window.__htu = { emit() {} };
+    if (window.__htd === receiver) window.__htd = { emit() {} };
   };
 }

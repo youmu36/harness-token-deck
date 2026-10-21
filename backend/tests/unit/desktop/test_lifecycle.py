@@ -1,7 +1,7 @@
 """Lifecycle transitions, repeat inputs and startup activation merging."""
 
 import pytest
-from htu.adapters.desktop.lifecycle import DesktopLifecycle, Event, State
+from htd.adapters.desktop.lifecycle import DesktopLifecycle, Event, State
 
 
 @pytest.mark.parametrize("event", ["activate", "quit", "webview_failed", "close_requested"])

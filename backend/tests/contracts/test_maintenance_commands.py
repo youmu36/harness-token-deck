@@ -8,20 +8,20 @@ from threading import Event
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.history_repo import HistoryRepository
-from htu.adapters.sqlite.key_codec import key_bytes
-from htu.adapters.sqlite.maintenance_repo import MaintenanceRepository
-from htu.adapters.sqlite.writer import UnitOfWork
-from htu.application.ports import PreferencesChanged, SourcesChanged, TaskDone, UsageChanged
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.statistics.model import LedgerRow
-from htu.domain.usage.model import Harness
-from htu.ipc.dto.base import Success
-from htu.ipc.dto.maintenance import MaintenanceStatus, RetentionPreview, RetentionResponse
-from htu.ipc.dto.preferences import PreferencesResponse
-from htu.ipc.dto.tasks import TaskResponse
+from htd.adapters.sqlite.history_repo import HistoryRepository
+from htd.adapters.sqlite.key_codec import key_bytes
+from htd.adapters.sqlite.maintenance_repo import MaintenanceRepository
+from htd.adapters.sqlite.writer import UnitOfWork
+from htd.application.ports import PreferencesChanged, SourcesChanged, TaskDone, UsageChanged
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.statistics.model import LedgerRow
+from htd.domain.usage.model import Harness
+from htd.ipc.dto.base import Success
+from htd.ipc.dto.maintenance import MaintenanceStatus, RetentionPreview, RetentionResponse
+from htd.ipc.dto.preferences import PreferencesResponse
+from htd.ipc.dto.tasks import TaskResponse
 
 from backend.tests.integration.collection_helpers import usage
 

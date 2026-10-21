@@ -4,13 +4,13 @@ import json
 from pathlib import Path
 from typing import cast
 
-from htu.adapters.collectors.codex_reader import PARSER_REVISION, CodexReader
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.application.ports import CheckpointRecord
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import parse_instant
-from htu.domain.usage.model import Harness
+from htd.adapters.collectors.codex_reader import PARSER_REVISION, CodexReader
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.ports import CheckpointRecord
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import parse_instant
+from htd.domain.usage.model import Harness
 
 from .scan_helpers import AT, FIXTURES, count, headers, request, scanner, seed_prices, sessions
 

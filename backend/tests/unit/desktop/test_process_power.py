@@ -3,7 +3,7 @@
 from typing import Any
 
 import pytest
-from htu.adapters.desktop import process_power
+from htd.adapters.desktop import process_power
 
 
 @pytest.mark.parametrize("opened,succeeds", [(True, True), (True, False), (False, False)])

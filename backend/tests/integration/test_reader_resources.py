@@ -5,8 +5,8 @@ from pathlib import Path
 from threading import Barrier, Event
 
 import pytest
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.writer import WriteExecutor
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.writer import WriteExecutor
 
 
 def test_many_threads_share_four_scoped_readers_and_hidden_trim_keeps_active_reads(tmp_path: Path) -> None:
@@ -56,8 +56,8 @@ def test_unused_remote_provider_does_not_allocate_a_tls_client(monkeypatch: pyte
     import asyncio
 
     import httpx
-    from htu.adapters.providers.newapi import NewApiProvider
-    from htu.domain.common.testing import FakeClock
+    from htd.adapters.providers.newapi import NewApiProvider
+    from htd.domain.common.testing import FakeClock
 
     def unexpected(*args: object, **kwargs: object) -> None:
         raise AssertionError("Idle provider allocated an HTTP client")
@@ -76,8 +76,8 @@ def test_daily_pages_are_reused_until_wallet_revision_or_timezone_changes(
 ) -> None:
     import sqlite3
 
-    import htu.adapters.sqlite.wallet_command_store as module
-    from htu.adapters.sqlite.wallet_entries import DailySpending
+    import htd.adapters.sqlite.wallet_command_store as module
+    from htd.adapters.sqlite.wallet_entries import DailySpending
 
     from .test_wallet_storage import calibrate, consumption, vendor
 

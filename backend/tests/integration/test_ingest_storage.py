@@ -6,14 +6,14 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.key_codec import key_bytes
-from htu.adapters.sqlite.usage_codec import dumps, encode_event, object_json
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.ports import BilledUsage
-from htu.application.ports import UnitOfWork as WorkPort
-from htu.domain.usage.model import UsageEvent
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.key_codec import key_bytes
+from htd.adapters.sqlite.usage_codec import dumps, encode_event, object_json
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.ports import BilledUsage
+from htd.application.ports import UnitOfWork as WorkPort
+from htd.domain.usage.model import UsageEvent
 
 from .collection_helpers import AT, collect, quote, usage
 

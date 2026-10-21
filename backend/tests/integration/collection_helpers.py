@@ -1,12 +1,12 @@
 """Shared synthetic collection and billing inputs without accessing source files."""
 
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.application.ports import BilledUsage, CommitBatchResult
-from htu.domain.billing import CostEstimate
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.usage.model import Harness, Tokens, UsageEvent
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.ports import BilledUsage, CommitBatchResult
+from htd.domain.billing import CostEstimate
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.usage.model import Harness, Tokens, UsageEvent
 
 AT = parse_instant("2026-09-30T00:00:00Z")
 END = parse_instant("2026-10-01T00:00:00Z")

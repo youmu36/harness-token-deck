@@ -3,18 +3,18 @@
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite import usage_archive
-from htu.adapters.sqlite.account_book import AccountBook
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.ledger_read import LedgerReader
-from htu.adapters.sqlite.remote_store import SqliteRemoteStore
-from htu.adapters.sqlite.rollup_repo import RollupRepository
-from htu.adapters.sqlite.usage_hours import refresh_hours
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.bootstrap import Application
-from htu.domain.common.time import format_instant, parse_instant
-from htu.domain.statistics import Aggregator, Window
+from htd.adapters.sqlite import usage_archive
+from htd.adapters.sqlite.account_book import AccountBook
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.ledger_read import LedgerReader
+from htd.adapters.sqlite.remote_store import SqliteRemoteStore
+from htd.adapters.sqlite.rollup_repo import RollupRepository
+from htd.adapters.sqlite.usage_hours import refresh_hours
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.bootstrap import Application
+from htd.domain.common.time import format_instant, parse_instant
+from htd.domain.statistics import Aggregator, Window
 
 from backend.tests.contracts.command_helpers import seed_rows
 from backend.tests.unit.statistics.helpers import row

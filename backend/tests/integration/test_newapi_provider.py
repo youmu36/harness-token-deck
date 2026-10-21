@@ -11,16 +11,16 @@ from typing import cast
 import httpx
 import pytest
 import respx
-from htu.adapters.providers import newapi
-from htu.adapters.providers.newapi import MAX_RESPONSE_BYTES, NewApiProvider
-from htu.domain.common.testing import FakeClock
-from htu.domain.remote.model import BalanceKind, BalanceObservation, RemoteAccount
+from htd.adapters.providers import newapi
+from htd.adapters.providers.newapi import MAX_RESPONSE_BYTES, NewApiProvider
+from htd.domain.common.testing import FakeClock
+from htd.domain.remote.model import BalanceKind, BalanceObservation, RemoteAccount
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures/remote/newapi"
 BASE = "https://example.test"
 SECRET = "synthetic-p10-http-credential-1234"
 ACCOUNT = RemoteAccount(
-    "account", "vendor", BASE, "HarnessTokenUsage/remote/account", "access_token", "42", site_type="newapi"
+    "account", "vendor", BASE, "HarnessTokenDeck/remote/account", "access_token", "42", site_type="newapi"
 )
 
 

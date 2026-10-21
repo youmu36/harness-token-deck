@@ -1,9 +1,9 @@
 from collections.abc import Iterable
 
-from htu.domain.common.time import parse_instant
-from htu.domain.statistics import Aggregator, LedgerRow, Summary
-from htu.domain.statistics.window import Grain
-from htu.domain.usage.model import Harness
+from htd.domain.common.time import parse_instant
+from htd.domain.statistics import Aggregator, LedgerRow, Summary
+from htd.domain.statistics.window import Grain
+from htd.domain.usage.model import Harness
 
 
 def row(

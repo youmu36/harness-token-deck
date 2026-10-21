@@ -11,12 +11,12 @@ import time
 from pathlib import Path
 from typing import Any
 
-import htu.__main__ as entry
-from htu.adapters.desktop.controller import DesktopController
-from htu.adapters.desktop.native import NativeWindow
-from htu.adapters.desktop.single_instance import SingleInstance
-from htu.adapters.desktop.tray import Tray
-from htu.adapters.sqlite.collection_store import SqliteCollectionStore
+import htd.__main__ as entry
+from htd.adapters.desktop.controller import DesktopController
+from htd.adapters.desktop.native import NativeWindow
+from htd.adapters.desktop.single_instance import SingleInstance
+from htd.adapters.desktop.tray import Tray
+from htd.adapters.sqlite.collection_store import SqliteCollectionStore
 
 from scripts.lifecycle_support import Windows, publish_status
 
@@ -27,7 +27,7 @@ def main() -> int:
     parser.add_argument("--secondary", action="store_true")
     parser.add_argument("--quit", action="store_true")
     args = parser.parse_args()
-    directory = Path(os.environ["HTU_DATA_DIR"])
+    directory = Path(os.environ["HTD_DATA_DIR"])
     output = directory / "observations.jsonl"
     lock = threading.Lock()
 

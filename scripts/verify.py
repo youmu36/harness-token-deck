@@ -103,7 +103,7 @@ def main() -> int:
         started = time.monotonic()
         reason: str | None = None
         try:
-            environment = {**os.environ, "HTU_RELEASE_VERIFIED": "1"} if level == "release" else None
+            environment = {**os.environ, "HTD_RELEASE_VERIFIED": "1"} if level == "release" else None
             completed = subprocess.run(step.command, cwd=ROOT, check=False, env=environment)
             passed = completed.returncode == 0
             if not passed:

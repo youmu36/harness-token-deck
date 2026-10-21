@@ -15,7 +15,7 @@ from typing import Any
 from uuid import uuid4
 
 import psutil
-from htu.adapters.desktop.single_instance import SingleInstance
+from htd.adapters.desktop.single_instance import SingleInstance
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -38,8 +38,8 @@ class LifecycleRun:
         self.directory, self.cycles, self.repeats, self.warmup = directory, cycles, repeats, warmup
         self.environment = isolated_environment(directory)
         self.environment["PYTHONPATH"] = os.pathsep.join((str(ROOT / "backend/src"), str(ROOT)))
-        self.data = Path(self.environment["HTU_DATA_DIR"])
-        self.name = f"HTU.Loop.{uuid4().hex}"
+        self.data = Path(self.environment["HTD_DATA_DIR"])
+        self.name = f"HTD.Loop.{uuid4().hex}"
         self.windows = Windows()
         self.process: subprocess.Popen[str] | None = None
         self.status: dict[str, Any] = {}
@@ -153,7 +153,7 @@ class LifecycleRun:
         self.refresh()
         row = resource_sample(self.process.pid, self.status["pid"])
         self.known_processes.update((member.pid, member) for member in process_tree(self.process.pid))
-        collection = [thread["id"] for thread in self.status["threads"] if thread["name"] == "htu-collection"]
+        collection = [thread["id"] for thread in self.status["threads"] if thread["name"] == "htd-collection"]
         assert row["application_processes"] == 1, row
         assert collection == self.report["collection_thread_ids"], f"Collection thread changed: {collection}"
         assert self.status["tray_count"] == self.status["tray_created"] == 1, self.status
@@ -184,7 +184,7 @@ class LifecycleRun:
     def hold_scan(self, index: int) -> None:
         (self.data / "scan.release").unlink(missing_ok=True)
         (self.data / "scan.hold").touch()
-        source = Path(self.environment["HTU_SOURCE_ROOT_DSH"]) / f"scan-{index}.jsonl"
+        source = Path(self.environment["HTD_SOURCE_ROOT_DSH"]) / f"scan-{index}.jsonl"
         fixture = (ROOT / "fixtures/dsh/session.jsonl").read_text(encoding="utf-8")
         source.write_text(fixture.replace("synthetic-dsh", f"loop-dsh-{index}"), encoding="utf-8")
         self.wait(lambda: self.observed("scan-held", count=index), "Scan never entered writer transaction")
@@ -215,7 +215,7 @@ class LifecycleRun:
             self.wait(lambda: self.observed("startup-held"), "Startup barrier not reached")
             for index in range(1, self.repeats + 1):
                 self.launch_secondary("starting", index)
-                assert not (self.data / "htu.sqlite3").exists(), "Secondary opened database during startup"
+                assert not (self.data / "htd.sqlite3").exists(), "Secondary opened database during startup"
                 owner_pid = next(row["pid"] for row in self.rows() if row["kind"] == "startup-held")
                 resources = resource_sample(self.process.pid, owner_pid)
                 assert resources["application_processes"] == 1, resources
@@ -224,7 +224,7 @@ class LifecycleRun:
         self.wait(lambda: self.status.get("ready") is True, "Desktop receiver not ready")
         self.report["dpi"] = self.status["dpi"]
         self.report["collection_thread_ids"] = [
-            thread["id"] for thread in self.status["threads"] if thread["name"] == "htu-collection"
+            thread["id"] for thread in self.status["threads"] if thread["name"] == "htd-collection"
         ]
         assert len(self.report["collection_thread_ids"]) == 1
         if self.repeats:
@@ -304,7 +304,7 @@ class LifecycleRun:
             assert next_instance.primary, "Mutex survived shutdown"
             api: Any = ctypes_kernel()
             assert not api.WaitNamedPipeW(next_instance.address, 0), "Pipe survived shutdown"
-        with sqlite3.connect(self.data / "htu.sqlite3") as database:
+        with sqlite3.connect(self.data / "htd.sqlite3") as database:
             assert database.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
         self.report["exit_cleanup"] = {
             "processes": True,

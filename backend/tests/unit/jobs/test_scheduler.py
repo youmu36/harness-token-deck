@@ -6,13 +6,13 @@ from datetime import timedelta
 from threading import Condition, Event
 
 import pytest
-from htu.application.collection.billing import BillingResult
-from htu.application.collection.scan import ScanResult
-from htu.application.ports import BillBatchResult, ScanTrigger, SourceRecord
-from htu.domain.common.errors import DomainError
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant
-from htu.jobs.scheduler import MaintenanceHook, Scheduler
+from htd.application.collection.billing import BillingResult
+from htd.application.collection.scan import ScanResult
+from htd.application.ports import BillBatchResult, ScanTrigger, SourceRecord
+from htd.domain.common.errors import DomainError
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant
+from htd.jobs.scheduler import MaintenanceHook, Scheduler
 
 
 class FakeMonotonic(FakeClock):

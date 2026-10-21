@@ -14,11 +14,11 @@ from pathlib import Path
 from typing import Any
 
 import psutil
-from htu.adapters.desktop.installer import APP_ID, shortcut_app_id
+from htd.adapters.desktop.installer import APP_ID, shortcut_app_id
 from release_support import ROOT, isolated_environment, write_report
 from set_version import check_version
 
-KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\HarnessTokenUsage"
+KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\HarnessTokenDeck"
 
 
 def visible_window(process_id: int) -> bool:
@@ -78,16 +78,16 @@ def verify(installer: Path) -> dict[str, Any]:
     if registry(KEY + "-Acceptance"):
         raise RuntimeError("An earlier acceptance installation still exists; inspect its InstallLocation")
     original = registry(KEY)
-    original_legacy = registry(KEY.replace("HarnessTokenUsage", "Harness Token Usage"))
+    original_legacy = registry(KEY.replace("HarnessTokenDeck", "Harness Token Usage"))
     root = ROOT / f".verify/installer-runs/{uuid.uuid4().hex[:12]}"
     root.mkdir(parents=True)
-    (root / ".htu-installer-test").write_text("isolated acceptance\n", encoding="ascii")
+    (root / ".htd-installer-test").write_text("isolated acceptance\n", encoding="ascii")
     environment = isolated_environment(root)
-    environment["HTU_INSTALLER_TEST_ROOT"] = str(root)
-    environment["HTU_DATA_DIR"] = str(root / "data")
-    install_dir = root / "Program Files/Harness Token Usage"
-    executable = install_dir / "HarnessTokenUsage.exe"
-    database = root / "data/htu.sqlite3"
+    environment["HTD_INSTALLER_TEST_ROOT"] = str(root)
+    environment["HTD_DATA_DIR"] = str(root / "data")
+    install_dir = root / "Program Files/Harness Token Deck"
+    executable = install_dir / "HarnessTokenDeck.exe"
+    database = root / "data/htd.sqlite3"
     report: dict[str, Any] = {"directory": str(root), "checks": [], "passed": False}
 
     def check(name: str, condition: bool = True) -> None:
@@ -105,7 +105,7 @@ def verify(installer: Path) -> dict[str, Any]:
             "isolated current-user registration",
             registry(KEY + "-Acceptance").get("InstallLocation") == str(install_dir),
         )
-        shortcut = root / "start-menu/Harness Token Usage.lnk"
+        shortcut = root / "start-menu/Harness Token Deck.lnk"
         check(
             "Start Menu shortcut AppUserModelID", shortcut.is_file() and shortcut_app_id(shortcut) == APP_ID
         )
@@ -126,7 +126,7 @@ def verify(installer: Path) -> dict[str, Any]:
             check(
                 "uninstall registry and shortcuts removed",
                 not registry(KEY + "-Acceptance")
-                and not (root / "start-menu/Harness Token Usage.lnk").exists(),
+                and not (root / "start-menu/Harness Token Deck.lnk").exists(),
             )
             (install_dir / "Uninstall.exe").unlink(missing_ok=True)
             # _?= keeps this test's uninstaller in place so exit codes can be
@@ -194,7 +194,7 @@ def verify(installer: Path) -> dict[str, Any]:
             "default uninstall preserves data and unrelated files",
             marker(database) == "preserved ledger" and sentinel.is_file(),
         )
-        backups = list((root / "desktop").glob("htu-*.sqlite3"))
+        backups = list((root / "desktop").glob("htd-*.sqlite3"))
         check(
             "optional export also works while retaining data",
             len(backups) == 1 and marker(backups[0]) == "preserved ledger",
@@ -214,7 +214,7 @@ def verify(installer: Path) -> dict[str, Any]:
         )
         database.write_bytes(original_bytes)
         uninstall("/DELETEDATA")
-        backups = list((root / "desktop").glob("htu-*.sqlite3"))
+        backups = list((root / "desktop").glob("htd-*.sqlite3"))
         check(
             "delete-data saves a valid desktop backup first",
             len(backups) == 1 and marker(backups[0]) == "preserved ledger" and not (root / "data").exists(),
@@ -229,7 +229,7 @@ def verify(installer: Path) -> dict[str, Any]:
         check(
             "existing new and legacy registrations unchanged",
             registry(KEY) == original
-            and registry(KEY.replace("HarnessTokenUsage", "Harness Token Usage")) == original_legacy,
+            and registry(KEY.replace("HarnessTokenDeck", "Harness Token Usage")) == original_legacy,
         )
         report["passed"] = True
     except Exception as error:
@@ -260,7 +260,7 @@ def main() -> int:
     if args.manifest_only:
         verify_manifest(version)
     else:
-        print(json.dumps(verify(ROOT / f"release/Harness Token Usage_{version}_x64-setup.exe"), indent=2))
+        print(json.dumps(verify(ROOT / f"release/Harness Token Deck_{version}_x64-setup.exe"), indent=2))
     return 0
 
 

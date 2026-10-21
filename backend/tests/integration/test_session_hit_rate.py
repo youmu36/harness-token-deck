@@ -2,12 +2,12 @@
 
 from pathlib import Path
 
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.usage.model import Harness, Tokens, UsageEvent
-from htu.ipc.dto.statistics import CacheMonitorResponse
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.usage.model import Harness, Tokens, UsageEvent
+from htd.ipc.dto.statistics import CacheMonitorResponse
 
 from backend.tests.integration.collection_helpers import AT, collect, ensure_source, quote, usage
 

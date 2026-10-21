@@ -7,8 +7,8 @@ import json
 from concurrent.futures import Future
 
 import pytest
-from htu.application.events import InProcessEventBus
-from htu.application.ports import (
+from htd.application.events import InProcessEventBus
+from htd.application.ports import (
     CollectionCompleted,
     PreferencesChanged,
     PricingChanged,
@@ -16,11 +16,11 @@ from htu.application.ports import (
     UsageChanged,
     WalletChanged,
 )
-from htu.domain.usage.model import Harness
-from htu.ipc.bridge import Bridge
-from htu.ipc.dto.events import CollectionTickEvent
-from htu.ipc.events import EventForwarder
-from htu.ipc.router import Router
+from htd.domain.usage.model import Harness
+from htd.ipc.bridge import Bridge
+from htd.ipc.dto.events import CollectionTickEvent
+from htd.ipc.events import EventForwarder
+from htd.ipc.router import Router
 
 
 def records(script: str) -> list[dict[str, object]]:

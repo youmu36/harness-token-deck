@@ -6,17 +6,17 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from htu.adapters.collectors.codex_logs import CodexLogs
-from htu.adapters.sqlite.connection import ReadPool, open_connection
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.adapters.sqlite.pricing_repo import PricingRepository
-from htu.adapters.sqlite.title_repo import TITLE_PICO, TitleRepository
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.ports import TitleRequest, UsageChanged, WalletChanged
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import parse_instant
-from htu.domain.pricing.model import VersionActivation
+from htd.adapters.collectors.codex_logs import CodexLogs
+from htd.adapters.sqlite.connection import ReadPool, open_connection
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.adapters.sqlite.pricing_repo import PricingRepository
+from htd.adapters.sqlite.title_repo import TITLE_PICO, TitleRepository
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.ports import TitleRequest, UsageChanged, WalletChanged
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import parse_instant
+from htd.domain.pricing.model import VersionActivation
 
 from .scan_helpers import AT, count, headers, request, scanner, seed_prices, sessions
 from .test_codex_logs import add_log, create_logs, log_body

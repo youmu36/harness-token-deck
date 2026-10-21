@@ -7,19 +7,19 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from htu.adapters.sqlite.codex_audit import read_audit_ledger
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.ledger_read import LedgerReader
-from htu.adapters.sqlite.rollup_repo import RollupRepository
-from htu.adapters.sqlite.wallet_entries import wallet_entries
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.ports import BilledUsage
-from htu.application.ports import UnitOfWork as WorkPort
-from htu.domain.common.time import Instant
-from htu.domain.statistics.aggregator import Aggregator
-from htu.domain.usage.model import Tokens
-from htu.tools.codex_audit import AuditReport, markdown
+from htd.adapters.sqlite.codex_audit import read_audit_ledger
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.ledger_read import LedgerReader
+from htd.adapters.sqlite.rollup_repo import RollupRepository
+from htd.adapters.sqlite.wallet_entries import wallet_entries
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.ports import BilledUsage
+from htd.application.ports import UnitOfWork as WorkPort
+from htd.domain.common.time import Instant
+from htd.domain.statistics.aggregator import Aggregator
+from htd.domain.usage.model import Tokens
+from htd.tools.codex_audit import AuditReport, markdown
 
 from .collection_helpers import AT, collect, quote, usage
 from .test_pricing_storage import create
@@ -63,7 +63,7 @@ def test_compaction_preserves_all_breakdowns_money_and_daily_filter_after_restar
         seed(writer)
         before = writer.execute(summary)
         total = writer.execute(lambda w: WalletRepository(w.connection).totals("vendor"))
-        from htu.adapters.sqlite.wallet_closing import close_days
+        from htd.adapters.sqlite.wallet_closing import close_days
         writer.execute(lambda w: close_days(w,w.connection,at=END))
         total = writer.execute(lambda w: WalletRepository(w.connection).totals("vendor"))
         entries = writer.execute(

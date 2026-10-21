@@ -6,13 +6,13 @@ from pathlib import Path
 from time import perf_counter
 from unittest.mock import patch
 
-from htu.adapters.sqlite import usage_archive
-from htu.adapters.sqlite.statistics_store import SqliteStatisticsSnapshot
-from htu.adapters.sqlite.usage_hours import refresh_hours
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import parse_instant
-from htu.domain.statistics import Window
+from htd.adapters.sqlite import usage_archive
+from htd.adapters.sqlite.statistics_store import SqliteStatisticsSnapshot
+from htd.adapters.sqlite.usage_hours import refresh_hours
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import parse_instant
+from htd.domain.statistics import Window
 
 from scripts.measure_feedback_queries import END, START, measurements, seed
 
@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def main() -> None:
     report = {"fixture": {"details": 12000, "minutes": 45000, "archivedMinutes": 45000}, "queries": []}
-    with tempfile.TemporaryDirectory(prefix="htu-hours-") as temporary:  # noqa: SIM117
+    with tempfile.TemporaryDirectory(prefix="htd-hours-") as temporary:  # noqa: SIM117
         with Application(Path(temporary), clock=FakeClock(END), start_scheduler=False) as app:
             # Recreate the preceding mixed-model archive layout.
             with patch.object(usage_archive, "_insert", usage_archive._insert_model):

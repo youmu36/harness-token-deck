@@ -7,9 +7,9 @@ from threading import Event
 from uuid import uuid4
 
 import pytest
-from htu.bootstrap import Application
-from htu.ipc.dto.base import EmptyRequest, StrictModel
-from htu.ipc.router import Router
+from htd.bootstrap import Application
+from htd.ipc.dto.base import EmptyRequest, StrictModel
+from htd.ipc.router import Router
 
 from backend.tests.migration.helpers import copy_legacy
 from backend.tests.migration.test_wizard import finished, legacy_off, run
@@ -64,8 +64,8 @@ def test_exclusive_command_drains_readers_and_releases_gate_after_failure() -> N
 def test_activation_waits_for_other_tasks_and_event_queries_see_new_database(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr("htu.migration.legacy.reader.legacy_running", legacy_off)
-    monkeypatch.setattr("htu.migration.engine.legacy_running", lambda: False)
+    monkeypatch.setattr("htd.migration.legacy.reader.legacy_running", legacy_off)
+    monkeypatch.setattr("htd.migration.engine.legacy_running", lambda: False)
     with Application(tmp_path / "data", legacy_path=copy_legacy(tmp_path), start_scheduler=False) as app:
         started = run(app)
         assert finished(app, started).result is not None

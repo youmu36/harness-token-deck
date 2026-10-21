@@ -5,18 +5,18 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.connection import open_connection
-from htu.bootstrap import Application
-from htu.domain.common.errors import DomainError
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import parse_instant
-from htu.domain.usage.model import Tokens
-from htu.ipc.dto.migration import MigrationRunResponse
-from htu.ipc.dto.wallet import WalletListResponse
-from htu.migration.convert import require_empty_target
-from htu.migration.legacy.reader import backup
-from htu.migration.snapshot import sha256_file
-from htu.migration.verify import verify
+from htd.adapters.sqlite.connection import open_connection
+from htd.bootstrap import Application
+from htd.domain.common.errors import DomainError
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import parse_instant
+from htd.domain.usage.model import Tokens
+from htd.ipc.dto.migration import MigrationRunResponse
+from htd.ipc.dto.wallet import WalletListResponse
+from htd.migration.convert import require_empty_target
+from htd.migration.legacy.reader import backup
+from htd.migration.snapshot import sha256_file
+from htd.migration.verify import verify
 
 from backend.tests.contracts.command_helpers import invoke
 from backend.tests.contracts.maintenance_helpers import add_usage
@@ -77,7 +77,7 @@ def test_native_backup_roundtrip_replay_and_tampered_staging_rejected(tmp_path: 
 
 
 def test_rolled_up_history_alone_makes_a_target_nonempty(tmp_path: Path) -> None:
-    from htu.adapters.sqlite.rollup_repo import RollupRepository
+    from htd.adapters.sqlite.rollup_repo import RollupRepository
 
     clock = FakeClock(parse_instant("2026-10-17T00:00:00Z"))
     with Application(tmp_path, clock=clock, start_scheduler=False) as app:

@@ -20,7 +20,7 @@ describe('browser preview bridge', () => {
     const hello = unwrap(await bridge.call('app.hello', { clientProtocol: 1 }));
     expect(hello.protocol).toBe(1);
     expect(hello.capabilities).toContain('wallet.calibrate');
-    expect(hello.dataDir).toBe('C:\\Preview\\HarnessTokenUsage');
+    expect(hello.dataDir).toBe('C:\\Preview\\HarnessTokenDeck');
     expect(hello.appVersion).toBe(packageInfo.version);
     const mismatch = await bridge.call('app.hello', { clientProtocol: 2 });
     expect(mismatch).toMatchObject({ ok: false, error: { code: 'PROTOCOL_MISMATCH' } });

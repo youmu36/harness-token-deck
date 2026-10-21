@@ -7,16 +7,16 @@ from threading import Event
 from typing import Any, Literal, cast
 
 import pytest
-from htu.adapters.sqlite.ledger_read import LedgerReader
-from htu.adapters.sqlite.statistics_store import SqliteStatisticsSnapshot
-from htu.adapters.sqlite.wallet_command_store import SqliteWalletCommandStore
-from htu.adapters.sqlite.wallet_entries import wallet_entries
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, parse_instant
-from htu.domain.statistics import LedgerRow, Window
-from htu.domain.usage.model import Harness
+from htd.adapters.sqlite.ledger_read import LedgerReader
+from htd.adapters.sqlite.statistics_store import SqliteStatisticsSnapshot
+from htd.adapters.sqlite.wallet_command_store import SqliteWalletCommandStore
+from htd.adapters.sqlite.wallet_entries import wallet_entries
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, parse_instant
+from htd.domain.statistics import LedgerRow, Window
+from htd.domain.usage.model import Harness
 
 from backend.tests.contracts.command_helpers import seed_rows
 from backend.tests.unit.statistics.helpers import row
@@ -143,7 +143,7 @@ def test_advancing_end_reads_only_extension_and_still_invalidates_late_changes(
 def test_wallet_pages_reuse_days_then_rebuild_on_same_minute_watermark_change(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from htu.adapters.sqlite import wallet_command_store
+    from htd.adapters.sqlite import wallet_command_store
 
     calls: list[int] = []
     rebuild = wallet_command_store.daily_spending

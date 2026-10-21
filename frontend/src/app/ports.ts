@@ -22,5 +22,5 @@ export interface Bridge {
   dispose(): void;
 }
 
-export const BridgeKey: InjectionKey<Bridge> = Symbol('htu.bridge');
-export const NavigationGuardKey: InjectionKey<(guard: (proceed: () => void) => void) => (() => void)> = Symbol('htu.navigationGuard');
+export const BridgeKey: InjectionKey<Bridge> = Symbol('htd.bridge');
+export const NavigationGuardKey: InjectionKey<(guard: (proceed: () => void) => void) => (() => void)> = Symbol('htd.navigationGuard');

@@ -7,10 +7,10 @@ from uuid import uuid4
 
 from scripts.release_support import ROOT, isolated_environment
 
-UNINSTALL = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\HarnessTokenUsage"
+UNINSTALL = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\HarnessTokenDeck"
 RUN = r"Software\Microsoft\Windows\CurrentVersion\Run"
-TEST_RUN = r"Software\HarnessTokenUsage-Acceptance\Run"
-NAME = "HarnessTokenUsage"
+TEST_RUN = r"Software\HarnessTokenDeck-Acceptance\Run"
+NAME = "HarnessTokenDeck"
 
 
 def registration(key: str) -> str | None:
@@ -31,23 +31,23 @@ def main() -> None:
     original = registration(RUN)
     root = ROOT / ".verify/installer-startup" / uuid4().hex
     root.mkdir(parents=True)
-    (root / ".htu-installer-test").write_text("isolated acceptance", encoding="ascii")
+    (root / ".htd-installer-test").write_text("isolated acceptance", encoding="ascii")
     environment = isolated_environment(root)
-    environment["HTU_INSTALLER_TEST_ROOT"] = str(root)
-    environment["HTU_DATA_DIR"] = str(root / "data")
+    environment["HTD_INSTALLER_TEST_ROOT"] = str(root)
+    environment["HTD_DATA_DIR"] = str(root / "data")
     target = root / "program"
     version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
-    installer = ROOT / f"release/Harness Token Usage_{version}_x64-setup.exe"
+    installer = ROOT / f"release/Harness Token Deck_{version}_x64-setup.exe"
     command = subprocess.list2cmdline([str(installer), "/S"]) + f" /D={target}"
     subprocess.run(command, env=environment, timeout=120, check=True)
-    assert (target / "HarnessTokenUsage.exe").is_file()
+    assert (target / "HarnessTokenDeck.exe").is_file()
     with winreg.CreateKey(winreg.HKEY_CURRENT_USER, TEST_RUN) as handle:
         winreg.SetValueEx(handle, NAME, 0, winreg.REG_SZ, "isolated probe")
     command = subprocess.list2cmdline([str(target / "Uninstall.exe"), "/S", "/NOBACKUP"])
     subprocess.run(command + f" _?={target}", env=environment, timeout=120, check=True)
     assert registration(TEST_RUN) is None
     assert registration(RUN) == original
-    assert not (target / "HarnessTokenUsage.exe").exists()
+    assert not (target / "HarnessTokenDeck.exe").exists()
     with winreg.OpenKey(winreg.HKEY_CURRENT_USER, TEST_RUN) as handle:
         assert winreg.QueryInfoKey(handle)[:2] == (0, 0)
     winreg.DeleteKey(winreg.HKEY_CURRENT_USER, TEST_RUN)

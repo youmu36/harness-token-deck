@@ -42,7 +42,7 @@ export function createMockSettings(emit: <K extends EventName>(name: K, payload:
     lastRetentionAt = new Date().toISOString(); const result = { retention, revision: preferencesRevision(), cutoff: counts.cutoff, deletedLedger: counts.ledgerCount, expiredInbox: counts.inboxCount, complete: true, errorCode: null };
     receipts.set(request.operationId, { fingerprint, result }); return structuredClone(result);
   }
-  const dataDir = 'C:\\Preview\\HarnessTokenUsage';
+  const dataDir = 'C:\\Preview\\HarnessTokenDeck';
   return { list, validate, change, revision: () => revision, preview, setRetention,
     status: (): CommandData<'maintenance.status'> => ({ paused, retention, lastRetentionAt, lastVacuumAt, lastLogRotationAt: null, pendingExpired: 15, logCount: 24, databaseBytes: 1048576, storage: null, appVersion: version, dataDir }),
     fileResult: (kind: 'backup' | 'vacuum') => { const completedAt = new Date().toISOString(); if (kind === 'vacuum') lastVacuumAt = completedAt; return { completedAt, path: kind === 'backup' ? `${dataDir}\\backups\\example.sqlite3` : null }; },

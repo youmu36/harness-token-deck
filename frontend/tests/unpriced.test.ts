@@ -25,7 +25,7 @@ it('edits an orphan model using pool multipliers and preserves its draft after a
   const wrapper = mount(UnpricedTab, { attachTo: document.body, global: { provide: { [BridgeKey as symbol]: bridge } } }); cleanups.push(() => wrapper.unmount()); await flushPromises();
   await wrapper.findAll('tbody button').find(b => b.text() === '编辑价格')!.trigger('click'); await flushPromises();
   const dialog = () => document.querySelector<HTMLDialogElement>('dialog[open]')!;
-  expect((dialog().querySelector('[aria-label=价格组]') as HTMLSelectElement).value).toBe('htu-history');
+  expect((dialog().querySelector('[aria-label=价格组]') as HTMLSelectElement).value).toBe('htd-history');
   expect(dialog().textContent).toContain('模型池价格'); expect(dialog().textContent).toContain('不写入资金流水');
   const multiplier = dialog().querySelector<HTMLInputElement>('[aria-label=倍率]')!; multiplier.value = '2'; multiplier.dispatchEvent(new Event('input', { bubbles: true })); await flushPromises();
   [...dialog().querySelectorAll('button')].find(b => b.textContent?.includes('按倍率填充'))!.click(); await flushPromises();
@@ -36,7 +36,7 @@ it('edits an orphan model using pool multipliers and preserves its draft after a
   fail = false;
   dialog().querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); await flushPromises();
   const request = spy.mock.calls.filter(([name]) => name === 'pricing.resolveUnpriced').at(-1)![1];
-  expect(request).toMatchObject({ action: 'price', groupId: 'htu-history', versionId: 'htu-history-v1', expectedUsageRevision: 4, multiplier: '2', model: { modelId: 'gpt-6', input: '3', output: '12' } });
+  expect(request).toMatchObject({ action: 'price', groupId: 'htd-history', versionId: 'htd-history-v1', expectedUsageRevision: 4, multiplier: '2', model: { modelId: 'gpt-6', input: '3', output: '12' } });
   expect(document.querySelector('dialog[open]')).toBeNull();
 });
 

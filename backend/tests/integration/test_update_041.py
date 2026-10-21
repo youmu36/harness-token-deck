@@ -4,20 +4,20 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.analysis_read import analyze
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.counter_codec import compress, decompress
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.rollup_repo import RollupRepository
-from htu.adapters.sqlite.usage_archive import archive_minutes
-from htu.adapters.sqlite.usage_daily import publish
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.domain.common.errors import DomainError
-from htu.domain.common.time import Instant, parse_instant
-from htu.domain.statistics.analysis import AnalysisQuery, analysis_bounds
-from htu.domain.statistics.window import Window
-from htu.domain.usage.model import Harness, Tokens
-from htu.ipc.dto.statistics import AnalysisResponse
+from htd.adapters.sqlite.analysis_read import analyze
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.counter_codec import compress, decompress
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.rollup_repo import RollupRepository
+from htd.adapters.sqlite.usage_archive import archive_minutes
+from htd.adapters.sqlite.usage_daily import publish
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import Instant, parse_instant
+from htd.domain.statistics.analysis import AnalysisQuery, analysis_bounds
+from htd.domain.statistics.window import Window
+from htd.domain.usage.model import Harness, Tokens
+from htd.ipc.dto.statistics import AnalysisResponse
 
 from backend.tests.integration.collection_helpers import AT, collect, quote, usage
 from backend.tests.integration.test_account_book import observe, setup, summary

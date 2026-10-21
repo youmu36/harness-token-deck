@@ -3,9 +3,9 @@
 from dataclasses import replace
 
 import pytest
-from htu.domain.common.errors import DomainError
-from htu.domain.common.time import parse_instant
-from htu.domain.remote.model import BalanceKind, BalanceObservation, RemoteFailure, quota_to_pico
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import parse_instant
+from htd.domain.remote.model import BalanceKind, BalanceObservation, RemoteFailure, quota_to_pico
 
 
 @pytest.mark.parametrize(

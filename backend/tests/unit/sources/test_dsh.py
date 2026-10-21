@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from htu.domain.common.time import from_epoch_ms
-from htu.domain.sources.dsh import DshContext, parse_record
-from htu.domain.usage.model import Diagnostic, Harness, Skip, Tokens, UsageEvent
+from htd.domain.common.time import from_epoch_ms
+from htd.domain.sources.dsh import DshContext, parse_record
+from htd.domain.usage.model import Diagnostic, Harness, Skip, Tokens, UsageEvent
 
 
 @pytest.fixture

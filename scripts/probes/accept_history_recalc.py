@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from htu.domain.common.money import format_pico
+from htd.domain.common.money import format_pico
 
 from backend.tests.desktop.test_single_instance import kill_tree
 
@@ -86,7 +86,7 @@ def main() -> None:
         report["screens"].append(name)
 
     def ledger() -> list[tuple[str, str, str]]:
-        with sqlite3.connect(directory / "htu.sqlite3") as db:
+        with sqlite3.connect(directory / "htd.sqlite3") as db:
             return db.execute(
                 "SELECT harness,pico,occurred_at FROM ledger ORDER BY harness,occurred_at"
             ).fetchall()
@@ -173,7 +173,7 @@ def main() -> None:
         wait("!!document.querySelector('.vendor-card')")
         balance = format_pico(int(current["B"]), "full6")
         wait(f"document.querySelector('.vendor-card').textContent.includes({json.dumps(balance)})")
-        with sqlite3.connect(directory / "htu.sqlite3") as db:
+        with sqlite3.connect(directory / "htd.sqlite3") as db:
             assert db.execute("SELECT COUNT(*) FROM recalc_batch").fetchone()[0] == 1
             assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
         report["checks"].append(

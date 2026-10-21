@@ -4,10 +4,10 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-from htu.adapters.collectors.discovery import source_key
-from htu.adapters.watch.watcher import WakeHandler, Watcher, watch_roots
-from htu.application.ports import SourceRecord
-from htu.domain.usage.model import Harness
+from htd.adapters.collectors.discovery import source_key
+from htd.adapters.watch.watcher import WakeHandler, Watcher, watch_roots
+from htd.application.ports import SourceRecord
+from htd.domain.usage.model import Harness
 
 
 def source(harness: Harness, path: Path) -> SourceRecord:

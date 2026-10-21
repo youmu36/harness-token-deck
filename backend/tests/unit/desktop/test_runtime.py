@@ -3,7 +3,7 @@
 import winreg
 
 import pytest
-from htu.adapters.desktop import runtime
+from htd.adapters.desktop import runtime
 
 
 def test_preflight_checks_user_machine_and_both_views(monkeypatch: pytest.MonkeyPatch) -> None:

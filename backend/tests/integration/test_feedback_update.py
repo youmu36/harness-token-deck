@@ -7,17 +7,17 @@ from time import perf_counter
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.account_book import AccountBook
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.ledger_read import LedgerReader
-from htu.adapters.sqlite.remote_store import SqliteRemoteStore
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, parse_instant
-from htu.domain.statistics import Aggregator
-from htu.domain.usage.model import Harness
+from htd.adapters.sqlite.account_book import AccountBook
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.ledger_read import LedgerReader
+from htd.adapters.sqlite.remote_store import SqliteRemoteStore
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, parse_instant
+from htd.domain.statistics import Aggregator
+from htd.domain.usage.model import Harness
 
 from backend.tests.contracts.command_helpers import seed_rows
 from backend.tests.contracts.management_helpers import catalog, group, price

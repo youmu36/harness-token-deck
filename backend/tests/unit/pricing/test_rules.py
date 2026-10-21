@@ -1,7 +1,7 @@
 from dataclasses import replace
 
 import pytest
-from htu.domain.common.errors import (
+from htd.domain.common.errors import (
     CLOCK_BEHIND_PRICE_HISTORY,
     GROUP_DISABLED,
     GROUP_DUPLICATE,
@@ -14,9 +14,9 @@ from htu.domain.common.errors import (
     VERSION_GROUP_MISMATCH,
     DomainError,
 )
-from htu.domain.common.time import parse_instant
-from htu.domain.pricing.catalog import Catalog
-from htu.domain.pricing.model import (
+from htd.domain.common.time import parse_instant
+from htd.domain.pricing.catalog import Catalog
+from htd.domain.pricing.model import (
     BillingRule,
     EditorHints,
     HarnessSelection,
@@ -25,7 +25,7 @@ from htu.domain.pricing.model import (
     PriceRevision,
     VersionActivation,
 )
-from htu.domain.pricing.rules import (
+from htd.domain.pricing.rules import (
     add_version,
     apply_switch,
     create_group,
@@ -39,7 +39,7 @@ from htu.domain.pricing.rules import (
     set_group_disabled,
     set_version_label,
 )
-from htu.domain.usage.model import Harness
+from htd.domain.usage.model import Harness
 
 T0 = parse_instant("2026-09-01T00:00:00Z")
 T1 = parse_instant("2026-09-01T01:00:00Z")

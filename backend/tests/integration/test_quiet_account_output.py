@@ -8,23 +8,23 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.account_book import AccountBook, AccountSummary
-from htu.adapters.sqlite.connection import ReadPool, open_connection
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.adapters.sqlite.output_speed import live, rate, record
-from htu.adapters.sqlite.remote_repo import RemoteRepository
-from htu.adapters.sqlite.remote_store import SqliteRemoteStore
-from htu.adapters.sqlite.token_activity import mark
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.ports import BilledUsage
-from htu.application.ports import UnitOfWork as WorkPort
-from htu.domain.billing import CostEstimate
-from htu.domain.common.time import format_instant
-from htu.domain.remote.accounting import settle
-from htu.domain.usage.model import Harness, Tokens, UsageEvent
-from htu.domain.wallet.model import UsageRef, WalletEntry
+from htd.adapters.sqlite.account_book import AccountBook, AccountSummary
+from htd.adapters.sqlite.connection import ReadPool, open_connection
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.adapters.sqlite.output_speed import live, rate, record
+from htd.adapters.sqlite.remote_repo import RemoteRepository
+from htd.adapters.sqlite.remote_store import SqliteRemoteStore
+from htd.adapters.sqlite.token_activity import mark
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.ports import BilledUsage
+from htd.application.ports import UnitOfWork as WorkPort
+from htd.domain.billing import CostEstimate
+from htd.domain.common.time import format_instant
+from htd.domain.remote.accounting import settle
+from htd.domain.usage.model import Harness, Tokens, UsageEvent
+from htd.domain.wallet.model import UsageRef, WalletEntry
 
 from .collection_helpers import collect, usage
 from .test_pricing_storage import create
@@ -361,7 +361,7 @@ def make_previous_database(path: Path, migration_dir: Path) -> None:
 
 
 def test_upgrade_keeps_settled_evidence_and_starts_staging_at_latest_endpoint(tmp_path: Path) -> None:
-    path = tmp_path / "htu.sqlite3"
+    path = tmp_path / "htd.sqlite3"
     make_previous_database(path, tmp_path / "old-migrations")
     with WriteExecutor(path) as writer, ReadPool(path) as readers:
         store = SqliteRemoteStore(writer, readers)
@@ -372,4 +372,4 @@ def test_upgrade_keeps_settled_evidence_and_starts_staging_at_latest_endpoint(tm
         assert pending["start_endpoint"] == pending["end_endpoint"] == "old-end"
         assert readers.get().execute("PRAGMA integrity_check").fetchone()[0] == "ok"
         assert readers.get().execute("PRAGMA foreign_key_check").fetchall() == []
-        assert list((tmp_path / "backups").glob("htu-*.sqlite3"))
+        assert list((tmp_path / "backups").glob("htd-*.sqlite3"))

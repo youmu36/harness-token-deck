@@ -2,9 +2,9 @@ from typing import cast
 from uuid import NAMESPACE_DNS, NAMESPACE_URL, RFC_4122, UUID
 
 import pytest
-from htu.domain.common.errors import ID_INVALID, IDENTITY_INVALID, DomainError
-from htu.domain.common.hashing import identity_key
-from htu.domain.common.ids import deterministic_id, new_id
+from htd.domain.common.errors import ID_INVALID, IDENTITY_INVALID, DomainError
+from htd.domain.common.hashing import identity_key
+from htd.domain.common.ids import deterministic_id, new_id
 
 
 @pytest.mark.parametrize(

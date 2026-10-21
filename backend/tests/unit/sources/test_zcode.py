@@ -4,8 +4,8 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from htu.domain.sources.zcode import ZcodeRow, classify_status, normalize_row
-from htu.domain.usage.model import Diagnostic, Harness, Tokens, UsageEvent
+from htd.domain.sources.zcode import ZcodeRow, classify_status, normalize_row
+from htd.domain.usage.model import Diagnostic, Harness, Tokens, UsageEvent
 
 FIXTURES = Path(__file__).resolve().parents[4] / "fixtures/zcode"
 
@@ -48,6 +48,46 @@ def test_terminal_events_keep_status(row: ZcodeRow, status: str) -> None:
     assert event.source_kind is None
     assert event.occurred_at == "2026-09-01T00:00:01.000Z"
     assert event.dedupe_key == hashlib.sha256(b'["s","r",0]').hexdigest()
+
+
+def test_native_timing_excludes_first_token_wait_and_keeps_reasoning_in_output(row: ZcodeRow) -> None:
+    end = row.completed_at
+    assert type(end) is int
+    result = normalize_row(
+        replace(
+            row,
+            started_at=end - 60_000,
+            first_token_at=end - 40_000,
+            raw_usage_json='{"outputTokens":1400,"reasoningTokens":800}',
+        )
+    )
+    assert isinstance(result, UsageEvent)
+    assert result.generation_milliseconds == 40_000
+    assert result.tokens.output == 1400 and result.tokens.reasoning == 800
+
+
+@pytest.mark.parametrize(
+    "fields,expected",
+    [
+        ({"duration_ms": 60_000, "time_to_first_token_ms": 20_000}, 40_000),
+        ({"first_token_at": True}, None),
+        ({"first_token_at": 0}, None),
+        ({"started_at": -1, "first_token_at": 1788220800000}, None),
+        ({"first_token_at": "1788220800000"}, None),
+        ({"first_token_at": 1788220801001}, None),
+        ({"started_at": 1788220800000, "first_token_at": 1788220799999}, None),
+        ({"duration_ms": 20_000, "time_to_first_token_ms": 20_000}, None),
+        ({"duration_ms": 20_000, "time_to_first_token_ms": -1}, None),
+        ({"duration_ms": True, "time_to_first_token_ms": 0}, None),
+        ({"started_at": 1788220800000, "duration_ms": 60_000, "time_to_first_token_ms": 1}, None),
+    ],
+)
+def test_timing_is_optional_and_invalid_metrics_never_block_usage(
+    row: ZcodeRow, fields: dict[str, object], expected: int | None
+) -> None:
+    result = normalize_row(replace(row, **fields))
+    assert isinstance(result, UsageEvent) and result.generation_milliseconds == expected
+    assert result.tokens == Tokens(100, 40, 0, 10, None)
 
 
 def test_C11_native_column_fallback(row: ZcodeRow) -> None:

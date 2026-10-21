@@ -1,10 +1,10 @@
 """Timing evidence handles short bursts, long reasoning and delayed usage."""
 
-from htu.domain.sources.codex import CodexContext
-from htu.domain.sources.codex import parse_record as codex
-from htu.domain.sources.dsh import DshContext
-from htu.domain.sources.dsh import parse_record as dsh
-from htu.domain.usage.model import UsageEvent
+from htd.domain.sources.codex import CodexContext
+from htd.domain.sources.codex import parse_record as codex
+from htd.domain.sources.dsh import DshContext
+from htd.domain.sources.dsh import parse_record as dsh
+from htd.domain.usage.model import UsageEvent
 
 
 def test_codex_request_clock_survives_checkpoint_and_counts_long_reasoning() -> None:
@@ -91,3 +91,26 @@ def test_dsh_ends_at_last_delta_and_excludes_abandoned_attempt() -> None:
         ctx,
     )
     assert isinstance(event, UsageEvent) and event.generation_milliseconds == 10_000
+
+
+def test_dsh_grouped_stream_uses_earliest_reasoning_even_when_text_is_stored_first() -> None:
+    ctx = DshContext(session_id="s", raw_session_id="s", model_id="m")
+    event = dsh(
+        {
+            "type": "assistant/message",
+            "time": 100000,
+            "data": {
+                "turn": 1,
+                "step": 1,
+                "usage": {"outputTokens": 27000, "reasoningTokens": 10800},
+                "stream": [
+                    {"type": "text-chunks", "time0": 25000, "texts": ["a", "b"], "dt": [36000]},
+                    {"type": "reasoning-chunks", "time0": 1000, "texts": ["r", "s"], "dt": [24000]},
+                ],
+            },
+        },
+        ctx,
+    )
+    assert isinstance(event, UsageEvent)
+    assert event.generation_milliseconds == 60_000
+    assert event.tokens.output == 27000  # 450 t/s, rather than 750 t/s.

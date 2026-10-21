@@ -11,17 +11,17 @@ import * as validators from '../frontend/src/infra/generated/validators.js';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const schema = JSON.parse(await fs.readFile(new URL('../frontend/src/infra/generated/contracts.schema.json', import.meta.url), 'utf8'));
 const commands = Object.keys(schema.properties.requests.properties).sort();
-const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'htu-node-roundtrip-'));
+const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'htd-node-roundtrip-'));
 const environment = { ...process.env, PYTHONPATH: path.join(root, 'backend/src') };
-for (const key of ['USERPROFILE', 'HOME', 'APPDATA', 'LOCALAPPDATA', 'CODEX_HOME', 'HTU_DATA_DIR',
-  'HTU_SOURCE_ROOT_CODEX', 'HTU_SOURCE_ROOT_ZCODE', 'HTU_SOURCE_ROOT_DSH']) {
+for (const key of ['USERPROFILE', 'HOME', 'APPDATA', 'LOCALAPPDATA', 'CODEX_HOME', 'HTD_DATA_DIR',
+  'HTD_SOURCE_ROOT_CODEX', 'HTD_SOURCE_ROOT_ZCODE', 'HTD_SOURCE_ROOT_DSH']) {
   environment[key] = path.join(directory, key.toLowerCase());
   await fs.mkdir(environment[key]);
 }
 
 class Bridge {
   constructor() {
-    this.process = spawn(process.argv[2] ?? 'python', ['-m', 'htu', '--headless-bridge'], {
+    this.process = spawn(process.argv[2] ?? 'python', ['-m', 'htd', '--headless-bridge'], {
       cwd: root, env: environment, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'],
     });
     this.pending = [];

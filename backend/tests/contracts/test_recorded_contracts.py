@@ -3,6 +3,7 @@
 import json
 import os
 import shutil
+from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 from threading import Event
@@ -10,12 +11,13 @@ from typing import cast
 from uuid import uuid4
 
 import pytest
-from htu.application.ports import TaskDone
-from htu.application.remote.ports import MemoryCredentialStore
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.usage.model import Harness
+from htd.application.ports import TaskDone
+from htd.application.remote.ports import MemoryCredentialStore
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.remote.model import BalanceObservation, RemoteAccount
+from htd.domain.usage.model import Harness
 
 from backend.tests.integration.collection_helpers import usage
 from backend.tests.integration.scan_helpers import headers, request
@@ -31,9 +33,17 @@ def legacy_stopped(**_: object) -> bool:
     return False
 
 
+class RecordingProvider(Provider):
+    async def fetch(self, account: RemoteAccount, credential: str) -> BalanceObservation:
+        value = await super().fetch(account, credential)
+        # A real synthetic balance movement is necessary for an interval;
+        # unchanged polls intentionally do not create zero-value vouchers.
+        return replace(value, amount_pico=1_975_310_000_001 - int(self.clock.monotonic() >= 600) * 10**12)
+
+
 def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("htu.migration.legacy.reader.legacy_running", legacy_stopped)
-    monkeypatch.setattr("htu.migration.engine.legacy_running", legacy_stopped)
+    monkeypatch.setattr("htd.migration.legacy.reader.legacy_running", legacy_stopped)
+    monkeypatch.setattr("htd.migration.engine.legacy_running", legacy_stopped)
     clock = FakeClock(parse_instant("2026-10-01T10:00:00.000Z"))
     legacy = Path(__file__).resolve().parents[3] / "fixtures/legacy/v022.sqlite3"
     with Application(
@@ -41,7 +51,7 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
         clock=clock,
         start_scheduler=False,
         credentials=MemoryCredentialStore(),
-        provider_factory=lambda: Provider(clock),
+        provider_factory=lambda: RecordingProvider(clock),
     ) as app:
         recorder = Recorder(app, tmp_path)
 
@@ -76,6 +86,10 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
         recorder.call("app.openPath", {"kind": "dataDir"})
         recorder.call("preferences.get")
         recorder.call("reconciliation.status")
+        recorder.call(
+            "reconciliation.dismiss",
+            {"vendorId": "synthetic-vendor", "observedAt": format_instant(clock.now_utc())},
+        )
         recorder.call("pricing.unpriced")
         recorder.call("pricing.unpricedNotice")
         write("pricing.recalculateUnpriced", expectedPricingRevision=app.revisions()["pricing"])
@@ -191,8 +205,10 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
         write("remote.refresh", vendorId=vendor_id)
         clock.advance(600_000)
         # Record real funding/consumption contributions; unchanged observations no longer post zero vouchers.
-        write("wallet.topUp", vendorId=vendor_id, amount="1")
+        write("wallet.topUp", vendorId=vendor_id, amount="1", walletScope="remote")
         write("remote.refresh", vendorId=vendor_id)
+        clock.advance(600_000)
+        app.remote.invoke(lambda service: service.store.flush_pending(clock.now_utc()))
         account_entries = recorder.call("wallet.accountEntries", {"vendorId": vendor_id})
         interval = next(
             row["intervalId"]
@@ -217,11 +233,28 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
             pastTopUpPico="123",
         )
         recorder.call("wallet.dailyBook", {"vendorId": vendor_id, "scope": "local", "month": "2026-10"})
+        write("wallet.setVisibility", vendorId=vendor_id, mode="both")
+        local_entries = recorder.call("wallet.accountEntries", {"vendorId": vendor_id, "scope": "local"})
+        local_row = next(
+            row for row in cast(list[dict[str, object]], local_entries["entries"]) if row["kind"] == "top_up"
+        )
+        write(
+            "wallet.correctEntry",
+            vendorId=vendor_id,
+            entryId=local_row["id"],
+            scope="local",
+            R=local_row["R"],
+            C=local_row["C"],
+            expectedEntryRevision=local_row["entryRevision"],
+        )
+        write(
+            "wallet.dismissNotice", vendorId=vendor_id, entryId=local_row["id"], noticeId="synthetic-notice"
+        )
 
         clock.advance(1000)
         at = clock.now_utc()
         (sessions / "fixture.jsonl").write_bytes(headers() + request(1, at))
-        (Path(os.environ["HTU_SOURCE_ROOT_CLAUDE"]) / "fixture.jsonl").write_text(
+        (Path(os.environ["HTD_SOURCE_ROOT_CLAUDE"]) / "fixture.jsonl").write_text(
             json.dumps(
                 {
                     "type": "assistant",
@@ -297,7 +330,10 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
         legacy_copy = tmp_path / "synthetic-legacy.sqlite3"
         shutil.copyfile(legacy, legacy_copy)
         with Application(
-            tmp_path / "migration-data", clock=clock, start_scheduler=False, legacy_path=legacy_copy
+            tmp_path / "migration-data",
+            clock=clock,
+            start_scheduler=False,
+            legacy_path=legacy_copy,
         ) as migration_app:
             migration_recorder = Recorder(migration_app, tmp_path)
             detected = migration_recorder.call("migration.detect")

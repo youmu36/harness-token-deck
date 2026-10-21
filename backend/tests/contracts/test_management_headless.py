@@ -10,19 +10,19 @@ from contextlib import contextmanager
 from pathlib import Path
 from uuid import uuid4
 
-from htu.ipc.dto.app import HelloResponse
-from htu.ipc.dto.base import StrictModel, Success
-from htu.ipc.dto.maintenance import MaintenanceStatus, RetentionResponse
-from htu.ipc.dto.pricing import CatalogResponse, ChangeResponse
-from htu.ipc.dto.tasks import TaskResponse, TaskStartedResponse
-from htu.ipc.dto.wallet import WalletChangeResponse, WalletListResponse
+from htd.ipc.dto.app import HelloResponse
+from htd.ipc.dto.base import StrictModel, Success
+from htd.ipc.dto.maintenance import MaintenanceStatus, RetentionResponse
+from htd.ipc.dto.pricing import CatalogResponse, ChangeResponse
+from htd.ipc.dto.tasks import TaskResponse, TaskStartedResponse
+from htd.ipc.dto.wallet import WalletChangeResponse, WalletListResponse
 
 
 @contextmanager
 def bridge() -> Generator[subprocess.Popen[str], None, None]:
     root = Path(__file__).resolve().parents[3]
     process = subprocess.Popen(
-        [sys.executable, "-m", "htu", "--headless-bridge"],
+        [sys.executable, "-m", "htd", "--headless-bridge"],
         cwd=root,
         env={**os.environ, "PYTHONPATH": str(root / "backend/src")},
         stdin=subprocess.PIPE,

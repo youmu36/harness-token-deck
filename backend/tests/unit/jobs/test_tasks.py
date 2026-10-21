@@ -2,10 +2,10 @@
 
 from threading import Event
 
-from htu.application.events import InProcessEventBus
-from htu.application.ports import TaskContext, TaskDone
-from htu.domain.common.testing import FakeClock
-from htu.jobs.tasks import TaskPool
+from htd.application.events import InProcessEventBus
+from htd.application.ports import TaskContext, TaskDone
+from htd.domain.common.testing import FakeClock
+from htd.jobs.tasks import TaskPool
 
 
 def test_cancel_after_action_commit_preserves_successful_result() -> None:

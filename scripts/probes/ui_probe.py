@@ -22,7 +22,7 @@ class UiProbe:
         self.output = (directory / "stdout.log").open("w", encoding="utf-8")
         self.errors = (directory / "stderr.log").open("w", encoding="utf-8")
         self.startup_key = (
-            rf"Software\HarnessTokenUsage\ProbeStartup\{uuid4().hex}" if isolated_startup else ""
+            rf"Software\HarnessTokenDeck\ProbeStartup\{uuid4().hex}" if isolated_startup else ""
         )
         self.process = subprocess.Popen(
             [sys.executable, "-m", "scripts.probes.probe_usage_pages", "--directory", str(directory)],
@@ -30,8 +30,8 @@ class UiProbe:
             env={
                 **os.environ,
                 "PYTHONPATH": str(ROOT / "backend/src") + os.pathsep + str(ROOT),
-                "HTU_PROBE_SYNTHETIC_REMOTE": "1" if synthetic_remote else "0",
-                "HTU_PROBE_STARTUP_KEY": self.startup_key,
+                "HTD_PROBE_SYNTHETIC_REMOTE": "1" if synthetic_remote else "0",
+                "HTD_PROBE_STARTUP_KEY": self.startup_key,
             },
             stdout=self.output,
             stderr=self.errors,

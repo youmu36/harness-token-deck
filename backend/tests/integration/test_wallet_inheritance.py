@@ -4,17 +4,17 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any, cast
 
-from htu.adapters.sqlite.account_book import AccountBook
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.extensions_042 import install
-from htu.adapters.sqlite.local_wallet import entries, reclassify, remote_summary, summary
-from htu.adapters.sqlite.wallet_book import read
-from htu.adapters.sqlite.wallet_closing import close_days
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.bootstrap import Application
-from htu.domain.common.time import Instant
-from htu.ipc.dto.wallet import AccountEntriesResponse
+from htd.adapters.sqlite.account_book import AccountBook
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.extensions_042 import install
+from htd.adapters.sqlite.local_wallet import entries, reclassify, remote_summary, summary
+from htd.adapters.sqlite.wallet_book import read
+from htd.adapters.sqlite.wallet_closing import close_days
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.bootstrap import Application
+from htd.domain.common.time import Instant
+from htd.ipc.dto.wallet import AccountEntriesResponse
 
 from backend.tests.integration.collection_helpers import AT
 from backend.tests.integration.test_account_book import observe, setup

@@ -33,7 +33,7 @@ def close_mutex(handle: Any) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--child", action="store_true")
-    parser.add_argument("--name", default=f"HTU.Probe.{uuid.uuid4().hex}")
+    parser.add_argument("--name", default=f"HTD.Probe.{uuid.uuid4().hex}")
     parser.add_argument("--key")
     parser.add_argument("--output", type=Path, default=Path(".verify/probe-single-instance.json"))
     args = parser.parse_args()

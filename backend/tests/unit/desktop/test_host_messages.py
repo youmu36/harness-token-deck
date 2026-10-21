@@ -6,7 +6,7 @@ import json
 from types import SimpleNamespace
 
 import pytest
-from htu.adapters.desktop.native import NativeWindow
+from htd.adapters.desktop.native import NativeWindow
 
 LOCAL_URL = "http://127.0.0.1:12345/index.html"
 
@@ -40,7 +40,7 @@ def test_normal_ipc_messages_are_ignored_without_warning(
     assert caplog.records == []
 
 
-@pytest.mark.parametrize("action", ["htu.openLogDir", "htu.quit", "htu.ready", "htu.unready"])
+@pytest.mark.parametrize("action", ["htd.openLogDir", "htd.quit", "htd.ready", "htd.unready"])
 def test_local_control_strings_are_forwarded(action: str) -> None:
     actions: list[str] = []
     window(actions)._host_message(None, Message(action, LOCAL_URL + "#/settings"))
@@ -52,17 +52,17 @@ def test_local_control_strings_are_forwarded(action: str) -> None:
 )
 def test_foreign_documents_cannot_request_host_actions(source: str) -> None:
     actions: list[str] = []
-    window(actions)._host_message(None, Message("htu.quit", source))
+    window(actions)._host_message(None, Message("htd.quit", source))
     assert actions == []
 
 
 def test_unknown_strings_do_not_invoke_host_actions() -> None:
     actions: list[str] = []
-    window(actions)._host_message(None, Message("htu.unregistered"))
+    window(actions)._host_message(None, Message("htd.unregistered"))
     assert actions == []
 
 
-@pytest.mark.parametrize("action", ["htu.openLogDir", "htu.quit", "htu.ready", "htu.unready"])
+@pytest.mark.parametrize("action", ["htd.openLogDir", "htd.quit", "htd.ready", "htd.unready"])
 def test_control_messages_do_not_reach_pywebview_tuple_decoder(action: str) -> None:
     received: list[object] = []
     native = window([])

@@ -6,24 +6,24 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.account_book import AccountBook
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.local_wallet import remote_summary, set_totals, summary
-from htu.adapters.sqlite.remote_store import SqliteRemoteStore
-from htu.adapters.sqlite.wallet_book import read
-from htu.adapters.sqlite.wallet_closing import close_days
-from htu.adapters.sqlite.wallet_flows import correct, dismiss_notice, entries, flush
-from htu.adapters.sqlite.wallet_flows import install as install_flows
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.bootstrap import Application
-from htu.domain.common.errors import DomainError
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant
-from htu.domain.usage.model import Harness
-from htu.domain.wallet.model import UsageRef, WalletEntry
-from htu.ipc.dto.maintenance import RecalcPreview, RecalcResponse
-from htu.ipc.dto.wallet import AccountEntriesResponse, WalletChangeResponse, WalletListResponse
+from htd.adapters.sqlite.account_book import AccountBook
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.local_wallet import remote_summary, set_totals, summary
+from htd.adapters.sqlite.remote_store import SqliteRemoteStore
+from htd.adapters.sqlite.wallet_book import read
+from htd.adapters.sqlite.wallet_closing import close_days
+from htd.adapters.sqlite.wallet_flows import correct, dismiss_notice, entries, flush
+from htd.adapters.sqlite.wallet_flows import install as install_flows
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.bootstrap import Application
+from htd.domain.common.errors import DomainError
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant
+from htd.domain.usage.model import Harness
+from htd.domain.wallet.model import UsageRef, WalletEntry
+from htd.ipc.dto.maintenance import RecalcPreview, RecalcResponse
+from htd.ipc.dto.wallet import AccountEntriesResponse, WalletChangeResponse, WalletListResponse
 
 from backend.tests.contracts.command_helpers import failure, invoke
 from backend.tests.contracts.management_helpers import vendor as create_vendor
@@ -63,7 +63,7 @@ def reprice(work: UnitOfWork, amount: int, minute: int, index: int = 1) -> None:
     original = work.connection.execute(
         "SELECT * FROM wallet_entry WHERE id=?", (f"request-{index}",)
     ).fetchone()
-    from htu.domain.common.time import parse_instant
+    from htd.domain.common.time import parse_instant
 
     repo.append_with_offsets(
         work,
@@ -104,7 +104,7 @@ def calibrate_flow(work: UnitOfWork, row: dict[str, Any], amount: int, minute: i
 def test_pending_local_and_remote_amounts_move_to_posted_totals_once(
     tmp_path: Path, reliable_used: bool
 ) -> None:
-    from htu.adapters.sqlite.wallet_pending import display
+    from htd.adapters.sqlite.wallet_pending import display
 
     path = tmp_path / "a.db"
     with WriteExecutor(path) as writer, ReadPool(path) as readers:
@@ -153,7 +153,7 @@ def test_pending_local_and_remote_amounts_move_to_posted_totals_once(
 
 
 def test_remote_pending_estimate_absorbs_late_billing_once_per_batch(tmp_path: Path) -> None:
-    from htu.adapters.sqlite.wallet_pending import display
+    from htd.adapters.sqlite.wallet_pending import display
 
     with WriteExecutor(tmp_path / "a.db") as writer, ReadPool(writer.path) as readers:
         store = setup(writer, readers, "10")
@@ -364,7 +364,7 @@ def test_recalc_preview_and_notice_command_preserve_manually_calibrated_money(tm
 
 
 def test_unpriced_recovery_preserves_a_calibrated_partial_consumption_flow(tmp_path: Path) -> None:
-    from htu.domain.usage.model import Tokens
+    from htd.domain.usage.model import Tokens
 
     from backend.tests.contracts.maintenance_helpers import add_usage
     from backend.tests.contracts.management_helpers import group, price, wallet

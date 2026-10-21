@@ -2,9 +2,9 @@ from decimal import ROUND_HALF_UP, Decimal
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import MULTIPLIER_INVALID, RATE_OVERFLOW, DomainError
-from htu.domain.common.money import Rate
-from htu.domain.pricing.multiplier import Multiplier, multiply_rate, parse_multiplier
+from htd.domain.common.errors import MULTIPLIER_INVALID, RATE_OVERFLOW, DomainError
+from htd.domain.common.money import Rate
+from htd.domain.pricing.multiplier import Multiplier, multiply_rate, parse_multiplier
 from hypothesis import given
 from hypothesis import strategies as st
 

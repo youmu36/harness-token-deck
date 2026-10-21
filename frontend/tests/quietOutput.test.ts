@@ -33,9 +33,9 @@ it('shows concurrent model count inline and expands all active speeds without mo
   expect(box().text()).not.toContain('仅统计正输出');
   expect(wrapper.find('[aria-label="正在运行的模型TPS"]').exists()).toBe(false);
   const hitRate = wrapper.get('[aria-label="当前会话缓存命中率"]');
-  expect(hitRate.text()).toContain('当前会话缓存命中率：40.0%');
-  expect(hitRate.text()).toContain('2 会话');
-  expect(hitRate.classes()).toContain('output-speed');
+  expect(hitRate.text()).not.toContain('当前会话缓存命中率');
+  expect(hitRate.attributes('title')).toContain('当前会话缓存命中率');
+  expect(hitRate.text()).toContain('会话 1 · 40.0%');
   const count = call.mock.calls.length;
   (box().element as HTMLDetailsElement).open = true;
   await box().trigger('toggle');
@@ -44,10 +44,9 @@ it('shows concurrent model count inline and expands all active speeds without mo
   expect(box().text()).toContain('model-c');
   expect(box().text()).toContain('80.0 t/s');
   expect(box().text()).not.toContain('12.3');
-  (hitRate.element as HTMLDetailsElement).open = true;
-  await hitRate.trigger('toggle');
-  expect(wrapper.get('[aria-label="会话缓存命中率列表"]').text()).toContain('model-b');
-  expect(wrapper.get('[aria-label="会话缓存命中率列表"]').text()).toContain('70.0%');
+  await hitRate.get('.choice-trigger').trigger('click');
+  expect(hitRate.get('[role="radiogroup"]').text()).toContain('model-b');
+  expect(hitRate.get('[role="radiogroup"]').text()).toContain('会话 2 · 70.0%');
   expect(call.mock.calls).toHaveLength(count);
   expect(wrapper.text()).toContain('已识别的压缩单独说明');
   expect(wrapper.text()).not.toContain('疑似');

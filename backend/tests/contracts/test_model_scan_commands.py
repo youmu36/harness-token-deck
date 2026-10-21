@@ -10,15 +10,15 @@ from threading import Event
 from uuid import uuid4
 
 import pytest
-from htu.adapters.collectors.codex_reader import CodexReader
-from htu.application.ports import CheckpointRecord, ReadBatch, TaskDone
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.usage.model import Harness
-from htu.ipc.dto.collection import SourcesResponse
-from htu.ipc.dto.pricing import PoolResponse
-from htu.ipc.dto.tasks import TaskResponse, TaskStartedResponse
+from htd.adapters.collectors.codex_reader import CodexReader
+from htd.application.ports import CheckpointRecord, ReadBatch, TaskDone
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.usage.model import Harness
+from htd.ipc.dto.collection import SourcesResponse
+from htd.ipc.dto.pricing import PoolResponse
+from htd.ipc.dto.tasks import TaskResponse, TaskStartedResponse
 
 from backend.tests.integration.scan_helpers import FIXTURES, headers, request
 
@@ -51,7 +51,7 @@ def scan(app: Application, harness: str = "all") -> TaskResponse:
 
 def test_real_historical_scan_all_readers_flags_and_no_live_writes(app: Application, tmp_path: Path) -> None:
     boundary = Instant(AT.value - timedelta(days=3))
-    root = Path(os.environ["HTU_SOURCE_ROOT_CODEX"])
+    root = Path(os.environ["HTD_SOURCE_ROOT_CODEX"])
     (root / "inside.jsonl").write_bytes(headers() + request(1, boundary))
     # These model contexts cannot leak into the in-range result.
     (root / "old.jsonl").write_bytes(
@@ -59,7 +59,7 @@ def test_real_historical_scan_all_readers_flags_and_no_live_writes(app: Applicat
         + request(2, Instant(boundary.value - timedelta(milliseconds=1)))
     )
     (root / "future.jsonl").write_bytes(headers().replace(b"gpt-6-astra", b"Future") + request(3, AT))
-    dsh_root = Path(os.environ["HTU_SOURCE_ROOT_DSH"])
+    dsh_root = Path(os.environ["HTD_SOURCE_ROOT_DSH"])
     dsh = [
         json.loads(line)
         for line in (FIXTURES / "dsh/session.jsonl").read_text(encoding="utf-8").splitlines()[:4]
@@ -105,7 +105,7 @@ def test_real_historical_scan_all_readers_flags_and_no_live_writes(app: Applicat
 
 
 def test_model_scan_batches_local_checkpoint_and_operation_retry(app: Application) -> None:
-    root = Path(os.environ["HTU_SOURCE_ROOT_CODEX"])
+    root = Path(os.environ["HTD_SOURCE_ROOT_CODEX"])
     (root / "many.jsonl").write_bytes(headers() + request(1, Instant(AT.value - timedelta(seconds=1))))
     app.model_scan.readers[Harness.CODEX] = CodexReader(line_limit=500, batch_limit=600)
     done = Event()
@@ -125,7 +125,7 @@ def test_model_scan_batches_local_checkpoint_and_operation_retry(app: Applicatio
 
 
 def test_scan_cancellation_no_partial_model_or_collection_changes(app: Application) -> None:
-    root = Path(os.environ["HTU_SOURCE_ROOT_CODEX"])
+    root = Path(os.environ["HTD_SOURCE_ROOT_CODEX"])
     (root / "one.jsonl").write_bytes(headers())
     entered, release, done = Event(), Event(), Event()
 
@@ -160,7 +160,7 @@ def test_scan_failure_is_sanitized_and_task_capacity_released_on_receipt_failure
     assert failure(app, "models.scan", {"operationId": str(uuid4())}).code == "INTERNAL_ERROR"
     assert app.task_pool._tasks == {}  # pyright: ignore[reportPrivateUsage]
     app.writer.execute(lambda work: work.connection.execute("DROP TRIGGER injected"))
-    root = Path(os.environ["HTU_SOURCE_ROOT_CODEX"])
+    root = Path(os.environ["HTD_SOURCE_ROOT_CODEX"])
     (root / "one.jsonl").write_bytes(headers())
 
     class FailingReader:

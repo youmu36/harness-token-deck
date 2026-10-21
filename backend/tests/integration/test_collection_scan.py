@@ -5,18 +5,18 @@ import sqlite3
 from pathlib import Path
 
 import zstandard
-from htu.adapters.collectors.codex_reader import CodexReader
-from htu.adapters.collectors.discovery import source_key
-from htu.adapters.sqlite.collection_store import SqliteCollectionStore
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.application.collection.billing import BillInbox
-from htu.application.ports import CheckpointRecord, ReadBatch, UsageChanged
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant
-from htu.domain.usage.model import Harness
+from htd.adapters.collectors.codex_reader import CodexReader
+from htd.adapters.collectors.discovery import source_key
+from htd.adapters.sqlite.collection_store import SqliteCollectionStore
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.collection.billing import BillInbox
+from htd.application.ports import CheckpointRecord, ReadBatch, UsageChanged
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant
+from htd.domain.usage.model import Harness
 
 from .scan_helpers import AT, FIXTURES, count, headers, request, scanner, seed_prices, sessions
 

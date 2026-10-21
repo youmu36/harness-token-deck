@@ -8,13 +8,13 @@ from threading import Event
 from uuid import uuid4
 
 import pytest
-from htu.adapters.collectors.discovery import Discovery
-from htu.application.remote.ports import MemoryCredentialStore
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.remote.model import BalanceObservation, RemoteAccount, RemoteFailure
-from htu.ipc.dto.remote import RemoteSnapshot, RemoteTestResponse
-from htu.ipc.dto.wallet import WalletChangeResponse, WalletListResponse
+from htd.adapters.collectors.discovery import Discovery
+from htd.application.remote.ports import MemoryCredentialStore
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.remote.model import BalanceObservation, RemoteAccount, RemoteFailure
+from htd.ipc.dto.remote import RemoteSnapshot, RemoteTestResponse
+from htd.ipc.dto.wallet import WalletChangeResponse, WalletListResponse
 
 from backend.tests.integration.scan_helpers import headers, request, sessions
 from backend.tests.unit.remote.test_refresh import Provider

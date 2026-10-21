@@ -1,8 +1,8 @@
 """Synthetic management setup and IPC assertions shared by P4.4/P4.5 tests."""
 
-from htu.bootstrap import Application
-from htu.ipc.dto.pricing import CatalogResponse, ChangeResponse
-from htu.ipc.dto.wallet import Vendor, WalletChangeResponse
+from htd.bootstrap import Application
+from htd.ipc.dto.pricing import CatalogResponse, ChangeResponse
+from htd.ipc.dto.wallet import Vendor, WalletChangeResponse
 
 from .command_helpers import invoke
 

@@ -5,18 +5,18 @@ from contextlib import closing
 from pathlib import Path
 from typing import Any
 
-import htu.adapters.collectors.codex_logs as logs_adapter
-import htu.adapters.collectors.discovery as discovery_module
+import htd.adapters.collectors.codex_logs as logs_adapter
+import htd.adapters.collectors.discovery as discovery_module
 import pytest
-from htu.adapters.collectors.codex_logs import CodexLogs
-from htu.adapters.collectors.discovery import Discovery, source_key
-from htu.adapters.sqlite.auto_maintenance_store import SqliteMaintenanceStore
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.application.collection.maintenance import AutoMaintenance
-from htu.application.ports import UnitOfWork
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import parse_instant
-from htu.domain.usage.model import Harness
+from htd.adapters.collectors.codex_logs import CodexLogs
+from htd.adapters.collectors.discovery import Discovery, source_key
+from htd.adapters.sqlite.auto_maintenance_store import SqliteMaintenanceStore
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.collection.maintenance import AutoMaintenance
+from htd.application.ports import UnitOfWork
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import parse_instant
+from htd.domain.usage.model import Harness
 
 from .collection_helpers import AT
 from .test_codex_logs import END, START, add_log, create_logs
@@ -159,9 +159,9 @@ def test_maintenance_skips_unchanged_models_and_minute_but_rechecks_new_revision
 def test_large_title_snapshot_is_lossless_and_rebuilds_after_eviction(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from htu.adapters.sqlite.codex_title_cache import TitleLogBatch
-    from htu.application.ports import TitleRequest
-    from htu.domain.common.time import from_epoch_ms
+    from htd.adapters.sqlite.codex_title_cache import TitleLogBatch
+    from htd.application.ports import TitleRequest
+    from htd.domain.common.time import from_epoch_ms
 
     root = tmp_path / "sessions"
     root.mkdir()

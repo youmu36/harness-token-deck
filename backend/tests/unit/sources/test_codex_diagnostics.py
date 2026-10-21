@@ -2,8 +2,8 @@ import json
 from typing import cast
 
 import pytest
-from htu.domain.sources.codex import CodexContext, filter_diagnostics, parse_record
-from htu.domain.usage.model import Diagnostic, Skip, UsageEvent
+from htd.domain.sources.codex import CodexContext, filter_diagnostics, parse_record
+from htd.domain.usage.model import Diagnostic, Skip, UsageEvent
 
 
 @pytest.mark.parametrize("info", [{}, {"total_token_usage": {"input_tokens": 100}}, {"unexpected": True}])

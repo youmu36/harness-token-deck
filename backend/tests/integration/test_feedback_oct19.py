@@ -6,23 +6,23 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
-from htu.adapters.collectors.codex_reader import CodexReader
-from htu.adapters.sqlite.account_book import AccountBook
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.output_speed import live, references
-from htu.adapters.sqlite.remote_store import SqliteRemoteStore
-from htu.adapters.sqlite.rollup_repo import RollupRepository
-from htu.adapters.sqlite.statistics_store import SqliteStatisticsStore
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.application.ports import CheckpointRecord
-from htu.application.statistics import Statistics
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant
-from htu.domain.sources.dsh import DshContext, first_token_time, parse_record
-from htu.domain.statistics.window import Window
-from htu.domain.usage.model import Harness, Tokens, UsageEvent
-from htu.ipc.dto.wallet import AccountEntriesResponse
+from htd.adapters.collectors.codex_reader import CodexReader
+from htd.adapters.sqlite.account_book import AccountBook
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.output_speed import live, references
+from htd.adapters.sqlite.remote_store import SqliteRemoteStore
+from htd.adapters.sqlite.rollup_repo import RollupRepository
+from htd.adapters.sqlite.statistics_store import SqliteStatisticsStore
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.ports import CheckpointRecord
+from htd.application.statistics import Statistics
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant
+from htd.domain.sources.dsh import DshContext, first_token_time, parse_record
+from htd.domain.statistics.window import Window
+from htd.domain.usage.model import Harness, Tokens, UsageEvent
+from htd.ipc.dto.wallet import AccountEntriesResponse
 
 from .collection_helpers import AT, collect, ensure_source, quote, usage
 from .test_account_book import observe, setup

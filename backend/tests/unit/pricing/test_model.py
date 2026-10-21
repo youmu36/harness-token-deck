@@ -2,9 +2,9 @@ from dataclasses import FrozenInstanceError, replace
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import MODEL_DUPLICATE, MODEL_LIMIT, PRICING_INVALID, DomainError
-from htu.domain.common.time import parse_instant
-from htu.domain.pricing.model import (
+from htd.domain.common.errors import MODEL_DUPLICATE, MODEL_LIMIT, PRICING_INVALID, DomainError
+from htd.domain.common.time import parse_instant
+from htd.domain.pricing.model import (
     BillingRule,
     ModelRate,
     PriceGroup,

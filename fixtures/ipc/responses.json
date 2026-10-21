@@ -51,6 +51,7 @@
           "pricing.switchCurrent",
           "pricing.unpriced",
           "pricing.unpricedNotice",
+          "reconciliation.dismiss",
           "reconciliation.status",
           "remote.delete",
           "remote.get",
@@ -71,10 +72,12 @@
           "wallet.accountEntries",
           "wallet.calibrate",
           "wallet.correctConsumption",
+          "wallet.correctEntry",
           "wallet.createScannedVendors",
           "wallet.createVendor",
           "wallet.dailyBook",
           "wallet.deleteVendor",
+          "wallet.dismissNotice",
           "wallet.entries",
           "wallet.linkGroups",
           "wallet.list",
@@ -85,9 +88,10 @@
           "wallet.restoreVendor",
           "wallet.scanProviders",
           "wallet.setLocalTotals",
+          "wallet.setVisibility",
           "wallet.topUp"
         ],
-        "dataDir": "C:\\htu-contract-fixture\\data",
+        "dataDir": "C:\\htd-contract-fixture\\data",
         "mode": "desktop",
         "protocol": 1,
         "revisions": {
@@ -143,7 +147,7 @@
     },
     "response": {
       "data": {
-        "path": "C:\\htu-contract-fixture\\synthetic sessions"
+        "path": "C:\\htd-contract-fixture\\synthetic sessions"
       },
       "ok": true
     }
@@ -182,7 +186,8 @@
           "startAtLogin": false,
           "theme": "system",
           "timezone": "system",
-          "unpricedNoticeDismissed": ""
+          "unpricedNoticeDismissed": "",
+          "walletDefaultScope": "local"
         },
         "revision": 0
       },
@@ -192,6 +197,19 @@
   {
     "command": "reconciliation.status",
     "payload": {},
+    "response": {
+      "data": {
+        "notices": []
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "reconciliation.dismiss",
+    "payload": {
+      "observedAt": "2026-10-01T10:00:00.000Z",
+      "vendorId": "synthetic-vendor"
+    },
     "response": {
       "data": {
         "notices": []
@@ -277,7 +295,8 @@
           "startAtLogin": false,
           "theme": "dark",
           "timezone": "system",
-          "unpricedNoticeDismissed": ""
+          "unpricedNoticeDismissed": "",
+          "walletDefaultScope": "local"
         },
         "revision": 1
       },
@@ -333,7 +352,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_codex",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_codex",
             "processedCount": 0,
             "startedAt": null,
             "status": "pending",
@@ -348,7 +367,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_zcode",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
             "processedCount": 0,
             "startedAt": null,
             "status": "unavailable",
@@ -361,7 +380,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_dsh",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
             "processedCount": 0,
             "startedAt": null,
             "status": "pending",
@@ -374,7 +393,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_claude",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
             "processedCount": 0,
             "startedAt": null,
             "status": "pending",
@@ -403,7 +422,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_codex",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_codex",
             "processedCount": 0,
             "startedAt": null,
             "status": "pending",
@@ -418,7 +437,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_zcode",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
             "processedCount": 0,
             "startedAt": null,
             "status": "unavailable",
@@ -431,7 +450,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_dsh",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
             "processedCount": 0,
             "startedAt": null,
             "status": "pending",
@@ -444,7 +463,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_claude",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
             "processedCount": 0,
             "startedAt": null,
             "status": "pending",
@@ -461,7 +480,7 @@
       "expectedRevision": 1,
       "harness": "codex",
       "operationId": "00000000-0000-4000-8000-000000000005",
-      "path": "C:\\htu-contract-fixture\\synthetic sessions"
+      "path": "C:\\htd-contract-fixture\\synthetic sessions"
     },
     "response": {
       "data": {
@@ -475,7 +494,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\synthetic sessions",
+            "path": "C:\\htd-contract-fixture\\synthetic sessions",
             "processedCount": 0,
             "startedAt": null,
             "status": "pending",
@@ -490,7 +509,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_zcode",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
             "processedCount": 0,
             "startedAt": null,
             "status": "unavailable",
@@ -503,7 +522,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_dsh",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
             "processedCount": 0,
             "startedAt": null,
             "status": "pending",
@@ -516,7 +535,7 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_claude",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
             "processedCount": 0,
             "startedAt": null,
             "status": "pending",
@@ -531,14 +550,14 @@
     "command": "sources.validatePath",
     "payload": {
       "harness": "codex",
-      "path": "C:\\htu-contract-fixture\\synthetic sessions"
+      "path": "C:\\htd-contract-fixture\\synthetic sessions"
     },
     "response": {
       "data": {
         "available": true,
         "diagnostics": [],
         "harness": "codex",
-        "path": "C:\\htu-contract-fixture\\synthetic sessions"
+        "path": "C:\\htd-contract-fixture\\synthetic sessions"
       },
       "ok": true
     }
@@ -588,7 +607,7 @@
             "inboxCount": 0,
             "lastScanAt": "2026-10-01T10:00:00.000Z",
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\synthetic sessions",
+            "path": "C:\\htd-contract-fixture\\synthetic sessions",
             "processedCount": 0,
             "startedAt": "2026-10-01T10:00:00.000Z",
             "status": "watching",
@@ -603,7 +622,7 @@
             "inboxCount": 0,
             "lastScanAt": "2026-10-01T10:00:00.000Z",
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_zcode",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
             "processedCount": 0,
             "startedAt": "2026-10-01T10:00:00.000Z",
             "status": "unavailable",
@@ -616,7 +635,7 @@
             "inboxCount": 0,
             "lastScanAt": "2026-10-01T10:00:00.000Z",
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_dsh",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
             "processedCount": 0,
             "startedAt": "2026-10-01T10:00:00.000Z",
             "status": "watching",
@@ -629,7 +648,7 @@
             "inboxCount": 0,
             "lastScanAt": "2026-10-01T10:00:00.000Z",
             "ledgerCount": 0,
-            "path": "C:\\htu-contract-fixture\\htu_source_root_claude",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
             "processedCount": 0,
             "startedAt": "2026-10-01T10:00:00.000Z",
             "status": "watching",
@@ -1159,7 +1178,11 @@
             "C": "0",
             "R": "0",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Fixture Vendor",
           "pastConsumptionPico": "0",
@@ -1168,7 +1191,8 @@
           "status": "active",
           "unpricedCount": 0,
           "url": null,
-          "walletRevision": 1
+          "walletRevision": 1,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -1220,7 +1244,11 @@
             "C": "0",
             "R": "0",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
@@ -1229,7 +1257,8 @@
           "status": "active",
           "unpricedCount": 0,
           "url": null,
-          "walletRevision": 2
+          "walletRevision": 2,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -1286,7 +1315,11 @@
             "C": "0",
             "R": "0",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
@@ -1295,7 +1328,8 @@
           "status": "active",
           "unpricedCount": 0,
           "url": null,
-          "walletRevision": 3
+          "walletRevision": 3,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -1349,7 +1383,11 @@
             "C": "0",
             "R": "10000123456000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "10000123456000000",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
@@ -1358,7 +1396,8 @@
           "status": "active",
           "unpricedCount": 0,
           "url": null,
-          "walletRevision": 4
+          "walletRevision": 4,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -1377,12 +1416,22 @@
             "A": "0",
             "C": "0",
             "R": "10000123456000000",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
             "availablePico": "10000123456000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
             "fromAt": null,
             "id": "00000000-0000-4000-8000-000000000026",
             "intervalId": null,
             "kind": "top_up",
+            "manuallyCalibrated": false,
             "note": "",
+            "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": null,
             "postedAt": "2026-10-01T10:00:00.000Z",
@@ -1392,12 +1441,22 @@
             "A": "-500000000000",
             "C": "0",
             "R": "0",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
             "availablePico": "500000000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
             "fromAt": null,
             "id": "00000000-0000-4000-8000-000000000027",
             "intervalId": null,
             "kind": "adjustment",
+            "manuallyCalibrated": false,
             "note": "原本地账余额校准",
+            "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": null,
             "postedAt": "2026-10-01T10:00:00.000Z",
@@ -1461,7 +1520,11 @@
             "C": "0",
             "R": "10000123456000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "10000123456000000",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
@@ -1470,7 +1533,8 @@
           "status": "active",
           "unpricedCount": 0,
           "url": null,
-          "walletRevision": 5
+          "walletRevision": 5,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -1526,7 +1590,11 @@
             "C": "0",
             "R": "10000123456000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "10000123456000000",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
@@ -1535,7 +1603,8 @@
           "status": "active",
           "unpricedCount": 0,
           "url": null,
-          "walletRevision": 6
+          "walletRevision": 6,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -1590,7 +1659,11 @@
             "C": "0",
             "R": "10000123456000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "10000123456000000",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
@@ -1599,7 +1672,8 @@
           "status": "active",
           "unpricedCount": 0,
           "url": null,
-          "walletRevision": 7
+          "walletRevision": 7,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -1650,7 +1724,11 @@
             "C": "0",
             "R": "10000123456000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "10000123456000000",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
@@ -1659,7 +1737,8 @@
           "status": "archived",
           "unpricedCount": 0,
           "url": null,
-          "walletRevision": 8
+          "walletRevision": 8,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -1710,7 +1789,11 @@
             "C": "0",
             "R": "10000123456000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "10000123456000000",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
@@ -1719,7 +1802,8 @@
           "status": "active",
           "unpricedCount": 0,
           "url": null,
-          "walletRevision": 9
+          "walletRevision": 9,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -1765,7 +1849,11 @@
               "C": "0",
               "R": "10000123456000000",
               "pastConsumptionPico": "0",
-              "pastTopUpPico": "0"
+              "pastTopUpPico": "0",
+              "pendingConsumptionPico": "0",
+              "pendingTopUpPico": "10000123456000000",
+              "postedC": "0",
+              "postedR": "0"
             },
             "name": "Recorded Vendor",
             "pastConsumptionPico": "0",
@@ -1774,7 +1862,8 @@
             "status": "active",
             "unpricedCount": 0,
             "url": null,
-            "walletRevision": 9
+            "walletRevision": 9,
+            "walletVisibility": "both"
           }
         ]
       },
@@ -1901,7 +1990,7 @@
       "data": {
         "error": null,
         "observation": {
-          "accountId": "test-bff8271d3dbd48a18c65745a78111d79",
+          "accountId": "test-e251a58a0d7c44f7acf671c18f46197e",
           "amountPico": "1975310000001",
           "canCalibrate": true,
           "conversionRule": null,
@@ -2010,7 +2099,8 @@
     "payload": {
       "amount": "1",
       "operationId": "00000000-0000-4000-8000-000000000031",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000022",
+      "walletScope": "remote"
     },
     "response": {
       "data": {
@@ -2020,9 +2110,9 @@
         "revision": 12,
         "vendor": {
           "A": "-9991373456000000",
-          "B": "9750000000000",
+          "B": "8750000000000",
           "C": "0",
-          "R": "10001123456000000",
+          "R": "10000123456000000",
           "account": {
             "A": "1500000000000",
             "B": "1975310000001",
@@ -2046,11 +2136,15 @@
           "linkedGroups": [],
           "localWallet": {
             "A": "-9991373456000000",
-            "B": "9750000000000",
+            "B": "8750000000000",
             "C": "0",
-            "R": "10001123456000000",
+            "R": "10000123456000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "10000123456000000",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
@@ -2061,12 +2155,17 @@
             "C": "0",
             "R": "1000000000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "1000000000000",
+            "postedC": "0",
+            "postedR": "0"
           },
           "status": "active",
           "unpricedCount": 0,
           "url": "https://example.test",
-          "walletRevision": 12
+          "walletRevision": 12,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -2097,7 +2196,7 @@
         "nextRefreshAt": null,
         "observation": {
           "accountId": "00000000-0000-4000-8000-00000000002f",
-          "amountPico": "1975310000001",
+          "amountPico": "975310000001",
           "canCalibrate": true,
           "conversionRule": null,
           "cumulativeUsedPico": null,
@@ -2130,14 +2229,24 @@
         "entries": [
           {
             "A": "0",
-            "C": "0",
-            "R": "1000000000000",
-            "availablePico": "1000000000000",
+            "C": "2000000000000",
+            "R": "0",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
+            "availablePico": "2000000000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
             "fromAt": "2026-10-01T10:00:00.000Z",
             "id": "0000000000000000000000000000000000000000000000000000000000000000",
             "intervalId": "0000000000000000000000000000000000000000000000000000000000000000",
-            "kind": "manual_top_up",
-            "note": "手工充值（待匹配账户区间）",
+            "kind": "consumption",
+            "manuallyCalibrated": false,
+            "note": "区间消费（余额推算）",
+            "noticeId": null,
             "occurredAt": "2026-10-01T10:10:00.000Z",
             "originalId": null,
             "postedAt": "2026-10-01T10:10:00.000Z",
@@ -2145,59 +2254,74 @@
           },
           {
             "A": "0",
-            "C": "1000000000000",
-            "R": "0",
+            "C": "0",
+            "R": "1000000000000",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
             "availablePico": "1000000000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
             "fromAt": "2026-10-01T10:00:00.000Z",
             "id": "0000000000000000000000000000000000000000000000000000000000000000",
             "intervalId": "0000000000000000000000000000000000000000000000000000000000000000",
-            "kind": "consumption",
-            "note": "区间消费（余额推算）",
+            "kind": "manual_top_up",
+            "manuallyCalibrated": false,
+            "note": "远程钱包手工充值(待匹配账户区间)",
+            "noticeId": null,
             "occurredAt": "2026-10-01T10:10:00.000Z",
             "originalId": null,
             "postedAt": "2026-10-01T10:10:00.000Z",
             "toAt": "2026-10-01T10:10:00.000Z"
+          },
+          {
+            "A": "9990873456000000",
+            "C": "9990873456000000",
+            "R": "0",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
+            "availablePico": "9990873456000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "intervalId": null,
+            "kind": "balance_correction",
+            "manuallyCalibrated": false,
+            "note": "余额校准 9999623456000000 → 8750000000000 pico；累计消费 1000000000000 → 9991873456000000 pico",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
           },
           {
             "A": "0",
             "C": "0",
             "R": "10000123456000000",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
             "availablePico": "9999123456000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
             "fromAt": null,
             "id": "00000000-0000-4000-8000-000000000026",
             "intervalId": null,
             "kind": "top_up",
+            "manuallyCalibrated": false,
             "note": "",
-            "occurredAt": "2026-10-01T10:00:00.000Z",
-            "originalId": null,
-            "postedAt": "2026-10-01T10:00:00.000Z",
-            "toAt": null
-          },
-          {
-            "A": "1000000000000",
-            "C": "1000000000000",
-            "R": "0",
-            "availablePico": "1000000000000",
-            "fromAt": null,
-            "id": "0000000000000000000000000000000000000000000000000000000000000000",
-            "intervalId": null,
-            "kind": "consumption_correction",
-            "note": "人工校准（0 → 1000000000000 pico，余额不变）",
-            "occurredAt": "2026-10-01T10:00:00.000Z",
-            "originalId": null,
-            "postedAt": "2026-10-01T10:00:00.000Z",
-            "toAt": null
-          },
-          {
-            "A": "-500000000000",
-            "C": "0",
-            "R": "0",
-            "availablePico": "500000000000",
-            "fromAt": null,
-            "id": "00000000-0000-4000-8000-000000000027",
-            "intervalId": null,
-            "kind": "adjustment",
-            "note": "原本地账余额校准",
+            "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": null,
             "postedAt": "2026-10-01T10:00:00.000Z",
@@ -2207,27 +2331,22 @@
             "A": "-9990873456000000",
             "C": "0",
             "R": "0",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
             "availablePico": "9990873456000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
             "fromAt": null,
             "id": "00000000-0000-4000-8000-00000000002d",
             "intervalId": null,
             "kind": "adjustment",
+            "manuallyCalibrated": false,
             "note": "原本地账余额校准",
-            "occurredAt": "2026-10-01T10:00:00.000Z",
-            "originalId": null,
-            "postedAt": "2026-10-01T10:00:00.000Z",
-            "toAt": null
-          },
-          {
-            "A": "9990873456000000",
-            "C": "9990873456000000",
-            "R": "0",
-            "availablePico": "9990873456000000",
-            "fromAt": null,
-            "id": "0000000000000000000000000000000000000000000000000000000000000000",
-            "intervalId": null,
-            "kind": "balance_correction",
-            "note": "余额校准 9999623456000000 → 8750000000000 pico；累计消费 1000000000000 → 9991873456000000 pico",
+            "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": null,
             "postedAt": "2026-10-01T10:00:00.000Z",
@@ -2237,14 +2356,74 @@
             "A": "1000000000000",
             "C": "0",
             "R": "-1000000000000",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
             "availablePico": "1000000000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
             "fromAt": null,
             "id": "0000000000000000000000000000000000000000000000000000000000000000",
             "intervalId": null,
             "kind": "correction",
+            "manuallyCalibrated": false,
             "note": "人工改判 (累计充值 10000123456000000 → 9999123456000000 pico，累计消费 0 → 0 pico，余额不变)",
+            "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": "00000000-0000-4000-8000-000000000026",
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
+            "availablePico": "500000000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "00000000-0000-4000-8000-000000000027",
+            "intervalId": null,
+            "kind": "adjustment",
+            "manuallyCalibrated": false,
+            "note": "原本地账余额校准",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "1000000000000",
+            "C": "1000000000000",
+            "R": "0",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
+            "availablePico": "1000000000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "intervalId": null,
+            "kind": "consumption_correction",
+            "manuallyCalibrated": false,
+            "note": "人工校准（0 → 1000000000000 pico，余额不变）",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
             "postedAt": "2026-10-01T10:00:00.000Z",
             "toAt": null
           }
@@ -2265,10 +2444,10 @@
       "data": {
         "accountRevision": 8,
         "afterA": "0",
-        "afterC": "1000000000000",
+        "afterC": "2000000000000",
         "afterR": "1000000000000",
         "beforeA": "0",
-        "beforeC": "1000000000000",
+        "beforeC": "2000000000000",
         "beforeR": "1000000000000",
         "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
         "fromAt": "2026-10-01T10:00:00.000Z",
@@ -2295,16 +2474,16 @@
         "action": null,
         "changed": false,
         "pricingRevision": 15,
-        "revision": 13,
+        "revision": 14,
         "vendor": {
           "A": "-9991373456000000",
-          "B": "9750000000000",
+          "B": "8750000000000",
           "C": "0",
-          "R": "10001123456000000",
+          "R": "10000123456000000",
           "account": {
             "A": "1500000000000",
-            "B": "1975310000001",
-            "C": "9992873456000000",
+            "B": "975310000001",
+            "C": "9993873456000000",
             "R": "10000123456000000",
             "coverageStart": "2026-10-01T10:00:00.000Z",
             "localEstimatePico": "0",
@@ -2325,27 +2504,36 @@
           "linkedGroups": [],
           "localWallet": {
             "A": "-9991373456000000",
-            "B": "9750000000000",
+            "B": "8750000000000",
             "C": "0",
-            "R": "10001123456000000",
+            "R": "10000123456000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "0",
+            "postedR": "10000123456000000"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
           "pastTopUpPico": "0",
           "remoteWallet": {
             "A": "0",
-            "B": "1975310000001",
-            "C": "1000000000000",
+            "B": "975310000001",
+            "C": "2000000000000",
             "R": "1000000000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "2000000000000",
+            "postedR": "1000000000000"
           },
           "status": "active",
           "unpricedCount": 0,
           "url": "https://example.test",
-          "walletRevision": 13
+          "walletRevision": 14,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -2365,7 +2553,7 @@
         "nextRefreshAt": null,
         "observation": null,
         "refreshing": false,
-        "revision": 14,
+        "revision": 15,
         "status": "unconfigured"
       },
       "ok": true
@@ -2374,7 +2562,7 @@
   {
     "command": "wallet.setLocalTotals",
     "payload": {
-      "expectedWalletRevision": 14,
+      "expectedWalletRevision": 15,
       "operationId": "00000000-0000-4000-8000-000000000035",
       "pastTopUpPico": "123",
       "vendorId": "00000000-0000-4000-8000-000000000022"
@@ -2384,16 +2572,16 @@
         "action": null,
         "changed": true,
         "pricingRevision": 15,
-        "revision": 15,
+        "revision": 16,
         "vendor": {
           "A": "-9991373456000000",
-          "B": "9750000000000",
+          "B": "8750000000000",
           "C": "0",
-          "R": "10001123456000000",
+          "R": "10000123456000000",
           "account": {
             "A": "1500000000000",
-            "B": "1975310000001",
-            "C": "9992873456000000",
+            "B": "975310000001",
+            "C": "9993873456000000",
             "R": "10000123456000000",
             "coverageStart": "2026-10-01T10:00:00.000Z",
             "localEstimatePico": "0",
@@ -2403,38 +2591,47 @@
             ],
             "observedAt": null,
             "remote": false,
-            "revision": 9
+            "revision": 8
           },
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
           "id": "00000000-0000-4000-8000-000000000022",
           "incompleteCount": 0,
-          "lastCalibratedAt": "2026-10-01T10:10:00.000Z",
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
           "localWallet": {
             "A": "-9991373456000000",
-            "B": "9750000000000",
+            "B": "8750000000000",
             "C": "0",
-            "R": "10001123456000000",
+            "R": "10000123456000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "123"
+            "pastTopUpPico": "123",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "0",
+            "postedR": "10000123456000000"
           },
           "name": "Recorded Vendor",
           "pastConsumptionPico": "0",
           "pastTopUpPico": "0",
           "remoteWallet": {
             "A": "0",
-            "B": "1975310000001",
-            "C": "1000000000000",
+            "B": "975310000001",
+            "C": "2000000000000",
             "R": "1000000000000",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "2000000000000",
+            "postedR": "1000000000000"
           },
           "status": "active",
           "unpricedCount": 0,
           "url": "https://example.test",
-          "walletRevision": 15
+          "walletRevision": 16,
+          "walletVisibility": "both"
         },
         "vendorId": "00000000-0000-4000-8000-000000000022"
       },
@@ -2454,12 +2651,317 @@
         "C": "0",
         "R": "0",
         "days": [],
-        "notice": "仅含已结束业务日，重算差额修订原消费日，人工校准记在操作日。未结或待回填日期可稍后更新。",
+        "notice": "仅汇总已结束自然日的有效充值与消费，含重算和校准后的金额。未结或待回填日期可稍后更新。",
         "pending": false,
         "providerObservedAt": null,
         "providerTodayPico": null,
         "providerTotalPico": null,
-        "revision": 15
+        "revision": 16
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.setVisibility",
+    "payload": {
+      "mode": "both",
+      "operationId": "00000000-0000-4000-8000-000000000036",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": false,
+        "pricingRevision": 15,
+        "revision": 16,
+        "vendor": {
+          "A": "-9991373456000000",
+          "B": "8750000000000",
+          "C": "0",
+          "R": "10000123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "975310000001",
+            "C": "9993873456000000",
+            "R": "10000123456000000",
+            "coverageStart": "2026-10-01T10:00:00.000Z",
+            "localEstimatePico": "0",
+            "methods": [
+              "balance_estimate",
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 8
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "-9991373456000000",
+            "B": "8750000000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "123",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "0",
+            "postedR": "10000123456000000"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": {
+            "A": "0",
+            "B": "975310000001",
+            "C": "2000000000000",
+            "R": "1000000000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "2000000000000",
+            "postedR": "1000000000000"
+          },
+          "status": "active",
+          "unpricedCount": 0,
+          "url": "https://example.test",
+          "walletRevision": 16,
+          "walletVisibility": "both"
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.accountEntries",
+    "payload": {
+      "scope": "local",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "entries": [
+          {
+            "A": "0",
+            "C": "0",
+            "R": "10000123456000000",
+            "afterB": "8750000000000",
+            "afterC": "0",
+            "afterR": "10000123456000000",
+            "availablePico": "0",
+            "beforeB": "-9991373456000000",
+            "beforeC": "0",
+            "beforeR": "0",
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "f:00000000-0000-4000-8000-000000000037",
+            "intervalId": null,
+            "kind": "top_up",
+            "manuallyCalibrated": false,
+            "note": "人工充值",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:20:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "-9991373456000000",
+            "C": "0",
+            "R": "0",
+            "afterB": "-9991373456000000",
+            "afterC": "0",
+            "afterR": "0",
+            "availablePico": "0",
+            "beforeB": "0",
+            "beforeC": "0",
+            "beforeR": "0",
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "f:00000000-0000-4000-8000-000000000038",
+            "intervalId": null,
+            "kind": "adjustment",
+            "manuallyCalibrated": false,
+            "note": "calibration",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:20:00.000Z",
+            "toAt": null
+          }
+        ],
+        "nextCursor": null,
+        "revision": 16
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.correctEntry",
+    "payload": {
+      "C": "0",
+      "R": "10000123456000000",
+      "entryId": "f:00000000-0000-4000-8000-000000000037",
+      "expectedEntryRevision": 1,
+      "operationId": "00000000-0000-4000-8000-000000000039",
+      "scope": "local",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 15,
+        "revision": 17,
+        "vendor": {
+          "A": "-9991373456000000",
+          "B": "8750000000000",
+          "C": "0",
+          "R": "10000123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "975310000001",
+            "C": "9993873456000000",
+            "R": "10000123456000000",
+            "coverageStart": "2026-10-01T10:00:00.000Z",
+            "localEstimatePico": "0",
+            "methods": [
+              "balance_estimate",
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 8
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "-9991373456000000",
+            "B": "8750000000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "123",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "0",
+            "postedR": "10000123456000000"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": {
+            "A": "0",
+            "B": "975310000001",
+            "C": "2000000000000",
+            "R": "1000000000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "2000000000000",
+            "postedR": "1000000000000"
+          },
+          "status": "active",
+          "unpricedCount": 0,
+          "url": "https://example.test",
+          "walletRevision": 17,
+          "walletVisibility": "both"
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.dismissNotice",
+    "payload": {
+      "entryId": "f:00000000-0000-4000-8000-000000000037",
+      "noticeId": "synthetic-notice",
+      "operationId": "00000000-0000-4000-8000-00000000003a",
+      "vendorId": "00000000-0000-4000-8000-000000000022"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": false,
+        "pricingRevision": 15,
+        "revision": 17,
+        "vendor": {
+          "A": "-9991373456000000",
+          "B": "8750000000000",
+          "C": "0",
+          "R": "10000123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "975310000001",
+            "C": "9993873456000000",
+            "R": "10000123456000000",
+            "coverageStart": "2026-10-01T10:00:00.000Z",
+            "localEstimatePico": "0",
+            "methods": [
+              "balance_estimate",
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 8
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000022",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [],
+          "localWallet": {
+            "A": "-9991373456000000",
+            "B": "8750000000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "123",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "0",
+            "postedR": "10000123456000000"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": {
+            "A": "0",
+            "B": "975310000001",
+            "C": "2000000000000",
+            "R": "1000000000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "2000000000000",
+            "postedR": "1000000000000"
+          },
+          "status": "active",
+          "unpricedCount": 0,
+          "url": "https://example.test",
+          "walletRevision": 17,
+          "walletVisibility": "both"
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000022"
       },
       "ok": true
     }
@@ -2467,11 +2969,11 @@
   {
     "command": "wallet.scanProviders",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000036"
+      "operationId": "00000000-0000-4000-8000-00000000003b"
     },
     "response": {
       "data": {
-        "taskId": "00000000-0000-4000-8000-000000000037"
+        "taskId": "00000000-0000-4000-8000-00000000003c"
       },
       "ok": true
     }
@@ -2479,7 +2981,7 @@
   {
     "command": "tasks.get",
     "payload": {
-      "taskId": "00000000-0000-4000-8000-000000000037"
+      "taskId": "00000000-0000-4000-8000-00000000003c"
     },
     "response": {
       "data": {
@@ -2490,7 +2992,7 @@
           "diagnostics": [
             "source_database_unavailable"
           ],
-          "end": "2026-10-01T10:10:01.000Z",
+          "end": "2026-10-01T10:20:01.000Z",
           "kind": "providers",
           "missingProviderCount": 0,
           "providers": [
@@ -2504,10 +3006,10 @@
               "vendorId": null
             }
           ],
-          "start": "2026-09-28T10:10:01.000Z"
+          "start": "2026-09-28T10:20:01.000Z"
         },
         "status": "completed",
-        "taskId": "00000000-0000-4000-8000-000000000037",
+        "taskId": "00000000-0000-4000-8000-00000000003c",
         "total": 2
       },
       "ok": true
@@ -2516,21 +3018,21 @@
   {
     "command": "wallet.createScannedVendors",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000038",
+      "operationId": "00000000-0000-4000-8000-00000000003d",
       "providers": [
         {
           "id": "0000000000000000000000000000000000000000000000000000000000000000",
           "name": "Scanned Fixture"
         }
       ],
-      "taskId": "00000000-0000-4000-8000-000000000037"
+      "taskId": "00000000-0000-4000-8000-00000000003c"
     },
     "response": {
       "data": {
         "action": null,
         "changed": true,
         "pricingRevision": 15,
-        "revision": 16,
+        "revision": 18,
         "vendor": {
           "A": "0",
           "B": "0",
@@ -2548,12 +3050,12 @@
             ],
             "observedAt": null,
             "remote": false,
-            "revision": 9
+            "revision": 8
           },
           "coverageIncomplete": false,
-          "createdAt": "2026-10-01T10:10:01.000Z",
+          "createdAt": "2026-10-01T10:20:01.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000039",
+          "id": "00000000-0000-4000-8000-00000000003e",
           "incompleteCount": 0,
           "lastCalibratedAt": null,
           "linkedGroups": [],
@@ -2563,7 +3065,11 @@
             "C": "0",
             "R": "0",
             "pastConsumptionPico": "0",
-            "pastTopUpPico": "0"
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "postedC": "0",
+            "postedR": "0"
           },
           "name": "Scanned Fixture",
           "pastConsumptionPico": "0",
@@ -2572,9 +3078,10 @@
           "status": "active",
           "unpricedCount": 0,
           "url": "https://fixture-provider.example",
-          "walletRevision": 16
+          "walletRevision": 18,
+          "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000039"
+        "vendorId": "00000000-0000-4000-8000-00000000003e"
       },
       "ok": true
     }
@@ -2582,7 +3089,7 @@
   {
     "command": "collection.setPaused",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-00000000003a",
+      "operationId": "00000000-0000-4000-8000-00000000003f",
       "paused": false
     },
     "response": {
@@ -2596,12 +3103,12 @@
   {
     "command": "collection.scanNow",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-00000000003b"
+      "operationId": "00000000-0000-4000-8000-000000000040"
     },
     "response": {
       "data": {
-        "completedAt": "2026-10-01T10:10:01.000Z",
-        "nextPeriodicAt": "2026-10-01T10:10:31.000Z"
+        "completedAt": "2026-10-01T10:20:01.000Z",
+        "nextPeriodicAt": "2026-10-01T10:20:31.000Z"
       },
       "ok": true
     }
@@ -2612,18 +3119,18 @@
     "response": {
       "data": {
         "archived": [],
-        "end": "2026-10-01T10:10:01.000Z",
+        "end": "2026-10-01T10:20:01.000Z",
         "ignoredCount": 0,
         "items": [
           {
             "editable": true,
-            "firstAt": "2026-10-01T10:10:01.000Z",
+            "firstAt": "2026-10-01T10:20:01.000Z",
             "groupId": null,
             "groupName": "未选择价格组",
             "harness": "claude",
             "id": "0000000000000000000000000000000000000000000000000000000000000000",
             "ignored": false,
-            "lastAt": "2026-10-01T10:10:01.000Z",
+            "lastAt": "2026-10-01T10:20:01.000Z",
             "modelId": "Model",
             "multiplier": "",
             "price": null,
@@ -2640,7 +3147,7 @@
         "pricingRevision": 15,
         "readyCount": 0,
         "recordCount": 1,
-        "start": "2026-09-01T10:10:01.000Z",
+        "start": "2026-09-01T10:20:01.000Z",
         "usageRevision": 1
       },
       "ok": true
@@ -2655,7 +3162,7 @@
       "itemIds": [
         "0000000000000000000000000000000000000000000000000000000000000000"
       ],
-      "operationId": "00000000-0000-4000-8000-00000000003c"
+      "operationId": "00000000-0000-4000-8000-000000000041"
     },
     "response": {
       "data": {
@@ -2668,9 +3175,9 @@
   {
     "command": "stats.auxiliaryCosts",
     "payload": {
-      "end": "2026-10-01T10:10:02.000Z",
+      "end": "2026-10-01T10:20:02.000Z",
       "harness": "codex",
-      "start": "2026-10-01T10:10:00.000Z"
+      "start": "2026-10-01T10:20:00.000Z"
     },
     "response": {
       "data": {
@@ -2684,9 +3191,9 @@
   {
     "command": "stats.longTerm",
     "payload": {
-      "end": "2026-10-01T10:10:02.000Z",
+      "end": "2026-10-01T10:20:02.000Z",
       "harness": "codex",
-      "start": "2026-10-01T10:10:00.000Z"
+      "start": "2026-10-01T10:20:00.000Z"
     },
     "response": {
       "data": {
@@ -2724,8 +3231,8 @@
         "businessTimezone": "Asia/Shanghai",
         "comparison": null,
         "comparisonNotice": "按业务时区比较相同日历进度，短月与闰日对齐到上期最后一日。零基期不计算增长率。",
-        "end": "2026-10-01T10:10:01.000Z",
-        "generatedAt": "2026-10-01T10:10:01.000Z",
+        "end": "2026-10-01T10:20:01.000Z",
+        "generatedAt": "2026-10-01T10:20:01.000Z",
         "grain": "month",
         "harnesses": [],
         "includesWholeBoundaryDays": false,
@@ -2790,15 +3297,15 @@
   {
     "command": "stats.summary",
     "payload": {
-      "end": "2026-10-01T10:10:02.000Z",
+      "end": "2026-10-01T10:20:02.000Z",
       "grain": "hour",
       "harness": "codex",
       "offsetMinutes": 480,
-      "start": "2026-10-01T10:10:00.000Z"
+      "start": "2026-10-01T10:20:00.000Z"
     },
     "response": {
       "data": {
-        "end": "2026-10-01T10:10:02.000Z",
+        "end": "2026-10-01T10:20:02.000Z",
         "grain": "hour",
         "harnesses": [],
         "historyNotice": null,
@@ -2883,7 +3390,7 @@
         ],
         "offsetMinutes": 480,
         "revision": 2,
-        "start": "2026-10-01T10:10:00.000Z",
+        "start": "2026-10-01T10:20:00.000Z",
         "trend": [
           {
             "bucket": "2026-10-01T18:00:00+08:00",
@@ -2891,6 +3398,7 @@
             "cacheHitRate": 0.4,
             "cacheLoss": false,
             "cacheReadTokens": 40,
+            "contextCompacted": false,
             "inputTokens": 100,
             "label": "10-01 18:00",
             "outputTokens": 10,
@@ -2911,26 +3419,37 @@
     },
     "response": {
       "data": {
-        "end": "2026-10-01T10:10:00.000Z",
+        "end": "2026-10-01T10:20:00.000Z",
         "grain": "minute",
-        "nextRefreshAt": "2026-10-01T10:11:00.000Z",
+        "nextRefreshAt": "2026-10-01T10:21:00.000Z",
         "offsetMinutes": 480,
         "outputSpeeds": [
           {
             "activeMinutes": 1,
-            "basis": "minute_estimate",
+            "basis": "request_estimate",
             "displayName": "gpt-6-astra",
             "frozen": false,
-            "lastOutputAt": "2026-10-01T10:10:01.000Z",
+            "lastOutputAt": "2026-10-01T10:20:01.000Z",
             "modelKey": "gpt-6-astra",
             "outputTokens": "10",
-            "tokensPerSecond": "0.2"
+            "tokensPerSecond": "0.0"
           }
         ],
         "revision": 2,
-        "start": "2026-10-01T09:10:00.000Z",
+        "sessionHitRates": [
+          {
+            "cacheCoverageIncomplete": false,
+            "cacheHitRate": 0.4,
+            "displayName": "gpt-6-astra",
+            "frozen": false,
+            "lastActivityAt": "2026-10-01T10:20:01.000Z",
+            "sessionKey": "bbb523b4104974f3",
+            "startedAt": "2026-10-01T10:20:01.000Z"
+          }
+        ],
+        "start": "2026-10-01T09:20:00.000Z",
         "trend": [],
-        "windowKey": "2026-10-01T09:10:00.000Z|2026-10-01T10:10:00.000Z|480|minute"
+        "windowKey": "2026-10-01T09:20:00.000Z|2026-10-01T10:20:00.000Z|480|minute"
       },
       "ok": true
     }
@@ -2947,7 +3466,7 @@
           "output": "2"
         }
       ],
-      "operationId": "00000000-0000-4000-8000-00000000003d",
+      "operationId": "00000000-0000-4000-8000-000000000042",
       "versionId": "00000000-0000-4000-8000-00000000000a"
     },
     "response": {
@@ -2964,10 +3483,10 @@
   {
     "command": "maintenance.previewRecalc",
     "payload": {
-      "end": "2026-10-01T10:10:02.000Z",
+      "end": "2026-10-01T10:20:02.000Z",
       "groupId": "00000000-0000-4000-8000-000000000009",
       "harness": "codex",
-      "start": "2026-10-01T10:10:00.000Z",
+      "start": "2026-10-01T10:20:00.000Z",
       "versionId": "00000000-0000-4000-8000-00000000000a"
     },
     "response": {
@@ -2988,17 +3507,17 @@
   {
     "command": "maintenance.commitRecalc",
     "payload": {
-      "end": "2026-10-01T10:10:02.000Z",
+      "end": "2026-10-01T10:20:02.000Z",
       "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
       "groupId": "00000000-0000-4000-8000-000000000009",
       "harness": "codex",
-      "operationId": "00000000-0000-4000-8000-00000000003e",
-      "start": "2026-10-01T10:10:00.000Z",
+      "operationId": "00000000-0000-4000-8000-000000000043",
+      "start": "2026-10-01T10:20:00.000Z",
       "versionId": "00000000-0000-4000-8000-00000000000a"
     },
     "response": {
       "data": {
-        "batchId": "00000000-0000-4000-8000-00000000003f",
+        "batchId": "00000000-0000-4000-8000-000000000044",
         "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
         "groupName": "Recorded Prices",
         "incompleteCount": 0,
@@ -3071,7 +3590,7 @@
                 ],
                 "number": 1,
                 "revisionCount": 3,
-                "revisionId": "00000000-0000-4000-8000-000000000040"
+                "revisionId": "00000000-0000-4000-8000-000000000045"
               }
             ]
           }
@@ -3088,7 +3607,7 @@
     },
     "response": {
       "data": {
-        "cutoff": "2026-07-03T10:10:01.001Z",
+        "cutoff": "2026-07-03T10:20:01.001Z",
         "earliest": null,
         "identityCount": 2,
         "inboxCount": 0,
@@ -3103,7 +3622,7 @@
     "command": "maintenance.setRetention",
     "payload": {
       "expectedRevision": 1,
-      "operationId": "00000000-0000-4000-8000-000000000041",
+      "operationId": "00000000-0000-4000-8000-000000000046",
       "retention": "forever"
     },
     "response": {
@@ -3122,11 +3641,11 @@
   {
     "command": "maintenance.backup",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000042"
+      "operationId": "00000000-0000-4000-8000-000000000047"
     },
     "response": {
       "data": {
-        "taskId": "00000000-0000-4000-8000-000000000043"
+        "taskId": "00000000-0000-4000-8000-000000000048"
       },
       "ok": true
     }
@@ -3134,7 +3653,7 @@
   {
     "command": "tasks.get",
     "payload": {
-      "taskId": "00000000-0000-4000-8000-000000000043"
+      "taskId": "00000000-0000-4000-8000-000000000048"
     },
     "response": {
       "data": {
@@ -3142,11 +3661,11 @@
         "completed": 1,
         "error": null,
         "result": {
-          "completedAt": "2026-10-01T10:10:01.001Z",
-          "path": "C:\\htu-contract-fixture\\data\\backups\\htu-20261001-181001.sqlite3"
+          "completedAt": "2026-10-01T10:20:01.001Z",
+          "path": "C:\\htd-contract-fixture\\data\\backups\\htd-20261001-182001.sqlite3"
         },
         "status": "completed",
-        "taskId": "00000000-0000-4000-8000-000000000043",
+        "taskId": "00000000-0000-4000-8000-000000000048",
         "total": 1
       },
       "ok": true
@@ -3155,11 +3674,11 @@
   {
     "command": "maintenance.vacuum",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000044"
+      "operationId": "00000000-0000-4000-8000-000000000049"
     },
     "response": {
       "data": {
-        "taskId": "00000000-0000-4000-8000-000000000045"
+        "taskId": "00000000-0000-4000-8000-00000000004a"
       },
       "ok": true
     }
@@ -3167,7 +3686,7 @@
   {
     "command": "tasks.get",
     "payload": {
-      "taskId": "00000000-0000-4000-8000-000000000045"
+      "taskId": "00000000-0000-4000-8000-00000000004a"
     },
     "response": {
       "data": {
@@ -3175,11 +3694,11 @@
         "completed": 1,
         "error": null,
         "result": {
-          "completedAt": "2026-10-01T10:10:01.001Z",
+          "completedAt": "2026-10-01T10:20:01.001Z",
           "path": null
         },
         "status": "completed",
-        "taskId": "00000000-0000-4000-8000-000000000045",
+        "taskId": "00000000-0000-4000-8000-00000000004a",
         "total": 1
       },
       "ok": true
@@ -3191,25 +3710,25 @@
     "response": {
       "data": {
         "appVersion": "0.4.2",
-        "dataDir": "C:\\htu-contract-fixture\\data",
-        "databaseBytes": 2148408,
+        "dataDir": "C:\\htd-contract-fixture\\data",
+        "databaseBytes": 2460616,
         "lastLogRotationAt": "2026-10-01T10:00:00.000Z",
-        "lastRetentionAt": "2026-10-01T10:10:01.001Z",
-        "lastVacuumAt": "2026-10-01T10:10:01.001Z",
+        "lastRetentionAt": "2026-10-01T10:20:01.001Z",
+        "lastVacuumAt": "2026-10-01T10:20:01.001Z",
         "logCount": 3,
         "paused": false,
         "pendingExpired": 0,
         "retention": "forever",
         "storage": {
-          "allocatedBytes": 1044480,
-          "backupBytes": 1056768,
+          "allocatedBytes": 1200128,
+          "backupBytes": 1212416,
           "freePageBytes": 0,
-          "mainFileBytes": 1056768,
+          "mainFileBytes": 1212416,
           "migrationBytes": 0,
-          "sampledAt": "2026-10-01T10:10:01.001Z",
+          "sampledAt": "2026-10-01T10:20:01.001Z",
           "shmBytes": 32768,
-          "usedPageBytes": 1044480,
-          "walBytes": 1058872
+          "usedPageBytes": 1200128,
+          "walBytes": 1215432
         }
       },
       "ok": true
@@ -3236,8 +3755,8 @@
           {
             "name": "collection.tick",
             "payload": {
-              "lastCompletedAt": "2026-10-01T10:10:01.000Z",
-              "nextPeriodicAt": "2026-10-01T10:10:31.000Z",
+              "lastCompletedAt": "2026-10-01T10:20:01.000Z",
+              "nextPeriodicAt": "2026-10-01T10:20:31.000Z",
               "status": {
                 "claude": "watching",
                 "codex": "watching",
@@ -3263,7 +3782,7 @@
             "name": "task.progress",
             "payload": {
               "completed": 0,
-              "taskId": "00000000-0000-4000-8000-000000000045",
+              "taskId": "00000000-0000-4000-8000-00000000004a",
               "total": 1
             }
           },
@@ -3273,18 +3792,18 @@
               "error": null,
               "ok": true,
               "result": {
-                "completedAt": "2026-10-01T10:10:01.001Z",
+                "completedAt": "2026-10-01T10:20:01.001Z",
                 "path": null
               },
-              "taskId": "00000000-0000-4000-8000-000000000045"
+              "taskId": "00000000-0000-4000-8000-00000000004a"
             }
           },
           {
             "name": "wallet.changed",
             "payload": {
-              "revision": 16,
+              "revision": 18,
               "vendorIds": [
-                "00000000-0000-4000-8000-000000000039"
+                "00000000-0000-4000-8000-00000000003e"
               ]
             }
           },
@@ -3317,7 +3836,7 @@
           }
         ],
         "revisions": {
-          "account": 9,
+          "account": 8,
           "auxiliary": 0,
           "display": 0,
           "models": 4,
@@ -3328,7 +3847,7 @@
           "quality": 2,
           "sources": 21,
           "usage": 2,
-          "wallet": 16
+          "wallet": 18
         }
       },
       "ok": true
@@ -3343,7 +3862,7 @@
         "detected": true,
         "legacyRunning": false,
         "reason": null,
-        "sourcePath": "C:\\htu-contract-fixture\\synthetic-legacy.sqlite3",
+        "sourcePath": "C:\\htd-contract-fixture\\synthetic-legacy.sqlite3",
         "targetEmpty": true
       },
       "ok": true
@@ -3353,13 +3872,13 @@
     "command": "migration.run",
     "payload": {
       "dryRun": true,
-      "operationId": "00000000-0000-4000-8000-000000000046"
+      "operationId": "00000000-0000-4000-8000-00000000004b"
     },
     "response": {
       "data": {
-        "migrationId": "00000000-0000-4000-8000-000000000047",
-        "reportPath": "C:\\htu-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000047\\report.md",
-        "taskId": "00000000-0000-4000-8000-000000000048"
+        "migrationId": "00000000-0000-4000-8000-00000000004c",
+        "reportPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-00000000004c\\report.md",
+        "taskId": "00000000-0000-4000-8000-00000000004d"
       },
       "ok": true
     }
@@ -3367,7 +3886,7 @@
   {
     "command": "tasks.get",
     "payload": {
-      "taskId": "00000000-0000-4000-8000-000000000048"
+      "taskId": "00000000-0000-4000-8000-00000000004d"
     },
     "response": {
       "data": {
@@ -3428,19 +3947,19 @@
             }
           ],
           "errors": [],
-          "migrationId": "00000000-0000-4000-8000-000000000047",
+          "migrationId": "00000000-0000-4000-8000-00000000004c",
           "newTotal": "22000000000000",
           "ok": true,
           "oldTotal": "22000000000000",
-          "reportPath": "C:\\htu-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000047\\report.md",
-          "snapshotPath": "C:\\htu-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000047\\legacy-snapshot.sqlite3",
-          "sourcePath": "C:\\htu-contract-fixture\\synthetic-legacy.sqlite3",
+          "reportPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-00000000004c\\report.md",
+          "snapshotPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-00000000004c\\legacy-snapshot.sqlite3",
+          "sourcePath": "C:\\htd-contract-fixture\\synthetic-legacy.sqlite3",
           "sourceVersion": "0.2.2",
           "vendors": [],
           "warnings": []
         },
         "status": "completed",
-        "taskId": "00000000-0000-4000-8000-000000000048",
+        "taskId": "00000000-0000-4000-8000-00000000004d",
         "total": 3
       },
       "ok": true
@@ -3449,15 +3968,15 @@
   {
     "command": "migration.activate",
     "payload": {
-      "migrationId": "00000000-0000-4000-8000-000000000047",
-      "operationId": "00000000-0000-4000-8000-000000000049"
+      "migrationId": "00000000-0000-4000-8000-00000000004c",
+      "operationId": "00000000-0000-4000-8000-00000000004e"
     },
     "response": {
       "data": {
         "activated": true,
-        "reportPath": "C:\\htu-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000047\\report.md",
-        "sourcePath": "C:\\htu-contract-fixture\\synthetic-legacy.sqlite3",
-        "targetPath": "C:\\htu-contract-fixture\\migration-data\\htu.sqlite3"
+        "reportPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-00000000004c\\report.md",
+        "sourcePath": "C:\\htd-contract-fixture\\synthetic-legacy.sqlite3",
+        "targetPath": "C:\\htd-contract-fixture\\migration-data\\htd.sqlite3"
       },
       "ok": true
     }

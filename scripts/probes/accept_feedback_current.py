@@ -12,7 +12,7 @@ def main() -> None:
     with UiProbe(ROOT / ".verify/feedback-current" / uuid4().hex, isolated_startup=True) as probe:
         probe.wait("!!document.querySelector('nav[aria-label=\"主导航\"]')")
         probe.command("resize", width=1280, height=900)
-        probe.wait("!!window.__htuFlushPreferences")
+        probe.wait("!!window.__htdFlushPreferences")
         probe.click("打开使用指南")
         probe.wait("!!document.querySelector('dialog[open]')")
         assert probe.script("[...document.querySelectorAll('dialog h3')].map(n=>n.textContent)")[:3] == [

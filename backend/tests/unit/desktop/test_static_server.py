@@ -3,7 +3,7 @@
 from http.client import HTTPConnection
 from pathlib import Path
 
-from htu.adapters.desktop.static_server import StaticOnlyServer
+from htd.adapters.desktop.static_server import StaticOnlyServer
 
 
 def test_occupied_static_port_loads_own_assets_on_another_port(tmp_path: Path) -> None:

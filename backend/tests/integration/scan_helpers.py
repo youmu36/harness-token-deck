@@ -3,22 +3,22 @@
 import json
 from pathlib import Path
 
-from htu.adapters.collectors.claude_reader import ClaudeReader
-from htu.adapters.collectors.codex_reader import CodexReader
-from htu.adapters.collectors.discovery import Discovery
-from htu.adapters.collectors.dsh_reader import DshReader
-from htu.adapters.collectors.zcode_reader import ZcodeReader
-from htu.adapters.sqlite.collection_store import SqliteCollectionStore
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.pricing_repo import PricingRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.collection.billing import BillInbox
-from htu.application.collection.scan import ScanRound
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.pricing.catalog import Catalog
-from htu.domain.pricing.model import HarnessSelection, ModelRate, PriceGroup, PriceRevision, PriceVersion
-from htu.domain.usage.model import Harness
+from htd.adapters.collectors.claude_reader import ClaudeReader
+from htd.adapters.collectors.codex_reader import CodexReader
+from htd.adapters.collectors.discovery import Discovery
+from htd.adapters.collectors.dsh_reader import DshReader
+from htd.adapters.collectors.zcode_reader import ZcodeReader
+from htd.adapters.sqlite.collection_store import SqliteCollectionStore
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.pricing_repo import PricingRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.collection.billing import BillInbox
+from htd.application.collection.scan import ScanRound
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.pricing.catalog import Catalog
+from htd.domain.pricing.model import HarnessSelection, ModelRate, PriceGroup, PriceRevision, PriceVersion
+from htd.domain.usage.model import Harness
 
 AT = parse_instant("2026-09-01T00:00:00Z")
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures"

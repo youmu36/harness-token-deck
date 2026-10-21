@@ -29,7 +29,7 @@ def build_frozen(version: str) -> dict[str, Any]:
         template.substitute(version=version, version_tuple=", ".join([*version.split("."), "0"])),
         encoding="utf-8",
     )
-    run(sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "packaging/htu.spec")
+    run(sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "packaging/htd.spec")
     return {
         "dependencies": {
             key: [{k: p[k] for k in ("name", "version", "license")} for p in values]
@@ -53,10 +53,10 @@ def build_installer(version: str) -> Path:
         "/V3",
         "/INPUTCHARSET",
         "UTF8",
-        f"/DHTU_VERSION={version}",
+        f"/DHTD_VERSION={version}",
         "packaging/installer.nsi",
     )
-    return ROOT / f"release/Harness Token Usage_{version}_x64-setup.exe"
+    return ROOT / f"release/Harness Token Deck_{version}_x64-setup.exe"
 
 
 def manifest(version: str, installer: Path, report: dict[str, Any]) -> None:
@@ -71,7 +71,7 @@ def manifest(version: str, installer: Path, report: dict[str, Any]) -> None:
             "installer": installer.name,
             "installer_bytes": installer.stat().st_size,
             "signing": "unsigned",
-            "project_license": "pending",
+            "project_license": "MIT",
         }
     )
     write_report(ROOT / f"release/release-{version}.json", report)
@@ -99,7 +99,7 @@ def main() -> int:
     if args.smoke:
         print(smoke())
         return 0
-    if args.from_verifier and os.environ.get("HTU_RELEASE_VERIFIED") != "1":
+    if args.from_verifier and os.environ.get("HTD_RELEASE_VERIFIED") != "1":
         parser.error("--from-verifier is reserved for verify.py release")
     verified = bool(args.from_verifier or not args.skip_checks)
     if not args.from_verifier and not args.skip_checks and not args.reuse_checks:

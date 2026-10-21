@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import pytest
-from htu.domain.common.testing import FakeClock
+from htd.domain.common.testing import FakeClock
 
 
 @pytest.fixture(autouse=True)
@@ -14,11 +14,11 @@ def isolated_environment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
         "APPDATA",
         "LOCALAPPDATA",
         "CODEX_HOME",
-        "HTU_DATA_DIR",
-        "HTU_SOURCE_ROOT_CODEX",
-        "HTU_SOURCE_ROOT_ZCODE",
-        "HTU_SOURCE_ROOT_DSH",
-        "HTU_SOURCE_ROOT_CLAUDE",
+        "HTD_DATA_DIR",
+        "HTD_SOURCE_ROOT_CODEX",
+        "HTD_SOURCE_ROOT_ZCODE",
+        "HTD_SOURCE_ROOT_DSH",
+        "HTD_SOURCE_ROOT_CLAUDE",
         "CLAUDE_CONFIG_DIR",
     ):
         directory = tmp_path / name.lower()

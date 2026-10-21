@@ -4,12 +4,12 @@ from collections.abc import Iterable
 from threading import Event
 from uuid import uuid4
 
-from htu.adapters.sqlite.history_repo import HistoryRepository
-from htu.adapters.sqlite.writer import UnitOfWork
-from htu.application.ports import TaskDone
-from htu.bootstrap import Application
-from htu.domain.usage.model import UsageEvent
-from htu.ipc.dto.tasks import TaskResponse, TaskStartedResponse
+from htd.adapters.sqlite.history_repo import HistoryRepository
+from htd.adapters.sqlite.writer import UnitOfWork
+from htd.application.ports import TaskDone
+from htd.bootstrap import Application
+from htd.domain.usage.model import UsageEvent
+from htd.ipc.dto.tasks import TaskResponse, TaskStartedResponse
 
 from .command_helpers import invoke
 

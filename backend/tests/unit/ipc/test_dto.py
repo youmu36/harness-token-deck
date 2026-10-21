@@ -1,7 +1,7 @@
 """The IPC primitives reject coercion, unsafe counts and noncanonical timestamps."""
 
 import pytest
-from htu.ipc.dto.base import InstantStr, PicoStr, RateStr, SafeInt
+from htd.ipc.dto.base import InstantStr, PicoStr, RateStr, SafeInt
 from pydantic import TypeAdapter, ValidationError
 
 

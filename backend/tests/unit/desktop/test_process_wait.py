@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Any
 
-import htu.adapters.desktop.single_instance as module
+import htd.adapters.desktop.single_instance as module
 import pytest
 
 

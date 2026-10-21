@@ -4,14 +4,14 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.account_book import AccountBook, AccountSummary
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.remote_store import SqliteRemoteStore
-from htu.adapters.sqlite.token_activity import QUIET
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.domain.common.errors import DomainError
-from htu.domain.common.time import Instant
+from htd.adapters.sqlite.account_book import AccountBook, AccountSummary
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.remote_store import SqliteRemoteStore
+from htd.adapters.sqlite.token_activity import QUIET
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import Instant
 
 from backend.tests.integration.test_remote_wallet import ACCOUNT, balance
 from backend.tests.integration.test_wallet_storage import USD, consumption, vendor

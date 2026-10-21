@@ -6,8 +6,8 @@ from contextlib import closing
 from pathlib import Path
 
 import pytest
-from htu.migration.convert import convert
-from htu.migration.verify import verify
+from htd.migration.convert import convert
+from htd.migration.verify import verify
 
 from .helpers import copy_legacy
 
@@ -95,7 +95,7 @@ def test_recalculated_price_override_requires_matching_latest_audit(
 def test_legacy_routing_override_requires_reproducible_exact_cost(tmp_path: Path, tamper: bool) -> None:
     from argparse import Namespace
 
-    from htu.migration.__main__ import run
+    from htd.migration.__main__ import run
 
     source = copy_legacy(tmp_path)
     # Remove one timeline selection while preserving the actual recorded price.

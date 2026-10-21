@@ -39,43 +39,43 @@ def imports(tree: ast.AST, module: str, is_package: bool) -> list[tuple[int, str
 
 def violation(source: str, target: str, type_only: bool) -> str | None:
     top = target.split(".")[0]
-    if within(target, "htu.migration") and not any(
-        within(source, prefix) for prefix in ("htu.migration", "htu.bootstrap", "htu.__main__", "htu.tools")
+    if within(target, "htd.migration") and not any(
+        within(source, prefix) for prefix in ("htd.migration", "htd.bootstrap", "htd.__main__", "htd.tools")
     ):
         return "migration may only be imported by bootstrap or CLI modules"
     restricted = {
-        "sqlite3": ("htu.adapters.sqlite", "htu.migration.legacy"),
-        "keyring": ("htu.adapters.credentials",),
-        "webview": ("htu.adapters.desktop",),
-        "clr": ("htu.adapters.desktop",),
+        "sqlite3": ("htd.adapters.sqlite", "htd.migration.legacy"),
+        "keyring": ("htd.adapters.credentials",),
+        "webview": ("htd.adapters.desktop",),
+        "clr": ("htd.adapters.desktop",),
     }
     if top in restricted and not any(within(source, prefix) for prefix in restricted[top]):
         return f"{top} is restricted to its adapter"
-    if within(source, "htu.domain"):
+    if within(source, "htd.domain"):
         if top in {"os", "pathlib", "threading", "sqlite3"}:
             return "domain must not depend on I/O or threading"
-        if top not in sys.stdlib_module_names and not within(target, "htu.domain"):
+        if top not in sys.stdlib_module_names and not within(target, "htd.domain"):
             return "domain only imports the standard library and domain"
         own_domain = source.split(".")[2:3]
         other_domain = target.split(".")[2:3]
         if own_domain != other_domain and any(part.startswith("_") for part in target.split(".")[3:]):
             return "cross-domain private import"
     if (
-        within(source, "htu.application")
+        within(source, "htd.application")
         and top not in sys.stdlib_module_names
-        and not any(within(target, prefix) for prefix in ("htu.domain", "htu.application"))
+        and not any(within(target, prefix) for prefix in ("htd.domain", "htd.application"))
     ):
         return "application must depend on ports, not implementations"
-    if within(source, "htu.adapters.sqlite"):
-        if within(target, "htu.ipc") or (
-            within(target, "htu.adapters") and not within(target, "htu.adapters.sqlite")
+    if within(source, "htd.adapters.sqlite"):
+        if within(target, "htd.ipc") or (
+            within(target, "htd.adapters") and not within(target, "htd.adapters.sqlite")
         ):
             return "SQLite adapter cannot import IPC or other adapters"
-        if within(target, "htu.application") and not within(target, "htu.application.ports"):
+        if within(target, "htd.application") and not within(target, "htd.application.ports"):
             return "SQLite adapter may only import application ports"
-    if within(source, "htu.adapters.desktop") and within(target, "htu.domain"):
+    if within(source, "htd.adapters.desktop") and within(target, "htd.domain"):
         return "desktop must not depend on domain rules"
-    if within(source, "htu.ipc") and within(target, "htu.adapters") and not type_only:
+    if within(source, "htd.ipc") and within(target, "htd.adapters") and not type_only:
         return "IPC adapter imports are only allowed under TYPE_CHECKING"
     return None
 
@@ -101,7 +101,7 @@ def check(root: Path) -> list[str]:
         relative = path.relative_to(root)
         parts = list(relative.with_suffix("").parts)
         is_package = parts[-1] == "__init__"
-        module = ".".join(["htu", *(parts[:-1] if is_package else parts)])
+        module = ".".join(["htd", *(parts[:-1] if is_package else parts)])
         try:
             tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         except SyntaxError as error:
@@ -124,7 +124,7 @@ def check(root: Path) -> list[str]:
 
 
 def main() -> int:
-    errors = check(ROOT / "backend/src/htu")
+    errors = check(ROOT / "backend/src/htd")
     for error in errors:
         print(error)
     print(f"Python architecture: {len(errors)} violation(s)")

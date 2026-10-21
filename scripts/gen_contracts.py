@@ -10,18 +10,18 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Literal, cast
 
-from htu.adapters.collectors.discovery import Discovery
-from htu.bootstrap import Application
-from htu.ipc.dto.base import Failure, StrictModel, Success
-from htu.ipc.dto.events import (
+from htd.adapters.collectors.discovery import Discovery
+from htd.bootstrap import Application
+from htd.ipc.dto.base import Failure, StrictModel, Success
+from htd.ipc.dto.events import (
     CollectionTickEvent,
     RevisionChangedEvent,
     UsageChangedEvent,
     VisibilityEvent,
     WalletChangedEvent,
 )
-from htu.ipc.dto.tasks import TaskDoneEvent, TaskProgressEvent
-from htu.ipc.router import Router
+from htd.ipc.dto.tasks import TaskDoneEvent, TaskProgressEvent
+from htd.ipc.router import Router
 from pydantic import JsonValue
 from pydantic.json_schema import models_json_schema
 
@@ -66,7 +66,7 @@ def contract_schema(router: Router) -> dict[str, JsonValue]:
     }
     schema: dict[str, object] = {
         "$schema": "http://json-schema.org/draft-07/schema#",
-        "$id": "https://harness-token-usage.local/ipc",
+        "$id": "https://harness-token-deck.local/ipc",
         "title": "Contracts",
         **definitions,
         "type": "object",
@@ -105,12 +105,12 @@ def contract_schema(router: Router) -> dict[str, JsonValue]:
 
 
 def export_schema() -> dict[str, JsonValue]:
-    with TemporaryDirectory(prefix="htu-contract-registry-") as temporary:
+    with TemporaryDirectory(prefix="htd-contract-registry-") as temporary:
         root = Path(temporary)
         discovery = Discovery(
             home=root,
             environ={
-                f"HTU_SOURCE_ROOT_{name}": str(root / name) for name in ("CODEX", "ZCODE", "DSH", "CLAUDE")
+                f"HTD_SOURCE_ROOT_{name}": str(root / name) for name in ("CODEX", "ZCODE", "DSH", "CLAUDE")
             },
         )
         with Application(root / "data", discovery=discovery, start_scheduler=False) as app:
@@ -130,11 +130,13 @@ def main() -> int:
             return 1
         print("Registry/DTOs match the saved command and event schema")
         return 0
-    with TemporaryDirectory(prefix="htu-contract-generation-") as temporary:
+    with TemporaryDirectory(prefix="htd-contract-generation-") as temporary:
         destination = Path(temporary) if args.check else DESTINATION
         destination.mkdir(parents=True, exist_ok=True)
         (destination / FILES[0]).write_text(
-            json.dumps(schema, ensure_ascii=True, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            json.dumps(schema, ensure_ascii=True, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
         )
         npm = shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm"
         subprocess.run([npm, "run", "gen:contracts", "--", str(destination)], cwd=ROOT, check=True)

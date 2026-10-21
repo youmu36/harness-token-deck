@@ -171,7 +171,7 @@ def generate(destination: Path) -> dict[str, Any]:
         },
     }
     (destination / "expected.json").write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n"
     )
     return manifest
 

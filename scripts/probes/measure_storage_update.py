@@ -165,13 +165,13 @@ def main() -> None:
     if args.key_layout:
         args.output.write_text(json.dumps(key_layout(), indent=2), encoding="utf-8")
         return
-    from htu.adapters.sqlite import ledger_read, usage_archive, usage_hours
-    from htu.adapters.sqlite.wallet_repo import WalletRepository
-    from htu.bootstrap import Application
-    from htu.domain.common.testing import FakeClock
-    from htu.domain.common.time import Instant, format_instant
-    from htu.domain.usage.model import Harness
-    from htu.domain.wallet.model import UsageRef, WalletEntry
+    from htd.adapters.sqlite import ledger_read, usage_archive, usage_hours
+    from htd.adapters.sqlite.wallet_repo import WalletRepository
+    from htd.bootstrap import Application
+    from htd.domain.common.testing import FakeClock
+    from htd.domain.common.time import Instant, format_instant
+    from htd.domain.usage.model import Harness
+    from htd.domain.wallet.model import UsageRef, WalletEntry
 
     from scripts.measure_feedback_queries import END, START, seed
 
@@ -190,14 +190,14 @@ def main() -> None:
         "cacheDefinition": "Application cache cold/warm; cold also releases idle SQLite readers. "
         "OS file cache is not flushed.",
     }
-    with tempfile.TemporaryDirectory(prefix="htu-storage-measure-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="htd-storage-measure-") as temporary:
         base = Path(temporary)
         for name in ("USERPROFILE", "APPDATA", "LOCALAPPDATA", "CODEX_HOME"):
             value = base / name
             value.mkdir()
             os.environ[name] = str(value)
         for name in ("CODEX", "CLAUDE", "ZCODE", "DSH"):
-            os.environ["HTU_SOURCE_ROOT_" + name] = str(base / ("source-" + name))
+            os.environ["HTD_SOURCE_ROOT_" + name] = str(base / ("source-" + name))
         writes = []
         for repetition in range(3):
             with Application(
@@ -318,7 +318,7 @@ def main() -> None:
                 while usage_archive.optimize_archives(work.connection, limit=20):
                     pass
                 if modern:
-                    from htu.adapters.sqlite.recalc_codec import compact_audits
+                    from htd.adapters.sqlite.recalc_codec import compact_audits
 
                     while compact_audits(work.connection):
                         pass
@@ -326,8 +326,8 @@ def main() -> None:
             app.writer.execute(maintain)
             report["projectionAndAuditMs"] = round((perf_counter() - began) * 1000, 3)
             if modern:
-                from htu.adapters.sqlite.wallet_archive import compact
-                from htu.adapters.sqlite.wallet_days import build
+                from htd.adapters.sqlite.wallet_archive import compact
+                from htd.adapters.sqlite.wallet_days import build
 
                 began = perf_counter()
                 while app.writer.execute(
@@ -377,7 +377,7 @@ def main() -> None:
             ]
             statements: set[str] = set()
             original_open = __import__(
-                "htu.adapters.sqlite.connection", fromlist=["open_connection"]
+                "htd.adapters.sqlite.connection", fromlist=["open_connection"]
             ).open_connection
 
             def trace(sql):
@@ -429,7 +429,7 @@ def main() -> None:
                         return rows
 
                     with ExitStack() as stack:
-                        stack.enter_context(patch("htu.adapters.sqlite.connection.open_connection", opened))
+                        stack.enter_context(patch("htd.adapters.sqlite.connection.open_connection", opened))
                         stack.enter_context(patch.object(ledger_read.LedgerReader, "_details", details))
                         stack.enter_context(patch.object(ledger_read.LedgerReader, "_rollups", rollups))
                         stack.enter_context(patch.object(ledger_read, "archived_rows", archived))

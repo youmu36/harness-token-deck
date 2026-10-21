@@ -4,8 +4,8 @@ import sys
 from uuid import uuid4
 
 import pytest
-from htu.adapters.credentials.winvault import WinVaultCredentialStore
-from htu.application.remote.ports import credential_reference
+from htd.adapters.credentials.winvault import WinVaultCredentialStore
+from htd.application.remote.ports import credential_reference
 
 pytestmark = [pytest.mark.desktop, pytest.mark.skipif(sys.platform != "win32", reason="Windows vault")]
 

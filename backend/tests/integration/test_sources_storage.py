@@ -5,17 +5,17 @@ from contextlib import closing
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.adapters.sqlite.pricing_codec import fingerprint
-from htu.adapters.sqlite.pricing_repo import PricingRepository
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.domain.common.errors import DomainError
-from htu.domain.common.time import parse_instant
-from htu.domain.pricing import rules
-from htu.domain.usage.model import Harness
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.adapters.sqlite.pricing_codec import fingerprint
+from htd.adapters.sqlite.pricing_repo import PricingRepository
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import parse_instant
+from htd.domain.pricing import rules
+from htd.domain.usage.model import Harness
 
 from .collection_helpers import AT, collect, ensure_source, usage
 
@@ -170,8 +170,8 @@ def test_upgrade_from_pricing_schema_keeps_catalog_and_creates_collection_tables
     with closing(open_connection(path)) as connection:
         connection.execute("BEGIN IMMEDIATE")
         # Seed the published v2 shape without asking current repositories to read it.
-        from htu.domain.common.time import format_instant
-        from htu.domain.pricing.catalog import Catalog
+        from htd.domain.common.time import format_instant
+        from htd.domain.pricing.catalog import Catalog
 
         expected = rules.create_group(
             Catalog(), group_id="g", version_id="v", revision_id="r", name="Group", at=AT
@@ -198,4 +198,4 @@ def test_upgrade_from_pricing_schema_keeps_catalog_and_creates_collection_tables
         tables = {row[1]: row[5] for row in connection.execute("PRAGMA table_list")}
         assert all(tables[name] == 1 for name in ("source", "checkpoint", "identity", "inbox", "ledger"))
         assert not connection.execute("PRAGMA foreign_key_check").fetchall()
-    assert len(list((tmp_path / "backups").glob("htu-*.sqlite3"))) == 1
+    assert len(list((tmp_path / "backups").glob("htd-*.sqlite3"))) == 1

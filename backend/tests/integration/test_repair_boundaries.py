@@ -6,19 +6,19 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.remote_store import SqliteRemoteStore
-from htu.adapters.sqlite.rollup_repo import RollupRepository
-from htu.adapters.sqlite.title_repo import TitleRepository
-from htu.adapters.sqlite.usage_daily import exact_summary
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.application.ports import TitleRequest
-from htu.application.remote.ports import MemoryCredentialStore
-from htu.application.remote.service import Remote
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.remote_store import SqliteRemoteStore
+from htd.adapters.sqlite.rollup_repo import RollupRepository
+from htd.adapters.sqlite.title_repo import TitleRepository
+from htd.adapters.sqlite.usage_daily import exact_summary
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.ports import TitleRequest
+from htd.application.remote.ports import MemoryCredentialStore
+from htd.application.remote.service import Remote
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant
 
 from backend.tests.integration.collection_helpers import AT, collect, quote, usage
 from backend.tests.integration.test_account_book import observe, setup, summary
@@ -178,9 +178,9 @@ def test_large_wallet_validation_resumes_and_keeps_interleaved_funding(tmp_path:
 
 
 def test_daily_authority_is_counted_once_across_cached_query_parts(tmp_path: Path) -> None:
-    from htu.adapters.sqlite.statistics_store import SqliteStatisticsStore
-    from htu.application.statistics import Statistics
-    from htu.domain.statistics import Window
+    from htd.adapters.sqlite.statistics_store import SqliteStatisticsStore
+    from htd.application.statistics import Statistics
+    from htd.domain.statistics import Window
 
     with WriteExecutor(tmp_path / "a.db") as writer, ReadPool(writer.path) as readers:
         statistics = Statistics(SqliteStatisticsStore(readers), FakeClock(AT))
@@ -204,7 +204,7 @@ def test_daily_authority_is_counted_once_across_cached_query_parts(tmp_path: Pat
 def test_account_projection_validation_resumes_without_publishing_partial_totals(
     tmp_path: Path, revise_old: bool
 ) -> None:
-    from htu.adapters.sqlite.account_validation import step
+    from htd.adapters.sqlite.account_validation import step
 
     with WriteExecutor(tmp_path / "a.db") as writer, ReadPool(writer.path) as readers:
         store = setup(writer, readers, "10", used=0)
@@ -239,7 +239,7 @@ def test_account_projection_validation_resumes_without_publishing_partial_totals
 
 
 def test_fixed_conversion_evidence_survives_poll_cache_retirement_and_restart(tmp_path: Path) -> None:
-    from htu.adapters.providers.deepseek import balance as deepseek_balance
+    from htd.adapters.providers.deepseek import balance as deepseek_balance
 
     path = tmp_path / "a.db"
     with WriteExecutor(path) as writer, ReadPool(path) as readers:

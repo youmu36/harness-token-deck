@@ -4,9 +4,9 @@ from dataclasses import FrozenInstanceError, replace
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import WALLET_INVALID, DomainError
-from htu.domain.common.time import Instant
-from htu.domain.wallet.model import Calibration, Totals, UsageRef, Vendor, VendorLink
+from htd.domain.common.errors import WALLET_INVALID, DomainError
+from htd.domain.common.time import Instant
+from htd.domain.wallet.model import Calibration, Totals, UsageRef, Vendor, VendorLink
 
 from .conftest import T0, entry, usage
 

@@ -35,6 +35,18 @@ def check(root: Path) -> tuple[list[str], list[str]]:
     warnings: list[str] = []
     documents = [root / "README.md", *sorted((root / "docs").rglob("*.md"))]
     documents += [path for path in (root / "AGENTS.md", root / "scripts/probes/README.md") if path.exists()]
+    documents += [
+        path
+        for path in (
+            root / "CONTRIBUTING.md",
+            root / "SECURITY.md",
+            root / "fixtures/README.md",
+            root / "fixtures/legacy/README.md",
+            root / "fixtures/remote/newapi/README.md",
+            root / "packaging/licenses/README.md",
+        )
+        if path.exists()
+    ]
     navigation: dict[Path, set[Path]] = {}
     anchors: dict[Path, set[str]] = {}
     for path in documents:

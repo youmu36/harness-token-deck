@@ -8,14 +8,14 @@ from time import perf_counter
 from typing import Literal
 
 import pytest
-from htu.adapters.sqlite.ledger_read import LedgerReader
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.statistics import LedgerRow
-from htu.domain.statistics.window import Grain
-from htu.domain.usage.model import Harness
-from htu.ipc.dto.statistics import CacheMonitorResponse, SummaryResponse
+from htd.adapters.sqlite.ledger_read import LedgerReader
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.statistics import LedgerRow
+from htd.domain.statistics.window import Grain
+from htd.domain.usage.model import Harness
+from htd.ipc.dto.statistics import CacheMonitorResponse, SummaryResponse
 
 from backend.tests.unit.statistics.helpers import row
 

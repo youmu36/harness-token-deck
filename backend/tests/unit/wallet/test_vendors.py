@@ -3,16 +3,16 @@
 from dataclasses import replace
 
 import pytest
-from htu.domain.common.errors import (
+from htd.domain.common.errors import (
     VENDOR_ARCHIVED,
     VENDOR_LIMIT,
     VENDOR_NAME_CONFLICT,
     VENDOR_NOT_FOUND,
     DomainError,
 )
-from htu.domain.wallet.ledger import attribute_consumption, top_up
-from htu.domain.wallet.model import Vendor, VendorLink
-from htu.domain.wallet.vendors import (
+from htd.domain.wallet.ledger import attribute_consumption, top_up
+from htd.domain.wallet.model import Vendor, VendorLink
+from htd.domain.wallet.vendors import (
     create_vendor,
     plan_delete_vendor,
     rename_vendor,

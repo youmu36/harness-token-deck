@@ -11,7 +11,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import psutil
-from htu.adapters.desktop._win32 import NamedMutex
+from htd.adapters.desktop._win32 import NamedMutex
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -67,10 +67,10 @@ def main() -> int:
     parser.add_argument("--label", required=True)
     parser.add_argument("--isolated-instance", action="store_true")
     parser.add_argument(
-        "--executable", type=Path, default=ROOT / "dist/HarnessTokenUsage/HarnessTokenUsage.exe"
+        "--executable", type=Path, default=ROOT / "dist/HarnessTokenDeck/HarnessTokenDeck.exe"
     )
     args = parser.parse_args()
-    mutex = NamedMutex(r"Local\HarnessTokenUsage.Instance")
+    mutex = NamedMutex(r"Local\HarnessTokenDeck.Instance")
     try:
         if mutex.exists and not args.isolated_instance:
             raise RuntimeError(
@@ -80,9 +80,9 @@ def main() -> int:
         mutex.close()
     directory = ROOT / ".verify/idle-memory" / (args.label + "-" + uuid4().hex)
     directory.mkdir(parents=True)
-    environment = dict(os.environ, HTU_DATA_DIR=str(directory), HTU_DEBUG="0", HTU_TEST_HOOKS="1")
+    environment = dict(os.environ, HTD_DATA_DIR=str(directory), HTD_DEBUG="0", HTD_TEST_HOOKS="1")
     if args.isolated_instance:
-        environment["HTU_DESKTOP_ISOLATED"] = "1"
+        environment["HTD_DESKTOP_ISOLATED"] = "1"
     for name in ("USERPROFILE", "HOME", "APPDATA", "LOCALAPPDATA", "CODEX_HOME"):
         path = directory / name.lower()
         path.mkdir()
@@ -90,7 +90,7 @@ def main() -> int:
     for name in ("CLAUDE", "CODEX", "ZCODE", "DSH"):
         path = directory / name.lower()
         path.mkdir()
-        environment["HTU_SOURCE_ROOT_" + name] = str(path)
+        environment["HTD_SOURCE_ROOT_" + name] = str(path)
     process = subprocess.Popen(
         [str(args.executable.resolve())], env=environment, creationflags=subprocess.CREATE_NO_WINDOW
     )

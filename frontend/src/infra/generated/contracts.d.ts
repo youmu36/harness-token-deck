@@ -49,9 +49,9 @@ export type Harnesses = HarnessName[];
 export type Vendorids = string[];
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "htu__ipc__dto__base__SafeInt__1".
+ * via the `definition` "htd__ipc__dto__base__SafeInt__1".
  */
-export type Htu_Ipc_Dto_Base__SafeInt__1 = number;
+export type Htd_Ipc_Dto_Base__SafeInt__1 = number;
 export type Kind = 'dataDir' | 'logDir';
 export type Initial = string | null;
 export type Kind1 = 'file' | 'dir';
@@ -74,9 +74,9 @@ export type Fingerprint = string;
 export type Retention = 90 | 180 | 360 | 'forever';
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "htu__ipc__dto__base__SafeInt__2".
+ * via the `definition` "htd__ipc__dto__base__SafeInt__2".
  */
-export type Htu_Ipc_Dto_Base__SafeInt__2 = number;
+export type Htd_Ipc_Dto_Base__SafeInt__2 = number;
 export type Migrationid = string;
 export type Sourcepath = string | null;
 export type Dryrun = true;
@@ -180,6 +180,7 @@ export type Models1 = ModelPrice[];
 export type Disabled = boolean;
 export type Disabled1 = boolean;
 export type Label1 = string;
+export type Vendorid = string;
 export type Baseurl = string;
 export type Credential = string | null;
 export type Enabled = boolean;
@@ -463,7 +464,7 @@ export type Signature = string;
 export type Ok26 = true;
 export type Selectedgroupid = string | null;
 export type Selectedgroupname = string | null;
-export type Vendorid = string;
+export type Vendorid1 = string;
 export type Vendorname = string;
 export type Notices = ReconciliationNotice[];
 export type Ok27 = true;
@@ -741,6 +742,7 @@ export interface Contracts {
     'pricing.switchCurrent': SwitchCurrentRequest;
     'pricing.unpriced': EmptyRequest;
     'pricing.unpricedNotice': EmptyRequest;
+    'reconciliation.dismiss': DismissNoticeRequest;
     'reconciliation.status': EmptyRequest;
     'remote.delete': RemoteWrite;
     'remote.get': RemoteRequest;
@@ -824,6 +826,7 @@ export interface Contracts {
     'pricing.switchCurrent': SuccessChangeResponse | Failure;
     'pricing.unpriced': SuccessUnpricedResponse | Failure;
     'pricing.unpricedNotice': SuccessUnpricedNotice | Failure;
+    'reconciliation.dismiss': SuccessReconciliationResponse | Failure;
     'reconciliation.status': SuccessReconciliationResponse | Failure;
     'remote.delete': SuccessRemoteSnapshot | Failure;
     'remote.get': SuccessRemoteSnapshot | Failure;
@@ -943,7 +946,7 @@ export interface WalletChangedEvent {
  * via the `definition` "HelloRequest".
  */
 export interface HelloRequest {
-  clientProtocol: Htu_Ipc_Dto_Base__SafeInt__1;
+  clientProtocol: Htd_Ipc_Dto_Base__SafeInt__1;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -1023,7 +1026,7 @@ export interface RetentionRequest {
  * via the `definition` "SetRetentionRequest".
  */
 export interface SetRetentionRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   operationId: OperationId;
   retention: Retention;
 }
@@ -1061,7 +1064,7 @@ export interface MigrationRunRequest {
  * via the `definition` "AddModelsRequest".
  */
 export interface AddModelsRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   modelIds: Modelids;
   operationId: OperationId;
 }
@@ -1088,7 +1091,7 @@ export interface Rates {
  * via the `definition` "RemoveModelRequest".
  */
 export interface RemoveModelRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   modelId: Identifier;
   operationId: OperationId;
 }
@@ -1097,7 +1100,7 @@ export interface RemoveModelRequest {
  * via the `definition` "SaveBaseRatesRequest".
  */
 export interface SaveBaseRatesRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   models: Models;
   operationId: OperationId;
 }
@@ -1122,7 +1125,7 @@ export interface ScanModelsRequest {
  * via the `definition` "PreferencesUpdateRequest".
  */
 export interface PreferencesUpdateRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   operationId: OperationId;
   patch: PreferencePatch;
 }
@@ -1170,7 +1173,7 @@ export interface UsageFilter {
  * via the `definition` "ActivateVersionRequest".
  */
 export interface ActivateVersionRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   groupId: Identifier;
   operationId: OperationId;
   versionId: Identifier;
@@ -1181,7 +1184,7 @@ export interface ActivateVersionRequest {
  */
 export interface AddVersionRequest {
   copyFromVersionId?: Identifier | null;
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   groupId: Identifier;
   label?: Label;
   number: Number;
@@ -1193,7 +1196,7 @@ export interface AddVersionRequest {
  */
 export interface CreateGroupRequest {
   copyFromGroupId?: Identifier | null;
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   name: Name;
   operationId: OperationId;
 }
@@ -1202,7 +1205,7 @@ export interface CreateGroupRequest {
  * via the `definition` "GroupRequest".
  */
 export interface GroupRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   groupId: Identifier;
   operationId: OperationId;
 }
@@ -1211,7 +1214,7 @@ export interface GroupRequest {
  * via the `definition` "VersionRequest".
  */
 export interface VersionRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   operationId: OperationId;
   versionId: Identifier;
 }
@@ -1229,7 +1232,7 @@ export interface PreviewSwitchRequest {
  * via the `definition` "RecalculateUnpricedRequest".
  */
 export interface RecalculateUnpricedRequest {
-  expectedPricingRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedPricingRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   operationId: OperationId;
 }
 /**
@@ -1237,7 +1240,7 @@ export interface RecalculateUnpricedRequest {
  * via the `definition` "RenameGroupRequest".
  */
 export interface RenameGroupRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   groupId: Identifier;
   name: Name;
   operationId: OperationId;
@@ -1248,8 +1251,8 @@ export interface RenameGroupRequest {
  */
 export interface ResolveUnpricedRequest {
   action: Action;
-  expectedPricingRevision: Htu_Ipc_Dto_Base__SafeInt__2;
-  expectedUsageRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedPricingRevision: Htd_Ipc_Dto_Base__SafeInt__2;
+  expectedUsageRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   groupId?: Identifier | null;
   itemIds: Itemids;
   model?: ModelPrice | null;
@@ -1287,7 +1290,7 @@ export interface Rule {
  * via the `definition` "SaveVersionPricesRequest".
  */
 export interface SaveVersionPricesRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   hints?: Hints;
   models: Models1;
   operationId: OperationId;
@@ -1307,7 +1310,7 @@ export interface Hint {
  */
 export interface SetGroupDisabledRequest {
   disabled: Disabled;
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   groupId: Identifier;
   operationId: OperationId;
 }
@@ -1317,7 +1320,7 @@ export interface SetGroupDisabledRequest {
  */
 export interface SetVersionDisabledRequest {
   disabled: Disabled1;
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   operationId: OperationId;
   versionId: Identifier;
 }
@@ -1326,7 +1329,7 @@ export interface SetVersionDisabledRequest {
  * via the `definition` "SetVersionLabelRequest".
  */
 export interface SetVersionLabelRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   label: Label1;
   operationId: OperationId;
   versionId: Identifier;
@@ -1336,11 +1339,19 @@ export interface SetVersionLabelRequest {
  * via the `definition` "SwitchCurrentRequest".
  */
 export interface SwitchCurrentRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   groupId: Identifier;
   harness: HarnessName;
   operationId: OperationId;
   versionId: Identifier;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "DismissNoticeRequest".
+ */
+export interface DismissNoticeRequest {
+  observedAt: InstantStr;
+  vendorId: Vendorid;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -1393,7 +1404,7 @@ export interface RemoteSettings {
  * via the `definition` "AutoDetectRequest".
  */
 export interface AutoDetectRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   operationId: OperationId;
 }
 /**
@@ -1401,7 +1412,7 @@ export interface AutoDetectRequest {
  * via the `definition` "SetPathRequest".
  */
 export interface SetPathRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   harness: HarnessName;
   operationId: OperationId;
   path: SourcePath;
@@ -1494,7 +1505,7 @@ export interface AccountEntriesRequest {
  * via the `definition` "CalibrateRequest".
  */
 export interface CalibrateRequest {
-  expectedWalletRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedWalletRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   operationId: OperationId;
   remoteFetchedAt?: InstantStr | null;
   target: AmountStr;
@@ -1506,7 +1517,7 @@ export interface CalibrateRequest {
  * via the `definition` "CorrectConsumptionRequest".
  */
 export interface CorrectConsumptionRequest {
-  expectedAccountRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedAccountRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   note?: Note;
   operationId: OperationId;
   scope?: Scope1;
@@ -1522,7 +1533,7 @@ export interface CorrectEntryRequest {
   C: PicoStrInput;
   R: PicoStrInput;
   entryId: Identifier;
-  expectedEntryRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedEntryRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   note?: Note1;
   operationId: OperationId;
   scope: Scope2;
@@ -1600,7 +1611,7 @@ export interface EntriesRequest {
  * via the `definition` "LinkGroupsRequest".
  */
 export interface LinkGroupsRequest {
-  expectedRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   groupIds: Groupids;
   operationId: OperationId;
   vendorId: Identifier;
@@ -1628,7 +1639,7 @@ export interface ReclassifyRequest {
   amount?: AmountStr | null;
   amountPico?: PicoStrInput | null;
   entryId: Identifier;
-  expectedAccountRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedAccountRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   note?: Note2;
   operationId: OperationId;
   scope?: Scope4;
@@ -1640,7 +1651,7 @@ export interface ReclassifyRequest {
  * via the `definition` "ReconcileIntervalRequest".
  */
 export interface ReconcileIntervalRequest {
-  expectedAccountRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedAccountRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   fingerprint: Fingerprint1;
   intervalId: Identifier;
   operationId: OperationId;
@@ -1666,7 +1677,7 @@ export interface SetLocalTotalsRequest {
   B?: PicoStrInput | null;
   C?: PicoStrInput | null;
   R?: PicoStrInput | null;
-  expectedWalletRevision: Htu_Ipc_Dto_Base__SafeInt__2;
+  expectedWalletRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   operationId: OperationId;
   pastConsumptionPico?: PicoStrInput | null;
   pastTopUpPico?: PicoStrInput | null;
@@ -2486,7 +2497,7 @@ export interface ReconciliationNotice {
   remoteDecreasePico: PicoStrOutput;
   selectedGroupId: Selectedgroupid;
   selectedGroupName: Selectedgroupname;
-  vendorId: Vendorid;
+  vendorId: Vendorid1;
   vendorName: Vendorname;
 }
 /**

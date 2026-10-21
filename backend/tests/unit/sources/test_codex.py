@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from htu.domain.sources.codex import CodexContext, classify_source, filter_diagnostics, parse_record
-from htu.domain.usage.model import Diagnostic, Harness, Skip, Tokens, UsageEvent
+from htd.domain.sources.codex import CodexContext, classify_source, filter_diagnostics, parse_record
+from htd.domain.usage.model import Diagnostic, Harness, Skip, Tokens, UsageEvent
 
 FIXTURES = Path(__file__).resolve().parents[4] / "fixtures/codex"
 SOURCE_CASES = cast(list[dict[str, object]], json.loads((FIXTURES / "source-cases.json").read_text("utf-8")))
@@ -193,7 +193,7 @@ def test_request_turn_must_match_context(
     event = parse_record(codex_request, codex_context)
     assert isinstance(event, UsageEvent)
     assert event.model_id is None
-    assert event.issues == ("model_unknown",)
+    assert event.issues == ("output_timing_uncertain", "model_unknown")
     payload_of(codex_request).pop("turn_id")
     assert parse_record(codex_request, codex_context) == event
 
@@ -286,13 +286,20 @@ def test_usage_unknown_fields_and_quality_order(
     unknown = parse_record(codex_request, codex_context)
     assert isinstance(unknown, UsageEvent)
     assert unknown.tokens == Tokens()
-    assert unknown.issues == ("model_unknown", "usage_incomplete", "cache_unknown", "cache_write_unknown")
+    assert unknown.issues == (
+        "output_timing_uncertain",
+        "model_unknown",
+        "usage_incomplete",
+        "cache_unknown",
+        "cache_write_unknown",
+    )
     payload["usage"] = {"total_tokens": -1, "future_field": {"input_tokens": "bad"}}
     assert parse_record(codex_request, codex_context) == unknown
     payload["usage"] = {"cache_write_input_tokens": 1}
     writing = parse_record(codex_request, codex_context)
     assert isinstance(writing, UsageEvent)
     assert writing.issues == (
+        "output_timing_uncertain",
         "model_unknown",
         "usage_incomplete",
         "cache_unknown",

@@ -10,17 +10,17 @@ from typing import cast
 from uuid import uuid4
 
 import pytest
-from htu.adapters.collectors.claude_reader import ClaudeReader
-from htu.adapters.collectors.discovery import Discovery
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.application.ports import CheckpointRecord
-from htu.application.remote.ports import MemoryCredentialStore
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import parse_instant
-from htu.domain.sources.claude import parse_record
-from htu.domain.usage.model import Diagnostic, Harness, Skip, Tokens, UsageEvent
+from htd.adapters.collectors.claude_reader import ClaudeReader
+from htd.adapters.collectors.discovery import Discovery
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.application.ports import CheckpointRecord
+from htd.application.remote.ports import MemoryCredentialStore
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import parse_instant
+from htd.domain.sources.claude import parse_record
+from htd.domain.usage.model import Diagnostic, Harness, Skip, Tokens, UsageEvent
 
 from .scan_helpers import seed_prices
 
@@ -115,7 +115,7 @@ def provider_app(tmp_path: Path) -> Iterator[Application]:
         ],
     )
     discovery = Discovery(
-        home=tmp_path, environ={f"HTU_SOURCE_ROOT_{h.value.upper()}": str(path) for h, path in roots.items()}
+        home=tmp_path, environ={f"HTD_SOURCE_ROOT_{h.value.upper()}": str(path) for h, path in roots.items()}
     )
     with Application(
         tmp_path / "data",
@@ -276,6 +276,8 @@ def test_published_database_upgrade_preserves_references_and_guards(tmp_path: Pa
             "VALUES('entry','vendor','adjustment','123','2026-10-01T00:00:00.000Z',1,'calibration')"
         )
         db.execute("INSERT INTO calibration VALUES('entry','123','0',0,'2026-10-01T00:00:00.000Z')")
+        # A valid old vendor has the materialized totals created with its wallet.
+        db.execute("INSERT INTO wallet_total VALUES('vendor','0','0','123',1)")
         db.execute(
             "INSERT INTO identity VALUES('codex',?,'2026-10-01T00:00:00.000Z',0,"
             "'2026-10-01T00:00:00.000Z','live')",

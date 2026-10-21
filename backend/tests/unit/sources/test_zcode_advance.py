@@ -4,15 +4,15 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import (
+from htd.domain.common.errors import (
     SOURCE_BATCH_INVALID,
     SOURCE_CONTEXT_INVALID,
     SOURCE_ROW_INVALID,
     DomainError,
 )
-from htu.domain.common.time import from_epoch_ms
-from htu.domain.sources.zcode import ZcodeCheckpoint, ZcodeRow, advance
-from htu.domain.usage.model import Diagnostic
+from htd.domain.common.time import from_epoch_ms
+from htd.domain.sources.zcode import ZcodeCheckpoint, ZcodeRow, advance
+from htd.domain.usage.model import Diagnostic
 
 START = from_epoch_ms(1788220800000)
 

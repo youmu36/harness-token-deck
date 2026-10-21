@@ -15,14 +15,14 @@ const bridge = inject(BridgeKey)!;
 const catalog = useQuery('unpriced.catalog', () => bridge.call('pricing.catalog', {}).then(unwrap), { events: ['models.changed', 'pricing.changed'] });
 const pool = useQuery('unpriced.pool', () => bridge.call('models.pool', {}).then(unwrap), { events: ['models.changed', 'pricing.changed'] });
 const groups = computed(() => catalog.data.value?.groups.filter(g => !g.disabled) ?? []);
-const groupId = ref(props.item.groupId ?? 'htu-history');
-const versionId = ref(props.item.versionId ?? 'htu-history-v1');
+const groupId = ref(props.item.groupId ?? 'htd-history');
+const versionId = ref(props.item.versionId ?? 'htd-history-v1');
 const versions = computed(() => groups.value.find(g => g.id === groupId.value)?.versions.filter(v => !v.disabled) ?? []);
 const draft = ref<DraftRow>({ key: props.item.id, multiplier: props.item.multiplier || '1', model: props.item.price ? JSON.parse(JSON.stringify(props.item.price)) : { modelId: props.item.modelId ?? '', input: null, cache: null, cacheWrite: null, output: null, billingRule: null } });
 const recordLimit = ref(props.item.recordCount);
 const command = useCommand('pricing.resolveUnpriced'); const error = ref('');
 const title = { price: '编辑未定价模型价格', assign: '编辑价格组与版本', ignore: '忽略未定价请求' };
-function changeGroup() { versionId.value = groupId.value === 'htu-history' ? 'htu-history-v1' : versions.value[0]?.id ?? ''; }
+function changeGroup() { versionId.value = groupId.value === 'htd-history' ? 'htd-history-v1' : versions.value[0]?.id ?? ''; }
 function loadVersion() {
   const model = versions.value.find(v => v.id === versionId.value)?.models.find(m => m.modelId.toLowerCase() === (props.item.modelId ?? '').toLowerCase());
   if (model) draft.value.model = JSON.parse(JSON.stringify(model));
@@ -31,7 +31,7 @@ let initialized = false;
 watch(() => catalog.data.value, value => {
   if (!value || initialized) return;
   initialized = true;
-  if (!groups.value.some(g => g.id === groupId.value)) { groupId.value = 'htu-history'; changeGroup(); }
+  if (!groups.value.some(g => g.id === groupId.value)) { groupId.value = 'htd-history'; changeGroup(); }
   else if (!versions.value.some(v => v.id === versionId.value)) changeGroup();
   if (!props.item.price) loadVersion();
 }, { immediate: true });
@@ -57,8 +57,8 @@ async function submit() {
         <p class="text-muted">按时间从早到晚忽略所选条数，保留原用量与费用。可在“显示已忽略”中恢复；之后新增的请求仍会提示。</p>
       </template>
       <template v-else>
-        <div class="targets"><label>价格组<select v-model="groupId" aria-label="价格组" :disabled="command.pending.value" @change="changeGroup"><option value="htu-history">历史价格组</option><option v-for="group in groups.filter(g => g.id !== 'htu-history')" :key="group.id" :value="group.id">{{ group.name }}</option></select></label>
-          <label>版本<select v-model="versionId" aria-label="价格版本" :disabled="command.pending.value" @change="loadVersion"><option v-if="groupId === 'htu-history' && !versions.length" value="htu-history-v1">v1</option><option v-for="version in versions" :key="version.id" :value="version.id">{{ version.displayName }}</option></select></label></div>
+        <div class="targets"><label>价格组<select v-model="groupId" aria-label="价格组" :disabled="command.pending.value" @change="changeGroup"><option value="htd-history">历史价格组</option><option v-for="group in groups.filter(g => g.id !== 'htd-history')" :key="group.id" :value="group.id">{{ group.name }}</option></select></label>
+          <label>版本<select v-model="versionId" aria-label="价格版本" :disabled="command.pending.value" @change="loadVersion"><option v-if="groupId === 'htd-history' && !versions.length" value="htd-history-v1">v1</option><option v-for="version in versions" :key="version.id" :value="version.id">{{ version.displayName }}</option></select></label></div>
         <p class="text-muted">历史价格组仅用于统计与分析，不关联供应商、不写入资金流水。改选其他价格组也不会把历史消费转给新的供应商。</p>
         <template v-if="action === 'price'"><p>价格单位：USD / 百万 tokens。保存后返回列表，一键重算已补价请求。</p><ModelRateRow v-model="draft" :pool="pool.data.value" :removable="false" :readonly="command.pending.value" /><p class="text-muted">价格会同步保存到所选版本；同版本的其他待补价请求也会使用该价格。</p></template>
         <p v-else class="text-muted">保存归属后，按所选版本中的最新模型价格判断是否可补价。</p>

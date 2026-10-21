@@ -7,27 +7,27 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.dsh_repair import repair
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.local_wallet import entries, reclassify, remote_summary, set_totals, summary
-from htu.adapters.sqlite.output_speed import close_quiet, ranking, record, references
-from htu.adapters.sqlite.pricing_repo import PricingRepository
-from htu.adapters.sqlite.wallet_book import read
-from htu.adapters.sqlite.wallet_closing import close_days
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.ports import BilledUsage
-from htu.bootstrap import Application
-from htu.domain.billing import estimate_cost
-from htu.domain.common.errors import DomainError
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.pricing import rules
-from htu.domain.pricing.model import ModelRate
-from htu.domain.sources.dsh import DshContext, parse_record
-from htu.domain.usage.model import Harness, Tokens, UsageEvent
-from htu.ipc.dto.wallet import AccountEntriesResponse, DailyBookResponse, WalletChangeResponse
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.dsh_repair import repair
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.local_wallet import entries, reclassify, remote_summary, set_totals, summary
+from htd.adapters.sqlite.output_speed import close_quiet, ranking, record, references
+from htd.adapters.sqlite.pricing_repo import PricingRepository
+from htd.adapters.sqlite.wallet_book import read
+from htd.adapters.sqlite.wallet_closing import close_days
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.ports import BilledUsage
+from htd.bootstrap import Application
+from htd.domain.billing import estimate_cost
+from htd.domain.common.errors import DomainError
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.pricing import rules
+from htd.domain.pricing.model import ModelRate
+from htd.domain.sources.dsh import DshContext, parse_record
+from htd.domain.usage.model import Harness, Tokens, UsageEvent
+from htd.ipc.dto.wallet import AccountEntriesResponse, DailyBookResponse, WalletChangeResponse
 
 from backend.tests.contracts.command_helpers import invoke
 from backend.tests.contracts.management_helpers import vendor as create_vendor

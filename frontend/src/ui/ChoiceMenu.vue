@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onScopeDispose, ref, useId, watch } from 'vue';
 import { Check, ChevronDown } from 'lucide-vue-next';
-const props = defineProps<{ modelValue: string; label: string; placeholder?: string; options: readonly { value: string; label: string }[] }>();
+const props = withDefaults(defineProps<{ modelValue: string; label: string; placeholder?: string; showLabel?: boolean; selectedLabel?: string; options: readonly { value: string; label: string }[] }>(), { showLabel: true });
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 const id = useId();
 const open = ref(false);
@@ -31,7 +31,7 @@ function select(value: string) { emit('update:modelValue', value); close(true); 
 <template>
   <div ref="root" class="choice-menu" @keydown="keydown" @focusout="focusout">
     <button ref="trigger" type="button" class="choice-trigger" :aria-label="`${label}：${selected}`" :aria-expanded="open" :aria-controls="id" @click="open ? close() : show()">
-      <span class="choice-label">{{ label }}</span><span>{{ selected }}</span><ChevronDown :size="15" aria-hidden="true" />
+      <span v-if="showLabel" class="choice-label">{{ label }}</span><span class="choice-value">{{ selectedLabel ?? selected }}</span><ChevronDown :size="15" aria-hidden="true" />
     </button>
     <div v-if="open" :id="id" class="choice-options" role="radiogroup" :aria-label="label">
       <button v-for="option in options" :key="option.value" type="button" role="radio" :aria-checked="option.value === modelValue" :data-value="option.value" @click="select(option.value)">

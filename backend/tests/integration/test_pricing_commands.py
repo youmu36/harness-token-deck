@@ -6,15 +6,15 @@ from contextlib import closing
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.pricing_repo import PricingRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.domain.common.errors import DomainError
-from htu.domain.common.time import parse_instant
-from htu.domain.pricing import rules
-from htu.domain.pricing.catalog import Catalog
-from htu.domain.pricing.model import EditorHints, ModelRate
-from htu.domain.usage.model import Harness
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.pricing_repo import PricingRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import parse_instant
+from htd.domain.pricing import rules
+from htd.domain.pricing.catalog import Catalog
+from htd.domain.pricing.model import EditorHints, ModelRate
+from htd.domain.usage.model import Harness
 
 AT = parse_instant("2026-09-30T00:00:00Z")
 

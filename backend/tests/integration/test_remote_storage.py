@@ -7,17 +7,17 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.adapters.sqlite.remote_repo import RemoteAccount, RemoteObservation, RemoteRepository
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.domain.common.time import Instant, format_instant
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.adapters.sqlite.remote_repo import RemoteAccount, RemoteObservation, RemoteRepository
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.domain.common.time import Instant, format_instant
 
 from backend.tests.integration.collection_helpers import AT
 from backend.tests.integration.test_wallet_storage import vendor
 
-ACCOUNT = RemoteAccount("account", "vendor", "https://example.test", "HarnessTokenUsage/remote/account")
+ACCOUNT = RemoteAccount("account", "vendor", "https://example.test", "HarnessTokenDeck/remote/account")
 
 
 @pytest.mark.parametrize("site_type", ["auto", "newapi", "sub2api"])
@@ -48,6 +48,7 @@ def test_old_remote_account_migrates_to_auto_without_changing_identity_or_creden
         db.execute(
             "INSERT INTO vendor VALUES (?,?,?,?,?)", ("vendor", "Shop", "active", format_instant(AT), 1)
         )
+        db.execute("INSERT INTO wallet_total VALUES('vendor','0','0','0',0)")
         db.execute(
             "INSERT INTO remote_account VALUES (?,?,?,?,?,?,?,?,?,?)",
             (
@@ -144,7 +145,7 @@ def test_remote_vendor_unique_delete_cascade_and_rollback(tmp_path: Path) -> Non
         with pytest.raises(sqlite3.IntegrityError, match="UNIQUE"):
             writer.execute(
                 lambda w: RemoteRepository(w.connection).save(
-                    w, replace(ACCOUNT, id="other", credential_ref="HarnessTokenUsage/remote/other")
+                    w, replace(ACCOUNT, id="other", credential_ref="HarnessTokenDeck/remote/other")
                 )
             )
         writer.execute(

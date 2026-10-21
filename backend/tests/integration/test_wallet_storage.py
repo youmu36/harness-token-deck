@@ -7,18 +7,18 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.maintenance_repo import MaintenanceRepository
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.ports import BilledUsage
-from htu.application.ports import UnitOfWork as WorkPort
-from htu.domain.billing import CostEstimate
-from htu.domain.common.errors import DomainError
-from htu.domain.common.time import Instant
-from htu.domain.usage.model import Harness
-from htu.domain.wallet.model import UsageRef, WalletEntry
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.maintenance_repo import MaintenanceRepository
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.ports import BilledUsage
+from htd.application.ports import UnitOfWork as WorkPort
+from htd.domain.billing import CostEstimate
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import Instant
+from htd.domain.usage.model import Harness
+from htd.domain.wallet.model import UsageRef, WalletEntry
 
 from backend.tests.integration.collection_helpers import AT, collect, usage
 from backend.tests.integration.test_pricing_storage import create

@@ -3,10 +3,10 @@
 from dataclasses import replace
 
 import pytest
-from htu.domain.billing.estimate import estimate_cost
-from htu.domain.common.time import parse_instant
-from htu.domain.pricing.model import BillingRule, ModelRate, PriceRates
-from htu.domain.usage.model import Tokens
+from htd.domain.billing.estimate import estimate_cost
+from htd.domain.common.time import parse_instant
+from htd.domain.pricing.model import BillingRule, ModelRate, PriceRates
+from htd.domain.usage.model import Tokens
 
 AT = parse_instant("2026-09-21T01:30:00Z")
 TOKENS = Tokens(1000, 200, 300, 50, 0)

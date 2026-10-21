@@ -26,15 +26,15 @@ def test_gradual_and_tail_resource_leaks_fail(values: list[int]) -> None:
 def test_desktop_environment_replaces_inherited_real_sources(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("HTU_SOURCE_ROOT_CODEX", "C:/real/codex")
-    monkeypatch.setenv("HTU_DEBUG", "1")
-    monkeypatch.setenv("HTU_DEV_URL", "http://localhost:9999")
+    monkeypatch.setenv("HTD_SOURCE_ROOT_CODEX", "C:/real/codex")
+    monkeypatch.setenv("HTD_DEBUG", "1")
+    monkeypatch.setenv("HTD_DEV_URL", "http://localhost:9999")
     before = dict(os.environ)
     environment = isolated_environment(tmp_path / "loop")
     assert os.environ == before
-    for key in ("HTU_DATA_DIR", "HTU_SOURCE_ROOT_CODEX", "CODEX_HOME", "APPDATA", "LOCALAPPDATA"):
+    for key in ("HTD_DATA_DIR", "HTD_SOURCE_ROOT_CODEX", "CODEX_HOME", "APPDATA", "LOCALAPPDATA"):
         assert Path(environment[key]).is_relative_to(tmp_path / "loop")
-    assert environment["HTU_DEBUG"] == "0" and "HTU_DEV_URL" not in environment
+    assert environment["HTD_DEBUG"] == "0" and "HTD_DEV_URL" not in environment
 
 
 def test_process_cleanup_excludes_independent_ime_daemon(monkeypatch: pytest.MonkeyPatch) -> None:

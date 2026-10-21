@@ -1,20 +1,21 @@
 """Audit coverage, pricing, comparisons, privacy and protected read-only inputs."""
 
 import json
+from dataclasses import replace
 from pathlib import Path
 from typing import BinaryIO
 
-import htu.adapters.collectors.codex_audit_reader as audit_reader
+import htd.adapters.collectors.codex_audit_reader as audit_reader
 import pytest
-from htu.adapters.collectors.codex_audit_reader import read_audit_file
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.pricing_repo import PricingRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import parse_instant
-from htu.domain.pricing.model import ModelRate
-from htu.domain.pricing.rules import save_version_prices
-from htu.tools.codex_audit import audit, main, markdown
+from htd.adapters.collectors.codex_audit_reader import read_audit_file
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.pricing_repo import PricingRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import parse_instant
+from htd.domain.pricing.model import ModelRate
+from htd.domain.pricing.rules import save_version_prices
+from htd.tools.codex_audit import audit, main, markdown
 
 from backend.tests.integration.scan_helpers import (
     AT,
@@ -32,10 +33,10 @@ END = parse_instant("2026-09-02T00:00:00Z")
 def test_default_audit_finds_current_database_before_legacy_name(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from htu.tools.codex_audit import default_db
+    from htd.tools.codex_audit import default_db
 
-    monkeypatch.setenv("HTU_DATA_DIR", str(tmp_path))
-    legacy, current = tmp_path / "ledger.sqlite3", tmp_path / "htu.sqlite3"
+    monkeypatch.setenv("HTD_DATA_DIR", str(tmp_path))
+    legacy, current = tmp_path / "ledger.sqlite3", tmp_path / "htd.sqlite3"
     legacy.touch()
     assert default_db() == legacy
     current.touch()
@@ -100,6 +101,11 @@ def test_real_chain_matches_read_only_database_and_uses_current_prices(tmp_path:
     assert next(iter(report.ledger.rows.values()))[1] == 84_000_000
     output = markdown(report)
     assert "来源可计费请求 = 账本请求" in output and "0.000084000000 USD" in output
+    for key, event in report.events.items():
+        report.events[key] = replace(
+            event, generation_milliseconds=1234, issues=(*event.issues, "output_timing_uncertain")
+        )
+    assert "来源可计费请求 = 账本请求" in markdown(report)
     assert path.read_bytes() == before
 
 
@@ -229,7 +235,7 @@ def test_empty_object_is_skipped_without_clearing_model(tmp_path: Path) -> None:
 def test_cli_stdout_markdown_out_and_no_database_creation(
     tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("HTU_DATA_DIR", str(tmp_path / "missing-data"))
+    monkeypatch.setenv("HTD_DATA_DIR", str(tmp_path / "missing-data"))
     args = [
         "--start",
         "2026-09-01T00:00:00Z",
@@ -249,7 +255,7 @@ def test_cli_stdout_markdown_out_and_no_database_creation(
 
 
 def test_cli_protects_sources_and_database_output(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("HTU_DATA_DIR", str(tmp_path / "none"))
+    monkeypatch.setenv("HTD_DATA_DIR", str(tmp_path / "none"))
     source = tmp_path / "one.jsonl"
     source.write_bytes(headers() + request(1, AT))
     before = source.read_bytes()
@@ -265,7 +271,7 @@ def test_cli_protects_sources_and_database_output(tmp_path: Path, monkeypatch: p
 def test_cli_protects_hardlinked_report_input(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, input_kind: str
 ) -> None:
-    monkeypatch.setenv("HTU_DATA_DIR", str(tmp_path / "none"))
+    monkeypatch.setenv("HTD_DATA_DIR", str(tmp_path / "none"))
     input_path = tmp_path / ("one.jsonl" if input_kind == "source" else "ledger.sqlite3")
     data = headers() + request(1, AT) if input_kind == "source" else b"private database"
     input_path.write_bytes(data)

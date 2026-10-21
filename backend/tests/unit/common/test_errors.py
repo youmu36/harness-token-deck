@@ -2,7 +2,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 
 import pytest
-from htu.domain.common.errors import RATE_INVALID, DomainError
+from htd.domain.common.errors import RATE_INVALID, DomainError
 
 
 def test_structured_error_supports_exception_tracebacks() -> None:

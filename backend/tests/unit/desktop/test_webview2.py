@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Any
 
 import pytest
-from htu.adapters.desktop.webview2 import WebViewPower
+from htd.adapters.desktop.webview2 import WebViewPower
 
 
 class Task:
@@ -43,8 +43,8 @@ def test_startup_reclaims_only_owned_processes_once_without_hiding_or_changing_p
 
     now = [0.0]
     reclaimed: list[int] = []
-    monkeypatch.setattr("htu.adapters.desktop.webview2.time.monotonic", lambda: now[0])
-    monkeypatch.setattr("htu.adapters.desktop.webview2.reclaim_working_set", reclaimed.append)
+    monkeypatch.setattr("htd.adapters.desktop.webview2.time.monotonic", lambda: now[0])
+    monkeypatch.setattr("htd.adapters.desktop.webview2.reclaim_working_set", reclaimed.append)
     control: Any = Control()
     control.Environment = SimpleNamespace(GetProcessInfos=lambda: [SimpleNamespace(ProcessId=123)])
     power = WebViewPower(control)
@@ -62,7 +62,7 @@ def test_startup_reclaims_only_owned_processes_once_without_hiding_or_changing_p
 
 def test_hiding_before_startup_reclamation_cancels_the_visible_pass(monkeypatch: pytest.MonkeyPatch) -> None:
     reclaimed: list[int] = []
-    monkeypatch.setattr("htu.adapters.desktop.webview2.reclaim_working_set", reclaimed.append)
+    monkeypatch.setattr("htd.adapters.desktop.webview2.reclaim_working_set", reclaimed.append)
     power = WebViewPower(Control())
     power.startup_ready()
     power.hide()
@@ -140,7 +140,7 @@ def test_background_process_priority_is_restored_before_the_visible_webview_resu
 
     control = Ordered()
     control.Environment = SimpleNamespace(GetProcessInfos=lambda: [SimpleNamespace(ProcessId=123)])  # type: ignore[attr-defined]
-    monkeypatch.setattr("htu.adapters.desktop.webview2.BackgroundProcess", Process)
+    monkeypatch.setattr("htd.adapters.desktop.webview2.BackgroundProcess", Process)
     power = WebViewPower(control)
     power.hide()
     assert events == ["background:123"]
@@ -174,7 +174,7 @@ def test_hide_defers_suspend_until_native_visibility_has_settled_and_restore_can
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     now = [0.0]
-    monkeypatch.setattr("htu.adapters.desktop.webview2.time.monotonic", lambda: now[0])
+    monkeypatch.setattr("htd.adapters.desktop.webview2.time.monotonic", lambda: now[0])
     control = Control()
     power = WebViewPower(control)
     power.hide()
@@ -228,7 +228,7 @@ def test_late_gpu_and_browser_processes_use_background_settings_and_unsubscribe_
         ProcessInfosChanged=changed,
         GetProcessInfos=lambda: [SimpleNamespace(ProcessId=pid) for pid in pids],
     )
-    monkeypatch.setattr("htu.adapters.desktop.webview2.BackgroundProcess", Process)
+    monkeypatch.setattr("htd.adapters.desktop.webview2.BackgroundProcess", Process)
     power = WebViewPower(control)
     power.hide()
     assert lowered == [123]
@@ -248,7 +248,7 @@ def test_transient_suspend_refusal_retries_with_a_bound_and_restore_cancels_retr
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     now = [0.0]
-    monkeypatch.setattr("htu.adapters.desktop.webview2.time.monotonic", lambda: now[0])
+    monkeypatch.setattr("htd.adapters.desktop.webview2.time.monotonic", lambda: now[0])
     control = Control()
     control.task.IsCompleted = True
     control.task.Result = False
@@ -294,7 +294,7 @@ def test_reclaims_only_suspended_environment_processes_once_and_covers_late_proc
     control.Environment = SimpleNamespace(
         GetProcessInfos=lambda: [SimpleNamespace(ProcessId=pid) for pid in pids]
     )
-    monkeypatch.setattr("htu.adapters.desktop.webview2.BackgroundProcess", Process)
+    monkeypatch.setattr("htd.adapters.desktop.webview2.BackgroundProcess", Process)
     power = WebViewPower(control)
     power.hide()
     power._retry_at = 0

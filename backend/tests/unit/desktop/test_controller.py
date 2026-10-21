@@ -9,9 +9,9 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
-from htu.adapters.desktop.controller import DesktopController, page_from_url
-from htu.adapters.desktop.native import NativeWindow, fits
-from htu.adapters.sqlite.window_state import WindowGeometry
+from htd.adapters.desktop.controller import DesktopController, page_from_url
+from htd.adapters.desktop.native import NativeWindow, fits
+from htd.adapters.sqlite.window_state import WindowGeometry
 
 
 def controller(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> tuple[DesktopController, Any]:
@@ -26,8 +26,8 @@ def controller(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> tuple[Desktop
     def create(*args: object, **kwargs: object) -> Any:
         return native
 
-    monkeypatch.setattr("htu.adapters.desktop.controller.NativeWindow", create)
-    monkeypatch.setattr("htu.adapters.desktop.controller.Tray", MagicMock())
+    monkeypatch.setattr("htd.adapters.desktop.controller.NativeWindow", create)
+    monkeypatch.setattr("htd.adapters.desktop.controller.Tray", MagicMock())
     window: Any = MagicMock()
     instance: Any = MagicMock()
     instance.next_command.return_value = None
@@ -106,12 +106,12 @@ def test_close_waits_for_preferences_and_unchecked_tray_setting_exits(
     host, native = controller(monkeypatch, tmp_path)
     try:
         host.handle("started")
-        host.host_action("htu.ready")
+        host.host_action("htd.ready")
         host.bridge.call.return_value = {"ok": True, "data": {"preferences": {"closeToTray": False}}}  # type: ignore[attr-defined]
         assert host.closing() is False
         native.flush_preferences.assert_called_once()
         assert host.lifecycle.state == "visible"
-        host.host_action("htu.preferencesFlushed")
+        host.host_action("htd.preferencesFlushed")
         assert host.lifecycle.state == "closing"
         native.hide.assert_not_called()
         assert host._shutdown is not None
@@ -128,9 +128,9 @@ def test_failed_preference_flush_preserves_the_visible_window(
     host, native = controller(monkeypatch, tmp_path)
     try:
         host.handle("started")
-        host.host_action("htu.ready")
+        host.host_action("htd.ready")
         assert host.closing() is False
-        host.host_action("htu.preferencesFlushFailed")
+        host.host_action("htd.preferencesFlushFailed")
         assert host.lifecycle.state == "visible"
         native.hide.assert_not_called()
     finally:
@@ -147,7 +147,7 @@ def test_initialization_deadline_uses_native_retry_or_exit(
     try:
         assert host._deadline > 0
         native.error_dialog.return_value = retry
-        monkeypatch.setattr("htu.adapters.desktop.controller.time.monotonic", lambda: host._deadline + 1)
+        monkeypatch.setattr("htd.adapters.desktop.controller.time.monotonic", lambda: host._deadline + 1)
         host.tick()
         native.error_dialog.assert_called_once()
         if retry:
@@ -179,7 +179,7 @@ def test_native_hide_persists_route_only_after_frontend_handshake(
         )
         host.bridge.call.reset_mock()  # type: ignore[attr-defined]
         assert host.capture_page() is None
-        host.host_action("htu.ready")
+        host.host_action("htd.ready")
         assert host.capture_page() == "settings"
         responses: list[dict[str, Any]] = [
             {"ok": True, "data": {"preferences": {"lastPage": "codex"}, "revision": 4}},
@@ -222,11 +222,11 @@ def test_host_controls_accept_only_fixed_messages_from_the_loaded_local_page() -
     native.window = MagicMock(real_url="http://127.0.0.1:1/index.html#?theme=dark")
     native.host_action = MagicMock()
     args: Any = MagicMock(Source="https://example.com/")
-    args.WebMessageAsJson = json.dumps("htu.quit")
+    args.WebMessageAsJson = json.dumps("htd.quit")
     native._host_message(None, args)
     native.host_action.assert_not_called()
     args.Source = "http://127.0.0.1:1/index.html#/settings"
-    for action in ("htu.ready", "htu.unready", "htu.openLogDir", "htu.quit"):
+    for action in ("htd.ready", "htd.unready", "htd.openLogDir", "htd.quit"):
         args.WebMessageAsJson = json.dumps(action)
         native._host_message(None, args)
     assert native.host_action.call_count == 4

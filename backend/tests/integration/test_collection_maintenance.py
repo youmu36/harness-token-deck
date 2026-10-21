@@ -8,18 +8,18 @@ from pathlib import Path
 from threading import Event, Thread
 
 import pytest
-from htu.adapters.sqlite.auto_maintenance_store import SqliteMaintenanceStore
-from htu.adapters.sqlite.connection import ReadPool
-from htu.adapters.sqlite.ingest_repo import IngestRepository
-from htu.adapters.sqlite.maintenance_repo import MaintenanceRepository
-from htu.adapters.sqlite.models_repo import ModelsRepository
-from htu.adapters.sqlite.pricing_repo import PricingRepository
-from htu.adapters.sqlite.scheduler_store import SqliteSchedulerStore
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.adapters.sqlite.wallet_repo import WalletRepository
-from htu.adapters.sqlite.writer import UnitOfWork, WriteExecutor
-from htu.application.collection.maintenance import AutoMaintenance, MaintenanceResult
-from htu.application.ports import (
+from htd.adapters.sqlite.auto_maintenance_store import SqliteMaintenanceStore
+from htd.adapters.sqlite.connection import ReadPool
+from htd.adapters.sqlite.ingest_repo import IngestRepository
+from htd.adapters.sqlite.maintenance_repo import MaintenanceRepository
+from htd.adapters.sqlite.models_repo import ModelsRepository
+from htd.adapters.sqlite.pricing_repo import PricingRepository
+from htd.adapters.sqlite.scheduler_store import SqliteSchedulerStore
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.adapters.sqlite.wallet_repo import WalletRepository
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
+from htd.application.collection.maintenance import AutoMaintenance, MaintenanceResult
+from htd.application.ports import (
     CollectionCompleted,
     ModelsChanged,
     PricingChanged,
@@ -28,15 +28,15 @@ from htu.application.ports import (
     UsageChanged,
     WalletChanged,
 )
-from htu.application.ports import UnitOfWork as WorkPort
-from htu.domain.common.errors import DomainError
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant
-from htu.domain.pricing.model import PriceRates
-from htu.domain.pricing.model_pool import BasePrice, ModelPool, remove_model
-from htu.domain.usage.model import Harness
-from htu.domain.usage.model_key import model_key
-from htu.jobs.scheduler import Scheduler
+from htd.application.ports import UnitOfWork as WorkPort
+from htd.domain.common.errors import DomainError
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant
+from htd.domain.pricing.model import PriceRates
+from htd.domain.pricing.model_pool import BasePrice, ModelPool, remove_model
+from htd.domain.usage.model import Harness
+from htd.domain.usage.model_key import model_key
+from htd.jobs.scheduler import Scheduler
 
 from backend.tests.unit.jobs.test_scheduler import FakeMonotonic, FakeWait
 

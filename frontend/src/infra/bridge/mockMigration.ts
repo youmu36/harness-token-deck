@@ -10,7 +10,7 @@ export function createMockMigration(tasks: ReturnType<typeof createMockTasks>, o
   const runs = new Map<string, CommandData<'migration.run'>>();
   const receipts = new Map<string, { fingerprint: string; result: CommandData<'migration.activate'> }>();
   const sourcePath = 'C:\\Users\\Example\\AppData\\Roaming\\com.harness-token-usage.desktop\\ledger.sqlite3';
-  const directory = (id: string) => `C:\\HTU-Preview\\migration\\${id}`;
+  const directory = (id: string) => `C:\\HTD-Preview\\migration\\${id}`;
   const fail = (code: string, message: string): never => { throw new AppError({ code, message, retryable: false }); };
   const detect = (selectedPath?: string | null): CommandData<'migration.detect'> => {
     const detected = options.detected ?? true; const legacyRunning = options.legacyRunning ?? false;
@@ -40,7 +40,7 @@ export function createMockMigration(tasks: ReturnType<typeof createMockTasks>, o
     if (detection.legacyRunning) fail('LEGACY_RUNNING', detection.reason!);
     if (!detection.targetEmpty) fail('MIGRATION_TARGET_NOT_EMPTY', detection.reason!);
     if (!results.has(request.migrationId)) fail('MIGRATION_VERIFICATION_FAILED', '迁移校验未通过，不能激活');
-    const result = { activated: true, sourcePath: results.get(request.migrationId)!, targetPath: 'C:\\HTU-Preview\\htu.sqlite3', reportPath: `${directory(request.migrationId)}\\report.md` };
+    const result = { activated: true, sourcePath: results.get(request.migrationId)!, targetPath: 'C:\\HTD-Preview\\htd.sqlite3', reportPath: `${directory(request.migrationId)}\\report.md` };
     receipts.set(request.operationId, { fingerprint, result }); activated = true; changed(); return structuredClone(result);
   }
   return { detect, run, activate };

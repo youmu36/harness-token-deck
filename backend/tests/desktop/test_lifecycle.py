@@ -14,7 +14,7 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
-from htu.adapters.desktop.single_instance import SingleInstance
+from htd.adapters.desktop.single_instance import SingleInstance
 
 from .test_single_instance import ROOT, environment, kill_tree
 
@@ -35,13 +35,13 @@ def observations(path: Path) -> list[dict[str, Any]]:
 
 
 def test_lifecycle_close_tray_restore_hidden_fifty_events_and_disposal() -> None:
-    directory = Path(os.environ["HTU_DATA_DIR"])
+    directory = Path(os.environ["HTD_DATA_DIR"])
     output = directory / "observations.jsonl"
-    name = f"HTU.Test.{uuid4().hex}"
+    name = f"HTD.Test.{uuid4().hex}"
     process = subprocess.Popen(
         [sys.executable, str(Path(__file__).with_name("lifecycle_helper.py")), name],
         cwd=ROOT,
-        env={**environment(), "HTU_TEST_HOOKS": "1", "HTU_DEBUG": "0"},
+        env={**environment(), "HTD_TEST_HOOKS": "1", "HTD_DEBUG": "0"},
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -175,7 +175,7 @@ def test_lifecycle_close_tray_restore_hidden_fifty_events_and_disposal() -> None
         )
         assert rows[-1] == {"kind": "tray-disposed", "disposed": True, "visible": False}
         assert not list(directory.glob("instance-*.key"))
-        with sqlite3.connect(directory / "htu.sqlite3") as connection:
+        with sqlite3.connect(directory / "htd.sqlite3") as connection:
             saved_page = connection.execute(
                 "SELECT value_json FROM preference WHERE key = 'lastPage'"
             ).fetchone()

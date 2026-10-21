@@ -1,9 +1,9 @@
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import CLOCK_INVALID, DomainError
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Clock, format_instant, parse_instant
+from htd.domain.common.errors import CLOCK_INVALID, DomainError
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Clock, format_instant, parse_instant
 
 
 def test_clock_can_advance_without_sleep_and_simulate_wall_rollback(fake_clock: FakeClock) -> None:

@@ -7,7 +7,7 @@ export default defineConfig({
   base: './',
   plugins: [vue()],
   build: {
-    outDir: '../backend/src/htu/web',
+    outDir: '../backend/src/htd/web',
     emptyOutDir: true,
   },
   test: {

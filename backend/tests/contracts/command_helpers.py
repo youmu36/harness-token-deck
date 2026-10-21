@@ -2,11 +2,11 @@
 
 from collections.abc import Iterable, Mapping
 
-from htu.adapters.sqlite.key_codec import key_bytes
-from htu.bootstrap import Application
-from htu.domain.common.time import format_instant
-from htu.domain.statistics import LedgerRow
-from htu.ipc.dto.base import Error, Failure, StrictModel
+from htd.adapters.sqlite.key_codec import key_bytes
+from htd.bootstrap import Application
+from htd.domain.common.time import format_instant
+from htd.domain.statistics import LedgerRow
+from htd.ipc.dto.base import Error, Failure, StrictModel
 
 
 def invoke[T: StrictModel](
@@ -23,7 +23,7 @@ def failure(app: Application, command: str, payload: Mapping[str, object]) -> Er
 
 def seed_rows(app: Application, rows: Iterable[LedgerRow]) -> None:
     # Synthetic ledger projections isolate statistics from source/pricing behavior.
-    from htu.adapters.sqlite.writer import UnitOfWork
+    from htd.adapters.sqlite.writer import UnitOfWork
 
     def insert(work: UnitOfWork) -> None:
         work.connection.executemany(

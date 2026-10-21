@@ -54,8 +54,8 @@ export function createDesktopBridge(options: { timeoutMs?: number; readyTimeoutM
     } finally { clearTimeout(timer); }
   });
   return { ...bridge, host: host() ? {
-    openLogDir: () => host()?.postMessage('htu.openLogDir'),
-    quit: () => host()?.postMessage('htu.quit'),
-    setReady: (ready: boolean) => host()?.postMessage(ready ? 'htu.ready' : 'htu.unready'),
+    openLogDir: () => host()?.postMessage('htd.openLogDir'),
+    quit: () => host()?.postMessage('htd.quit'),
+    setReady: (ready: boolean) => host()?.postMessage(ready ? 'htd.ready' : 'htd.unready'),
   } : undefined };
 }

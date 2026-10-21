@@ -60,7 +60,7 @@ def main() -> None:
         probe.wait("!!document.querySelector('tbody button')")
         probe.click("编辑价格", "document.querySelector('tbody tr')")
         probe.wait("!!document.querySelector('dialog[open] [aria-label=倍率]')")
-        probe.input('dialog[open] [aria-label="价格组"]', "htu-history", "change")
+        probe.input('dialog[open] [aria-label="价格组"]', "htd-history", "change")
         probe.input('dialog[open] [aria-label="倍率"]', "2")
         probe.click("按倍率填充", "document.querySelector('dialog[open]')")
         probe.wait("document.querySelector('dialog[open] [aria-label=输入价格]').value==='2'")

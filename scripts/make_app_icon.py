@@ -53,7 +53,7 @@ def make_png(size: int = 256) -> bytes:
 
 
 if __name__ == "__main__":
-    target = Path(__file__).resolve().parents[1] / "backend/src/htu/adapters/desktop/resources/app.ico"
+    target = Path(__file__).resolve().parents[1] / "backend/src/htd/adapters/desktop/resources/app.ico"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(make_icon())
     source = Path(__file__).resolve().parents[1] / "packaging/app.png"

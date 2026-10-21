@@ -1,11 +1,11 @@
 """Synthetic wallet records; no persistent ledger or real sources are read."""
 
-from htu.domain.common.hashing import identity_key
-from htu.domain.common.money import parse_usd_amount
-from htu.domain.common.time import Instant, parse_instant
-from htu.domain.usage.model import Harness
-from htu.domain.wallet.ledger import apply, plan_calibration
-from htu.domain.wallet.model import Calibration, EntryKind, UsageRef, WalletEntry
+from htd.domain.common.hashing import identity_key
+from htd.domain.common.money import parse_usd_amount
+from htd.domain.common.time import Instant, parse_instant
+from htd.domain.usage.model import Harness
+from htd.domain.wallet.ledger import apply, plan_calibration
+from htd.domain.wallet.model import Calibration, EntryKind, UsageRef, WalletEntry
 
 T0 = parse_instant("2026-09-30T09:00:00Z")
 T1 = parse_instant("2026-09-30T10:00:00Z")

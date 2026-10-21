@@ -7,12 +7,12 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from htu.domain.common.errors import DomainError
-from htu.domain.common.time import parse_instant
-from htu.migration.convert import prepare
-from htu.migration.legacy import merge_legacy, open_legacy, read_legacy
-from htu.migration.legacy.reader import legacy_running
-from htu.migration.snapshot import snapshot, snapshot_time
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import parse_instant
+from htd.migration.convert import prepare
+from htd.migration.legacy import merge_legacy, open_legacy, read_legacy
+from htd.migration.legacy.reader import legacy_running
+from htd.migration.snapshot import snapshot, snapshot_time
 
 from .helpers import AT, FIXTURES, change_state, copy_legacy
 

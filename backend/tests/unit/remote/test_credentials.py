@@ -6,16 +6,16 @@ import traceback
 from collections.abc import Callable
 
 import pytest
-from htu.adapters.credentials.winvault import WinVaultCredentialStore
-from htu.application.remote.ports import (
+from htd.adapters.credentials.winvault import WinVaultCredentialStore
+from htd.application.remote.ports import (
     CredentialStore,
     MemoryCredentialStore,
     credential_reference,
     normalize_credential,
 )
-from htu.domain.common.errors import DomainError
-from htu.domain.common.redaction import redact_credentials
-from htu.ipc.errors import exception_envelope
+from htd.domain.common.errors import DomainError
+from htd.domain.common.redaction import redact_credentials
+from htd.ipc.errors import exception_envelope
 
 SECRET = "p10-synthetic-secret-1234"
 REFERENCE = credential_reference("test-p10-unit")
@@ -74,7 +74,7 @@ def test_mask_never_discloses_a_whole_short_secret(store: CredentialStore) -> No
     assert store.masked_tail(REFERENCE) == "••••"
 
 
-@pytest.mark.parametrize("reference", ["other/account", "HarnessTokenUsage/remote/", REFERENCE + "/other"])
+@pytest.mark.parametrize("reference", ["other/account", "HarnessTokenDeck/remote/", REFERENCE + "/other"])
 def test_invalid_reference_never_reaches_backend(store: CredentialStore, reference: str) -> None:
     with pytest.raises(DomainError):
         store.put(reference, SECRET)

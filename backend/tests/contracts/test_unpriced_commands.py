@@ -5,13 +5,13 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.rollup_repo import RollupRepository
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import parse_instant
-from htu.domain.usage.model import Harness, Tokens
-from htu.ipc.dto.pricing import RecalculateUnpricedResponse, UnpricedResponse
-from htu.ipc.dto.wallet import WalletListResponse
+from htd.adapters.sqlite.rollup_repo import RollupRepository
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import parse_instant
+from htd.domain.usage.model import Harness, Tokens
+from htd.ipc.dto.pricing import RecalculateUnpricedResponse, UnpricedResponse
+from htd.ipc.dto.wallet import WalletListResponse
 
 from backend.tests.integration.collection_helpers import usage
 

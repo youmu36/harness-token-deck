@@ -16,8 +16,8 @@ from uuid import uuid4
 
 import psutil
 import pytest
-from htu.adapters.desktop.credentials import key_path, read_key
-from htu.adapters.desktop.single_instance import SingleInstance
+from htd.adapters.desktop.credentials import key_path, read_key
+from htd.adapters.desktop.single_instance import SingleInstance
 
 pytestmark = [pytest.mark.desktop, pytest.mark.skipif(os.name != "nt", reason="Windows native APIs")]
 ROOT = Path(__file__).resolve().parents[3]
@@ -104,8 +104,8 @@ def visible_window(process_id: int) -> bool:
 
 @pytest.mark.parametrize("silent", [False, True])
 def test_single_instance_second_process_ack_or_timeout_without_database(silent: bool) -> None:
-    name = f"HTU.Test.{uuid4().hex}"
-    directory = Path(os.environ["HTU_DATA_DIR"])
+    name = f"HTD.Test.{uuid4().hex}"
+    directory = Path(os.environ["HTD_DATA_DIR"])
     owner = subprocess.Popen(
         [sys.executable, str(HELPER), "owner", name, *(["--silent"] if silent else [])],
         stdin=subprocess.PIPE,
@@ -137,8 +137,8 @@ def test_single_instance_second_process_ack_or_timeout_without_database(silent: 
         stdout, stderr = child.communicate(timeout=2)
         assert child.returncode == (2 if silent else 0), stderr
         assert observed, "No file handles sampled from the secondary's actual interpreter"
-        assert not any("htu.sqlite3" in path.lower() for path in observed)
-        assert not (directory / "htu.sqlite3").exists()
+        assert not any("htd.sqlite3" in path.lower() for path in observed)
+        assert not (directory / "htd.sqlite3").exists()
         assert not (directory / "unexpected-bootstrap").exists()
         if silent:
             assert 3 <= time.monotonic() - started < 6
@@ -158,9 +158,9 @@ def test_single_instance_second_process_ack_or_timeout_without_database(silent: 
 def test_single_instance_credentials_acl_startup_queue_auth_and_release(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    directory = Path(os.environ["HTU_DATA_DIR"])
-    name = f"HTU.Test.{uuid4().hex}"
-    monkeypatch.setenv("HTU_TEST_HOOKS", "0")
+    directory = Path(os.environ["HTD_DATA_DIR"])
+    name = f"HTD.Test.{uuid4().hex}"
+    monkeypatch.setenv("HTD_TEST_HOOKS", "0")
     with SingleInstance(directory, name=name, pipe_name=name) as first:
         first.listen()
         key = key_path(directory, first.user_hash)
@@ -183,7 +183,7 @@ def test_single_instance_credentials_acl_startup_queue_auth_and_release(
             assert second.forward("quit")
             assert first.quitting.is_set() and first.next_command() == "quit"
     assert not key.exists() and not pointer.exists()
-    monkeypatch.setenv("HTU_TEST_HOOKS", "1")
+    monkeypatch.setenv("HTD_TEST_HOOKS", "1")
     with SingleInstance(directory, name=name, pipe_name=name) as restarted:
         assert restarted.primary
         restarted.listen()
@@ -192,8 +192,8 @@ def test_single_instance_credentials_acl_startup_queue_auth_and_release(
 
 
 def test_single_instance_silent_authentication_has_bounded_timeout_and_shutdown() -> None:
-    directory = Path(os.environ["HTU_DATA_DIR"])
-    name = f"HTU.Test.{uuid4().hex}"
+    directory = Path(os.environ["HTD_DATA_DIR"])
+    name = f"HTD.Test.{uuid4().hex}"
     with SingleInstance(directory, name=name, pipe_name=name) as first:
         first.listen()
         with Client(first.address, family="AF_PIPE", authkey=None):
@@ -204,11 +204,11 @@ def test_single_instance_silent_authentication_has_bounded_timeout_and_shutdown(
 
 
 def test_single_instance_smoke_migrates_handshakes_and_releases_resources() -> None:
-    directory = Path(os.environ["HTU_DATA_DIR"])
+    directory = Path(os.environ["HTD_DATA_DIR"])
     responses: list[object] = []
     for _ in range(2):
         completed = subprocess.run(
-            [sys.executable, "-m", "htu", "--smoke"],
+            [sys.executable, "-m", "htd", "--smoke"],
             cwd=ROOT,
             env=environment(),
             capture_output=True,
@@ -220,20 +220,22 @@ def test_single_instance_smoke_migrates_handshakes_and_releases_resources() -> N
         hello = json.loads(completed.stdout)
         assert hello["ok"] and hello["data"]["protocol"] == 1
         assert hello["data"]["dataDir"] == str(directory.resolve())
-        assert len(hello["data"]["capabilities"]) == 62
+        capabilities = hello["data"]["capabilities"]
+        assert {"app.hello", "app.sync", "stats.cacheMonitor"} <= set(capabilities)
+        assert len(capabilities) == len(set(capabilities))
         responses.append(hello["data"]["revisions"])
     assert responses[0] == responses[1]
-    assert (directory / "htu.sqlite3").is_file()
-    assert (directory / "logs/htu.log").is_file()
+    assert (directory / "htd.sqlite3").is_file()
+    assert (directory / "logs/htd.log").is_file()
     assert not (directory / "webview").exists()
     assert not list(directory.glob("instance-*.key"))
 
 
 def test_single_instance_real_desktop_launch_and_authenticated_quit() -> None:
-    if not (ROOT / "backend/src/htu/web/index.html").is_file():
+    if not (ROOT / "backend/src/htd/web/index.html").is_file():
         pytest.skip("Run npm run build before native desktop launch")
-    directory = Path(os.environ["HTU_DATA_DIR"])
-    name = f"HTU.Test.{uuid4().hex}"
+    directory = Path(os.environ["HTD_DATA_DIR"])
+    name = f"HTD.Test.{uuid4().hex}"
     process = subprocess.Popen(
         [sys.executable, str(HELPER), "desktop", name],
         cwd=ROOT,
@@ -248,14 +250,14 @@ def test_single_instance_real_desktop_launch_and_authenticated_quit() -> None:
             time.sleep(0.05)
         if process.poll() is not None or not visible_window(process.pid):
             _, stderr = kill_tree(process)
-            raise AssertionError(stderr + (directory / "logs/htu.log").read_text(encoding="utf-8"))
+            raise AssertionError(stderr + (directory / "logs/htd.log").read_text(encoding="utf-8"))
         with SingleInstance(directory, name=name, pipe_name=name) as secondary:
             assert not secondary.primary
             assert secondary.forward("activate")
             assert secondary.forward("quit")
         _, stderr = process.communicate(timeout=10)
         assert process.returncode == 0, stderr
-        assert (directory / "htu.sqlite3").is_file()
+        assert (directory / "htd.sqlite3").is_file()
         assert not list(directory.glob("instance-*.key"))
         with SingleInstance(directory, name=name, pipe_name=name) as subsequent:
             assert subsequent.primary

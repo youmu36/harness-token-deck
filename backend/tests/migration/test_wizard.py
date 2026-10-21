@@ -7,14 +7,14 @@ from threading import Event
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.connection import open_connection
-from htu.application.ports import TaskContext
-from htu.bootstrap import Application
-from htu.domain.common.errors import DomainError
-from htu.domain.common.testing import FakeClock
-from htu.ipc.dto.migration import MigrationActivateResponse, MigrationDetectResponse, MigrationRunResponse
-from htu.ipc.dto.tasks import TaskResponse
-from htu.migration.legacy import reader
+from htd.adapters.sqlite.connection import open_connection
+from htd.application.ports import TaskContext
+from htd.bootstrap import Application
+from htd.domain.common.errors import DomainError
+from htd.domain.common.testing import FakeClock
+from htd.ipc.dto.migration import MigrationActivateResponse, MigrationDetectResponse, MigrationRunResponse
+from htd.ipc.dto.tasks import TaskResponse
+from htd.migration.legacy import reader
 
 from backend.tests.contracts.command_helpers import invoke
 from backend.tests.contracts.management_helpers import vendor
@@ -36,7 +36,7 @@ def stopped(monkeypatch: pytest.MonkeyPatch) -> None:
         return detector() if detector else False
 
     monkeypatch.setattr(reader, "legacy_running", running)
-    monkeypatch.setattr("htu.migration.engine.legacy_running", lambda: False)
+    monkeypatch.setattr("htd.migration.engine.legacy_running", lambda: False)
 
 
 def run(app: Application, operation_id: str | None = None) -> MigrationRunResponse:
@@ -185,7 +185,7 @@ def test_failed_activation_preserves_active_database_and_reopens_connections(
             def fail(*_: object) -> None:
                 raise OSError("rename failed")
 
-            monkeypatch.setattr("htu.migration.engine.activate", fail)
+            monkeypatch.setattr("htd.migration.engine.activate", fail)
         reply = app.bridge.call(
             "migration.activate", {"migrationId": started.migrationId, "operationId": str(uuid4())}
         )
@@ -244,9 +244,9 @@ def test_legacy_detection_keeps_collection_running_and_activation_resumes_schedu
 
 
 def test_activation_preserves_requests_collected_while_the_legacy_report_is_open(tmp_path: Path) -> None:
-    from htu.adapters.sqlite.ingest_repo import IngestRepository
-    from htu.adapters.sqlite.key_codec import key_bytes
-    from htu.domain.usage.model import Harness
+    from htd.adapters.sqlite.ingest_repo import IngestRepository
+    from htd.adapters.sqlite.key_codec import key_bytes
+    from htd.domain.usage.model import Harness
 
     from backend.tests.integration.collection_helpers import usage
 

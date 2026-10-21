@@ -4,17 +4,17 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
-import htu.adapters.sqlite.codex_logs_source as logs_source
+import htd.adapters.sqlite.codex_logs_source as logs_source
 import pytest
-from htu.adapters.collectors.codex_logs import CodexLogs
-from htu.adapters.sqlite.connection import ReadPool, open_connection
-from htu.adapters.sqlite.migrate import MIGRATIONS, migrate
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.adapters.sqlite.writer import WriteExecutor
-from htu.application.ports import UnmeteredRequest
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, parse_instant
-from htu.domain.usage.model import Harness
+from htd.adapters.collectors.codex_logs import CodexLogs
+from htd.adapters.sqlite.connection import ReadPool, open_connection
+from htd.adapters.sqlite.migrate import MIGRATIONS, migrate
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.adapters.sqlite.writer import WriteExecutor
+from htd.application.ports import UnmeteredRequest
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, parse_instant
+from htd.domain.usage.model import Harness
 
 from backend.tests.integration.scan_helpers import AT, count, scanner, sessions
 

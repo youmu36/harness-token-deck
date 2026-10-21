@@ -8,22 +8,22 @@ from threading import Event
 from uuid import uuid4
 
 import pytest
-from htu.adapters.sqlite.sources_repo import SourcesRepository
-from htu.application.ports import CollectionCompleted, UnmeteredRequest
-from htu.bootstrap import Application
-from htu.domain.common.errors import DomainError
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import format_instant
-from htu.domain.usage.model import Harness
-from htu.ipc.dto.base import Failure
-from htu.ipc.dto.collection import (
+from htd.adapters.sqlite.sources_repo import SourcesRepository
+from htd.application.ports import CollectionCompleted, UnmeteredRequest
+from htd.bootstrap import Application
+from htd.domain.common.errors import DomainError
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import format_instant
+from htd.domain.usage.model import Harness
+from htd.ipc.dto.base import Failure
+from htd.ipc.dto.collection import (
     CollectionStatusResponse,
     ScanNowResponse,
     SetPausedResponse,
     SourcesResponse,
     ValidatePathResponse,
 )
-from htu.ipc.dto.preferences import PreferencesResponse
+from htd.ipc.dto.preferences import PreferencesResponse
 from pydantic import JsonValue
 
 from backend.tests.integration.scan_helpers import AT, headers, request, seed_prices
@@ -186,7 +186,7 @@ def test_auto_detect_only_valid_defaults_and_same_path_noop(app: Application, tm
         },
         SourcesResponse,
     )
-    assert located.sources[0].path.lower() == os.environ["HTU_SOURCE_ROOT_CODEX"].lower()
+    assert located.sources[0].path.lower() == os.environ["HTD_SOURCE_ROOT_CODEX"].lower()
     assert located.sources[1].status == "unavailable"  # Zcode default is a directory in this fixture.
     assert (
         invoke(
@@ -221,7 +221,7 @@ def test_pause_receipt_restart_and_scan_rejection(tmp_path: Path) -> None:
 
 
 def test_scan_now_returns_after_real_billing_and_tick(app: Application) -> None:
-    path = Path(os.environ["HTU_SOURCE_ROOT_CODEX"]) / "one.jsonl"
+    path = Path(os.environ["HTD_SOURCE_ROOT_CODEX"]) / "one.jsonl"
     path.write_bytes(headers() + request(1, AT))
     app.writer.execute(seed_prices)
     app.scheduler.start()

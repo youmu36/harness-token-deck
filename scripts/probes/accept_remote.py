@@ -15,7 +15,7 @@ from threading import Thread
 from typing import Any
 from uuid import uuid4
 
-from htu.adapters.credentials.winvault import WinVaultCredentialStore
+from htd.adapters.credentials.winvault import WinVaultCredentialStore
 
 from backend.tests.desktop.test_single_instance import kill_tree
 
@@ -269,7 +269,7 @@ def main() -> None:
             server.shutdown()
             server.server_close()
         # Clean even when the UI flow failed before account removal.
-        path = directory / "htu.sqlite3"
+        path = directory / "htd.sqlite3"
         if path.exists():
             with sqlite3.connect(path) as db:
                 references = [r[0] for r in db.execute("SELECT credential_ref FROM remote_account")]

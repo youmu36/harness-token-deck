@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import SOURCE_CONTEXT_INVALID, DomainError
-from htu.domain.sources.codex import CodexContext, filter_diagnostics, parse_record
-from htu.domain.usage.model import Diagnostic, Skip, UsageEvent
+from htd.domain.common.errors import SOURCE_CONTEXT_INVALID, DomainError
+from htd.domain.sources.codex import CodexContext, filter_diagnostics, parse_record
+from htd.domain.usage.model import Diagnostic, Skip, UsageEvent
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -184,6 +184,26 @@ def test_restore_rejects_missing_fields(field: str, codex_context: CodexContext)
     if field == "contextCompacted":
         assert not CodexContext.from_dict(saved).context_compacted
         return
+    if field in {
+        "requestStartedAt",
+        "requestOutputAt",
+        "lastTimedResponse",
+        "lastGenerationMs",
+        "requestTurnId",
+        "requestOrigin",
+        "requestUncertain",
+        "taskActive",
+        "taskContextSeen",
+        "timingLatestAt",
+        "lastUserAt",
+        "lastUsageAt",
+        "lastTimingUncertain",
+        "streamStartedAt",
+        "streamCompletedAt",
+        "streamHasReasoning",
+    }:
+        CodexContext.from_dict(saved)
+        return
     with pytest.raises(DomainError) as failure:
         CodexContext.from_dict(saved)
     assert failure.value.code == SOURCE_CONTEXT_INVALID
@@ -207,6 +227,16 @@ def test_restore_rejects_missing_fields(field: str, codex_context: CodexContext)
         ("rawFileSessionId", "\ud800"),
         ("kind", "unknown"),
         ("kind", []),
+        ("requestTurnId", []),
+        ("requestOrigin", "unknown"),
+        ("requestOrigin", []),
+        ("requestUncertain", 1),
+        ("taskActive", "true"),
+        ("taskContextSeen", None),
+        ("lastTimingUncertain", 1),
+        ("timingLatestAt", "invalid"),
+        ("lastUserAt", []),
+        ("lastUsageAt", 42),
         ("originatorOk", False),
         ("sawSessionMeta", False),
     ],

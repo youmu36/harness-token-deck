@@ -44,16 +44,16 @@ describe('event subscriptions', () => {
     const dispose = installEvents(bridge);
     expect(bridge.receiveEvent('unknown', {})).toBe(false);
     expect(bridge.receiveEvent('usage.changed', { harnesses: ['codex'], revision: -1 })).toBe(false);
-    window.__htu.emit('app.visibility', { visible: false });
+    window.__htd.emit('app.visibility', { visible: false });
     expect(transport).not.toHaveBeenCalled();
-    window.__htu.emit('app.visibility', { visible: true });
+    window.__htd.emit('app.visibility', { visible: true });
     await flushPromises();
     expect(transport).toHaveBeenCalledExactlyOnceWith('app.sync', {});
     expect(usage).toHaveBeenCalledExactlyOnceWith({ harnesses: ['codex'], revision: 2 });
     expect(nativeVisibility).toHaveBeenCalledTimes(2);
     expect((nativeVisibility.mock.calls[1]![0] as CustomEvent).detail).toEqual({ visible: true });
     dispose();
-    window.__htu.emit('usage.changed', { harnesses: ['codex'], revision: 3 });
+    window.__htd.emit('usage.changed', { harnesses: ['codex'], revision: 3 });
     expect(usage).toHaveBeenCalledTimes(1);
     window.removeEventListener('app.visibility', nativeVisibility);
     bridge.dispose();
@@ -65,8 +65,8 @@ describe('event subscriptions', () => {
     const usage = vi.fn();
     bridge.events.subscribe('usage.changed', usage);
     const uninstall = installEvents(bridge);
-    window.__htu.emit('app.visibility', { visible: false });
-    window.__htu.emit('app.visibility', { visible: true });
+    window.__htd.emit('app.visibility', { visible: false });
+    window.__htd.emit('app.visibility', { visible: true });
     uninstall();
     resolve({ ok: true, data: { revisions: { usage: 1 }, pendingEvents: [
       { name: 'usage.changed', payload: { harnesses: ['codex'], revision: 1 } },

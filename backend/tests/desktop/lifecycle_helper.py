@@ -11,17 +11,17 @@ from ctypes import wintypes
 from pathlib import Path
 from typing import Any
 
-import htu.__main__ as entry
-from htu.adapters.desktop.native import NativeWindow
-from htu.adapters.desktop.single_instance import SingleInstance
-from htu.adapters.desktop.tray import Tray
-from htu.application.ports import UsageChanged
-from htu.bootstrap import Application
-from htu.domain.usage.model import Harness
+import htd.__main__ as entry
+from htd.adapters.desktop.native import NativeWindow
+from htd.adapters.desktop.single_instance import SingleInstance
+from htd.adapters.desktop.tray import Tray
+from htd.application.ports import UsageChanged
+from htd.bootstrap import Application
+from htd.domain.usage.model import Harness
 
 
 def main() -> int:
-    directory = Path(os.environ["HTU_DATA_DIR"])
+    directory = Path(os.environ["HTD_DATA_DIR"])
     output = directory / "observations.jsonl"
     lock = threading.Lock()
     application: Application | None = None
@@ -83,7 +83,7 @@ def main() -> int:
                 )
             elif command == "quit-host":
                 native.form.webview.CoreWebView2.ExecuteScriptAsync(
-                    "window.chrome.webview.postMessage('htu.quit')"
+                    "window.chrome.webview.postMessage('htd.quit')"
                 )
             elif command == "preferences":
                 assert application is not None

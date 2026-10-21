@@ -8,8 +8,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import htu.__main__ as entry
-from htu.adapters.desktop.single_instance import SingleInstance
+import htd.__main__ as entry
+from htd.adapters.desktop.single_instance import SingleInstance
 
 
 def main() -> int:
@@ -18,7 +18,7 @@ def main() -> int:
     parser.add_argument("name")
     parser.add_argument("--silent", action="store_true")
     args = parser.parse_args()
-    directory = Path(os.environ["HTU_DATA_DIR"])
+    directory = Path(os.environ["HTD_DATA_DIR"])
 
     def instance(root: Path) -> SingleInstance:
         return SingleInstance(root, name=args.name, pipe_name=args.name)

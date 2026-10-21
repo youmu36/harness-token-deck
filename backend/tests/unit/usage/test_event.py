@@ -2,17 +2,17 @@ from dataclasses import FrozenInstanceError, replace
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import (
+from htd.domain.common.errors import (
     INVALID_TIMESTAMP,
     MODEL_NAME_INVALID,
     UNKNOWN_HARNESS,
     USAGE_EVENT_INVALID,
     DomainError,
 )
-from htu.domain.common.hashing import identity_key
-from htu.domain.common.time import format_instant, from_epoch_ms
-from htu.domain.usage.model import Diagnostic, Harness, Result, Skip, Tokens, UsageEvent, optional_text
-from htu.domain.usage.model_key import model_key
+from htd.domain.common.hashing import identity_key
+from htd.domain.common.time import format_instant, from_epoch_ms
+from htd.domain.usage.model import Diagnostic, Harness, Result, Skip, Tokens, UsageEvent, optional_text
+from htd.domain.usage.model_key import model_key
 
 
 @pytest.fixture

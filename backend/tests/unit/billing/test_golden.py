@@ -3,10 +3,10 @@
 from dataclasses import FrozenInstanceError
 
 import pytest
-from htu.domain.billing import CostEstimate, estimate_cost
-from htu.domain.common.time import Instant, parse_instant
-from htu.domain.pricing.model import BillingRule, ModelRate, PriceRates
-from htu.domain.usage.model import MAX_TOKEN_COUNT, Tokens
+from htd.domain.billing import CostEstimate, estimate_cost
+from htd.domain.common.time import Instant, parse_instant
+from htd.domain.pricing.model import BillingRule, ModelRate, PriceRates
+from htd.domain.usage.model import MAX_TOKEN_COUNT, Tokens
 
 AT = parse_instant("2026-09-21T01:30:00Z")
 TIER = BillingRule("tier", PriceRates("2", "2", "2"), (1,), (0,), -480, 200)

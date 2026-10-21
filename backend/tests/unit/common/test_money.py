@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from htu.domain.common.errors import AMOUNT_INVALID, RATE_INVALID, DomainError
-from htu.domain.common.money import (
+from htd.domain.common.errors import AMOUNT_INVALID, RATE_INVALID, DomainError
+from htd.domain.common.money import (
     MAX_SCALED_RATE,
     MoneyFormat,
     Rate,

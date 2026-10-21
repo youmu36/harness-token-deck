@@ -6,13 +6,13 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from htu.application.ports import UsageChanged, WalletChanged
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant, format_instant, parse_instant
-from htu.domain.usage.model import Tokens
-from htu.ipc.dto.maintenance import RecalcPreview, RecalcResponse
-from htu.ipc.dto.wallet import WalletListResponse
+from htd.application.ports import UsageChanged, WalletChanged
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.usage.model import Tokens
+from htd.ipc.dto.maintenance import RecalcPreview, RecalcResponse
+from htd.ipc.dto.wallet import WalletListResponse
 
 from backend.tests.integration.collection_helpers import usage
 

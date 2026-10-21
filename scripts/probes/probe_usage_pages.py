@@ -15,15 +15,15 @@ from pathlib import Path
 from typing import Any, cast
 from uuid import uuid4
 
-import htu.__main__ as entry
-from htu.adapters.desktop._win32 import native_function
-from htu.adapters.desktop.native import NativeWindow
-from htu.adapters.desktop.single_instance import SingleInstance
-from htu.application.remote.ports import MemoryCredentialStore
-from htu.bootstrap import Application
-from htu.domain.common.testing import FakeClock
-from htu.domain.common.time import Instant
-from htu.domain.remote.model import BalanceKind, BalanceObservation, RemoteAccount
+import htd.__main__ as entry
+from htd.adapters.desktop._win32 import native_function
+from htd.adapters.desktop.native import NativeWindow
+from htd.adapters.desktop.single_instance import SingleInstance
+from htd.application.remote.ports import MemoryCredentialStore
+from htd.bootstrap import Application
+from htd.domain.common.testing import FakeClock
+from htd.domain.common.time import Instant
+from htd.domain.remote.model import BalanceKind, BalanceObservation, RemoteAccount
 
 from backend.tests.contracts.management_helpers import group, price, vendor, wallet
 from backend.tests.integration.scan_helpers import FIXTURES, headers, request
@@ -37,21 +37,21 @@ def main() -> int:
         "--remote-test", action="store_true", help="Read the user-provided key only in memory"
     )
     args = parser.parse_args()
-    startup_key = os.environ.get("HTU_PROBE_STARTUP_KEY")
+    startup_key = os.environ.get("HTD_PROBE_STARTUP_KEY")
     if startup_key:
-        import htu.adapters.desktop.startup as startup
+        import htd.adapters.desktop.startup as startup
 
         startup.KEY = startup_key
     directory = args.directory.resolve()
     directory.mkdir(parents=True, exist_ok=True)
-    if (directory / "htu.sqlite3").exists():
+    if (directory / "htd.sqlite3").exists():
         raise ValueError("Use a new acceptance directory")
     for key in ("USERPROFILE", "HOME", "APPDATA", "LOCALAPPDATA", "CODEX_HOME"):
         path = directory / key.lower()
         path.mkdir()
         os.environ[key] = str(path)
-    os.environ["HTU_DATA_DIR"] = str(directory)
-    os.environ["HTU_DEBUG"] = "0"
+    os.environ["HTD_DATA_DIR"] = str(directory)
+    os.environ["HTD_DEBUG"] = "0"
     roots = {
         "codex": directory / "codex",
         "zcode": directory / "zcode.sqlite",
@@ -59,7 +59,7 @@ def main() -> int:
         "claude": directory / "claude",
     }
     for name, path in roots.items():
-        os.environ[f"HTU_SOURCE_ROOT_{name.upper()}"] = str(path)
+        os.environ[f"HTD_SOURCE_ROOT_{name.upper()}"] = str(path)
         if name != "zcode":
             path.mkdir()
     (roots["codex"] / "fixture.jsonl").write_bytes(headers())
@@ -162,7 +162,7 @@ def main() -> int:
         append(Instant(start - timedelta(hours=2)))
     append(
         Instant(datetime.now(UTC) - timedelta(minutes=3))
-        if os.environ.get("HTU_PROBE_SYNTHETIC_REMOTE") == "1"
+        if os.environ.get("HTD_PROBE_SYNTHETIC_REMOTE") == "1"
         else None
     )
     original_poll = NativeWindow.poll
@@ -191,7 +191,7 @@ def main() -> int:
             elif payload["action"] == "background":
                 if focus_window is None:
                     focus_window = native.forms.Form()
-                    focus_window.Text = "HTU isolated focus probe"
+                    focus_window.Text = "HTD isolated focus probe"
                     focus_window.ShowInTaskbar = False
                     focus_window.Opacity = 0
                 focus_window.Show()
@@ -244,7 +244,7 @@ def main() -> int:
 
                 try:
                     with winreg.OpenKey(winreg.HKEY_CURRENT_USER, startup_key) as key:
-                        value = winreg.QueryValueEx(key, "HarnessTokenUsage")[0]
+                        value = winreg.QueryValueEx(key, "HarnessTokenDeck")[0]
                 except FileNotFoundError:
                     value = None
                 (directory / "probe-result.json").write_text(
@@ -265,7 +265,7 @@ def main() -> int:
             elif payload["action"] == "minimize":
                 native.form.WindowState = native.forms.FormWindowState.Minimized
             elif payload["action"] == "quit":
-                native.host_action("htu.quit")
+                native.host_action("htd.quit")
             elif payload["action"] == "script":
                 pending = native.form.webview.CoreWebView2.ExecuteScriptAsync(
                     "(() => { return eval(" + json.dumps(payload["script"]) + "); })()"
@@ -309,14 +309,14 @@ def main() -> int:
                 )
         original_poll(native)
 
-    instance_name = f"HTU.UsageProbe.{uuid4().hex}"
+    instance_name = f"HTD.UsageProbe.{uuid4().hex}"
 
     def instance(root: Path) -> SingleInstance:
         return SingleInstance(root, name=instance_name, pipe_name=instance_name)
 
     patched: Any = entry
     patched.SingleInstance = instance
-    if os.environ.get("HTU_PROBE_SYNTHETIC_REMOTE") == "1":
+    if os.environ.get("HTD_PROBE_SYNTHETIC_REMOTE") == "1":
         credentials = MemoryCredentialStore()
 
         class SyntheticProvider:
@@ -354,8 +354,8 @@ def process_states(native: NativeWindow) -> list[dict[str, Any]]:
     from ctypes import wintypes
 
     import psutil
-    from htu.adapters.desktop._win32 import close_handle, native_function
-    from htu.adapters.desktop.process_power import _Throttling
+    from htd.adapters.desktop._win32 import close_handle, native_function
+    from htd.adapters.desktop.process_power import _Throttling
 
     opened = native_function(
         "kernel32", "OpenProcess", (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD), wintypes.HANDLE

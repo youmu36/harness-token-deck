@@ -8,9 +8,9 @@ from contextlib import closing
 from pathlib import Path
 
 import pytest
-from htu.adapters.sqlite import migrate as migration
-from htu.adapters.sqlite.connection import open_connection
-from htu.adapters.sqlite.writer import WriteExecutor
+from htd.adapters.sqlite import migrate as migration
+from htd.adapters.sqlite.connection import open_connection
+from htd.adapters.sqlite.writer import WriteExecutor
 
 AT = "2026-10-17T09:00:00.000Z"
 
@@ -20,7 +20,7 @@ def old_database(tmp_path: Path) -> Path:
     scripts.mkdir()
     for script in sorted(migration.MIGRATIONS.glob("*.sql"))[:24]:
         shutil.copyfile(script, scripts / script.name)
-    path = tmp_path / "htu.sqlite3"
+    path = tmp_path / "htd.sqlite3"
     migration.migrate(path, migrations=scripts)
     with closing(open_connection(path)) as db:
         db.execute("UPDATE meta SET value='1' WHERE key='storage_generation'")
@@ -95,7 +95,7 @@ def test_populated_audit_upgrade_preserves_history_and_starts_writer(tmp_path: P
         assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
         assert_append_only(db)
 
-    backups = list((tmp_path / "backups").glob("htu-*.sqlite3"))
+    backups = list((tmp_path / "backups").glob("htd-*.sqlite3"))
     assert len(backups) == 1
     with closing(sqlite3.connect(backups[0])) as backup:
         assert backup.execute("SELECT count(*) FROM schema_migration").fetchone()[0] == 24

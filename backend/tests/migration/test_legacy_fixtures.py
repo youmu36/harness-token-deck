@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 
-from scripts.make_legacy_fixtures import SNAPSHOT_AT, VERSIONS, generate
+from scripts.make_legacy_fixtures import SNAPSHOT_AT, VERSIONS, generate, normalize_writer_version
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures/legacy"
 
@@ -24,6 +24,16 @@ def test_repeat_generation_matches_committed_bytes(tmp_path: Path) -> None:
     assert generate(destination) == first
     assert {path.name: path.read_bytes() for path in destination.iterdir()} == before
     assert before == {name: (FIXTURES / name).read_bytes() for name in before}
+
+
+@pytest.mark.parametrize("version", VERSIONS)
+def test_sqlite_writer_version_does_not_change_fixture_bytes(tmp_path: Path, version: str) -> None:
+    original = (FIXTURES / f"{version}.sqlite3").read_bytes()
+    path = tmp_path / f"{version}.sqlite3"
+    # Python 3.12.10 on the CI runner writes SQLite 3.49.1 into this header field.
+    path.write_bytes(original[:96] + (3_049_001).to_bytes(4, "big") + original[100:])
+    normalize_writer_version(path)
+    assert path.read_bytes() == original
 
 
 @pytest.mark.parametrize(

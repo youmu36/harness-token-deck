@@ -81,6 +81,14 @@ def old_balances(
     return result
 
 
+def normalize_writer_version(path: Path) -> None:
+    # Bytes 96-99 record the SQLite library that last wrote the file, not its format.
+    # Keep the original fixtures' 3.45.3 metadata across Python/SQLite patch releases.
+    with path.open("r+b") as fixture:
+        fixture.seek(96)
+        fixture.write((3_045_003).to_bytes(4, "big"))
+
+
 def build_database(path: Path, version: str) -> dict[str, Any]:
     state, ext, rows = main_state(version), extension(version), ledger(version)
     temporary = path.with_suffix(".tmp")
@@ -143,6 +151,7 @@ def build_database(path: Path, version: str) -> dict[str, Any]:
         counts = {table: db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] for table in tables}
     finally:
         db.close()
+    normalize_writer_version(temporary)
     temporary.replace(path)
     totals: defaultdict[str, int] = defaultdict(int)
     daily: defaultdict[str, int] = defaultdict(int)

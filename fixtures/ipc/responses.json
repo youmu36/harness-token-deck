@@ -6,7 +6,7 @@
     },
     "response": {
       "data": {
-        "appVersion": "0.4.2",
+        "appVersion": "0.4.3",
         "capabilities": [
           "app.hello",
           "app.openPath",
@@ -62,10 +62,14 @@
           "sources.list",
           "sources.setPath",
           "sources.validatePath",
+          "stats.acknowledgeQuality",
           "stats.analytics",
           "stats.auxiliaryCosts",
           "stats.cacheMonitor",
+          "stats.explore",
+          "stats.exploreOptions",
           "stats.longTerm",
+          "stats.outputReferences",
           "stats.summary",
           "tasks.cancel",
           "tasks.get",
@@ -244,6 +248,101 @@
         "count": 0,
         "harnesses": [],
         "signature": "0:0"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.exploreOptions",
+    "payload": {},
+    "response": {
+      "data": {
+        "groups": [],
+        "models": [],
+        "vendors": [],
+        "versions": []
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.outputReferences",
+    "payload": {},
+    "response": {
+      "data": {
+        "generatedAt": "2026-10-01T10:00:00.000Z",
+        "references": [],
+        "today": "2026-10-01"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.explore",
+    "payload": {
+      "end": "2026-10-02T00:00:00.000Z",
+      "start": "2026-10-01T00:00:00.000Z"
+    },
+    "response": {
+      "data": {
+        "breakdowns": [],
+        "businessTimezone": "Asia/Shanghai",
+        "end": "2026-10-02T00:00:00.000Z",
+        "generatedAt": "2026-10-01T10:00:00.000Z",
+        "grain": "day",
+        "missingVersionRecords": "0",
+        "models": [],
+        "nextOffset": null,
+        "notices": [],
+        "quality": [],
+        "qualityNextOffset": null,
+        "qualityTotal": 0,
+        "qualityUnacknowledged": 0,
+        "revision": 0,
+        "start": "2026-10-01T00:00:00.000Z",
+        "totalModels": 0,
+        "totals": {
+          "cacheCoverageIncomplete": false,
+          "cacheHitRate": null,
+          "cacheReadTokens": "0",
+          "cacheWriteTokens": "0",
+          "eligibleCostPico": "0",
+          "eligibleTokens": "0",
+          "incomplete": false,
+          "inputTokens": "0",
+          "newInput": "0",
+          "outputTokens": "0",
+          "parts": {
+            "cache": "0",
+            "input": "0",
+            "output": "0",
+            "write": "0"
+          },
+          "perDollar": {
+            "cache": null,
+            "input": null,
+            "output": null,
+            "write": null
+          },
+          "picoUsd": "0",
+          "recordCount": "0",
+          "tokensPerDollar": null,
+          "totalTokens": "0",
+          "unpriced": false
+        },
+        "trend": []
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.acknowledgeQuality",
+    "payload": {
+      "items": []
+    },
+    "response": {
+      "data": {
+        "acknowledged": 0
       },
       "ok": true
     }
@@ -1413,31 +1512,6 @@
       "data": {
         "entries": [
           {
-            "A": "0",
-            "C": "0",
-            "R": "10000123456000000",
-            "afterB": null,
-            "afterC": null,
-            "afterR": null,
-            "availablePico": "10000123456000000",
-            "beforeB": null,
-            "beforeC": null,
-            "beforeR": null,
-            "entryRevision": 1,
-            "estimatedConsumptionPico": null,
-            "fromAt": null,
-            "id": "00000000-0000-4000-8000-000000000026",
-            "intervalId": null,
-            "kind": "top_up",
-            "manuallyCalibrated": false,
-            "note": "",
-            "noticeId": null,
-            "occurredAt": "2026-10-01T10:00:00.000Z",
-            "originalId": null,
-            "postedAt": "2026-10-01T10:00:00.000Z",
-            "toAt": null
-          },
-          {
             "A": "-500000000000",
             "C": "0",
             "R": "0",
@@ -1451,11 +1525,36 @@
             "entryRevision": 1,
             "estimatedConsumptionPico": null,
             "fromAt": null,
-            "id": "00000000-0000-4000-8000-000000000027",
+            "id": "00000000-0000-4000-8000-000000000026",
             "intervalId": null,
             "kind": "adjustment",
             "manuallyCalibrated": false,
             "note": "原本地账余额校准",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "0",
+            "C": "0",
+            "R": "10000123456000000",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
+            "availablePico": "10000123456000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "00000000-0000-4000-8000-000000000027",
+            "intervalId": null,
+            "kind": "top_up",
+            "manuallyCalibrated": false,
+            "note": "",
             "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": null,
@@ -1473,7 +1572,7 @@
     "command": "wallet.reclassify",
     "payload": {
       "amount": "1",
-      "entryId": "00000000-0000-4000-8000-000000000026",
+      "entryId": "00000000-0000-4000-8000-000000000027",
       "expectedAccountRevision": 2,
       "note": "人工改判",
       "operationId": "00000000-0000-4000-8000-000000000028",
@@ -1928,7 +2027,7 @@
             "amountPico": "10000123456000000",
             "calibration": null,
             "count": 1,
-            "id": "00000000-0000-4000-8000-000000000026",
+            "id": "00000000-0000-4000-8000-000000000027",
             "kind": "top_up",
             "note": "",
             "noteDetails": null,
@@ -1943,7 +2042,7 @@
               "watermarkSeq": 0
             },
             "count": 1,
-            "id": "00000000-0000-4000-8000-000000000027",
+            "id": "00000000-0000-4000-8000-000000000026",
             "kind": "adjustment",
             "note": "calibration",
             "noteDetails": null,
@@ -1990,7 +2089,7 @@
       "data": {
         "error": null,
         "observation": {
-          "accountId": "test-e251a58a0d7c44f7acf671c18f46197e",
+          "accountId": "test-e9fe4534e14344fa99d6ab65aae3d403",
           "amountPico": "1975310000001",
           "canCalibrate": true,
           "conversionRule": null,
@@ -2303,13 +2402,63 @@
             "toAt": null
           },
           {
-            "A": "0",
-            "C": "0",
-            "R": "10000123456000000",
+            "A": "1000000000000",
+            "C": "1000000000000",
+            "R": "0",
             "afterB": null,
             "afterC": null,
             "afterR": null,
-            "availablePico": "9999123456000000",
+            "availablePico": "1000000000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "intervalId": null,
+            "kind": "consumption_correction",
+            "manuallyCalibrated": false,
+            "note": "人工校准（0 → 1000000000000 pico，余额不变）",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "1000000000000",
+            "C": "0",
+            "R": "-1000000000000",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
+            "availablePico": "1000000000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "intervalId": null,
+            "kind": "correction",
+            "manuallyCalibrated": false,
+            "note": "人工改判 (累计充值 10000123456000000 → 9999123456000000 pico，累计消费 0 → 0 pico，余额不变)",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": "00000000-0000-4000-8000-000000000027",
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
+            "availablePico": "500000000000",
             "beforeB": null,
             "beforeC": null,
             "beforeR": null,
@@ -2318,9 +2467,9 @@
             "fromAt": null,
             "id": "00000000-0000-4000-8000-000000000026",
             "intervalId": null,
-            "kind": "top_up",
+            "kind": "adjustment",
             "manuallyCalibrated": false,
-            "note": "",
+            "note": "原本地账余额校准",
             "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": null,
@@ -2353,38 +2502,13 @@
             "toAt": null
           },
           {
-            "A": "1000000000000",
+            "A": "0",
             "C": "0",
-            "R": "-1000000000000",
+            "R": "10000123456000000",
             "afterB": null,
             "afterC": null,
             "afterR": null,
-            "availablePico": "1000000000000",
-            "beforeB": null,
-            "beforeC": null,
-            "beforeR": null,
-            "entryRevision": 1,
-            "estimatedConsumptionPico": null,
-            "fromAt": null,
-            "id": "0000000000000000000000000000000000000000000000000000000000000000",
-            "intervalId": null,
-            "kind": "correction",
-            "manuallyCalibrated": false,
-            "note": "人工改判 (累计充值 10000123456000000 → 9999123456000000 pico，累计消费 0 → 0 pico，余额不变)",
-            "noticeId": null,
-            "occurredAt": "2026-10-01T10:00:00.000Z",
-            "originalId": "00000000-0000-4000-8000-000000000026",
-            "postedAt": "2026-10-01T10:00:00.000Z",
-            "toAt": null
-          },
-          {
-            "A": "-500000000000",
-            "C": "0",
-            "R": "0",
-            "afterB": null,
-            "afterC": null,
-            "afterR": null,
-            "availablePico": "500000000000",
+            "availablePico": "9999123456000000",
             "beforeB": null,
             "beforeC": null,
             "beforeR": null,
@@ -2393,34 +2517,9 @@
             "fromAt": null,
             "id": "00000000-0000-4000-8000-000000000027",
             "intervalId": null,
-            "kind": "adjustment",
+            "kind": "top_up",
             "manuallyCalibrated": false,
-            "note": "原本地账余额校准",
-            "noticeId": null,
-            "occurredAt": "2026-10-01T10:00:00.000Z",
-            "originalId": null,
-            "postedAt": "2026-10-01T10:00:00.000Z",
-            "toAt": null
-          },
-          {
-            "A": "1000000000000",
-            "C": "1000000000000",
-            "R": "0",
-            "afterB": null,
-            "afterC": null,
-            "afterR": null,
-            "availablePico": "1000000000000",
-            "beforeB": null,
-            "beforeC": null,
-            "beforeR": null,
-            "entryRevision": 1,
-            "estimatedConsumptionPico": null,
-            "fromAt": null,
-            "id": "0000000000000000000000000000000000000000000000000000000000000000",
-            "intervalId": null,
-            "kind": "consumption_correction",
-            "manuallyCalibrated": false,
-            "note": "人工校准（0 → 1000000000000 pico，余额不变）",
+            "note": "",
             "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": null,
@@ -3425,13 +3524,16 @@
         "offsetMinutes": 480,
         "outputSpeeds": [
           {
-            "activeMinutes": 1,
+            "activeMinutes": 3,
             "basis": "request_estimate",
             "displayName": "gpt-6-astra",
             "frozen": false,
             "lastOutputAt": "2026-10-01T10:20:01.000Z",
             "modelKey": "gpt-6-astra",
             "outputTokens": "10",
+            "sessionAverageTps": "0.0",
+            "sessionKey": "bbb523b4104974f3",
+            "startedAt": "2026-10-01T10:20:01.000Z",
             "tokensPerSecond": "0.0"
           }
         ],
@@ -3709,9 +3811,9 @@
     "payload": {},
     "response": {
       "data": {
-        "appVersion": "0.4.2",
+        "appVersion": "0.4.3",
         "dataDir": "C:\\htd-contract-fixture\\data",
-        "databaseBytes": 2460616,
+        "databaseBytes": 2592072,
         "lastLogRotationAt": "2026-10-01T10:00:00.000Z",
         "lastRetentionAt": "2026-10-01T10:20:01.001Z",
         "lastVacuumAt": "2026-10-01T10:20:01.001Z",
@@ -3720,15 +3822,15 @@
         "pendingExpired": 0,
         "retention": "forever",
         "storage": {
-          "allocatedBytes": 1200128,
-          "backupBytes": 1212416,
+          "allocatedBytes": 1265664,
+          "backupBytes": 1277952,
           "freePageBytes": 0,
-          "mainFileBytes": 1212416,
+          "mainFileBytes": 1277952,
           "migrationBytes": 0,
           "sampledAt": "2026-10-01T10:20:01.001Z",
           "shmBytes": 32768,
-          "usedPageBytes": 1200128,
-          "walBytes": 1215432
+          "usedPageBytes": 1265664,
+          "walBytes": 1281352
         }
       },
       "ok": true

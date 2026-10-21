@@ -92,6 +92,12 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
         )
         recorder.call("pricing.unpriced")
         recorder.call("pricing.unpricedNotice")
+        recorder.call("stats.exploreOptions")
+        recorder.call("stats.outputReferences")
+        recorder.call(
+            "stats.explore", {"start": "2026-10-01T00:00:00.000Z", "end": "2026-10-02T00:00:00.000Z"}
+        )
+        recorder.call("stats.acknowledgeQuality", {"items": []})
         write("pricing.recalculateUnpriced", expectedPricingRevision=app.revisions()["pricing"])
         write("preferences.update", patch={"theme": "dark", "historyPrompted": True}, expectedRevision=0)
         recorder.error(

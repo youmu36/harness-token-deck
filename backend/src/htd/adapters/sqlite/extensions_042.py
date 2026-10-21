@@ -6,8 +6,10 @@ these tables; all new projections read current shared facts after a downgrade.
 
 import sqlite3
 
+from htd.domain.common.time import Instant
 
-def install(db: sqlite3.Connection) -> None:
+
+def install(db: sqlite3.Connection, *, at: Instant | None = None) -> None:
     statements = (
         "CREATE TABLE IF NOT EXISTS local_wallet_posting("
         "id INTEGER PRIMARY KEY,vendor_id TEXT NOT NULL REFERENCES vendor(id),"
@@ -71,7 +73,7 @@ def install(db: sqlite3.Connection) -> None:
     install_scoped_output(db)
     from htd.adapters.sqlite.zcode_speed_repair import install as install_zcode_repair
 
-    install_zcode_repair(db)
+    install_zcode_repair(db, at=at)
     from htd.adapters.sqlite.wallet_flows import install as install_flows
     from htd.adapters.sqlite.wallet_inheritance import inherit
     from htd.adapters.sqlite.wallet_pending import install as install_pending

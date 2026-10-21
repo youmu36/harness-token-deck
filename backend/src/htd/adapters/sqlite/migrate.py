@@ -10,7 +10,7 @@ from pathlib import Path
 from htd.adapters.sqlite.compact_keys import migrate_keys
 from htd.adapters.sqlite.connection import open_connection
 from htd.domain.common.errors import DomainError
-from htd.domain.common.time import Instant, format_instant
+from htd.domain.common.time import Instant, format_instant, parse_instant
 from htd.version import app_version
 
 MIGRATIONS = Path(__file__).with_name("migrations")
@@ -169,7 +169,7 @@ def migrate(
 
         connection.execute("BEGIN IMMEDIATE")
         try:
-            install(connection)
+            install(connection, at=parse_instant(at))
             connection.commit()
         except BaseException:
             connection.rollback()

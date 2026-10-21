@@ -20,7 +20,7 @@ Windows 本地 Token 用量、费用与钱包工作台，支持 Claude Code、Co
 
 安装包包含应用及其 Python 依赖，日常使用无需安装 Python、Node.js 或开发工具，也无需 GitHub 或远程账户登录。
 
-仓库保存源码，不保存安装包；已发布的安装包请在本仓库的 Releases 页面获取，也可按下文自行构建。
+仓库保存源码，不保存安装包；已发布的安装包请在 [Releases 页面](https://github.com/youmu36/harness-token-deck/releases/latest)获取，也可按下文自行构建。
 
 首次启动后，在“设置 → 采集来源”中检查所用 Harness 的路径，再在价格管理中配置模型费率。使用钱包时先创建供应商并关联价格组；远程余额功能需要自行配置站点类型和凭据。
 

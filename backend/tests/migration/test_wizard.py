@@ -244,6 +244,8 @@ def test_legacy_detection_keeps_collection_running_and_activation_resumes_schedu
 
 
 def test_activation_preserves_requests_collected_while_the_legacy_report_is_open(tmp_path: Path) -> None:
+    from dataclasses import replace
+
     from htd.adapters.sqlite.ingest_repo import IngestRepository
     from htd.adapters.sqlite.key_codec import key_bytes
     from htd.domain.usage.model import Harness
@@ -255,7 +257,7 @@ def test_activation_preserves_requests_collected_while_the_legacy_report_is_open
         started = run(app)
         assert finished(app, started).result is not None
         at = app.clock.now_utc()
-        event = usage(999999, at=at)
+        event = replace(usage(999999, at=at, session="pending-child"), parent_session_id="pending-parent")
         root = next(s.path for s in app.store.sources().sources if s.harness == Harness.CODEX)
         app.writer.execute(
             lambda w: IngestRepository(w.connection).commit_batch(
@@ -271,6 +273,10 @@ def test_activation_preserves_requests_collected_while_the_legacy_report_is_open
             assert db.execute(
                 "SELECT 1 FROM inbox WHERE harness='codex' AND dedupe_key=?", (key_bytes(event.dedupe_key),)
             ).fetchone()
+            assert db.execute(
+                "SELECT p.native_identity FROM session_directory c JOIN session_directory p "
+                "ON p.ref=c.parent_ref WHERE c.native_identity='pending-child'"
+            ).fetchone()[0] == "pending-parent"
             assert (
                 db.execute("SELECT value FROM meta WHERE key='legacy_pending_retained'").fetchone()[0] == "1"
             )

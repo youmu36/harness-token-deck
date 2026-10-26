@@ -10,9 +10,34 @@ from pathlib import Path
 import pytest
 from htd.adapters.sqlite import migrate as migration
 from htd.adapters.sqlite.connection import open_connection
-from htd.adapters.sqlite.writer import WriteExecutor
+from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
 
 AT = "2026-10-17T09:00:00.000Z"
+
+
+def test_monitor_revision_upgrade_backs_up_once_and_preserves_shared_schema(tmp_path: Path) -> None:
+    path = tmp_path / "htd.sqlite3"
+    migration.migrate(path)
+    with closing(open_connection(path)) as db:
+        for row in db.execute(
+            "SELECT name FROM sqlite_schema WHERE type='trigger' AND name LIKE 'monitor_%'"
+        ).fetchall():
+            db.execute('DROP TRIGGER "' + row[0] + '"')
+        db.execute("DROP TABLE session_monitor_revision")
+        before = list(db.execute("SELECT id,checksum FROM schema_migration ORDER BY id"))
+    migration.migrate(path)
+    migration.migrate(path)
+    with closing(open_connection(path)) as db:
+        assert list(db.execute("SELECT id,checksum FROM schema_migration ORDER BY id")) == before
+        assert db.execute("SELECT COUNT(*) FROM session_monitor_revision").fetchone()[0] == 4
+        assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+        assert db.execute("PRAGMA foreign_key_check").fetchone() is None
+    backups = list((tmp_path / "backups").glob("htd-*.sqlite3"))
+    assert len(backups) == 1
+    with closing(sqlite3.connect(backups[0])) as db:
+        assert (
+            db.execute("SELECT 1 FROM sqlite_schema WHERE name='session_monitor_revision'").fetchone() is None
+        )
 
 
 def old_database(tmp_path: Path) -> Path:
@@ -50,6 +75,34 @@ def old_database(tmp_path: Path) -> Path:
                     (str(count), "codex", f"{item:064x}", '{"pico":"3"}', '{"pico":"5"}'),
                 )
     return path
+
+
+def test_previous_monitor_triggers_are_removed_again_after_downgrade(tmp_path: Path) -> None:
+    path = tmp_path / "htd.sqlite3"
+    migration.migrate(path)
+    for _ in range(2):
+        with closing(open_connection(path)) as db:
+            db.execute(
+                "CREATE TRIGGER monitor_session_directory_insert AFTER INSERT ON session_directory "
+                "BEGIN UPDATE session_monitor_revision SET value=value+1 WHERE harness=NEW.harness; END"
+            )
+        with WriteExecutor(path) as writer:
+
+            def verify(work: UnitOfWork) -> None:
+                assert (
+                    work.connection.execute(
+                        "SELECT 1 FROM sqlite_schema WHERE type='trigger' AND name GLOB 'monitor_*'"
+                    ).fetchone()
+                    is None
+                )
+                before = list(work.connection.execute("SELECT * FROM session_monitor_revision"))
+                work.connection.execute(
+                    "INSERT OR IGNORE INTO session_directory VALUES('probe','codex','probe','probe',"
+                    "NULL,NULL,NULL,'unknown')"
+                )
+                assert list(work.connection.execute("SELECT * FROM session_monitor_revision")) == before
+
+            writer.execute(verify)
 
 
 def assert_append_only(db: sqlite3.Connection) -> None:

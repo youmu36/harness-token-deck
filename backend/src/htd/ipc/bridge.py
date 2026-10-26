@@ -16,10 +16,14 @@ class Bridge:
         self._actions = actions
 
     def _set_system_actions(
-        self, pick: Callable[[str, str | None], str | None], open_path: Callable[[str], None]
+        self,
+        pick: Callable[[str, str | None], str | None],
+        open_path: Callable[[str], None],
+        restart: Callable[[], None] | None = None,
     ) -> None:
         if self._actions is not None:
             self._actions.pick, self._actions.open = pick, open_path
+            self._actions.restart = restart
 
     def call(self, command: object, payload: object) -> dict[str, JsonValue]:
         return self._router.call(command, payload)

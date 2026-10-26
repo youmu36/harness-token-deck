@@ -13,16 +13,16 @@ from htd.domain.pricing.model_pool import ModelPool
 
 
 class SqlitePricingStore(SqliteCommandStore):
-    def pricing(self, work: UnitOfWork | None = None) -> PricingSnapshot:
+    def pricing(self, work: UnitOfWork | None = None, *, metadata_only: bool = False) -> PricingSnapshot:
         if work is not None:
-            return self._pricing(connection(work))
+            return self._pricing(connection(work), metadata_only=metadata_only)
         with read_snapshot(self.readers) as db:
-            return self._pricing(db)
+            return self._pricing(db, metadata_only=metadata_only)
 
     @staticmethod
-    def _pricing(db: sqlite3.Connection) -> PricingSnapshot:
+    def _pricing(db: sqlite3.Connection, *, metadata_only: bool = False) -> PricingSnapshot:
         return PricingSnapshot(
-            PricingRepository(db).load(),
+            PricingRepository(db).load(metadata_only=metadata_only),
             frozenset(
                 row[0]
                 for row in db.execute(

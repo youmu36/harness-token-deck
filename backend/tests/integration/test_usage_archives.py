@@ -153,8 +153,8 @@ def test_archive_delete_failure_rolls_back_then_retry_and_retention_cut_exact_mi
         assert result.metrics == expected.metrics
         assert result.history_notice and result.trend == result.hourly == ()
         exact = app.statistics.long_term(START, END, "all")
-        assert exact["totals"]["records"] == "2"
-        assert exact["totals"]["pico"] == str(2**64 + 1)
+        assert exact["totals"]["records"] == "5"
+        assert exact["totals"]["pico"] == str(5 * 2**63 + 10)
 
 
 def test_30_day_boundary_is_complete_utc_day_and_custom_minute_query_is_exact(tmp_path: Path) -> None:

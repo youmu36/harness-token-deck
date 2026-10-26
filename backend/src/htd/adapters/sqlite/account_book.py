@@ -209,6 +209,13 @@ class AccountBook:
                         (interval,),
                     ).fetchone()[0]
                 )
+                scope = self.db.execute(
+                    "SELECT completed_at FROM reconciliation_interval_scope WHERE interval_id=?", (interval,)
+                ).fetchone()
+                if scope:
+                    from htd.domain.common.time import parse_instant
+
+                    received_stamp = format_instant(Instant(parse_instant(scope[0]).value - QUIET))
             flow_r, flow_c = r, c
             if kind == "interval_revision" and interval:
                 for source_kind, prefix, delta in (
@@ -354,6 +361,7 @@ class AccountBook:
                 batch["account_id"],
                 estimate_override=int(batch["estimate"]),
                 watermark_override=batch["e_watermark"],
+                completed_at=batch["ready_at"],
             )
             self.db.execute("DELETE FROM account_pending_batch WHERE id=?", (batch["id"],))
         cutoff = format_instant(Instant(at.value - QUIET))
@@ -374,6 +382,8 @@ class AccountBook:
             current = self.db.execute(
                 "SELECT * FROM account_endpoint WHERE id=?", (pending["end_endpoint"],)
             ).fetchone()
+            if last_token is not None and current["observed_at"] < last_token:
+                continue
             # Keep the original waterline while the aggregate movement is only noise.
             used = (
                 int(current["u"]) - int(previous["u"])
@@ -399,7 +409,12 @@ class AccountBook:
             ).fetchone()
             if account is None:
                 continue
-            self._settle(work, segment, previous, current, account["id"])
+            from htd.domain.common.time import parse_instant
+
+            completed = format_instant(
+                Instant(parse_instant(last_token or pending["local_changed_at"]).value + QUIET)
+            )
+            self._settle(work, segment, previous, current, account["id"], completed_at=completed)
             self.db.execute(
                 "UPDATE account_pending SET start_endpoint=end_endpoint,reviewed_at=? WHERE segment_id=?",
                 (format_instant(at), segment["id"]),
@@ -418,6 +433,7 @@ class AccountBook:
         *,
         estimate_override: int | None = None,
         watermark_override: int | None = None,
+        completed_at: str,
     ) -> None:
         stamp = current["observed_at"]
         vendor_id = segment["vendor_id"]
@@ -465,6 +481,9 @@ class AccountBook:
                 "account-quiet-v2",
             ),
         )
+        from htd.adapters.sqlite.reconciliation_batches import freeze_interval
+
+        freeze_interval(self.db, interval_id, completed_at)
         methods = set(json.loads(segment["methods"]))
         self.db.execute(
             "INSERT INTO account_interval_revision VALUES(?,?,?,?)",
@@ -543,22 +562,31 @@ class AccountBook:
         work.touch("account")
         work.touch("wallet")
 
-    def begin_run(self, segment_id: str | None = None) -> None:
+    def begin_run(self, segment_id: str | None = None, *, due_at: Instant | None = None) -> None:
         # Seal prior-run endpoints and E before collection can admit new tokens.
         # The new live waterline advances independently; each sealed range is unique.
+        due_cutoff = format_instant(Instant(due_at.value - QUIET)) if due_at is not None else None
         for pending in self.db.execute(
             "SELECT p.*,s.vendor_id,r.id account_id FROM account_pending p "
             "JOIN account_segment s ON s.id=p.segment_id JOIN remote_account r ON r.vendor_id=s.vendor_id "
             "WHERE s.ended_at IS NULL AND p.start_endpoint<>p.end_endpoint AND p.reviewed_at IS NULL "
-            "AND (? IS NULL OR s.id=?)",
-            (segment_id, segment_id),
+            "AND (? IS NULL OR s.id=?) AND (? IS NULL OR p.local_changed_at<=?)",
+            (segment_id, segment_id, due_cutoff, due_cutoff),
         ).fetchall():
+            last = pending["local_changed_at"]
+            if due_at is not None:
+                cutoff = format_instant(Instant(due_at.value - QUIET))
+                last = max(pending["local_changed_at"], account_last(self.db, pending["vendor_id"]) or "")
+                if last > cutoff:
+                    continue
             previous = self.db.execute(
                 "SELECT * FROM account_endpoint WHERE id=?", (pending["start_endpoint"],)
             ).fetchone()
             current = self.db.execute(
                 "SELECT * FROM account_endpoint WHERE id=?", (pending["end_endpoint"],)
             ).fetchone()
+            if due_at is not None and current["observed_at"] < last:
+                continue
             used = (
                 int(current["u"]) - int(previous["u"])
                 if current["u"] is not None and previous["u"] is not None
@@ -606,15 +634,23 @@ class AccountBook:
                 (pending["segment_id"],),
             )
 
-    def summary(self, vendor: str) -> AccountSummary:
+    def summary(
+        self,
+        vendor: str,
+        *,
+        local_totals: tuple[int, int, int] | None = None,
+    ) -> AccountSummary:
         r = c = a = 0
         methods: set[str] = set()
-        segments = list(
-            self.db.execute(
-                "SELECT * FROM account_segment WHERE vendor_id=? ORDER BY started_at,id", (vendor,)
-            )
-        )
-        for segment in segments:
+        local = self.local(vendor) if local_totals is None else local_totals
+        coverage_start = None
+        for segment in self.db.execute(
+            "SELECT kind,ended_at,r,c,a,methods,anchor_r,anchor_c,anchor_a,started_at "
+            "FROM account_segment WHERE vendor_id=? ORDER BY started_at,id",
+            (vendor,),
+        ):
+            if coverage_start is None:
+                coverage_start = segment["started_at"]
             if segment["kind"] == "remote":
                 r += int(segment["r"])
                 c += int(segment["c"])
@@ -622,8 +658,7 @@ class AccountBook:
                 methods.update(json.loads(segment["methods"]))
             elif segment["ended_at"] is None:
                 delta = tuple(
-                    value - int(segment["anchor_" + key])
-                    for key, value in zip("rca", self.local(vendor), strict=True)
+                    value - int(segment["anchor_" + key]) for key, value in zip("rca", local, strict=True)
                 )
                 r += delta[0]
                 c += delta[1]
@@ -635,8 +670,8 @@ class AccountBook:
                 a += int(segment["a"])
                 methods.add("legacy_local" if segment["kind"] == "legacy" else "local_estimate")
         # Current local vendor created after the migration has no segment until first binding.
-        if not segments:
-            r, c, a = self.local(vendor)
+        if coverage_start is None:
+            r, c, a = local
             methods.add("local_estimate")
         for row in self.db.execute(
             "SELECT r,c,a FROM account_correction_total WHERE vendor_id=? UNION ALL "
@@ -659,21 +694,20 @@ class AccountBook:
                 balance = int(override["balance"])
         elif active:
             delta = tuple(
-                value - int(active["anchor_" + key])
-                for key, value in zip("rca", self.local(vendor), strict=True)
+                value - int(active["anchor_" + key]) for key, value in zip("rca", local, strict=True)
             )
             balance = int(active["initial_balance"]) + delta[0] - delta[1] + delta[2]
         else:
-            lr, lc, la = self.local(vendor)
+            lr, lc, la = local
             balance = lr - lc + la
         return {
             "R": str(r),
             "C": str(c),
             "A": str(a),
             "B": str(balance),
-            "localEstimatePico": str(self.local(vendor)[1]),
+            "localEstimatePico": str(local[1]),
             "observedAt": endpoint["observed_at"] if endpoint else None,
-            "coverageStart": segments[0]["started_at"] if segments else None,
+            "coverageStart": coverage_start,
             "methods": sorted(methods),
             "remote": endpoint is not None,
             "revision": self.db.execute("SELECT value FROM revision WHERE scope='account'").fetchone()[0],

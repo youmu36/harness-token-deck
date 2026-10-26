@@ -10,13 +10,14 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import time
+import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
 from scripts.set_version import check_version
+from scripts.source_snapshot import source_files, source_fingerprint
 
 ROOT = Path(__file__).resolve().parents[1]
 PENDING_SUFFIX = "\uff08待发布\uff09"
@@ -78,7 +79,24 @@ def network_command(args: tuple[str, ...], gh: str) -> tuple[str, ...]:
     )
 
 
-def validate_build(path: Path, version: str) -> dict[str, Any]:
+def configure_proxy(value: str | None) -> None:
+    if not value:
+        return
+    if value == "direct":
+        for key in tuple(os.environ):
+            if key.lower() in {"http_proxy", "https_proxy", "all_proxy"}:
+                del os.environ[key]
+        return
+    proxy = f"http://127.0.0.1:{value}" if value.isdecimal() else value
+    if not re.fullmatch(r"(?:https?|socks5h?)://[^\s]+", proxy):
+        raise ReleaseError("--proxy requires a proxy URL, a local port, or 'direct'")
+    for key in tuple(os.environ):
+        if key.lower() in {"http_proxy", "https_proxy", "all_proxy", "no_proxy"}:
+            del os.environ[key]
+    os.environ.update(HTTP_PROXY=proxy, HTTPS_PROXY=proxy, ALL_PROXY=proxy)
+
+
+def validate_build(path: Path, version: str, fingerprint: str | None = None) -> dict[str, Any]:
     report = json.loads(path.read_text(encoding="utf-8"))
     if (
         report.get("version") != version
@@ -91,6 +109,62 @@ def validate_build(path: Path, version: str) -> dict[str, Any]:
     installer = path.parent / report["installer"]
     if not installer.is_file() or installer.stat().st_size != report.get("installer_bytes"):
         raise ReleaseError("The installer is missing or does not match the build manifest")
+    if fingerprint is not None and report.get("source_fingerprint") != fingerprint:
+        raise ReleaseError("The build manifest does not match the current source snapshot")
+    if sha256(installer) != report.get("installer_sha256"):
+        raise ReleaseError("The installer checksum does not match the build manifest; rebuild locally")
+    return report
+
+
+def release_only_path(name: str) -> bool:
+    """Changes to these files cannot alter the frozen application or installer."""
+    return (
+        name in {"README.md", "CONTRIBUTING.md", "CHANGELOG.md"}
+        or name.startswith((".github/", "backend/tests/", "frontend/tests/"))
+        or name
+        in {
+            "scripts/publish_release.py",
+            "scripts/publish_release.ps1",
+            "scripts/publish_release.cmd",
+            "scripts/publish_launcher.ps1",
+        }
+    )
+
+
+def validate_archived_build(
+    root: Path, manifest: Path, version: str, fingerprint: str, source_archive: Path
+) -> dict[str, Any]:
+    """Reuse an exact verified build when only publication files have changed."""
+    report = validate_build(manifest, version)
+    with zipfile.ZipFile(source_archive) as archive:
+        names = archive.namelist()
+        if len(names) != len(set(names)):
+            raise ReleaseError("The build source archive contains duplicate entries")
+        original = {name: archive.read(name) for name in names}
+    digest = hashlib.sha256(b"htd-source-v1\0")
+    for name, content in sorted(original.items()):
+        encoded = name.encode("utf-8")
+        digest.update(len(encoded).to_bytes(8, "big"))
+        digest.update(encoded)
+        digest.update(hashlib.sha256(content).digest())
+    if digest.hexdigest() != report.get("source_fingerprint"):
+        raise ReleaseError("The archived source does not match the installer's original build fingerprint")
+    current = {name: path.read_bytes() for name, path in source_files(root)}
+    changed = sorted(
+        name for name in original.keys() | current.keys() if original.get(name) != current.get(name)
+    )
+    incompatible = [name for name in changed if not release_only_path(name)]
+    if incompatible:
+        raise ReleaseError(
+            "Application/build inputs differ from the verified archive: " + ", ".join(incompatible)
+        )
+    if source_fingerprint(root) != fingerprint:
+        raise ReleaseError("Source changed while comparing the original build archive")
+    report.update(
+        publication_source_fingerprint=fingerprint,
+        build_source_archive_sha256=sha256(source_archive),
+        publication_only_changes=changed,
+    )
     return report
 
 
@@ -210,53 +284,33 @@ class Publisher:
         self.live(sys.executable, "scripts/check_publication.py", "--history")
         return self.api(f"repos/{self.repo}/releases/tags/{self.tag}", missing_ok=True)
 
-    def wait_checks(self, commit: str) -> None:
-        if not (self.root / ".github/workflows/ci.yml").is_file():
-            return
-        print("Waiting for the pushed commit's GitHub Checks workflow", flush=True)
-        deadline = time.monotonic() + 120
-        while time.monotonic() < deadline:
-            runs = json.loads(
-                self.capture(
-                    self.gh,
-                    "run",
-                    "list",
-                    "--repo",
-                    self.repo,
-                    "--workflow",
-                    "ci.yml",
-                    "--commit",
-                    commit,
-                    "--event",
-                    "push",
-                    "--limit",
-                    "1",
-                    "--json",
-                    "databaseId,status,conclusion",
-                )
+    def prepare_build(
+        self, fingerprint: str, *, reuse_checks: bool, build_source_archive: Path | None = None
+    ) -> dict[str, Any]:
+        manifest = self.root / f"release/release-{self.version}.json"
+        if build_source_archive is not None:
+            report = validate_archived_build(
+                self.root, manifest, self.version, fingerprint, build_source_archive
             )
-            if runs:
-                run = runs[0]
-                if run["status"] == "completed":
-                    if run["conclusion"] != "success":
-                        raise ReleaseError(
-                            "GitHub Checks failed; fix the commit before creating the release tag"
-                        )
-                    return
-                self.live(
-                    self.gh,
-                    "run",
-                    "watch",
-                    str(run["databaseId"]),
-                    "--repo",
-                    self.repo,
-                    "--interval",
-                    "10",
-                    "--exit-status",
-                )
-                return
-            time.sleep(3)
-        raise ReleaseError("GitHub Checks has not appeared yet; rerun the publisher to resume")
+            print(
+                "REUSE original checked installer; application/build inputs match the verified archive",
+                flush=True,
+            )
+            return report
+        try:
+            report = validate_build(manifest, self.version, fingerprint)
+        except (OSError, ValueError, ReleaseError) as error:
+            print(f"Local build required: {error}", flush=True)
+        else:
+            print(f"REUSE checked installer for source {fingerprint[:12]}", flush=True)
+            return report
+        if not reuse_checks:
+            self.live(sys.executable, "-m", "scripts.local_ci")
+        if source_fingerprint(self.root) != fingerprint:
+            raise ReleaseError("Source changed during local verification; retry before publishing")
+        # Local CI passed, or the caller explicitly reused completed targeted checks.
+        self.live(sys.executable, "scripts/build_release.py", "--reuse-checks")
+        return validate_build(manifest, self.version, fingerprint)
 
     def verify_assets(self, release: dict[str, Any], paths: list[Path]) -> None:
         assets = {asset["name"]: asset for asset in release["assets"]}
@@ -296,10 +350,15 @@ class Publisher:
         if self.changed():
             self.live("git", "add", "--", *files)
             self.live("git", "commit", "-m", f"docs: archive {self.version} release notes")
+        if self.capture("git", "rev-parse", "origin/" + self.branch) != self.capture(
+            "git", "rev-parse", "HEAD"
+        ):
             self.live("git", "push", "origin", f"HEAD:refs/heads/{self.branch}")
         return str(release["html_url"])
 
-    def publish(self, *, reuse_checks: bool = False, dry_run: bool = False) -> str:
+    def publish(
+        self, *, reuse_checks: bool = False, dry_run: bool = False, build_source_archive: Path | None = None
+    ) -> str:
         release = self.preflight()
         archive = self.root / f".github/release-notes/archive/{self.version}.md"
         if release and not release["draft"]:
@@ -313,8 +372,6 @@ class Publisher:
                 raise ReleaseError(
                     "This version is already published; bump VERSION before publishing more changes"
                 )
-            if archive.exists() and not self.changed():
-                return str(release["html_url"])
             notes = (
                 archive.read_text(encoding="utf-8").split("\n\n", 3)[-1]
                 if archive.exists()
@@ -333,22 +390,36 @@ class Publisher:
             flush=True,
         )
         if dry_run:
+            if build_source_archive is not None:
+                validate_archived_build(
+                    self.root,
+                    self.root / f"release/release-{self.version}.json",
+                    self.version,
+                    source_fingerprint(self.root),
+                    build_source_archive,
+                )
+                print(
+                    "Original installer verified; application/build inputs match the source archive",
+                    flush=True,
+                )
             return f"https://github.com/{self.repo}/releases/tag/{self.tag}"
-        build = [sys.executable, "scripts/build_release.py"]
-        if reuse_checks:
-            build.append("--reuse-checks")
-        self.live(*build)
+        fingerprint = source_fingerprint(self.root)
+        report = self.prepare_build(
+            fingerprint, reuse_checks=reuse_checks, build_source_archive=build_source_archive
+        )
         folder = self.root / "release"
         manifest = folder / f"release-{self.version}.json"
-        report = validate_build(manifest, self.version)
         self.live(sys.executable, "scripts/check_publication.py", "--history", "--export")
+        if source_fingerprint(self.root) != fingerprint:
+            raise ReleaseError("Source changed after the build; retry before committing or pushing")
         if self.changed():
             self.live("git", "add", "--all")
             self.live("git", "commit", "-m", f"release: Harness Token Deck {self.version}")
+        if self.changed() or source_fingerprint(self.root) != fingerprint:
+            raise ReleaseError("Source changed during the release commit; retry before pushing")
         commit = self.capture("git", "rev-parse", "HEAD").strip()
         if self.capture("git", "rev-parse", "origin/" + self.branch).strip() != commit:
             self.live("git", "push", "origin", f"HEAD:refs/heads/{self.branch}")
-        self.wait_checks(commit)
         if not tag_commit:
             self.live("git", "tag", "-a", self.tag, "-m", f"Release {self.version}", commit)
         self.live("git", "push", "origin", "refs/tags/" + self.tag)
@@ -415,15 +486,33 @@ def main() -> int:
     parser.add_argument("--gh", help="Path to an existing GitHub CLI executable")
     parser.add_argument("--reuse-checks", action="store_true", help="Reuse already completed targeted checks")
     parser.add_argument(
+        "--build-source-archive",
+        type=Path,
+        help="Reuse the original installer only if its source ZIP matches all application/build inputs",
+    )
+    parser.add_argument(
+        "--proxy", help="Proxy URL, local port (e.g. 7890), or 'direct'; applies only to this process"
+    )
+    parser.add_argument(
         "--dry-run", action="store_true", help="Preflight only; no build, commit, push or release"
     )
     args = parser.parse_args()
     os.environ.update(GH_PROMPT_DISABLED="1", GH_NO_UPDATE_NOTIFIER="1", GIT_TERMINAL_PROMPT="0")
     try:
+        configure_proxy(args.proxy)
         publisher = Publisher(ROOT, find_gh(ROOT, args.gh))
-        print(publisher.publish(reuse_checks=args.reuse_checks, dry_run=args.dry_run), flush=True)
-    except (ReleaseError, ValueError, OSError, subprocess.SubprocessError) as error:
+        print(
+            publisher.publish(
+                reuse_checks=args.reuse_checks,
+                dry_run=args.dry_run,
+                build_source_archive=args.build_source_archive,
+            ),
+            flush=True,
+        )
+    except (ReleaseError, ValueError, OSError, zipfile.BadZipFile, subprocess.SubprocessError) as error:
         print(f"Publish stopped: {error}", file=sys.stderr)
+        if isinstance(error, subprocess.CalledProcessError) and error.stderr:
+            print(error.stderr.strip(), file=sys.stderr)
         return 1
     return 0
 

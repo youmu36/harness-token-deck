@@ -6,7 +6,7 @@
     },
     "response": {
       "data": {
-        "appVersion": "0.4.3",
+        "appVersion": "0.5.0",
         "capabilities": [
           "app.hello",
           "app.openPath",
@@ -15,6 +15,10 @@
           "collection.scanNow",
           "collection.setPaused",
           "collection.status",
+          "dataDirectory.cleanup",
+          "dataDirectory.move",
+          "dataDirectory.preview",
+          "dataDirectory.status",
           "maintenance.backup",
           "maintenance.commitRecalc",
           "maintenance.previewRecalc",
@@ -51,8 +55,13 @@
           "pricing.switchCurrent",
           "pricing.unpriced",
           "pricing.unpricedNotice",
+          "reconciliation.batches",
+          "reconciliation.commitCalibration",
           "reconciliation.dismiss",
+          "reconciliation.preview",
+          "reconciliation.previewCalibration",
           "reconciliation.status",
+          "reconciliation.targets",
           "remote.delete",
           "remote.get",
           "remote.refresh",
@@ -60,12 +69,15 @@
           "remote.test",
           "sources.autoDetect",
           "sources.list",
+          "sources.setEnabled",
           "sources.setPath",
           "sources.validatePath",
           "stats.acknowledgeQuality",
           "stats.analytics",
           "stats.auxiliaryCosts",
           "stats.cacheMonitor",
+          "stats.cancelAnalysis",
+          "stats.evidence",
           "stats.explore",
           "stats.exploreOptions",
           "stats.longTerm",
@@ -96,11 +108,13 @@
           "wallet.topUp"
         ],
         "dataDir": "C:\\htd-contract-fixture\\data",
+        "dataDirSource": "explicit",
         "mode": "desktop",
         "protocol": 1,
         "revisions": {
           "account": 0,
           "auxiliary": 0,
+          "cost": 0,
           "display": 0,
           "models": 0,
           "output": 0,
@@ -175,6 +189,7 @@
       "data": {
         "preferences": {
           "accountingTimezone": "Asia/Shanghai",
+          "analysisView": null,
           "closeToTray": true,
           "collapsed": false,
           "filters": {},
@@ -188,6 +203,7 @@
           "settingsSection": "display",
           "showScanCountdown": false,
           "startAtLogin": false,
+          "statisticsView": null,
           "theme": "system",
           "timezone": "system",
           "unpricedNoticeDismissed": "",
@@ -257,10 +273,26 @@
     "payload": {},
     "response": {
       "data": {
+        "groupVendors": {},
         "groups": [],
+        "modelNextOffset": null,
         "models": [],
+        "selectedModels": [],
+        "totalModels": 0,
         "vendors": [],
         "versions": []
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.cancelAnalysis",
+    "payload": {
+      "queryId": "synthetic-cancel"
+    },
+    "response": {
+      "data": {
+        "cancelled": true
       },
       "ok": true
     }
@@ -270,9 +302,14 @@
     "payload": {},
     "response": {
       "data": {
+        "businessTimezone": "Asia/Shanghai",
+        "coverage": [],
+        "end": "2026-10-01T10:00:00.000Z",
         "generatedAt": "2026-10-01T10:00:00.000Z",
         "references": [],
-        "today": "2026-10-01"
+        "start": "2026-09-01T16:00:00.000Z",
+        "today": "2026-10-01",
+        "todayReferences": []
       },
       "ok": true
     }
@@ -285,29 +322,58 @@
     },
     "response": {
       "data": {
+        "accountCorrectionNextOffset": null,
+        "accountCorrectionTotal": 0,
+        "accountCorrections": [],
+        "accountNextOffset": null,
+        "accountTotal": 0,
+        "accounts": [],
         "breakdowns": [],
         "businessTimezone": "Asia/Shanghai",
+        "comparisons": [],
+        "costBasis": "local",
+        "coverage": [],
         "end": "2026-10-02T00:00:00.000Z",
         "generatedAt": "2026-10-01T10:00:00.000Z",
         "grain": "day",
+        "harnesses": [],
+        "intervalCostPico": "0",
         "missingVersionRecords": "0",
         "models": [],
         "nextOffset": null,
         "notices": [],
+        "plan": {
+          "layer": "recent",
+          "rangeKind": null,
+          "recentBoundary": "2026-07-31T10:00:00.000Z",
+          "sessionScoped": false
+        },
         "quality": [],
         "qualityNextOffset": null,
         "qualityTotal": 0,
         "qualityUnacknowledged": 0,
+        "remoteCostPico": "0",
         "revision": 0,
+        "snapshot": {
+          "account": 0,
+          "cost": 0,
+          "pricing": 0,
+          "quality": 0,
+          "usage": 0
+        },
         "start": "2026-10-01T00:00:00.000Z",
         "totalModels": 0,
         "totals": {
+          "allocationIncomplete": false,
           "cacheCoverageIncomplete": false,
           "cacheHitRate": null,
           "cacheReadTokens": "0",
           "cacheWriteTokens": "0",
+          "componentCostEstimated": false,
+          "correctionPico": "0",
           "eligibleCostPico": "0",
           "eligibleTokens": "0",
+          "estimatePico": "0",
           "incomplete": false,
           "inputTokens": "0",
           "newInput": "0",
@@ -318,6 +384,7 @@
             "output": "0",
             "write": "0"
           },
+          "pendingValuationCount": "0",
           "perDollar": {
             "cache": null,
             "input": null,
@@ -325,12 +392,16 @@
             "write": null
           },
           "picoUsd": "0",
+          "ratioUnavailable": false,
           "recordCount": "0",
           "tokensPerDollar": null,
           "totalTokens": "0",
+          "unallocatedCorrectionPico": "0",
           "unpriced": false
         },
-        "trend": []
+        "trend": [],
+        "unallocatedCostPico": "0",
+        "unallocatedTrendCorrectionPico": "0"
       },
       "ok": true
     }
@@ -342,7 +413,8 @@
     },
     "response": {
       "data": {
-        "acknowledged": 0
+        "acknowledged": 0,
+        "conflicts": 0
       },
       "ok": true
     }
@@ -379,6 +451,7 @@
       "data": {
         "preferences": {
           "accountingTimezone": "Asia/Shanghai",
+          "analysisView": null,
           "closeToTray": true,
           "collapsed": false,
           "filters": {},
@@ -392,6 +465,7 @@
           "settingsSection": "display",
           "showScanCountdown": false,
           "startAtLogin": false,
+          "statisticsView": null,
           "theme": "dark",
           "timezone": "system",
           "unpricedNoticeDismissed": "",
@@ -453,6 +527,7 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\htd_source_root_codex",
             "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": null,
             "status": "pending",
             "unmeteredRequests": null
@@ -468,6 +543,7 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
             "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": null,
             "status": "unavailable",
             "unmeteredRequests": null
@@ -481,6 +557,7 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
             "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": null,
             "status": "pending",
             "unmeteredRequests": null
@@ -494,6 +571,7 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
             "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": null,
             "status": "pending",
             "unmeteredRequests": null
@@ -504,82 +582,12 @@
     }
   },
   {
-    "command": "sources.autoDetect",
+    "command": "sources.setEnabled",
     "payload": {
-      "expectedRevision": 1,
-      "operationId": "00000000-0000-4000-8000-000000000004"
-    },
-    "response": {
-      "data": {
-        "paused": false,
-        "revision": 1,
-        "sources": [
-          {
-            "diagnostics": [],
-            "harness": "codex",
-            "identityCount": 0,
-            "inboxCount": 0,
-            "lastScanAt": null,
-            "ledgerCount": 0,
-            "path": "C:\\htd-contract-fixture\\htd_source_root_codex",
-            "processedCount": 0,
-            "startedAt": null,
-            "status": "pending",
-            "unmeteredRequests": null
-          },
-          {
-            "diagnostics": [
-              "source_database_unavailable"
-            ],
-            "harness": "zcode",
-            "identityCount": 0,
-            "inboxCount": 0,
-            "lastScanAt": null,
-            "ledgerCount": 0,
-            "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
-            "processedCount": 0,
-            "startedAt": null,
-            "status": "unavailable",
-            "unmeteredRequests": null
-          },
-          {
-            "diagnostics": [],
-            "harness": "dsh",
-            "identityCount": 0,
-            "inboxCount": 0,
-            "lastScanAt": null,
-            "ledgerCount": 0,
-            "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
-            "processedCount": 0,
-            "startedAt": null,
-            "status": "pending",
-            "unmeteredRequests": null
-          },
-          {
-            "diagnostics": [],
-            "harness": "claude",
-            "identityCount": 0,
-            "inboxCount": 0,
-            "lastScanAt": null,
-            "ledgerCount": 0,
-            "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
-            "processedCount": 0,
-            "startedAt": null,
-            "status": "pending",
-            "unmeteredRequests": null
-          }
-        ]
-      },
-      "ok": true
-    }
-  },
-  {
-    "command": "sources.setPath",
-    "payload": {
+      "enabled": false,
       "expectedRevision": 1,
       "harness": "codex",
-      "operationId": "00000000-0000-4000-8000-000000000005",
-      "path": "C:\\htd-contract-fixture\\synthetic sessions"
+      "operationId": "00000000-0000-4000-8000-000000000004"
     },
     "response": {
       "data": {
@@ -593,8 +601,9 @@
             "inboxCount": 0,
             "lastScanAt": null,
             "ledgerCount": 0,
-            "path": "C:\\htd-contract-fixture\\synthetic sessions",
+            "path": "C:\\htd-contract-fixture\\htd_source_root_codex",
             "processedCount": 0,
+            "scanEnabled": false,
             "startedAt": null,
             "status": "pending",
             "unmeteredRequests": null
@@ -610,6 +619,7 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
             "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": null,
             "status": "unavailable",
             "unmeteredRequests": null
@@ -623,6 +633,7 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
             "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": null,
             "status": "pending",
             "unmeteredRequests": null
@@ -636,6 +647,233 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
             "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          }
+        ]
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "sources.setEnabled",
+    "payload": {
+      "enabled": true,
+      "expectedRevision": 2,
+      "harness": "codex",
+      "operationId": "00000000-0000-4000-8000-000000000005"
+    },
+    "response": {
+      "data": {
+        "paused": false,
+        "revision": 3,
+        "sources": [
+          {
+            "diagnostics": [],
+            "harness": "codex",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_codex",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [
+              "source_database_unavailable"
+            ],
+            "harness": "zcode",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "unavailable",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "dsh",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "claude",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          }
+        ]
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "sources.autoDetect",
+    "payload": {
+      "expectedRevision": 3,
+      "operationId": "00000000-0000-4000-8000-000000000006"
+    },
+    "response": {
+      "data": {
+        "paused": false,
+        "revision": 3,
+        "sources": [
+          {
+            "diagnostics": [],
+            "harness": "codex",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_codex",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [
+              "source_database_unavailable"
+            ],
+            "harness": "zcode",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "unavailable",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "dsh",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "claude",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          }
+        ]
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "sources.setPath",
+    "payload": {
+      "expectedRevision": 3,
+      "harness": "codex",
+      "operationId": "00000000-0000-4000-8000-000000000007",
+      "path": "C:\\htd-contract-fixture\\synthetic sessions"
+    },
+    "response": {
+      "data": {
+        "paused": false,
+        "revision": 4,
+        "sources": [
+          {
+            "diagnostics": [],
+            "harness": "codex",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\synthetic sessions",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [
+              "source_database_unavailable"
+            ],
+            "harness": "zcode",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "unavailable",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "dsh",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
+            "processedCount": 0,
+            "scanEnabled": true,
+            "startedAt": null,
+            "status": "pending",
+            "unmeteredRequests": null
+          },
+          {
+            "diagnostics": [],
+            "harness": "claude",
+            "identityCount": 0,
+            "inboxCount": 0,
+            "lastScanAt": null,
+            "ledgerCount": 0,
+            "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
+            "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": null,
             "status": "pending",
             "unmeteredRequests": null
@@ -664,7 +902,7 @@
   {
     "command": "collection.scanNow",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000006"
+      "operationId": "00000000-0000-4000-8000-000000000008"
     },
     "response": {
       "data": {
@@ -677,13 +915,13 @@
   {
     "command": "collection.setPaused",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000007",
+      "operationId": "00000000-0000-4000-8000-000000000009",
       "paused": true
     },
     "response": {
       "data": {
         "paused": true,
-        "revision": 11
+        "revision": 13
       },
       "ok": true
     }
@@ -697,7 +935,7 @@
         "lastError": null,
         "nextPeriodicAt": null,
         "paused": true,
-        "revision": 11,
+        "revision": 13,
         "sources": [
           {
             "diagnostics": [],
@@ -708,6 +946,7 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\synthetic sessions",
             "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": "2026-10-01T10:00:00.000Z",
             "status": "watching",
             "unmeteredRequests": null
@@ -723,6 +962,7 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\htd_source_root_zcode",
             "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": "2026-10-01T10:00:00.000Z",
             "status": "unavailable",
             "unmeteredRequests": null
@@ -736,6 +976,7 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\htd_source_root_dsh",
             "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": "2026-10-01T10:00:00.000Z",
             "status": "watching",
             "unmeteredRequests": null
@@ -749,6 +990,7 @@
             "ledgerCount": 0,
             "path": "C:\\htd-contract-fixture\\htd_source_root_claude",
             "processedCount": 0,
+            "scanEnabled": true,
             "startedAt": "2026-10-01T10:00:00.000Z",
             "status": "watching",
             "unmeteredRequests": null
@@ -765,15 +1007,15 @@
     "payload": {
       "expectedRevision": 0,
       "name": "Fixture Prices",
-      "operationId": "00000000-0000-4000-8000-000000000008"
+      "operationId": "00000000-0000-4000-8000-00000000000a"
     },
     "response": {
       "data": {
         "affectedHarnesses": [],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000009",
+        "groupId": "00000000-0000-4000-8000-00000000000b",
         "revision": 1,
-        "versionId": "00000000-0000-4000-8000-00000000000a"
+        "versionId": "00000000-0000-4000-8000-00000000000c"
       },
       "ok": true
     }
@@ -782,15 +1024,15 @@
     "command": "pricing.renameGroup",
     "payload": {
       "expectedRevision": 1,
-      "groupId": "00000000-0000-4000-8000-000000000009",
+      "groupId": "00000000-0000-4000-8000-00000000000b",
       "name": "Recorded Prices",
-      "operationId": "00000000-0000-4000-8000-00000000000b"
+      "operationId": "00000000-0000-4000-8000-00000000000d"
     },
     "response": {
       "data": {
         "affectedHarnesses": [],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000009",
+        "groupId": "00000000-0000-4000-8000-00000000000b",
         "revision": 2,
         "versionId": null
       },
@@ -802,14 +1044,14 @@
     "payload": {
       "disabled": true,
       "expectedRevision": 2,
-      "groupId": "00000000-0000-4000-8000-000000000009",
-      "operationId": "00000000-0000-4000-8000-00000000000c"
+      "groupId": "00000000-0000-4000-8000-00000000000b",
+      "operationId": "00000000-0000-4000-8000-00000000000e"
     },
     "response": {
       "data": {
         "affectedHarnesses": [],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000009",
+        "groupId": "00000000-0000-4000-8000-00000000000b",
         "revision": 3,
         "versionId": null
       },
@@ -821,14 +1063,14 @@
     "payload": {
       "disabled": false,
       "expectedRevision": 3,
-      "groupId": "00000000-0000-4000-8000-000000000009",
-      "operationId": "00000000-0000-4000-8000-00000000000d"
+      "groupId": "00000000-0000-4000-8000-00000000000b",
+      "operationId": "00000000-0000-4000-8000-00000000000f"
     },
     "response": {
       "data": {
         "affectedHarnesses": [],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000009",
+        "groupId": "00000000-0000-4000-8000-00000000000b",
         "revision": 4,
         "versionId": null
       },
@@ -839,18 +1081,18 @@
     "command": "pricing.addVersion",
     "payload": {
       "expectedRevision": 4,
-      "groupId": "00000000-0000-4000-8000-000000000009",
+      "groupId": "00000000-0000-4000-8000-00000000000b",
       "label": "Second",
       "number": 2,
-      "operationId": "00000000-0000-4000-8000-00000000000e"
+      "operationId": "00000000-0000-4000-8000-000000000010"
     },
     "response": {
       "data": {
         "affectedHarnesses": [],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000009",
+        "groupId": "00000000-0000-4000-8000-00000000000b",
         "revision": 5,
-        "versionId": "00000000-0000-4000-8000-00000000000f"
+        "versionId": "00000000-0000-4000-8000-000000000011"
       },
       "ok": true
     }
@@ -859,17 +1101,17 @@
     "command": "pricing.activateVersion",
     "payload": {
       "expectedRevision": 5,
-      "groupId": "00000000-0000-4000-8000-000000000009",
-      "operationId": "00000000-0000-4000-8000-000000000010",
-      "versionId": "00000000-0000-4000-8000-00000000000f"
+      "groupId": "00000000-0000-4000-8000-00000000000b",
+      "operationId": "00000000-0000-4000-8000-000000000012",
+      "versionId": "00000000-0000-4000-8000-000000000011"
     },
     "response": {
       "data": {
         "affectedHarnesses": [],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000009",
+        "groupId": "00000000-0000-4000-8000-00000000000b",
         "revision": 6,
-        "versionId": "00000000-0000-4000-8000-00000000000f"
+        "versionId": "00000000-0000-4000-8000-000000000011"
       },
       "ok": true
     }
@@ -879,8 +1121,8 @@
     "payload": {
       "expectedRevision": 6,
       "label": "Recorded",
-      "operationId": "00000000-0000-4000-8000-000000000011",
-      "versionId": "00000000-0000-4000-8000-00000000000a"
+      "operationId": "00000000-0000-4000-8000-000000000013",
+      "versionId": "00000000-0000-4000-8000-00000000000c"
     },
     "response": {
       "data": {
@@ -888,7 +1130,7 @@
         "changed": true,
         "groupId": null,
         "revision": 7,
-        "versionId": "00000000-0000-4000-8000-00000000000a"
+        "versionId": "00000000-0000-4000-8000-00000000000c"
       },
       "ok": true
     }
@@ -906,8 +1148,8 @@
           "output": "2"
         }
       ],
-      "operationId": "00000000-0000-4000-8000-000000000012",
-      "versionId": "00000000-0000-4000-8000-00000000000a"
+      "operationId": "00000000-0000-4000-8000-000000000014",
+      "versionId": "00000000-0000-4000-8000-00000000000c"
     },
     "response": {
       "data": {
@@ -915,7 +1157,7 @@
         "changed": true,
         "groupId": null,
         "revision": 8,
-        "versionId": "00000000-0000-4000-8000-00000000000a"
+        "versionId": "00000000-0000-4000-8000-00000000000c"
       },
       "ok": true
     }
@@ -923,9 +1165,9 @@
   {
     "command": "pricing.previewSwitch",
     "payload": {
-      "groupId": "00000000-0000-4000-8000-000000000009",
+      "groupId": "00000000-0000-4000-8000-00000000000b",
       "harness": "codex",
-      "versionId": "00000000-0000-4000-8000-00000000000a"
+      "versionId": "00000000-0000-4000-8000-00000000000c"
     },
     "response": {
       "data": {
@@ -944,10 +1186,10 @@
     "command": "pricing.switchCurrent",
     "payload": {
       "expectedRevision": 8,
-      "groupId": "00000000-0000-4000-8000-000000000009",
+      "groupId": "00000000-0000-4000-8000-00000000000b",
       "harness": "codex",
-      "operationId": "00000000-0000-4000-8000-000000000013",
-      "versionId": "00000000-0000-4000-8000-00000000000a"
+      "operationId": "00000000-0000-4000-8000-000000000015",
+      "versionId": "00000000-0000-4000-8000-00000000000c"
     },
     "response": {
       "data": {
@@ -955,9 +1197,9 @@
           "codex"
         ],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000009",
+        "groupId": "00000000-0000-4000-8000-00000000000b",
         "revision": 9,
-        "versionId": "00000000-0000-4000-8000-00000000000a"
+        "versionId": "00000000-0000-4000-8000-00000000000c"
       },
       "ok": true
     }
@@ -967,16 +1209,16 @@
     "payload": {
       "disabled": true,
       "expectedRevision": 9,
-      "operationId": "00000000-0000-4000-8000-000000000014",
-      "versionId": "00000000-0000-4000-8000-00000000000f"
+      "operationId": "00000000-0000-4000-8000-000000000016",
+      "versionId": "00000000-0000-4000-8000-000000000011"
     },
     "response": {
       "data": {
         "affectedHarnesses": [],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000009",
+        "groupId": "00000000-0000-4000-8000-00000000000b",
         "revision": 10,
-        "versionId": "00000000-0000-4000-8000-00000000000f"
+        "versionId": "00000000-0000-4000-8000-000000000011"
       },
       "ok": true
     }
@@ -985,16 +1227,16 @@
     "command": "pricing.deleteVersion",
     "payload": {
       "expectedRevision": 10,
-      "operationId": "00000000-0000-4000-8000-000000000015",
-      "versionId": "00000000-0000-4000-8000-00000000000f"
+      "operationId": "00000000-0000-4000-8000-000000000017",
+      "versionId": "00000000-0000-4000-8000-000000000011"
     },
     "response": {
       "data": {
         "affectedHarnesses": [],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000009",
+        "groupId": "00000000-0000-4000-8000-00000000000b",
         "revision": 11,
-        "versionId": "00000000-0000-4000-8000-00000000000f"
+        "versionId": "00000000-0000-4000-8000-000000000011"
       },
       "ok": true
     }
@@ -1004,15 +1246,15 @@
     "payload": {
       "expectedRevision": 11,
       "name": "Remove Me",
-      "operationId": "00000000-0000-4000-8000-000000000016"
+      "operationId": "00000000-0000-4000-8000-000000000018"
     },
     "response": {
       "data": {
         "affectedHarnesses": [],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000017",
+        "groupId": "00000000-0000-4000-8000-000000000019",
         "revision": 12,
-        "versionId": "00000000-0000-4000-8000-000000000018"
+        "versionId": "00000000-0000-4000-8000-00000000001a"
       },
       "ok": true
     }
@@ -1021,14 +1263,14 @@
     "command": "pricing.deleteGroup",
     "payload": {
       "expectedRevision": 12,
-      "groupId": "00000000-0000-4000-8000-000000000017",
-      "operationId": "00000000-0000-4000-8000-000000000019"
+      "groupId": "00000000-0000-4000-8000-000000000019",
+      "operationId": "00000000-0000-4000-8000-00000000001b"
     },
     "response": {
       "data": {
         "affectedHarnesses": [],
         "changed": true,
-        "groupId": "00000000-0000-4000-8000-000000000017",
+        "groupId": "00000000-0000-4000-8000-000000000019",
         "revision": 13,
         "versionId": null
       },
@@ -1043,7 +1285,7 @@
         "gpt-6-astra",
         "excluded-model"
       ],
-      "operationId": "00000000-0000-4000-8000-00000000001a"
+      "operationId": "00000000-0000-4000-8000-00000000001c"
     },
     "response": {
       "data": {
@@ -1068,7 +1310,7 @@
           }
         }
       ],
-      "operationId": "00000000-0000-4000-8000-00000000001b"
+      "operationId": "00000000-0000-4000-8000-00000000001d"
     },
     "response": {
       "data": {
@@ -1086,7 +1328,7 @@
     "payload": {
       "expectedRevision": 2,
       "modelId": "excluded-model",
-      "operationId": "00000000-0000-4000-8000-00000000001c"
+      "operationId": "00000000-0000-4000-8000-00000000001e"
     },
     "response": {
       "data": {
@@ -1106,7 +1348,7 @@
       "modelIds": [
         "excluded-model"
       ],
-      "operationId": "00000000-0000-4000-8000-00000000001d"
+      "operationId": "00000000-0000-4000-8000-00000000001f"
     },
     "response": {
       "data": {
@@ -1174,11 +1416,11 @@
     "command": "models.scan",
     "payload": {
       "harness": "codex",
-      "operationId": "00000000-0000-4000-8000-00000000001e"
+      "operationId": "00000000-0000-4000-8000-000000000020"
     },
     "response": {
       "data": {
-        "taskId": "00000000-0000-4000-8000-00000000001f"
+        "taskId": "00000000-0000-4000-8000-000000000021"
       },
       "ok": true
     }
@@ -1186,7 +1428,7 @@
   {
     "command": "tasks.get",
     "payload": {
-      "taskId": "00000000-0000-4000-8000-00000000001f"
+      "taskId": "00000000-0000-4000-8000-000000000021"
     },
     "response": {
       "data": {
@@ -1201,7 +1443,7 @@
           "start": "2026-09-28T10:00:00.000Z"
         },
         "status": "completed",
-        "taskId": "00000000-0000-4000-8000-00000000001f",
+        "taskId": "00000000-0000-4000-8000-000000000021",
         "total": 0
       },
       "ok": true
@@ -1210,8 +1452,8 @@
   {
     "command": "tasks.cancel",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000020",
-      "taskId": "00000000-0000-4000-8000-00000000001f"
+      "operationId": "00000000-0000-4000-8000-000000000022",
+      "taskId": "00000000-0000-4000-8000-000000000021"
     },
     "response": {
       "data": {
@@ -1226,7 +1468,7 @@
           "start": "2026-09-28T10:00:00.000Z"
         },
         "status": "completed",
-        "taskId": "00000000-0000-4000-8000-00000000001f",
+        "taskId": "00000000-0000-4000-8000-000000000021",
         "total": 0
       },
       "ok": true
@@ -1237,7 +1479,7 @@
     "payload": {
       "initialBalance": "-0.5",
       "name": "Fixture Vendor",
-      "operationId": "00000000-0000-4000-8000-000000000021"
+      "operationId": "00000000-0000-4000-8000-000000000023"
     },
     "response": {
       "data": {
@@ -1267,7 +1509,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
@@ -1280,6 +1522,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "0",
             "postedR": "0"
           },
@@ -1293,7 +1536,7 @@
           "walletRevision": 1,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -1302,8 +1545,8 @@
     "command": "wallet.renameVendor",
     "payload": {
       "name": "Recorded Vendor",
-      "operationId": "00000000-0000-4000-8000-000000000023",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-000000000025",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -1333,7 +1576,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
@@ -1346,6 +1589,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": "2026-10-01T10:00:00.000Z",
             "postedC": "0",
             "postedR": "0"
           },
@@ -1359,7 +1603,7 @@
           "walletRevision": 2,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -1369,10 +1613,10 @@
     "payload": {
       "expectedRevision": 2,
       "groupIds": [
-        "00000000-0000-4000-8000-000000000009"
+        "00000000-0000-4000-8000-00000000000b"
       ],
-      "operationId": "00000000-0000-4000-8000-000000000024",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-000000000026",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -1402,11 +1646,11 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [
-            "00000000-0000-4000-8000-000000000009"
+            "00000000-0000-4000-8000-00000000000b"
           ],
           "localWallet": {
             "A": "-500000000000",
@@ -1417,6 +1661,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": "2026-10-01T10:00:00.000Z",
             "postedC": "0",
             "postedR": "0"
           },
@@ -1430,7 +1675,7 @@
           "walletRevision": 3,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -1439,8 +1684,8 @@
     "command": "wallet.topUp",
     "payload": {
       "amount": "10000.123456",
-      "operationId": "00000000-0000-4000-8000-000000000025",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-000000000027",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -1470,11 +1715,11 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [
-            "00000000-0000-4000-8000-000000000009"
+            "00000000-0000-4000-8000-00000000000b"
           ],
           "localWallet": {
             "A": "-500000000000",
@@ -1485,6 +1730,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "10000123456000000",
+            "pendingUpdatedAt": "2026-10-01T10:00:00.000Z",
             "postedC": "0",
             "postedR": "0"
           },
@@ -1498,7 +1744,7 @@
           "walletRevision": 4,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -1506,36 +1752,11 @@
   {
     "command": "wallet.accountEntries",
     "payload": {
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
         "entries": [
-          {
-            "A": "-500000000000",
-            "C": "0",
-            "R": "0",
-            "afterB": null,
-            "afterC": null,
-            "afterR": null,
-            "availablePico": "500000000000",
-            "beforeB": null,
-            "beforeC": null,
-            "beforeR": null,
-            "entryRevision": 1,
-            "estimatedConsumptionPico": null,
-            "fromAt": null,
-            "id": "00000000-0000-4000-8000-000000000026",
-            "intervalId": null,
-            "kind": "adjustment",
-            "manuallyCalibrated": false,
-            "note": "原本地账余额校准",
-            "noticeId": null,
-            "occurredAt": "2026-10-01T10:00:00.000Z",
-            "originalId": null,
-            "postedAt": "2026-10-01T10:00:00.000Z",
-            "toAt": null
-          },
           {
             "A": "0",
             "C": "0",
@@ -1550,11 +1771,36 @@
             "entryRevision": 1,
             "estimatedConsumptionPico": null,
             "fromAt": null,
-            "id": "00000000-0000-4000-8000-000000000027",
+            "id": "00000000-0000-4000-8000-000000000028",
             "intervalId": null,
             "kind": "top_up",
             "manuallyCalibrated": false,
             "note": "",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
+            "availablePico": "500000000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "00000000-0000-4000-8000-000000000029",
+            "intervalId": null,
+            "kind": "adjustment",
+            "manuallyCalibrated": false,
+            "note": "原本地账余额校准",
             "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": null,
@@ -1572,12 +1818,12 @@
     "command": "wallet.reclassify",
     "payload": {
       "amount": "1",
-      "entryId": "00000000-0000-4000-8000-000000000027",
+      "entryId": "00000000-0000-4000-8000-000000000028",
       "expectedAccountRevision": 2,
       "note": "人工改判",
-      "operationId": "00000000-0000-4000-8000-000000000028",
+      "operationId": "00000000-0000-4000-8000-00000000002a",
       "targetKind": "adjustment",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -1607,11 +1853,11 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [
-            "00000000-0000-4000-8000-000000000009"
+            "00000000-0000-4000-8000-00000000000b"
           ],
           "localWallet": {
             "A": "-500000000000",
@@ -1622,6 +1868,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "10000123456000000",
+            "pendingUpdatedAt": "2026-10-01T10:00:00.000Z",
             "postedC": "0",
             "postedR": "0"
           },
@@ -1635,7 +1882,7 @@
           "walletRevision": 5,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -1645,9 +1892,9 @@
     "payload": {
       "expectedAccountRevision": 3,
       "note": "人工校准",
-      "operationId": "00000000-0000-4000-8000-000000000029",
+      "operationId": "00000000-0000-4000-8000-00000000002b",
       "target": "1",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -1677,11 +1924,11 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [
-            "00000000-0000-4000-8000-000000000009"
+            "00000000-0000-4000-8000-00000000000b"
           ],
           "localWallet": {
             "A": "-500000000000",
@@ -1692,6 +1939,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "10000123456000000",
+            "pendingUpdatedAt": "2026-10-01T10:00:00.000Z",
             "postedC": "0",
             "postedR": "0"
           },
@@ -1705,7 +1953,7 @@
           "walletRevision": 6,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -1714,9 +1962,9 @@
     "command": "wallet.calibrate",
     "payload": {
       "expectedWalletRevision": 6,
-      "operationId": "00000000-0000-4000-8000-00000000002a",
+      "operationId": "00000000-0000-4000-8000-00000000002c",
       "target": "8.75",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -1746,11 +1994,11 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [
-            "00000000-0000-4000-8000-000000000009"
+            "00000000-0000-4000-8000-00000000000b"
           ],
           "localWallet": {
             "A": "-9991373456000000",
@@ -1761,6 +2009,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "10000123456000000",
+            "pendingUpdatedAt": "2026-10-01T10:00:00.000Z",
             "postedC": "0",
             "postedR": "0"
           },
@@ -1774,7 +2023,7 @@
           "walletRevision": 7,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -1782,8 +2031,8 @@
   {
     "command": "wallet.deleteVendor",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-00000000002b",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-00000000002d",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -1813,7 +2062,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
@@ -1826,6 +2075,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "10000123456000000",
+            "pendingUpdatedAt": "2026-10-01T10:00:00.000Z",
             "postedC": "0",
             "postedR": "0"
           },
@@ -1839,7 +2089,7 @@
           "walletRevision": 8,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -1847,8 +2097,8 @@
   {
     "command": "wallet.restoreVendor",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-00000000002c",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-00000000002e",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -1878,7 +2128,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
@@ -1891,6 +2141,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "10000123456000000",
+            "pendingUpdatedAt": "2026-10-01T10:00:00.000Z",
             "postedC": "0",
             "postedR": "0"
           },
@@ -1904,7 +2155,7 @@
           "walletRevision": 9,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -1938,7 +2189,7 @@
             "coverageIncomplete": false,
             "createdAt": "2026-10-01T10:00:00.000Z",
             "historyCoverageStart": null,
-            "id": "00000000-0000-4000-8000-000000000022",
+            "id": "00000000-0000-4000-8000-000000000024",
             "incompleteCount": 0,
             "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
             "linkedGroups": [],
@@ -1951,6 +2202,7 @@
               "pastTopUpPico": "0",
               "pendingConsumptionPico": "0",
               "pendingTopUpPico": "10000123456000000",
+              "pendingUpdatedAt": "2026-10-01T10:00:00.000Z",
               "postedC": "0",
               "postedR": "0"
             },
@@ -1973,7 +2225,7 @@
     "command": "wallet.entries",
     "payload": {
       "limit": 1,
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -1986,7 +2238,7 @@
               "watermarkSeq": 2
             },
             "count": 1,
-            "id": "00000000-0000-4000-8000-00000000002d",
+            "id": "00000000-0000-4000-8000-00000000002f",
             "kind": "adjustment",
             "note": "calibration",
             "noteDetails": null,
@@ -2003,7 +2255,7 @@
   {
     "command": "wallet.entries",
     "payload": {
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2016,7 +2268,7 @@
               "watermarkSeq": 2
             },
             "count": 1,
-            "id": "00000000-0000-4000-8000-00000000002d",
+            "id": "00000000-0000-4000-8000-00000000002f",
             "kind": "adjustment",
             "note": "calibration",
             "noteDetails": null,
@@ -2027,7 +2279,7 @@
             "amountPico": "10000123456000000",
             "calibration": null,
             "count": 1,
-            "id": "00000000-0000-4000-8000-000000000027",
+            "id": "00000000-0000-4000-8000-000000000028",
             "kind": "top_up",
             "note": "",
             "noteDetails": null,
@@ -2042,7 +2294,7 @@
               "watermarkSeq": 0
             },
             "count": 1,
-            "id": "00000000-0000-4000-8000-000000000026",
+            "id": "00000000-0000-4000-8000-000000000029",
             "kind": "adjustment",
             "note": "calibration",
             "noteDetails": null,
@@ -2059,7 +2311,7 @@
   {
     "command": "remote.get",
     "payload": {
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2083,13 +2335,13 @@
       "enabled": false,
       "siteType": "newapi",
       "userId": "42",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
         "error": null,
         "observation": {
-          "accountId": "test-e9fe4534e14344fa99d6ab65aae3d403",
+          "accountId": "test-47a2b3e0ee0c429e8b480cc66c213817",
           "amountPico": "1975310000001",
           "canCalibrate": true,
           "conversionRule": null,
@@ -2117,10 +2369,10 @@
       "baseUrl": "https://example.test",
       "credential": "[REDACTED]",
       "enabled": false,
-      "operationId": "00000000-0000-4000-8000-00000000002e",
+      "operationId": "00000000-0000-4000-8000-000000000030",
       "siteType": "newapi",
       "userId": "42",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2128,13 +2380,13 @@
           "authMode": "access_token",
           "baseUrl": "https://example.test",
           "enabled": false,
-          "id": "00000000-0000-4000-8000-00000000002f",
+          "id": "00000000-0000-4000-8000-000000000031",
           "maskedCredential": "••••1234",
           "quotaPerUnit": null,
           "refreshMinutes": 5,
           "siteType": "newapi",
           "userId": "42",
-          "vendorId": "00000000-0000-4000-8000-000000000022"
+          "vendorId": "00000000-0000-4000-8000-000000000024"
         },
         "error": null,
         "nextRefreshAt": null,
@@ -2149,8 +2401,8 @@
   {
     "command": "remote.refresh",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000030",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-000000000032",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2158,18 +2410,18 @@
           "authMode": "access_token",
           "baseUrl": "https://example.test",
           "enabled": false,
-          "id": "00000000-0000-4000-8000-00000000002f",
+          "id": "00000000-0000-4000-8000-000000000031",
           "maskedCredential": "••••1234",
           "quotaPerUnit": null,
           "refreshMinutes": 5,
           "siteType": "newapi",
           "userId": "42",
-          "vendorId": "00000000-0000-4000-8000-000000000022"
+          "vendorId": "00000000-0000-4000-8000-000000000024"
         },
         "error": null,
         "nextRefreshAt": null,
         "observation": {
-          "accountId": "00000000-0000-4000-8000-00000000002f",
+          "accountId": "00000000-0000-4000-8000-000000000031",
           "amountPico": "1975310000001",
           "canCalibrate": true,
           "conversionRule": null,
@@ -2197,8 +2449,8 @@
     "command": "wallet.topUp",
     "payload": {
       "amount": "1",
-      "operationId": "00000000-0000-4000-8000-000000000031",
-      "vendorId": "00000000-0000-4000-8000-000000000022",
+      "operationId": "00000000-0000-4000-8000-000000000033",
+      "vendorId": "00000000-0000-4000-8000-000000000024",
       "walletScope": "remote"
     },
     "response": {
@@ -2229,7 +2481,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
@@ -2242,6 +2494,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "10000123456000000",
+            "pendingUpdatedAt": "2026-10-01T10:00:00.000Z",
             "postedC": "0",
             "postedR": "0"
           },
@@ -2257,6 +2510,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "1000000000000",
+            "pendingUpdatedAt": "2026-10-01T10:10:00.000Z",
             "postedC": "0",
             "postedR": "0"
           },
@@ -2266,7 +2520,7 @@
           "walletRevision": 12,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -2274,8 +2528,8 @@
   {
     "command": "remote.refresh",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000032",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-000000000034",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2283,18 +2537,18 @@
           "authMode": "access_token",
           "baseUrl": "https://example.test",
           "enabled": false,
-          "id": "00000000-0000-4000-8000-00000000002f",
+          "id": "00000000-0000-4000-8000-000000000031",
           "maskedCredential": "••••1234",
           "quotaPerUnit": null,
           "refreshMinutes": 5,
           "siteType": "newapi",
           "userId": "42",
-          "vendorId": "00000000-0000-4000-8000-000000000022"
+          "vendorId": "00000000-0000-4000-8000-000000000024"
         },
         "error": null,
         "nextRefreshAt": null,
         "observation": {
-          "accountId": "00000000-0000-4000-8000-00000000002f",
+          "accountId": "00000000-0000-4000-8000-000000000031",
           "amountPico": "975310000001",
           "canCalibrate": true,
           "conversionRule": null,
@@ -2321,7 +2575,7 @@
   {
     "command": "wallet.accountEntries",
     "payload": {
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2377,8 +2631,8 @@
             "toAt": "2026-10-01T10:10:00.000Z"
           },
           {
-            "A": "9990873456000000",
-            "C": "9990873456000000",
+            "A": "-9990873456000000",
+            "C": "0",
             "R": "0",
             "afterB": null,
             "afterC": null,
@@ -2390,11 +2644,61 @@
             "entryRevision": 1,
             "estimatedConsumptionPico": null,
             "fromAt": null,
-            "id": "0000000000000000000000000000000000000000000000000000000000000000",
+            "id": "00000000-0000-4000-8000-00000000002f",
             "intervalId": null,
-            "kind": "balance_correction",
+            "kind": "adjustment",
             "manuallyCalibrated": false,
-            "note": "余额校准 9999623456000000 → 8750000000000 pico；累计消费 1000000000000 → 9991873456000000 pico",
+            "note": "原本地账余额校准",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "0",
+            "C": "0",
+            "R": "10000123456000000",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
+            "availablePico": "9999123456000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "00000000-0000-4000-8000-000000000028",
+            "intervalId": null,
+            "kind": "top_up",
+            "manuallyCalibrated": false,
+            "note": "",
+            "noticeId": null,
+            "occurredAt": "2026-10-01T10:00:00.000Z",
+            "originalId": null,
+            "postedAt": "2026-10-01T10:00:00.000Z",
+            "toAt": null
+          },
+          {
+            "A": "-500000000000",
+            "C": "0",
+            "R": "0",
+            "afterB": null,
+            "afterC": null,
+            "afterR": null,
+            "availablePico": "500000000000",
+            "beforeB": null,
+            "beforeC": null,
+            "beforeR": null,
+            "entryRevision": 1,
+            "estimatedConsumptionPico": null,
+            "fromAt": null,
+            "id": "00000000-0000-4000-8000-000000000029",
+            "intervalId": null,
+            "kind": "adjustment",
+            "manuallyCalibrated": false,
+            "note": "原本地账余额校准",
             "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": null,
@@ -2447,38 +2751,13 @@
             "note": "人工改判 (累计充值 10000123456000000 → 9999123456000000 pico，累计消费 0 → 0 pico，余额不变)",
             "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
-            "originalId": "00000000-0000-4000-8000-000000000027",
+            "originalId": "00000000-0000-4000-8000-000000000028",
             "postedAt": "2026-10-01T10:00:00.000Z",
             "toAt": null
           },
           {
-            "A": "-500000000000",
-            "C": "0",
-            "R": "0",
-            "afterB": null,
-            "afterC": null,
-            "afterR": null,
-            "availablePico": "500000000000",
-            "beforeB": null,
-            "beforeC": null,
-            "beforeR": null,
-            "entryRevision": 1,
-            "estimatedConsumptionPico": null,
-            "fromAt": null,
-            "id": "00000000-0000-4000-8000-000000000026",
-            "intervalId": null,
-            "kind": "adjustment",
-            "manuallyCalibrated": false,
-            "note": "原本地账余额校准",
-            "noticeId": null,
-            "occurredAt": "2026-10-01T10:00:00.000Z",
-            "originalId": null,
-            "postedAt": "2026-10-01T10:00:00.000Z",
-            "toAt": null
-          },
-          {
-            "A": "-9990873456000000",
-            "C": "0",
+            "A": "9990873456000000",
+            "C": "9990873456000000",
             "R": "0",
             "afterB": null,
             "afterC": null,
@@ -2490,36 +2769,11 @@
             "entryRevision": 1,
             "estimatedConsumptionPico": null,
             "fromAt": null,
-            "id": "00000000-0000-4000-8000-00000000002d",
+            "id": "0000000000000000000000000000000000000000000000000000000000000000",
             "intervalId": null,
-            "kind": "adjustment",
+            "kind": "balance_correction",
             "manuallyCalibrated": false,
-            "note": "原本地账余额校准",
-            "noticeId": null,
-            "occurredAt": "2026-10-01T10:00:00.000Z",
-            "originalId": null,
-            "postedAt": "2026-10-01T10:00:00.000Z",
-            "toAt": null
-          },
-          {
-            "A": "0",
-            "C": "0",
-            "R": "10000123456000000",
-            "afterB": null,
-            "afterC": null,
-            "afterR": null,
-            "availablePico": "9999123456000000",
-            "beforeB": null,
-            "beforeC": null,
-            "beforeR": null,
-            "entryRevision": 1,
-            "estimatedConsumptionPico": null,
-            "fromAt": null,
-            "id": "00000000-0000-4000-8000-000000000027",
-            "intervalId": null,
-            "kind": "top_up",
-            "manuallyCalibrated": false,
-            "note": "",
+            "note": "余额校准 9999623456000000 → 8750000000000 pico；累计消费 1000000000000 → 9991873456000000 pico",
             "noticeId": null,
             "occurredAt": "2026-10-01T10:00:00.000Z",
             "originalId": null,
@@ -2537,7 +2791,7 @@
     "command": "wallet.previewReconcileInterval",
     "payload": {
       "intervalId": "0000000000000000000000000000000000000000000000000000000000000000",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2565,8 +2819,8 @@
       "expectedAccountRevision": 8,
       "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
       "intervalId": "0000000000000000000000000000000000000000000000000000000000000000",
-      "operationId": "00000000-0000-4000-8000-000000000033",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-000000000035",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2597,7 +2851,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
@@ -2610,6 +2864,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "0",
             "postedR": "10000123456000000"
           },
@@ -2625,6 +2880,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "2000000000000",
             "postedR": "1000000000000"
           },
@@ -2634,7 +2890,7 @@
           "walletRevision": 14,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -2642,8 +2898,8 @@
   {
     "command": "remote.delete",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000034",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-000000000036",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2662,9 +2918,9 @@
     "command": "wallet.setLocalTotals",
     "payload": {
       "expectedWalletRevision": 15,
-      "operationId": "00000000-0000-4000-8000-000000000035",
+      "operationId": "00000000-0000-4000-8000-000000000037",
       "pastTopUpPico": "123",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2695,7 +2951,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
@@ -2708,6 +2964,7 @@
             "pastTopUpPico": "123",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "0",
             "postedR": "10000123456000000"
           },
@@ -2723,6 +2980,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "2000000000000",
             "postedR": "1000000000000"
           },
@@ -2732,7 +2990,7 @@
           "walletRevision": 16,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -2742,7 +3000,7 @@
     "payload": {
       "month": "2026-10",
       "scope": "local",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2764,8 +3022,8 @@
     "command": "wallet.setVisibility",
     "payload": {
       "mode": "both",
-      "operationId": "00000000-0000-4000-8000-000000000036",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-000000000038",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2796,7 +3054,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
@@ -2809,6 +3067,7 @@
             "pastTopUpPico": "123",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "0",
             "postedR": "10000123456000000"
           },
@@ -2824,6 +3083,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "2000000000000",
             "postedR": "1000000000000"
           },
@@ -2833,7 +3093,7 @@
           "walletRevision": 16,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -2842,7 +3102,7 @@
     "command": "wallet.accountEntries",
     "payload": {
       "scope": "local",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2861,7 +3121,7 @@
             "entryRevision": 1,
             "estimatedConsumptionPico": null,
             "fromAt": null,
-            "id": "f:00000000-0000-4000-8000-000000000037",
+            "id": "f:00000000-0000-4000-8000-000000000039",
             "intervalId": null,
             "kind": "top_up",
             "manuallyCalibrated": false,
@@ -2886,7 +3146,7 @@
             "entryRevision": 1,
             "estimatedConsumptionPico": null,
             "fromAt": null,
-            "id": "f:00000000-0000-4000-8000-000000000038",
+            "id": "f:00000000-0000-4000-8000-00000000003a",
             "intervalId": null,
             "kind": "adjustment",
             "manuallyCalibrated": false,
@@ -2909,11 +3169,11 @@
     "payload": {
       "C": "0",
       "R": "10000123456000000",
-      "entryId": "f:00000000-0000-4000-8000-000000000037",
+      "entryId": "f:00000000-0000-4000-8000-000000000039",
       "expectedEntryRevision": 1,
-      "operationId": "00000000-0000-4000-8000-000000000039",
+      "operationId": "00000000-0000-4000-8000-00000000003b",
       "scope": "local",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -2944,7 +3204,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
@@ -2957,6 +3217,7 @@
             "pastTopUpPico": "123",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "0",
             "postedR": "10000123456000000"
           },
@@ -2972,6 +3233,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "2000000000000",
             "postedR": "1000000000000"
           },
@@ -2981,7 +3243,7 @@
           "walletRevision": 17,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -2989,10 +3251,10 @@
   {
     "command": "wallet.dismissNotice",
     "payload": {
-      "entryId": "f:00000000-0000-4000-8000-000000000037",
+      "entryId": "f:00000000-0000-4000-8000-000000000039",
       "noticeId": "synthetic-notice",
-      "operationId": "00000000-0000-4000-8000-00000000003a",
-      "vendorId": "00000000-0000-4000-8000-000000000022"
+      "operationId": "00000000-0000-4000-8000-00000000003c",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
     },
     "response": {
       "data": {
@@ -3023,7 +3285,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:00:00.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-000000000022",
+          "id": "00000000-0000-4000-8000-000000000024",
           "incompleteCount": 0,
           "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
           "linkedGroups": [],
@@ -3036,6 +3298,7 @@
             "pastTopUpPico": "123",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "0",
             "postedR": "10000123456000000"
           },
@@ -3051,6 +3314,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "2000000000000",
             "postedR": "1000000000000"
           },
@@ -3060,7 +3324,7 @@
           "walletRevision": 17,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-000000000022"
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -3068,11 +3332,11 @@
   {
     "command": "wallet.scanProviders",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-00000000003b"
+      "operationId": "00000000-0000-4000-8000-00000000003d"
     },
     "response": {
       "data": {
-        "taskId": "00000000-0000-4000-8000-00000000003c"
+        "taskId": "00000000-0000-4000-8000-00000000003e"
       },
       "ok": true
     }
@@ -3080,7 +3344,7 @@
   {
     "command": "tasks.get",
     "payload": {
-      "taskId": "00000000-0000-4000-8000-00000000003c"
+      "taskId": "00000000-0000-4000-8000-00000000003e"
     },
     "response": {
       "data": {
@@ -3108,7 +3372,7 @@
           "start": "2026-09-28T10:20:01.000Z"
         },
         "status": "completed",
-        "taskId": "00000000-0000-4000-8000-00000000003c",
+        "taskId": "00000000-0000-4000-8000-00000000003e",
         "total": 2
       },
       "ok": true
@@ -3117,14 +3381,14 @@
   {
     "command": "wallet.createScannedVendors",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-00000000003d",
+      "operationId": "00000000-0000-4000-8000-00000000003f",
       "providers": [
         {
           "id": "0000000000000000000000000000000000000000000000000000000000000000",
           "name": "Scanned Fixture"
         }
       ],
-      "taskId": "00000000-0000-4000-8000-00000000003c"
+      "taskId": "00000000-0000-4000-8000-00000000003e"
     },
     "response": {
       "data": {
@@ -3154,7 +3418,7 @@
           "coverageIncomplete": false,
           "createdAt": "2026-10-01T10:20:01.000Z",
           "historyCoverageStart": null,
-          "id": "00000000-0000-4000-8000-00000000003e",
+          "id": "00000000-0000-4000-8000-000000000040",
           "incompleteCount": 0,
           "lastCalibratedAt": null,
           "linkedGroups": [],
@@ -3167,6 +3431,7 @@
             "pastTopUpPico": "0",
             "pendingConsumptionPico": "0",
             "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
             "postedC": "0",
             "postedR": "0"
           },
@@ -3180,7 +3445,7 @@
           "walletRevision": 18,
           "walletVisibility": "both"
         },
-        "vendorId": "00000000-0000-4000-8000-00000000003e"
+        "vendorId": "00000000-0000-4000-8000-000000000040"
       },
       "ok": true
     }
@@ -3188,13 +3453,13 @@
   {
     "command": "collection.setPaused",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-00000000003f",
+      "operationId": "00000000-0000-4000-8000-000000000041",
       "paused": false
     },
     "response": {
       "data": {
         "paused": false,
-        "revision": 12
+        "revision": 14
       },
       "ok": true
     }
@@ -3202,7 +3467,7 @@
   {
     "command": "collection.scanNow",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000040"
+      "operationId": "00000000-0000-4000-8000-000000000042"
     },
     "response": {
       "data": {
@@ -3261,7 +3526,7 @@
       "itemIds": [
         "0000000000000000000000000000000000000000000000000000000000000000"
       ],
-      "operationId": "00000000-0000-4000-8000-000000000041"
+      "operationId": "00000000-0000-4000-8000-000000000043"
     },
     "response": {
       "data": {
@@ -3296,22 +3561,88 @@
     },
     "response": {
       "data": {
-        "activeMinutes": "0",
-        "basis": "本地历史估算；账户消费另按账户区间累计",
+        "activeMinutes": "1",
+        "basis": "本地用量与有效成本",
         "businessTimezone": "Asia/Shanghai",
-        "coveredDays": 0,
+        "coveredDays": 1,
         "includesWholeBoundaryDays": false,
         "missingCapabilities": [],
         "totals": {
-          "cache_read": "0",
-          "input": "0",
+          "cache_read": "40",
+          "correctionPico": "0",
+          "estimatePico": "110000000",
+          "input": "100",
           "missing_usage": "0",
-          "output": "0",
-          "pico": "0",
-          "rated_cache": "0",
-          "rated_input": "0",
-          "records": "0",
+          "output": "10",
+          "pico": "110000000",
+          "rated_cache": "40",
+          "rated_input": "100",
+          "records": "1",
+          "unallocatedCorrectionPico": "0",
           "unknown_model": "0"
+        }
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "stats.evidence",
+    "payload": {
+      "end": "2026-10-01T10:20:02.000Z",
+      "harness": "codex",
+      "start": "2026-10-01T10:20:00.000Z"
+    },
+    "response": {
+      "data": {
+        "generatedAt": "2026-10-01T10:20:01.000Z",
+        "items": [
+          {
+            "acceptedRevision": 1,
+            "calibrationTargetId": null,
+            "canRecalculate": true,
+            "estimatePico": "110000000",
+            "groupId": "00000000-0000-4000-8000-00000000000b",
+            "harness": "codex",
+            "localBatchId": "492b6fbf-cc6e-5ffe-82ce-1d6f2bad2616",
+            "occurredAt": "2026-10-01T10:20:01.000Z",
+            "originalGroupId": "00000000-0000-4000-8000-00000000000b",
+            "originalPico": "110000000",
+            "originalVersionId": "00000000-0000-4000-8000-00000000000c",
+            "priceRevisionId": "00000000-0000-4000-8000-000000000044",
+            "projectedRevision": 1,
+            "publishedRevision": 0,
+            "receivedAt": "2026-10-01T10:20:01.000Z",
+            "remoteIntervalIds": [],
+            "requestKey": "0000000000000000000000000000000000000000000000000000000000000000",
+            "sessionRef": "241656b1-1447-51f8-8d58-5065a4895db4",
+            "state": "billed",
+            "valuedRevision": 1,
+            "versionId": "00000000-0000-4000-8000-00000000000c",
+            "voucherSequence": 0,
+            "watermark": "0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        ],
+        "nextOffset": null,
+        "snapshot": {
+          "account": 8,
+          "auxiliary": 0,
+          "cost": 0,
+          "display": 0,
+          "models": 4,
+          "output": 0,
+          "ownership": 2,
+          "preferences": 1,
+          "pricing": 15,
+          "quality": 2,
+          "sources": 23,
+          "usage": 4,
+          "wallet": 18
+        },
+        "sourceStates": {
+          "claude": "ready",
+          "codex": "ready",
+          "dsh": "ready",
+          "zcode": "failed"
         }
       },
       "ok": true
@@ -3326,7 +3657,7 @@
     },
     "response": {
       "data": {
-        "basis": "本地用量与估算成本，输出吞吐按完成分钟计算",
+        "basis": "本地用量与有效成本，输出吞吐按会话开始日发布参考",
         "businessTimezone": "Asia/Shanghai",
         "comparison": null,
         "comparisonNotice": "按业务时区比较相同日历进度，短月与闰日对齐到上期最后一日。零基期不计算增长率。",
@@ -3338,17 +3669,20 @@
         "models": [],
         "nextOffset": null,
         "outputReferences": [],
-        "revision": 2,
+        "revision": 4,
         "start": "2026-09-30T16:00:00.000Z",
         "totalModels": 0,
         "totals": {
           "activeMinutes": "0",
+          "allocationIncomplete": false,
           "cacheCoverageIncomplete": false,
           "cacheHitRate": null,
           "cacheReadTokens": "0",
+          "correctionPico": "0",
           "coverageEnd": null,
           "coverageStart": null,
           "coveredDays": 0,
+          "estimatePico": "0",
           "incomplete": false,
           "inputTokens": "0",
           "lastOutputAt": null,
@@ -3360,19 +3694,23 @@
           "tokensPerMinute": null,
           "tokensPerSecond": null,
           "totalTokens": "0",
+          "unallocatedCorrectionPico": "0",
           "unknownModelCount": "0",
           "unpriced": false
         },
         "trend": [
           {
             "activeMinutes": "0",
+            "allocationIncomplete": false,
             "bucket": "2026-10",
             "cacheCoverageIncomplete": false,
             "cacheHitRate": null,
             "cacheReadTokens": "0",
+            "correctionPico": "0",
             "coverageEnd": null,
             "coverageStart": null,
             "coveredDays": 0,
+            "estimatePico": "0",
             "incomplete": false,
             "inputTokens": "0",
             "label": "2026-10",
@@ -3385,6 +3723,7 @@
             "tokensPerMinute": null,
             "tokensPerSecond": null,
             "totalTokens": "0",
+            "unallocatedCorrectionPico": "0",
             "unknownModelCount": "0",
             "unpriced": false
           }
@@ -3404,6 +3743,7 @@
     },
     "response": {
       "data": {
+        "costRevision": 0,
         "end": "2026-10-01T10:20:02.000Z",
         "grain": "hour",
         "harnesses": [],
@@ -3414,17 +3754,22 @@
             "displayName": "gpt-6-astra",
             "label": "10-01 18:00",
             "metrics": {
+              "allocationIncomplete": false,
               "cacheCoverageIncomplete": false,
               "cacheHitRate": 0.4,
               "cacheReadTokens": 40,
+              "correctionPico": "0",
+              "estimatePico": "110000000",
               "incomplete": false,
               "inputTokens": 100,
               "missingUsageCount": 0,
               "newInput": 60,
               "outputTokens": 10,
+              "pendingValuationCount": 0,
               "picoUsd": "110000000",
               "recordCount": 1,
               "totalTokens": 110,
+              "unallocatedCorrectionPico": "0",
               "unknownModelCount": 0,
               "unpriced": false
             },
@@ -3437,58 +3782,73 @@
             "displayName": "全部模型",
             "label": "10-01 18:00",
             "metrics": {
+              "allocationIncomplete": false,
               "cacheCoverageIncomplete": false,
               "cacheHitRate": 0.4,
               "cacheReadTokens": 40,
+              "correctionPico": "0",
+              "estimatePico": "110000000",
               "incomplete": false,
               "inputTokens": 100,
               "missingUsageCount": 0,
               "newInput": 60,
               "outputTokens": 10,
+              "pendingValuationCount": 0,
               "picoUsd": "110000000",
               "recordCount": 1,
               "totalTokens": 110,
+              "unallocatedCorrectionPico": "0",
               "unknownModelCount": 0,
               "unpriced": false
             }
           }
         ],
         "metrics": {
+          "allocationIncomplete": false,
           "cacheCoverageIncomplete": false,
           "cacheHitRate": 0.4,
           "cacheReadTokens": 40,
+          "correctionPico": "0",
+          "estimatePico": "110000000",
           "incomplete": false,
           "inputTokens": 100,
           "missingUsageCount": 0,
           "newInput": 60,
           "outputTokens": 10,
+          "pendingValuationCount": 0,
           "picoUsd": "110000000",
           "recordCount": 1,
           "totalTokens": 110,
+          "unallocatedCorrectionPico": "0",
           "unknownModelCount": 0,
           "unpriced": false
         },
         "models": [
           {
+            "allocationIncomplete": false,
             "cacheCoverageIncomplete": false,
             "cacheHitRate": 0.4,
             "cacheReadTokens": 40,
+            "correctionPico": "0",
             "displayName": "gpt-6-astra",
+            "estimatePico": "110000000",
             "incomplete": false,
             "inputTokens": 100,
             "missingUsageCount": 0,
             "modelKey": "gpt-6-astra",
             "newInput": 60,
             "outputTokens": 10,
+            "pendingValuationCount": 0,
             "picoUsd": "110000000",
             "recordCount": 1,
             "totalTokens": 110,
+            "unallocatedCorrectionPico": "0",
             "unknownModelCount": 0,
             "unpriced": false
           }
         ],
         "offsetMinutes": 480,
-        "revision": 2,
+        "revision": 4,
         "start": "2026-10-01T10:20:00.000Z",
         "trend": [
           {
@@ -3504,7 +3864,8 @@
             "picoUsd": "110000000",
             "recordCount": 1
           }
-        ]
+        ],
+        "unallocatedTrendCorrectionPico": "0"
       },
       "ok": true
     }
@@ -3518,10 +3879,22 @@
     },
     "response": {
       "data": {
+        "batchTotals": {
+          "cacheCoverageIncomplete": false,
+          "cacheHitRate": null,
+          "cacheReadTokens": "0",
+          "inputTokens": "0",
+          "outputTokens": "0",
+          "recordCount": "0"
+        },
+        "chartSessionRef": "241656b1-1447-51f8-8d58-5065a4895db4",
         "end": "2026-10-01T10:20:00.000Z",
+        "evidenceComplete": true,
         "grain": "minute",
+        "nextCursor": null,
         "nextRefreshAt": "2026-10-01T10:21:00.000Z",
         "offsetMinutes": 480,
+        "outputRevision": 0,
         "outputSpeeds": [
           {
             "activeMinutes": 3,
@@ -3537,21 +3910,901 @@
             "tokensPerSecond": "0.0"
           }
         ],
-        "revision": 2,
+        "revision": 4,
+        "selectedSessionRef": "241656b1-1447-51f8-8d58-5065a4895db4",
         "sessionHitRates": [
           {
             "cacheCoverageIncomplete": false,
             "cacheHitRate": 0.4,
-            "displayName": "gpt-6-astra",
+            "displayName": "会话",
             "frozen": false,
             "lastActivityAt": "2026-10-01T10:20:01.000Z",
+            "modelKey": "gpt-6-astra",
+            "modelName": "gpt-6-astra",
+            "sessionAverageTps": "0.0",
             "sessionKey": "bbb523b4104974f3",
-            "startedAt": "2026-10-01T10:20:01.000Z"
+            "sessionRef": "241656b1-1447-51f8-8d58-5065a4895db4",
+            "startedAt": "2026-10-01T10:20:01.000Z",
+            "tokensPerSecond": "0.0"
           }
         ],
+        "sessionTotals": {
+          "cacheCoverageIncomplete": false,
+          "cacheHitRate": 0.4,
+          "cacheReadTokens": "40",
+          "inputTokens": "100",
+          "outputTokens": "10",
+          "recordCount": "1"
+        },
         "start": "2026-10-01T09:20:00.000Z",
-        "trend": [],
-        "windowKey": "2026-10-01T09:20:00.000Z|2026-10-01T10:20:00.000Z|480|minute"
+        "trend": [
+          {
+            "bucket": "2026-10-01T17:20:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:20",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:21:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:21",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:22:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:22",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:23:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:23",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:24:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:24",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:25:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:25",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:26:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:26",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:27:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:27",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:28:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:28",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:29:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:29",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:30:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:30",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:31:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:31",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:32:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:32",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:33:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:33",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:34:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:34",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:35:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:35",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:36:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:36",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:37:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:37",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:38:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:38",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:39:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:39",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:40:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:40",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:41:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:41",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:42:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:42",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:43:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:43",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:44:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:44",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:45:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:45",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:46:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:46",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:47:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:47",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:48:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:48",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:49:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:49",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:50:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:50",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:51:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:51",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:52:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:52",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:53:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:53",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:54:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:54",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:55:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:55",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:56:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:56",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:57:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:57",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:58:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:58",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T17:59:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 17:59",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:00:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:00",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:01:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:01",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:02:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:02",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:03:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:03",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:04:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:04",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:05:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:05",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:06:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:06",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:07:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:07",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:08:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:08",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:09:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:09",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:10:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:10",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:11:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:11",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:12:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:12",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:13:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:13",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:14:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:14",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:15:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:15",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:16:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:16",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:17:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:17",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:18:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:18",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          },
+          {
+            "bucket": "2026-10-01T18:19:00+08:00",
+            "cacheBust": false,
+            "cacheHitRate": null,
+            "cacheLoss": false,
+            "cacheReadTokens": 0,
+            "contextCompacted": false,
+            "inputTokens": 0,
+            "label": "10-01 18:19",
+            "outputTokens": 0,
+            "picoUsd": "0",
+            "recordCount": 0
+          }
+        ],
+        "windowKey": "241656b1-1447-51f8-8d58-5065a4895db4|2026-10-01T09:20:00.000Z|2026-10-01T10:20:00.000Z|480|minute",
+        "windowTotals": {
+          "cacheCoverageIncomplete": false,
+          "cacheHitRate": null,
+          "cacheReadTokens": "0",
+          "inputTokens": "0",
+          "outputTokens": "0",
+          "recordCount": "0"
+        }
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "reconciliation.preview",
+    "payload": {
+      "end": "2026-10-01T10:20:02.000Z",
+      "start": "2026-10-01T10:20:00.000Z",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
+    },
+    "response": {
+      "data": {
+        "allocationIncomplete": false,
+        "auxiliaryIncluded": false,
+        "batchIds": [],
+        "bookedEstimatePico": "0",
+        "businessTimezone": "Asia/Shanghai",
+        "coverageAligned": false,
+        "currentEffectivePico": "0",
+        "currentEstimatePico": "0",
+        "end": "2026-10-01T10:20:02.000Z",
+        "existingCorrectionPico": "0",
+        "externalUsagePossible": true,
+        "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "groupIds": [],
+        "harnesses": [],
+        "incompleteCount": "0",
+        "independentCorrectionPico": "0",
+        "legacyAllocationIncomplete": false,
+        "legacyFlowIds": [],
+        "legacyOverrides": 0,
+        "localComplete": false,
+        "memberCount": "0",
+        "memberDays": [],
+        "memberDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "modelKeys": [],
+        "notices": [
+          "本地输入、质量或来源覆盖尚未完整，不能据此证明漏采。",
+          "所选本地成员尚未静默十分钟。",
+          "远程区间与所选本地成员尚未证明完整覆盖，时间接近不代表同一笔消费。"
+        ],
+        "omittedMemberCount": "0",
+        "originalEstimatePico": "0",
+        "pendingCount": "0",
+        "quiet": false,
+        "reliability": "missing",
+        "remoteIntervals": [],
+        "remoteTargetPico": null,
+        "remoteUsedDeltaPico": null,
+        "snapshot": {
+          "account": 8,
+          "sources": 23,
+          "usage": 4,
+          "wallet": 18
+        },
+        "start": "2026-10-01T10:20:00.000Z",
+        "unallocatedCorrectionPico": "0",
+        "vendorId": "00000000-0000-4000-8000-000000000024"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "reconciliation.batches",
+    "payload": {
+      "end": "2026-10-01T10:20:02.000Z",
+      "start": "2026-10-01T10:20:00.000Z",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
+    },
+    "response": {
+      "data": {
+        "batches": [],
+        "generatedAt": "2026-10-01T10:20:01.000Z",
+        "nextOffset": null,
+        "remoteIntervals": [],
+        "remoteNextOffset": null
       },
       "ok": true
     }
@@ -3568,8 +4821,8 @@
           "output": "2"
         }
       ],
-      "operationId": "00000000-0000-4000-8000-000000000042",
-      "versionId": "00000000-0000-4000-8000-00000000000a"
+      "operationId": "00000000-0000-4000-8000-000000000045",
+      "versionId": "00000000-0000-4000-8000-00000000000c"
     },
     "response": {
       "data": {
@@ -3577,7 +4830,92 @@
         "changed": true,
         "groupId": null,
         "revision": 16,
-        "versionId": "00000000-0000-4000-8000-00000000000a"
+        "versionId": "00000000-0000-4000-8000-00000000000c"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "wallet.linkGroups",
+    "payload": {
+      "expectedRevision": 18,
+      "groupIds": [
+        "00000000-0000-4000-8000-00000000000b"
+      ],
+      "operationId": "00000000-0000-4000-8000-000000000046",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
+    },
+    "response": {
+      "data": {
+        "action": null,
+        "changed": true,
+        "pricingRevision": 17,
+        "revision": 19,
+        "vendor": {
+          "A": "-9991373456000000",
+          "B": "8750000000000",
+          "C": "0",
+          "R": "10000123456000000",
+          "account": {
+            "A": "1500000000000",
+            "B": "975310000001",
+            "C": "9993873456000000",
+            "R": "10000123456000000",
+            "coverageStart": "2026-10-01T10:00:00.000Z",
+            "localEstimatePico": "0",
+            "methods": [
+              "balance_estimate",
+              "local_estimate"
+            ],
+            "observedAt": null,
+            "remote": false,
+            "revision": 8
+          },
+          "coverageIncomplete": false,
+          "createdAt": "2026-10-01T10:00:00.000Z",
+          "historyCoverageStart": null,
+          "id": "00000000-0000-4000-8000-000000000024",
+          "incompleteCount": 0,
+          "lastCalibratedAt": "2026-10-01T10:00:00.000Z",
+          "linkedGroups": [
+            "00000000-0000-4000-8000-00000000000b"
+          ],
+          "localWallet": {
+            "A": "-9991373456000000",
+            "B": "8750000000000",
+            "C": "0",
+            "R": "10000123456000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "123",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
+            "postedC": "0",
+            "postedR": "10000123456000000"
+          },
+          "name": "Recorded Vendor",
+          "pastConsumptionPico": "0",
+          "pastTopUpPico": "0",
+          "remoteWallet": {
+            "A": "0",
+            "B": "975310000001",
+            "C": "2000000000000",
+            "R": "1000000000000",
+            "pastConsumptionPico": "0",
+            "pastTopUpPico": "0",
+            "pendingConsumptionPico": "0",
+            "pendingTopUpPico": "0",
+            "pendingUpdatedAt": null,
+            "postedC": "2000000000000",
+            "postedR": "1000000000000"
+          },
+          "status": "active",
+          "unpricedCount": 0,
+          "url": "https://example.test",
+          "walletRevision": 19,
+          "walletVisibility": "both"
+        },
+        "vendorId": "00000000-0000-4000-8000-000000000024"
       },
       "ok": true
     }
@@ -3586,21 +4924,40 @@
     "command": "maintenance.previewRecalc",
     "payload": {
       "end": "2026-10-01T10:20:02.000Z",
-      "groupId": "00000000-0000-4000-8000-000000000009",
+      "groupId": "00000000-0000-4000-8000-00000000000b",
       "harness": "codex",
       "start": "2026-10-01T10:20:00.000Z",
-      "versionId": "00000000-0000-4000-8000-00000000000a"
+      "versionId": "00000000-0000-4000-8000-00000000000c"
     },
     "response": {
       "data": {
+        "evidenceInsufficientCount": 0,
         "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
         "groupName": "Recorded Prices",
         "incompleteCount": 0,
-        "newTotal": "110000000",
+        "newTotal": "140000000",
         "oldTotal": "110000000",
+        "pendingCount": 0,
         "recordCount": 1,
+        "ruleCounts": {
+          "base": 1,
+          "none": 0,
+          "peak": 0,
+          "tier": 0
+        },
+        "targetRevisionId": "00000000-0000-4000-8000-000000000047",
+        "targetRevisionSeq": 12,
+        "totalCount": 1,
+        "unavailableCount": 0,
         "unpricedCount": 0,
-        "vendors": [],
+        "vendors": [
+          {
+            "balanceDelta": "-140000000",
+            "consumptionDelta": "140000000",
+            "name": "Recorded Vendor",
+            "vendorId": "00000000-0000-4000-8000-000000000024"
+          }
+        ],
         "versionDisplayName": "Recorded"
       },
       "ok": true
@@ -3611,25 +4968,258 @@
     "payload": {
       "end": "2026-10-01T10:20:02.000Z",
       "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
-      "groupId": "00000000-0000-4000-8000-000000000009",
+      "groupId": "00000000-0000-4000-8000-00000000000b",
       "harness": "codex",
-      "operationId": "00000000-0000-4000-8000-000000000043",
+      "operationId": "00000000-0000-4000-8000-000000000048",
       "start": "2026-10-01T10:20:00.000Z",
-      "versionId": "00000000-0000-4000-8000-00000000000a"
+      "versionId": "00000000-0000-4000-8000-00000000000c"
     },
     "response": {
       "data": {
-        "batchId": "00000000-0000-4000-8000-000000000044",
+        "batchId": "00000000-0000-4000-8000-000000000049",
+        "evidenceInsufficientCount": 0,
         "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
         "groupName": "Recorded Prices",
         "incompleteCount": 0,
-        "newTotal": "110000000",
+        "newTotal": "140000000",
         "oldTotal": "110000000",
+        "pendingCount": 0,
         "recordCount": 1,
-        "revision": 2,
+        "revision": 5,
+        "ruleCounts": {
+          "base": 1,
+          "none": 0,
+          "peak": 0,
+          "tier": 0
+        },
+        "targetRevisionId": "00000000-0000-4000-8000-000000000047",
+        "targetRevisionSeq": 12,
+        "totalCount": 1,
+        "unavailableCount": 0,
         "unpricedCount": 0,
-        "vendors": [],
+        "vendors": [
+          {
+            "balanceDelta": "-140000000",
+            "consumptionDelta": "140000000",
+            "name": "Recorded Vendor",
+            "vendorId": "00000000-0000-4000-8000-000000000024"
+          }
+        ],
         "versionDisplayName": "Recorded"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "reconciliation.previewCalibration",
+    "payload": {
+      "acknowledgeIncomplete": true,
+      "confirmLocalScope": true,
+      "end": "2026-10-01T10:20:02.000Z",
+      "start": "2026-10-01T10:20:00.000Z",
+      "targetPico": "140000000",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
+    },
+    "response": {
+      "data": {
+        "action": "apply",
+        "allocationIncomplete": false,
+        "auxiliaryIncluded": false,
+        "batchIds": [
+          "f303e00f-7e6d-5cc7-9774-65bbf74cc2e2"
+        ],
+        "bookedEstimatePico": "0",
+        "businessTimezone": "Asia/Shanghai",
+        "coverageAligned": false,
+        "currentEffectivePico": "140000000",
+        "currentEstimatePico": "140000000",
+        "days": [
+          {
+            "currentEffectivePico": "140000000",
+            "day": "2026-10-01",
+            "deltaPico": "0",
+            "estimatePico": "140000000",
+            "targetPico": "140000000",
+            "unallocatedPico": "140000000"
+          }
+        ],
+        "deltaPico": "0",
+        "end": "2026-10-01T10:20:02.000Z",
+        "existingCorrectionPico": "0",
+        "externalUsagePossible": true,
+        "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "groupIds": [
+          "00000000-0000-4000-8000-00000000000b"
+        ],
+        "harnesses": [
+          "codex"
+        ],
+        "incompleteCount": "0",
+        "independentCorrectionPico": "0",
+        "legacyAllocationIncomplete": false,
+        "legacyFlowIds": [],
+        "legacyOverrides": 0,
+        "localComplete": true,
+        "memberCount": "1",
+        "memberDays": [
+          "2026-10-01"
+        ],
+        "memberDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "modelAllocationCount": 0,
+        "modelKeys": [
+          "gpt-6-astra"
+        ],
+        "modelTargets": [],
+        "notices": [
+          "所选本地成员尚未静默十分钟。",
+          "远程区间与所选本地成员尚未证明完整覆盖，时间接近不代表同一笔消费。"
+        ],
+        "omittedMemberCount": "0",
+        "originalEstimatePico": "110000000",
+        "pendingCount": "0",
+        "quiet": false,
+        "reliability": "missing",
+        "remoteIntervals": [],
+        "remoteTargetPico": null,
+        "remoteUsedDeltaPico": null,
+        "replacedTargets": [],
+        "snapshot": {
+          "account": 9,
+          "sources": 23,
+          "usage": 5,
+          "wallet": 20
+        },
+        "start": "2026-10-01T10:20:00.000Z",
+        "targetPico": "140000000",
+        "unallocatedCorrectionPico": "0",
+        "vendorId": "00000000-0000-4000-8000-000000000024"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "reconciliation.commitCalibration",
+    "payload": {
+      "acknowledgeIncomplete": true,
+      "confirmLocalScope": true,
+      "end": "2026-10-01T10:20:02.000Z",
+      "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+      "operationId": "00000000-0000-4000-8000-00000000004a",
+      "start": "2026-10-01T10:20:00.000Z",
+      "targetPico": "140000000",
+      "vendorId": "00000000-0000-4000-8000-000000000024"
+    },
+    "response": {
+      "data": {
+        "action": "apply",
+        "allocationIncomplete": false,
+        "auxiliaryIncluded": false,
+        "batchIds": [
+          "f303e00f-7e6d-5cc7-9774-65bbf74cc2e2"
+        ],
+        "bookedEstimatePico": "0",
+        "businessTimezone": "Asia/Shanghai",
+        "coverageAligned": false,
+        "currentEffectivePico": "140000000",
+        "currentEstimatePico": "140000000",
+        "days": [
+          {
+            "currentEffectivePico": "140000000",
+            "day": "2026-10-01",
+            "deltaPico": "0",
+            "estimatePico": "140000000",
+            "targetPico": "140000000",
+            "unallocatedPico": "140000000"
+          }
+        ],
+        "deltaPico": "0",
+        "end": "2026-10-01T10:20:02.000Z",
+        "existingCorrectionPico": "0",
+        "externalUsagePossible": true,
+        "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "groupIds": [
+          "00000000-0000-4000-8000-00000000000b"
+        ],
+        "harnesses": [
+          "codex"
+        ],
+        "incompleteCount": "0",
+        "independentCorrectionPico": "0",
+        "legacyAllocationIncomplete": false,
+        "legacyFlowIds": [],
+        "legacyOverrides": 0,
+        "localComplete": true,
+        "memberCount": "1",
+        "memberDays": [
+          "2026-10-01"
+        ],
+        "memberDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "modelAllocationCount": 0,
+        "modelKeys": [
+          "gpt-6-astra"
+        ],
+        "modelTargets": [],
+        "notices": [
+          "所选本地成员尚未静默十分钟。",
+          "远程区间与所选本地成员尚未证明完整覆盖，时间接近不代表同一笔消费。"
+        ],
+        "omittedMemberCount": "0",
+        "originalEstimatePico": "110000000",
+        "pendingCount": "0",
+        "quiet": false,
+        "reliability": "missing",
+        "remoteIntervals": [],
+        "remoteTargetPico": null,
+        "remoteUsedDeltaPico": null,
+        "replacedTargets": [],
+        "revision": 1,
+        "snapshot": {
+          "account": 9,
+          "sources": 23,
+          "usage": 5,
+          "wallet": 20
+        },
+        "start": "2026-10-01T10:20:00.000Z",
+        "targetId": "00000000-0000-4000-8000-00000000004b",
+        "targetPico": "140000000",
+        "unallocatedCorrectionPico": "0",
+        "vendorId": "00000000-0000-4000-8000-000000000024"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "reconciliation.targets",
+    "payload": {
+      "vendorId": "00000000-0000-4000-8000-000000000024"
+    },
+    "response": {
+      "data": {
+        "nextCursor": null,
+        "revision": 1,
+        "targets": [
+          {
+            "allocations": [],
+            "basis": "manual",
+            "createdAt": "2026-10-01T10:20:01.001Z",
+            "dayTargets": [],
+            "deltaPico": "0",
+            "estimatePico": "140000000",
+            "id": "00000000-0000-4000-8000-00000000004b",
+            "legacyFlowId": null,
+            "revision": 1,
+            "scope": {
+              "end": "2026-10-01T10:20:02.000Z",
+              "intervalIds": [],
+              "localBatchIds": [],
+              "start": "2026-10-01T10:20:00.000Z",
+              "vendorId": "00000000-0000-4000-8000-000000000024"
+            },
+            "state": "active",
+            "targetPico": "140000000",
+            "vendorId": "00000000-0000-4000-8000-000000000024"
+          }
+        ]
       },
       "ok": true
     }
@@ -3645,8 +5235,8 @@
             "versionId": null
           },
           "codex": {
-            "groupId": "00000000-0000-4000-8000-000000000009",
-            "versionId": "00000000-0000-4000-8000-00000000000a"
+            "groupId": "00000000-0000-4000-8000-00000000000b",
+            "versionId": "00000000-0000-4000-8000-00000000000c"
           },
           "dsh": {
             "groupId": null,
@@ -3667,10 +5257,10 @@
               "codex"
             ],
             "historical": false,
-            "id": "00000000-0000-4000-8000-000000000009",
+            "id": "00000000-0000-4000-8000-00000000000b",
             "name": "Recorded Prices",
             "nextVersionNumber": 3,
-            "vendorId": null,
+            "vendorId": "00000000-0000-4000-8000-000000000024",
             "versions": [
               {
                 "createdAt": "2026-10-01T10:00:00.000Z",
@@ -3678,7 +5268,7 @@
                 "disabled": false,
                 "displayName": "Recorded",
                 "hints": [],
-                "id": "00000000-0000-4000-8000-00000000000a",
+                "id": "00000000-0000-4000-8000-00000000000c",
                 "label": "Recorded",
                 "models": [
                   {
@@ -3692,12 +5282,12 @@
                 ],
                 "number": 1,
                 "revisionCount": 3,
-                "revisionId": "00000000-0000-4000-8000-000000000045"
+                "revisionId": "00000000-0000-4000-8000-000000000047"
               }
             ]
           }
         ],
-        "revision": 16
+        "revision": 17
       },
       "ok": true
     }
@@ -3724,7 +5314,7 @@
     "command": "maintenance.setRetention",
     "payload": {
       "expectedRevision": 1,
-      "operationId": "00000000-0000-4000-8000-000000000046",
+      "operationId": "00000000-0000-4000-8000-00000000004c",
       "retention": "forever"
     },
     "response": {
@@ -3743,11 +5333,11 @@
   {
     "command": "maintenance.backup",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000047"
+      "operationId": "00000000-0000-4000-8000-00000000004d"
     },
     "response": {
       "data": {
-        "taskId": "00000000-0000-4000-8000-000000000048"
+        "taskId": "00000000-0000-4000-8000-00000000004e"
       },
       "ok": true
     }
@@ -3755,7 +5345,7 @@
   {
     "command": "tasks.get",
     "payload": {
-      "taskId": "00000000-0000-4000-8000-000000000048"
+      "taskId": "00000000-0000-4000-8000-00000000004e"
     },
     "response": {
       "data": {
@@ -3767,7 +5357,7 @@
           "path": "C:\\htd-contract-fixture\\data\\backups\\htd-20261001-182001.sqlite3"
         },
         "status": "completed",
-        "taskId": "00000000-0000-4000-8000-000000000048",
+        "taskId": "00000000-0000-4000-8000-00000000004e",
         "total": 1
       },
       "ok": true
@@ -3776,11 +5366,11 @@
   {
     "command": "maintenance.vacuum",
     "payload": {
-      "operationId": "00000000-0000-4000-8000-000000000049"
+      "operationId": "00000000-0000-4000-8000-00000000004f"
     },
     "response": {
       "data": {
-        "taskId": "00000000-0000-4000-8000-00000000004a"
+        "taskId": "00000000-0000-4000-8000-000000000050"
       },
       "ok": true
     }
@@ -3788,7 +5378,7 @@
   {
     "command": "tasks.get",
     "payload": {
-      "taskId": "00000000-0000-4000-8000-00000000004a"
+      "taskId": "00000000-0000-4000-8000-000000000050"
     },
     "response": {
       "data": {
@@ -3800,7 +5390,7 @@
           "path": null
         },
         "status": "completed",
-        "taskId": "00000000-0000-4000-8000-00000000004a",
+        "taskId": "00000000-0000-4000-8000-000000000050",
         "total": 1
       },
       "ok": true
@@ -3811,9 +5401,9 @@
     "payload": {},
     "response": {
       "data": {
-        "appVersion": "0.4.3",
+        "appVersion": "0.5.0",
         "dataDir": "C:\\htd-contract-fixture\\data",
-        "databaseBytes": 2592072,
+        "databaseBytes": 3372592,
         "lastLogRotationAt": "2026-10-01T10:00:00.000Z",
         "lastRetentionAt": "2026-10-01T10:20:01.001Z",
         "lastVacuumAt": "2026-10-01T10:20:01.001Z",
@@ -3822,15 +5412,16 @@
         "pendingExpired": 0,
         "retention": "forever",
         "storage": {
-          "allocatedBytes": 1265664,
-          "backupBytes": 1277952,
+          "allocatedBytes": 1654784,
+          "backupBytes": 1667072,
           "freePageBytes": 0,
-          "mainFileBytes": 1277952,
+          "mainFileBytes": 1667072,
           "migrationBytes": 0,
           "sampledAt": "2026-10-01T10:20:01.001Z",
           "shmBytes": 32768,
-          "usedPageBytes": 1265664,
-          "walBytes": 1281352
+          "totalBytes": 5039739,
+          "usedPageBytes": 1654784,
+          "walBytes": 1672752
         }
       },
       "ok": true
@@ -3851,7 +5442,7 @@
           {
             "name": "sources.changed",
             "payload": {
-              "revision": 19
+              "revision": 21
             }
           },
           {
@@ -3871,7 +5462,7 @@
           {
             "name": "pricing.changed",
             "payload": {
-              "revision": 16
+              "revision": 17
             }
           },
           {
@@ -3884,7 +5475,7 @@
             "name": "task.progress",
             "payload": {
               "completed": 0,
-              "taskId": "00000000-0000-4000-8000-00000000004a",
+              "taskId": "00000000-0000-4000-8000-000000000050",
               "total": 1
             }
           },
@@ -3897,15 +5488,15 @@
                 "completedAt": "2026-10-01T10:20:01.001Z",
                 "path": null
               },
-              "taskId": "00000000-0000-4000-8000-00000000004a"
+              "taskId": "00000000-0000-4000-8000-000000000050"
             }
           },
           {
             "name": "wallet.changed",
             "payload": {
-              "revision": 18,
+              "revision": 22,
               "vendorIds": [
-                "00000000-0000-4000-8000-00000000003e"
+                "00000000-0000-4000-8000-000000000024"
               ]
             }
           },
@@ -3915,13 +5506,19 @@
               "harnesses": [
                 "codex"
               ],
-              "revision": 2
+              "revision": 5
             }
           },
           {
             "name": "quality.changed",
             "payload": {
               "revision": 2
+            }
+          },
+          {
+            "name": "cost.changed",
+            "payload": {
+              "revision": 1
             }
           },
           {
@@ -3935,21 +5532,28 @@
             "payload": {
               "visible": false
             }
+          },
+          {
+            "name": "auxiliary.changed",
+            "payload": {
+              "revision": 0
+            }
           }
         ],
         "revisions": {
-          "account": 8,
+          "account": 9,
           "auxiliary": 0,
+          "cost": 1,
           "display": 0,
           "models": 4,
           "output": 1,
-          "ownership": 2,
+          "ownership": 3,
           "preferences": 1,
-          "pricing": 16,
+          "pricing": 17,
           "quality": 2,
-          "sources": 21,
-          "usage": 2,
-          "wallet": 18
+          "sources": 23,
+          "usage": 5,
+          "wallet": 22
         }
       },
       "ok": true
@@ -3974,13 +5578,13 @@
     "command": "migration.run",
     "payload": {
       "dryRun": true,
-      "operationId": "00000000-0000-4000-8000-00000000004b"
+      "operationId": "00000000-0000-4000-8000-000000000051"
     },
     "response": {
       "data": {
-        "migrationId": "00000000-0000-4000-8000-00000000004c",
-        "reportPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-00000000004c\\report.md",
-        "taskId": "00000000-0000-4000-8000-00000000004d"
+        "migrationId": "00000000-0000-4000-8000-000000000052",
+        "reportPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000052\\report.md",
+        "taskId": "00000000-0000-4000-8000-000000000053"
       },
       "ok": true
     }
@@ -3988,7 +5592,7 @@
   {
     "command": "tasks.get",
     "payload": {
-      "taskId": "00000000-0000-4000-8000-00000000004d"
+      "taskId": "00000000-0000-4000-8000-000000000053"
     },
     "response": {
       "data": {
@@ -4049,19 +5653,19 @@
             }
           ],
           "errors": [],
-          "migrationId": "00000000-0000-4000-8000-00000000004c",
+          "migrationId": "00000000-0000-4000-8000-000000000052",
           "newTotal": "22000000000000",
           "ok": true,
           "oldTotal": "22000000000000",
-          "reportPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-00000000004c\\report.md",
-          "snapshotPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-00000000004c\\legacy-snapshot.sqlite3",
+          "reportPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000052\\report.md",
+          "snapshotPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000052\\legacy-snapshot.sqlite3",
           "sourcePath": "C:\\htd-contract-fixture\\synthetic-legacy.sqlite3",
           "sourceVersion": "0.2.2",
           "vendors": [],
           "warnings": []
         },
         "status": "completed",
-        "taskId": "00000000-0000-4000-8000-00000000004d",
+        "taskId": "00000000-0000-4000-8000-000000000053",
         "total": 3
       },
       "ok": true
@@ -4070,15 +5674,77 @@
   {
     "command": "migration.activate",
     "payload": {
-      "migrationId": "00000000-0000-4000-8000-00000000004c",
-      "operationId": "00000000-0000-4000-8000-00000000004e"
+      "migrationId": "00000000-0000-4000-8000-000000000052",
+      "operationId": "00000000-0000-4000-8000-000000000054"
     },
     "response": {
       "data": {
         "activated": true,
-        "reportPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-00000000004c\\report.md",
+        "reportPath": "C:\\htd-contract-fixture\\migration-data\\migration\\00000000-0000-4000-8000-000000000052\\report.md",
         "sourcePath": "C:\\htd-contract-fixture\\synthetic-legacy.sqlite3",
         "targetPath": "C:\\htd-contract-fixture\\migration-data\\htd.sqlite3"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "dataDirectory.status",
+    "payload": {},
+    "response": {
+      "data": {
+        "canCleanup": false,
+        "canMove": true,
+        "pendingTarget": null,
+        "phase": "active",
+        "previousRoot": null,
+        "root": "C:\\htd-contract-fixture\\directory-data",
+        "source": "default"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "dataDirectory.preview",
+    "payload": {
+      "target": "C:\\htd-contract-fixture\\directory-target"
+    },
+    "response": {
+      "data": {
+        "availableBytes": 183952863232,
+        "datasetId": "00000000-0000-4000-8000-000000000055",
+        "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "requiredBytes": 18444440,
+        "resumeOperationId": null,
+        "source": "C:\\htd-contract-fixture\\directory-data",
+        "target": "C:\\htd-contract-fixture\\directory-target",
+        "unchanged": false
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "dataDirectory.move",
+    "payload": {
+      "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+      "operationId": "00000000-0000-4000-8000-000000000056",
+      "target": "C:\\htd-contract-fixture\\directory-target"
+    },
+    "response": {
+      "data": {
+        "restartRequired": true,
+        "root": "C:\\htd-contract-fixture\\directory-target"
+      },
+      "ok": true
+    }
+  },
+  {
+    "command": "dataDirectory.cleanup",
+    "payload": {
+      "operationId": "00000000-0000-4000-8000-000000000057"
+    },
+    "response": {
+      "data": {
+        "deletedFiles": 3
       },
       "ok": true
     }

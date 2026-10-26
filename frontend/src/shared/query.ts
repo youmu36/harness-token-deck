@@ -15,12 +15,16 @@ interface QueryOptions {
   eventSource?: EventSource;
   visible?: MaybeRefOrGetter<boolean>;
   clearOnChange?: boolean;
+  /** Release reconstructible detail snapshots when their view closes. */
+  clearOnHide?: boolean;
+  /** Dataset identity; rolling time updates may refresh without blanking existing rows. */
+  identity?: MaybeRefOrGetter<unknown>;
   coalesce?: boolean;
   eventIntervalMs?: number;
 }
 
 // A query owns its generation; hidden requests never publish stale snapshots.
-export function useQuery<T>(key: string, fetcher: () => Promise<T>, options: QueryOptions = {}) {
+export function useQuery<T>(key: string, fetcher: (signal: AbortSignal) => Promise<T>, options: QueryOptions = {}) {
   const source = options.eventSource ?? inject(BridgeKey)?.events;
   if (!source) throw new Error('useQuery requires an application event source');
   const data = shallowRef<T>();
@@ -36,12 +40,15 @@ export function useQuery<T>(key: string, fetcher: () => Promise<T>, options: Que
   let active: Promise<void> | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let lastStarted = -Infinity;
+  let urgent = false;
+  let controller: AbortController | undefined;
+  let identity = toValue(options.identity);
 
   function cancelTimer() { if (timer !== undefined) { clearTimeout(timer); timer = undefined; } }
 
   function schedule() {
     if (scheduled || timer !== undefined || disposed || !visible.value) return;
-    const delay = Math.max(0, (options.eventIntervalMs ?? 0) - (Date.now() - lastStarted));
+    const delay = urgent ? 0 : Math.max(0, (options.eventIntervalMs ?? 0) - (Date.now() - lastStarted));
     if (delay) {
       timer = setTimeout(() => { timer = undefined; schedule(); }, delay);
       return;
@@ -49,7 +56,7 @@ export function useQuery<T>(key: string, fetcher: () => Promise<T>, options: Que
     scheduled = true;
     queueMicrotask(() => {
       scheduled = false;
-      if (dirty.value && (!options.coalesce || !pending.value) && !disposed) void refresh();
+      if (dirty.value && (!options.coalesce || !pending.value) && !disposed) void start();
     });
   }
 
@@ -57,11 +64,17 @@ export function useQuery<T>(key: string, fetcher: () => Promise<T>, options: Que
     ++requests;
     if (!options.coalesce) ++generation;
     dirty.value = true;
-    if (immediate) { cancelTimer(); lastStarted = -Infinity; }
+    if (immediate) { cancelTimer(); urgent = true; }
     schedule();
   }
 
   function refresh(): Promise<void> {
+    if (options.coalesce && active && !dirty.value) return active;
+    urgent = true;
+    return start();
+  }
+
+  function start(): Promise<void> {
     cancelTimer();
     if (options.coalesce && active) return active;
     dirty.value = true;
@@ -81,11 +94,14 @@ export function useQuery<T>(key: string, fetcher: () => Promise<T>, options: Que
     dirty.value = true;
     if (disposed || !visible.value) return;
     lastStarted = Date.now();
+    urgent = false;
     dirty.value = false;
     pending.value = true;
     error.value = undefined;
     try {
-      const result = await fetcher();
+      controller?.abort();
+      controller = new AbortController();
+      const result = await fetcher(controller.signal);
       if (current === generation && !disposed && !dirty.value) data.value = result;
     } catch (failure) {
       if (current === generation && !disposed && !dirty.value) error.value = asAppError(failure);
@@ -110,23 +126,31 @@ export function useQuery<T>(key: string, fetcher: () => Promise<T>, options: Que
       if (dirty.value) void refresh();
     } else {
       cancelTimer();
+      controller?.abort();
       ++generation;
       if (pending.value) dirty.value = true;
       pending.value = false;
+      if (options.clearOnHide) { data.value = undefined; dirty.value = true; }
     }
   }, { immediate: true, flush: 'sync' });
   if (options.deps?.length) watch(options.deps, () => {
+    controller?.abort();
     ++requests;
     dirty.value = true;
-    if (options.clearOnChange) data.value = undefined;
+    const nextIdentity = toValue(options.identity);
+    if (options.clearOnChange && (options.identity === undefined || !Object.is(identity, nextIdentity))) data.value = undefined;
+    identity = nextIdentity;
     void refresh();
   }, { flush: 'sync' });
 
   onScopeDispose(() => {
     disposed = true;
+    controller?.abort();
     cancelTimer();
     ++generation;
     pending.value = false;
+    data.value = undefined;
+    error.value = undefined;
     cleanups.forEach(cleanup => cleanup());
   });
   return {
@@ -134,6 +158,6 @@ export function useQuery<T>(key: string, fetcher: () => Promise<T>, options: Que
     loading: computed(() => pending.value && data.value === undefined),
     refreshing: computed(() => pending.value && data.value !== undefined),
     refresh, checkpoint: () => requests,
-    refreshIfUnchanged: (checkpoint: number) => requests === checkpoint ? refresh() : active ?? Promise.resolve(),
+    refreshIfUnchanged: (checkpoint: number) => requests === checkpoint || (dirty.value && !active) ? refresh() : active ?? Promise.resolve(),
   };
 }

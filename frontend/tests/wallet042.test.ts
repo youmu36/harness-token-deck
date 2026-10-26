@@ -13,7 +13,7 @@ afterEach(()=>{cleanup.splice(0).forEach(fn=>fn());vi.restoreAllMocks();document
 it('separates local and remote totals, displays six cards in recharge/consumption order',async()=>{
   const bridge=createMockBridge();cleanup.push(()=>bridge.dispose());
   const vendor=unwrap(await bridge.call('wallet.list',{})).vendors[0]!;
-  vendor.localWallet={R:'1000000000000',C:'2000000000000',B:'-1000000000000',A:'0',pastTopUpPico:'3000000000000',pastConsumptionPico:'4000000000000',postedR:null,postedC:null,pendingTopUpPico:'0',pendingConsumptionPico:'0'};
+  vendor.localWallet={R:'1000000000000',C:'2000000000000',B:'-1000000000000',A:'0',pastTopUpPico:'3000000000000',pastConsumptionPico:'4000000000000',postedR:null,postedC:null,pendingUpdatedAt: null, pendingTopUpPico:'0',pendingConsumptionPico:'0'};
   vendor.remoteWallet={...vendor.localWallet,R:'9000000000000',C:'8000000000000',B:'1000000000000'};
   const wrapper=mount(VendorCard,{props:{vendor,mode:'UTC',scope:'local'}});cleanup.push(()=>wrapper.unmount());
   expect(wrapper.findAll('dt').map(row=>row.text())).toEqual(['累计充值待更新金额','过往充值','充值总额','累计消费待更新金额','过往消费','消费总额']);
@@ -42,7 +42,7 @@ it('submits exact local totals and never calls a remote correction command',asyn
   const bridge=createMockBridge();cleanup.push(()=>bridge.dispose());const original=bridge.call.bind(bridge);
   const vendor=unwrap(await bridge.call('wallet.list',{})).vendors[0]!;
   const call=vi.spyOn(bridge,'call').mockImplementation(async(name,payload)=>name==='wallet.setLocalTotals'?{ok:true,data:{vendor,vendorId:vendor.id,action:null,changed:true,revision:3,pricingRevision:1}} as never:original(name,payload));
-  vendor.localWallet={R:'1000000000123',C:'1234567890123',B:'0',A:'0',pastTopUpPico:'0',pastConsumptionPico:'0',postedR:null,postedC:null,pendingTopUpPico:'0',pendingConsumptionPico:'0'};
+  vendor.localWallet={R:'1000000000123',C:'1234567890123',B:'0',A:'0',pastTopUpPico:'0',pastConsumptionPico:'0',postedR:null,postedC:null,pendingUpdatedAt: null, pendingTopUpPico:'0',pendingConsumptionPico:'0'};
   const wrapper=mount(LocalWalletDialog,{props:{vendor},attachTo:document.body,global:{provide:{[BridgeKey as symbol]:bridge},stubs:{teleport:true}}});cleanup.push(()=>wrapper.unmount());await flushPromises();
   expect(wrapper.find('[aria-label="本地累计充值"]').exists()).toBe(false);
   await wrapper.get('[aria-label="本地累计消费"]').setValue('1.1234567');

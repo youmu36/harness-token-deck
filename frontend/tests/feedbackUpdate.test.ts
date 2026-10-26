@@ -1,4 +1,4 @@
-import { flushPromises, mount } from '@vue/test-utils';
+import { flushPromises as flushVue, mount } from '@vue/test-utils';
 import { afterEach, expect, it, vi } from 'vitest';
 import { BridgeKey } from '../src/app/ports';
 import { UsageNavigationKey } from '../src/app/usageNavigation';
@@ -8,35 +8,29 @@ import { defaultFilter } from '../src/features/usage-common/types';
 import HarnessPage from '../src/features/harness/HarnessPage.vue';
 import OverviewPage from '../src/features/overview/OverviewPage.vue';
 import VersionList from '../src/features/pricing/VersionList.vue';
+async function flushPromises() { await flushVue(); await vi.dynamicImportSettled(); await flushVue(); }
 const cleanup: (() => void)[] = [];
 afterEach(() => { cleanup.splice(0).forEach(fn => fn()); vi.restoreAllMocks(); vi.useRealTimers(); });
 
-it.each([72 - 1 / 60, 72, 72 + 1 / 60, 73, 168, 168 + 1 / 60, 169])('custom %s-hour analysis uses the permitted trend grain and defers hour details', async hours => {
-  const bridge = createMockBridge(); const call = vi.spyOn(bridge, 'call');
-  const initial = unwrap(await bridge.call('preferences.get', {}));
-  initial.preferences.filters.overview = { ...defaultFilter, range: 'custom', start: '2026-10-01T00:00:00.000Z', end: new Date(Date.parse('2026-10-01T00:00:00Z') + hours * 3600000).toISOString() };
-  const wrapper = mount(OverviewPage, { props: { initialPreferences: initial }, global: { provide: { [BridgeKey as symbol]: bridge } } });
-  cleanup.push(() => { wrapper.unmount(); bridge.dispose(); }); await flushPromises();
-  const query = call.mock.calls.filter(([name]) => name === 'stats.summary');
-  expect(query).toHaveLength(1);
-  expect(query[0]![1]).toMatchObject({ grain: hours < 72 ? 'hour' : hours <= 168 ? 'twoHours' : 'day', sections: ['trend', 'models', 'harnesses'] });
-  expect(wrapper.find('[aria-label="趋势粒度"] [data-value="hour"]').exists()).toBe(hours <= 168);
-  if (hours >= 72 && hours <= 168) expect(wrapper.get('.grain-note').text()).toBe('实际粒度：2小时');
-  else expect(wrapper.find('.grain-note').exists()).toBe(false);
+it.each([72 - 1 / 60, 72, 72 + 1 / 60, 73, 168, 168 + 1 / 60, 169])('custom %s-hour statistics keeps daily totals and reads hour details on demand', async hours => {
+  const bridge=createMockBridge(),call=vi.spyOn(bridge,'call'),initial=unwrap(await bridge.call('preferences.get',{}));
+  initial.preferences.filters.overview={...defaultFilter,range:'custom',start:'2026-10-01T00:00:00.000Z',end:new Date(Date.parse('2026-10-01T00:00:00Z')+hours*3600000).toISOString()};
+  const wrapper=mount(OverviewPage,{props:{initialPreferences:initial},global:{provide:{[BridgeKey as symbol]:bridge}}});
+  cleanup.push(()=>{wrapper.unmount();bridge.dispose();});await flushPromises();
+  const queries=()=>call.mock.calls.filter(([name])=>name==='stats.explore');
+  expect(queries()).toHaveLength(1);expect(queries()[0]![1]).toMatchObject({grain:'day',sections:['models','totals','trend']});
+  await wrapper.findAll('button').find(b=>b.text()==='查看小时明细')!.trigger('click');await flushPromises();
+  expect(queries().at(-1)?.[1]).toMatchObject({grain:'hour',sections:['trend']});
+  expect(wrapper.find('[aria-label="小时明细表"]').exists()).toBe(hours<=168);
 });
 
-it.each(['7days', '30days'] as const)('%s analysis offers the trend grains supported by its actual span', async range => {
-  const bridge = createMockBridge(); const call = vi.spyOn(bridge, 'call');
-  const initial = unwrap(await bridge.call('preferences.get', {}));
-  initial.preferences.filters.overview = { ...defaultFilter, range };
-  const wrapper = mount(OverviewPage, { props: { initialPreferences: initial }, global: { provide: { [BridgeKey as symbol]: bridge } } });
-  cleanup.push(() => { wrapper.unmount(); bridge.dispose(); }); await flushPromises();
-  expect(call.mock.calls.find(([name]) => name === 'stats.summary')![1]).toMatchObject({ grain: range === '7days' ? 'twoHours' : 'day' });
-  expect(wrapper.find('[aria-label="趋势粒度"] [data-value="hour"]').exists()).toBe(range === '7days');
-  if (range === '7days') {
-    await wrapper.get('[aria-label="趋势粒度"] [data-value="day"]').trigger('click'); await flushPromises();
-    expect(call.mock.calls.filter(([name]) => name === 'stats.summary').at(-1)![1]).toMatchObject({ grain: 'day' });
-  }
+it.each(['7days','30days'] as const)('%s statistics keeps model totals separate from hour details',async range=>{
+  const bridge=createMockBridge(),call=vi.spyOn(bridge,'call'),initial=unwrap(await bridge.call('preferences.get',{}));
+  initial.preferences.filters.overview={...defaultFilter,range};
+  const wrapper=mount(OverviewPage,{props:{initialPreferences:initial},global:{provide:{[BridgeKey as symbol]:bridge}}});
+  cleanup.push(()=>{wrapper.unmount();bridge.dispose();});await flushPromises();
+  expect(call.mock.calls.find(([name])=>name==='stats.explore')?.[1]).toMatchObject({grain:'day'});
+  expect(wrapper.find('[aria-label="小时明细表"]').exists()).toBe(false);
 });
 
 it.each([168, 169])('Harness %s-hour range keeps totals and routes only long hour details', async hours => {
@@ -74,8 +68,12 @@ it.each(['harness', 'overview'] as const)('%s scan events and completion perform
     ? mount(HarnessPage, { props: { harness: 'codex', initialPreferences: initial }, global: { provide: { [BridgeKey as symbol]: bridge } } })
     : mount(OverviewPage, { props: { initialPreferences: initial }, global: { provide: { [BridgeKey as symbol]: bridge } } });
   cleanup.push(() => { wrapper.unmount(); bridge.dispose(); }); await flushPromises();
-  const before = call.mock.calls.filter(([name]) => name === 'stats.summary').length;
-  await wrapper.get('.scan-control button').trigger('click'); await vi.advanceTimersByTimeAsync(150); await flushPromises();
-  expect(call.mock.calls.filter(([name]) => name === 'stats.summary')).toHaveLength(before + 1);
+  const command = page === 'harness' ? 'stats.summary' : 'stats.explore';
+  const before = call.mock.calls.filter(([name]) => name === command).length;
+  if (page === 'harness') await wrapper.get('.scan-control button').trigger('click');
+  else void bridge.call('collection.scanNow', {operationId:crypto.randomUUID()});
+  await vi.advanceTimersByTimeAsync(150); await flushPromises();
+  if (page === 'overview') { await vi.advanceTimersByTimeAsync(5000); await flushPromises(); }
+  expect(call.mock.calls.filter(([name]) => name === command)).toHaveLength(before + 1);
   expect(call.mock.calls.filter(([name]) => name === 'collection.scanNow')).toHaveLength(1);
 });

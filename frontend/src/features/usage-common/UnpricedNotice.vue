@@ -8,7 +8,7 @@ import InlineAlert from '../../ui/InlineAlert.vue';
 import Button from '../../ui/Button.vue';
 const props=defineProps<{ harness?: string; initialPreferences: CommandData<'preferences.get'> }>();
 const bridge=inject(BridgeKey)!;
-const notice=useQuery('unpriced.notice',async()=>unwrap(await bridge.call('pricing.unpricedNotice',{})),{events:['usage.changed','quality.changed','collection.tick'],coalesce:true});
+const notice=useQuery('unpriced.notice',async()=>unwrap(await bridge.call('pricing.unpricedNotice',{})),{events:['usage.changed',{name:'quality.changed',immediate:true}],coalesce:true,eventIntervalMs:5000});
 const preferences=useShellPreferences(props.initialPreferences);
 const pending=ref(false); const error=ref('');
 const relevant=computed(()=>notice.data.value && notice.data.value.count>0 && (!props.harness||notice.data.value.harnesses.includes(props.harness)));

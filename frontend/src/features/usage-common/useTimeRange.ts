@@ -1,4 +1,5 @@
-import { computed, ref } from 'vue';
+import { computed, inject, onScopeDispose, ref, watch } from 'vue';
+import { BridgeKey } from '../../app/ports';
 import type { CommandData } from '../../app/ports';
 import { useShellPreferences } from '../../app/useShellPreferences';
 import { parseDateTimeInput, queryTimezone, rangePreset, type TimeZoneMode } from '../../shared/time';
@@ -24,7 +25,7 @@ export function validateCustomRange(startText: string, endText: string, mode: Ti
 /** Presets advance only when the page refreshes; custom windows retain their exact instants. */
 export function useTimeRange(page: UsagePage, initial: CommandData<'preferences.get'>, clock = () => new Date(), override?: Partial<UsageFilter>) {
   const preferences = useShellPreferences(initial);
-  const filter = ref<UsageFilter>({ ...defaultFilter, ...initial.preferences.filters[page], ...override, ...(page === 'overview' ? { startNow: false, endNow: false } : {}) });
+  const filter = ref<UsageFilter>({ ...defaultFilter, ...preferences.snapshot.value.preferences.filters[page], ...override, startNow: false, ...(page === 'overview' ? { endNow: false } : {}) });
   const selection = ref<RangePreset>(filter.value.range);
   const now = ref(clock());
   const mode = computed(() => preferences.snapshot.value.preferences.timezone);
@@ -37,6 +38,20 @@ export function useTimeRange(page: UsagePage, initial: CommandData<'preferences.
   const queryGrain = computed(() => page === 'overview' && trendGrain.value === 'hour' && span.value >= 72 * 3600000 ? 'twoHours' as const : trendGrain.value);
   const queryKey = computed(() => [filter.value.harness, filter.value.range, filter.value.start,
     filter.value.end, filter.value.startNow, filter.value.endNow, queryGrain.value, mode.value].join('|'));
+  const refreshKey = computed(() => [queryKey.value,
+    filter.value.range === 'custom' && filter.value.endNow ? Math.floor(now.value.getTime() / 60_000) : ''].join('|'));
+  const events = inject(BridgeKey)!.events;
+  const visible = ref(events.isVisible());
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  function schedule() {
+    if (timer !== undefined) clearTimeout(timer);
+    timer = undefined;
+    if (!visible.value || filter.value.range !== 'custom' || !filter.value.endNow) return;
+    timer = setTimeout(() => { now.value = clock(); schedule(); }, 60_000 - clock().getTime() % 60_000);
+  }
+  const unsubscribe = events.onVisibility(value => { visible.value = value; if (value) now.value = clock(); schedule(); });
+  watch(() => [filter.value.range, filter.value.endNow], schedule, { immediate:true });
+  onScopeDispose(() => { if (timer !== undefined) clearTimeout(timer); unsubscribe(); });
   async function saveFilter(patch: Partial<UsageFilter>) {
     filter.value = { ...filter.value, ...patch };
     await preferences.save({ filters: { [page]: { ...filter.value } } });
@@ -50,8 +65,9 @@ export function useTimeRange(page: UsagePage, initial: CommandData<'preferences.
   }
   async function applyCustom(value: UsageRange) {
     selection.value = 'custom';
-    await saveFilter({ range: 'custom', start: value.start, end: value.end, startNow: page !== 'overview' && !!value.startNow, endNow: page !== 'overview' && !!value.endNow });
+    advance();
+    await saveFilter({ range: 'custom', start: value.start, end: value.end, startNow: false, endNow: page !== 'overview' && !!value.endNow });
   }
-  return { filter, selection, mode, range, trendGrain, queryGrain, dailyOnly, queryKey, advance, select, applyCustom, saveFilter,
+  return { filter, selection, mode, range, trendGrain, queryGrain, dailyOnly, queryKey, refreshKey, advance, select, applyCustom, saveFilter,
     error: preferences.error, retry: preferences.retry };
 }

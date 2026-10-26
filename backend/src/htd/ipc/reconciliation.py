@@ -4,9 +4,22 @@ from typing import Annotated
 
 from pydantic import StringConstraints
 
+from htd.application.calibration import Calibrations
 from htd.application.reconciliation import Reconciliation
 from htd.ipc.dto.base import EmptyRequest, InstantStr, PicoStr, StrictModel
 from htd.ipc.dto.events import HarnessName
+from htd.ipc.dto.reconciliation import (
+    BatchQuery,
+    BatchResponse,
+    CalibrationPreview,
+    CalibrationRequest,
+    CalibrationResponse,
+    CalibrationTargetsRequest,
+    CalibrationTargetsResponse,
+    CommitCalibrationRequest,
+    ReconciliationPreview,
+    ReconciliationQuery,
+)
 from htd.ipc.router import Router
 
 
@@ -29,7 +42,46 @@ class DismissNoticeRequest(StrictModel):
     observedAt: InstantStr
 
 
-def register_reconciliation(router: Router, service: Reconciliation) -> None:
+def register_reconciliation(router: Router, service: Reconciliation, calibrations: Calibrations) -> None:
+    @router.register(
+        "reconciliation.previewCalibration",
+        request=CalibrationRequest,
+        response=CalibrationPreview,
+        kind="read",
+    )
+    def preview_calibration(request: CalibrationRequest) -> CalibrationPreview:
+        return CalibrationPreview.model_validate(calibrations.preview(request.model_dump()))
+
+    @router.register(
+        "reconciliation.commitCalibration",
+        request=CommitCalibrationRequest,
+        response=CalibrationResponse,
+        kind="write",
+    )
+    def commit_calibration(request: CommitCalibrationRequest) -> CalibrationResponse:
+        return CalibrationResponse.model_validate(
+            calibrations.commit(request.model_dump(exclude={"operationId"}), request.operationId)
+        )
+
+    @router.register(
+        "reconciliation.targets",
+        request=CalibrationTargetsRequest,
+        response=CalibrationTargetsResponse,
+        kind="read",
+    )
+    def targets(request: CalibrationTargetsRequest) -> CalibrationTargetsResponse:
+        return CalibrationTargetsResponse.model_validate(calibrations.targets(request.model_dump()))
+
+    @router.register(
+        "reconciliation.preview", request=ReconciliationQuery, response=ReconciliationPreview, kind="read"
+    )
+    def preview(request: ReconciliationQuery) -> ReconciliationPreview:
+        return ReconciliationPreview.model_validate(service.preview(request.model_dump()))
+
+    @router.register("reconciliation.batches", request=BatchQuery, response=BatchResponse, kind="read")
+    def batches(request: BatchQuery) -> BatchResponse:
+        return BatchResponse.model_validate(service.batches(request.model_dump()))
+
     @router.register(
         "reconciliation.status", request=EmptyRequest, response=ReconciliationResponse, kind="read"
     )

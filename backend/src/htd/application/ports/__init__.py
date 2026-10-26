@@ -6,7 +6,7 @@ from collections.abc import Callable, Generator, Iterable
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import date as calendar_date
-from typing import Literal, Protocol
+from typing import Literal, Protocol, runtime_checkable
 
 from htd.application.ports.management import (
     CommandStore as CommandStore,
@@ -34,6 +34,7 @@ from htd.domain.common.time import Instant
 from htd.domain.pricing.catalog import Catalog
 from htd.domain.pricing.model_pool import ModelPool
 from htd.domain.statistics.analysis import AnalysisQuery
+from htd.domain.statistics.effective_cost import CostProjection
 from htd.domain.statistics.model import LedgerRow
 from htd.domain.usage.model import Harness, UsageEvent
 from htd.domain.wallet.model import VendorLink
@@ -107,6 +108,13 @@ class StatisticsSnapshot(Protocol):
     ) -> Generator[LedgerRow, None, None]: ...
 
 
+@runtime_checkable
+class EffectiveCostSnapshot(Protocol):
+    def costs(
+        self, start: Instant, end: Instant, harness: Harness | Literal["all"], model_key: str | None
+    ) -> CostProjection: ...
+
+
 @dataclass(frozen=True, slots=True)
 class PricingSnapshot:
     catalog: Catalog
@@ -116,7 +124,7 @@ class PricingSnapshot:
 
 
 class PricingStore(CommandStore, Protocol):
-    def pricing(self, work: UnitOfWork | None = None) -> PricingSnapshot: ...
+    def pricing(self, work: UnitOfWork | None = None, *, metadata_only: bool = False) -> PricingSnapshot: ...
 
     def save_catalog(self, work: UnitOfWork, old: Catalog, new: Catalog) -> None: ...
 
@@ -126,15 +134,25 @@ class PricingStore(CommandStore, Protocol):
 
 
 class StatisticsStore(Protocol):
+    def evidence(self, query: dict[str, object], now: Instant) -> dict[str, object]: ...
+
     def acknowledge_quality(self, items: list[dict[str, str]], now: Instant) -> dict[str, object]: ...
 
     def explore(self, query: dict[str, object], now: Instant) -> dict[str, object]: ...
 
-    def explore_options(self) -> dict[str, object]: ...
+    def explore_options(self, query: dict[str, object] | None = None) -> dict[str, object]: ...
 
     def output_references(self, query: dict[str, object], now: Instant) -> dict[str, object]: ...
 
-    def monitor_data(self, harness: str, now: Instant) -> dict[str, list[dict[str, object]]]: ...
+    def monitor_data(
+        self,
+        harness: str,
+        now: Instant,
+        session_ref: str | None = None,
+        offset_minutes: int = 0,
+        cursor: str | None = None,
+        chart_session_ref: str | None = None,
+    ) -> dict[str, object]: ...
 
     def analytics(self, query: AnalysisQuery, now: Instant) -> dict[str, object]: ...
 
@@ -199,6 +217,7 @@ class SourceRecord:
     status: SourceStatus
     diagnostics: tuple[str, ...]
     unmetered_requests: tuple[UnmeteredRequest, ...] | None = None
+    scan_enabled: bool = True
 
 
 @dataclass(frozen=True, slots=True)
@@ -290,9 +309,21 @@ class UsageChanged:
 
 
 @dataclass(frozen=True, slots=True)
+class CostChanged:
+    revision: int
+
+
+@dataclass(frozen=True, slots=True)
+class AuxiliaryChanged:
+    revision: int
+
+
+@dataclass(frozen=True, slots=True)
 class WalletChanged:
     vendor_ids: tuple[str, ...]
     revision: int
+    catalog_changed: bool = False
+    remote_flows_changed: bool = False
 
 
 @dataclass(frozen=True, slots=True)

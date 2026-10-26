@@ -55,7 +55,7 @@ def open_connection(
         connection.execute("PRAGMA busy_timeout=5000")
         connection.execute("PRAGMA foreign_keys=ON")
         connection.execute("PRAGMA recursive_triggers=ON")
-        connection.execute("PRAGMA temp_store=MEMORY")
+        connection.execute("PRAGMA temp_store=" + ("FILE" if query_only else "MEMORY"))
         connection.execute("PRAGMA synchronous=NORMAL")
         connection.execute("PRAGMA mmap_size=0")
         connection.execute("PRAGMA cache_size=" + ("-512" if query_only else "-2048"))
@@ -147,6 +147,12 @@ class ReadPool:
     def release_idle(self) -> None:
         with self._condition:
             self._prune(all_idle=True)
+            self._condition.notify_all()
+
+    def expire_idle(self) -> None:
+        """Enforce the idle lease limit even when no further query borrows a reader."""
+        with self._condition:
+            self._prune()
             self._condition.notify_all()
 
     def diagnostics(self) -> dict[str, int]:

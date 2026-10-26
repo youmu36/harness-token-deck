@@ -1,7 +1,6 @@
 """Read-only Codex audit: source coverage, current-price estimates and ledger comparison."""
 
 import argparse
-import os
 import sys
 from collections import Counter
 from dataclasses import dataclass, field, replace
@@ -294,12 +293,9 @@ def markdown(report: AuditReport) -> str:
 
 
 def default_db() -> Path | None:
-    directory = os.environ.get("HTD_DATA_DIR")
-    if directory is None:
-        local = os.environ.get("LOCALAPPDATA")
-        if local is None:
-            return None
-        directory = str(Path(local) / "HarnessTokenDeck")
+    from htd.adapters.data_directory import resolve_data_directory
+
+    directory = resolve_data_directory().root
     for name in ("htd.sqlite3", "ledger.sqlite3"):
         candidate = Path(directory) / name
         if candidate.is_file():

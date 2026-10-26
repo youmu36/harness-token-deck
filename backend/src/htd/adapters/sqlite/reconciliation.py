@@ -5,10 +5,9 @@ from datetime import timedelta
 from htd.adapters.sqlite.command_store import read_snapshot
 from htd.adapters.sqlite.connection import ReadPool
 from htd.adapters.sqlite.pricing_repo import PricingRepository
-from htd.adapters.sqlite.usage_archive import archived_rows
 from htd.adapters.sqlite.wallet_repo import WalletRepository
 from htd.adapters.sqlite.writer import WriteExecutor
-from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.common.time import Instant, format_instant
 from htd.domain.usage.model import Harness
 from htd.domain.wallet.ledger import attribute_consumption
 
@@ -16,6 +15,18 @@ from htd.domain.wallet.ledger import attribute_consumption
 class SqliteReconciliationStore:
     def __init__(self, readers: ReadPool, writer: WriteExecutor | None = None) -> None:
         self.readers, self.writer = readers, writer
+
+    def preview(self, query: dict[str, object], at: Instant) -> dict[str, object]:
+        from htd.adapters.sqlite.reconciliation_read import preview
+
+        with read_snapshot(self.readers) as db:
+            return preview(db, query, at)
+
+    def batches(self, query: dict[str, object], at: Instant) -> dict[str, object]:
+        from htd.adapters.sqlite.reconciliation_read import batches
+
+        with read_snapshot(self.readers) as db:
+            return batches(db, query, at)
 
     def dismiss(self, vendor_id: str, observed_at: str) -> None:
         if self.writer is None:
@@ -61,13 +72,10 @@ class SqliteReconciliationStore:
                     )
                 )
                 activity.update(
-                    item["harness"]
-                    for item in archived_rows(
-                        db,
-                        row["from_at"],
-                        format_instant(
-                            Instant(parse_instant(row["observed_at"]).value + timedelta(milliseconds=1))
-                        ),
+                    item[0]
+                    for item in db.execute(
+                        "SELECT DISTINCT harness FROM usage_archive WHERE end_at>? AND start_at<=?",
+                        (row["from_at"], row["observed_at"]),
                     )
                 )
                 for name in sorted(activity):

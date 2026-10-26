@@ -3,7 +3,41 @@
 from http.client import HTTPConnection
 from pathlib import Path
 
+import pytest
 from htd.adapters.desktop.static_server import StaticOnlyServer
+
+
+def test_asset_mime_types_do_not_read_the_machine_registry(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import mimetypes
+
+    def forbidden(*args: object, **kwargs: object) -> None:
+        raise AssertionError("Application assets must not initialize the system MIME registry")
+
+    monkeypatch.setattr(mimetypes, "init", forbidden)
+    for name in ("index.html", "chunk.js", "style.css", "icon.svg", "font.woff2"):
+        (tmp_path / name).write_bytes(b"synthetic asset")
+    server = StaticOnlyServer(tmp_path, None)
+    try:
+        for name, mime in (
+            ("index.html", "text/html"),
+            ("chunk.js", "text/javascript"),
+            ("style.css", "text/css"),
+            ("icon.svg", "image/svg+xml"),
+            ("font.woff2", "font/woff2"),
+        ):
+            connection = HTTPConnection("127.0.0.1", server.port, timeout=1)
+            try:
+                connection.request("GET", "/" + name)
+                response = connection.getresponse()
+                assert response.status == 200 and response.getheader("Content-Type") == mime
+                assert response.read() == b"synthetic asset"
+            finally:
+                connection.close()
+    finally:
+        server.stop()
 
 
 def test_occupied_static_port_loads_own_assets_on_another_port(tmp_path: Path) -> None:

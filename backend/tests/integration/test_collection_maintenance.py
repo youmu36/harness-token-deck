@@ -61,6 +61,8 @@ def expire_pending(writer: WriteExecutor, *, index: int = 1000) -> None:
     root = ensure_source(writer)
     writer.execute(lambda w: SourcesRepository(w.connection).begin_scan(w, Harness.CODEX, root, at=OLD))
     collect(writer, (usage(index, at=OLD),))
+    # Expiry tests use an unrecoverable row; accepted reliable input stays protected.
+    writer.execute(lambda w: w.connection.execute("UPDATE session_request SET state='corrupt'"))
 
 
 def test_sync_respects_exclusions_base_rates_and_immutable_price_history(tmp_path: Path) -> None:
@@ -73,6 +75,7 @@ def test_sync_respects_exclusions_base_rates_and_immutable_price_history(tmp_pat
         )
         writer.execute(lambda w: save_pool(w, pool))
         observed(writer, ("KEPT", " Excluded ", "New", "NEW"))
+        published.clear()
         fingerprint = writer.execute(lambda w: PricingRepository(w.connection).load().fingerprint)
         revision = writer.execute(lambda w: w.revision("models"))
         maintenance = AutoMaintenance(SqliteMaintenanceStore(writer), FakeClock(AT))
@@ -131,6 +134,7 @@ def test_pool_and_capacity_diagnostic_rollback_together_then_retry(tmp_path: Pat
     with WriteExecutor(tmp_path / "ledger.sqlite", publish=published.append) as writer:
         writer.execute(lambda w: save_pool(w, ModelPool(tuple(f"Pool{i}" for i in range(4999)))))
         observed(writer, ("NewA", "NewB"))
+        published.clear()
         writer.execute(
             lambda w: w.connection.execute(
                 "CREATE TRIGGER fail BEFORE INSERT ON diagnostic_log WHEN NEW.code='model_pool_full' "

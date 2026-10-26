@@ -26,8 +26,10 @@ class RollupRepository:
         close_days(work, self.db, at=at)
         cutoff = format_instant(Instant((at.value - timedelta(hours=72)).replace(second=0, microsecond=0)))
         unpriced_cutoff = format_instant(Instant(at.value - timedelta(days=30)))
+        from htd.adapters.sqlite.usage_attribution import VENDOR_SQL
+
         rows = self.db.execute(
-            "SELECT l.*,COALESCE(w.vendor_id,'') vendor_id,a.compacted,a.cache_read detected_cache "
+            f"SELECT l.*,{VENDOR_SQL} vendor_id,a.compacted,a.cache_read detected_cache "
             "FROM ledger l LEFT JOIN usage_annotation a USING(harness,dedupe_key) LEFT JOIN wallet_entry w "
             "ON w.usage_harness=l.harness AND w.usage_key=l.dedupe_key AND w.kind='consumption' "
             "WHERE l.occurred_at<? AND (l.unpriced=0 OR l.occurred_at<?) "
@@ -105,7 +107,9 @@ class RollupRepository:
                 ),
             )
             from htd.adapters.sqlite.explorer_storage import retire
+            from htd.adapters.sqlite.session_core import remember_ledger
 
+            remember_ledger(self.db, row)
             retire(self.db, dict(row))
             compact_consumption(self.db, row["harness"], row["dedupe_key"])
             self.db.execute(
@@ -149,13 +153,20 @@ class RollupRepository:
         from htd.adapters.sqlite.wallet_closing import timezone
 
         oldest_output = (
-            at.value.astimezone(ZoneInfo(timezone(self.db))).date() - timedelta(days=29)
+            at.value.astimezone(ZoneInfo(timezone(self.db))).date() - timedelta(days=62)
         ).isoformat()
         self.db.execute(
             "DELETE FROM output_session_scope WHERE "
             "(day,harness,session_key,model_key,vendor_id,group_id,version_id) IN (SELECT "
             "day,harness,session_key,model_key,vendor_id,group_id,version_id FROM "
             "output_session_scope WHERE day<? LIMIT 200)",
+            (oldest_output,),
+        )
+        self.db.execute(
+            "DELETE FROM output_scope_published WHERE "
+            "(day,harness,session_key,model_key,vendor_id,group_id,version_id) IN (SELECT "
+            "day,harness,session_key,model_key,vendor_id,group_id,version_id FROM "
+            "output_scope_published WHERE day<? LIMIT 200)",
             (oldest_output,),
         )
         audits = compact_audits(self.db)

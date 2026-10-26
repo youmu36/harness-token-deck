@@ -104,7 +104,10 @@ class MaintenanceRepository:
             (stamp,),
         ).fetchone()
         inbox = self.connection.execute(
-            "SELECT COUNT(*) FROM inbox WHERE occurred_at<?", (stamp,)
+            "SELECT COUNT(*) FROM inbox i WHERE occurred_at<? AND NOT EXISTS(SELECT 1 FROM "
+            "session_request s WHERE s.harness=i.harness AND s.dedupe_key=i.dedupe_key "
+            "AND s.state='accepted' AND s.occurred_at=i.occurred_at)",
+            (stamp,),
         ).fetchone()[0]
         identities = self.connection.execute("SELECT COUNT(*) FROM identity").fetchone()[0]
         count, earliest, latest = archive_preview(self.connection, stamp)
@@ -123,7 +126,9 @@ class MaintenanceRepository:
         require_transaction(work, self.connection)
         self._limit(limit)
         rows = self.connection.execute(
-            "SELECT harness,dedupe_key FROM inbox WHERE occurred_at<? "
+            "SELECT harness,dedupe_key FROM inbox i WHERE occurred_at<? AND NOT EXISTS(SELECT 1 FROM "
+            "session_request s WHERE s.harness=i.harness AND s.dedupe_key=i.dedupe_key "
+            "AND s.state='accepted' AND s.occurred_at=i.occurred_at) "
             "ORDER BY occurred_at,harness,dedupe_key LIMIT ?",
             (format_instant(cutoff), limit),
         ).fetchall()
@@ -221,6 +226,7 @@ class MaintenanceRepository:
             "('wallet.reclassify','wallet.correctConsumption','wallet.reconcil"
             "eInterval','pricing.recalculateUnpriced','remote.save','remote.de"
             "lete') "
+            "AND command<>'reconciliation.commitCalibration' "
             "AND NOT (command='wallet.calibrate' AND EXISTS(SELECT 1 FROM account_posting p "
             "WHERE p.operation_id=operation.id||':account'))",
             (receipt_cutoff,),

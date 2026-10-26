@@ -1,4 +1,4 @@
-"""Session cache hit rate survives restart and expires its temporary prior generation."""
+"""Session cache hit rate survives restart and preserves its persistent directory."""
 
 from pathlib import Path
 
@@ -36,7 +36,7 @@ def _sessions(app: Application) -> list[dict[str, object]]:
     return [item.model_dump() for item in response.sessionHitRates]
 
 
-def test_concurrent_sessions_freeze_resume_and_clear_previous_generation(tmp_path: Path) -> None:
+def test_concurrent_sessions_freeze_resume_and_keep_previous_sessions(tmp_path: Path) -> None:
     clock = FakeClock(AT)
     data = tmp_path / "data"
     with Application(data, clock=clock, start_scheduler=False) as app:
@@ -58,7 +58,8 @@ def test_concurrent_sessions_freeze_resume_and_clear_previous_generation(tmp_pat
         )
         first = _sessions(app)
         one = next(row for row in first if row["cacheHitRate"] == 0.55)
-        assert one["displayName"] == "Model"
+        assert one["displayName"] == "会话"
+        assert one["sessionRef"] is not None
 
         clock.advance(10 * 60_000)
         frozen = _sessions(app)
@@ -69,15 +70,24 @@ def test_concurrent_sessions_freeze_resume_and_clear_previous_generation(tmp_pat
         assert len(restored) == 2 and all(row["frozen"] for row in restored)
         clock.advance(60_000)
         _bill(
-            app, (usage(4, session="three", tokens=Tokens(input=50, cache_read=25, cache_write=0, output=5)),)
+            app,
+            (
+                usage(
+                    4,
+                    at=clock.now_utc(),
+                    session="three",
+                    tokens=Tokens(input=50, cache_read=25, cache_write=0, output=5),
+                ),
+            ),
         )
         current = _sessions(app)
-        assert len(current) == 1 and current[0]["cacheHitRate"] == 0.5 and not current[0]["frozen"]
+        assert len(current) == 3
+        assert any(row["cacheHitRate"] == 0.5 and not row["frozen"] for row in current)
         assert (
             app.writer.execute(
                 lambda work: work.connection.execute("SELECT COUNT(*) FROM session_hit_rate").fetchone()[0]
             )
-            == 1
+            == 3
         )
 
 

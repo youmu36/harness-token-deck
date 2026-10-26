@@ -172,9 +172,11 @@ def test_zero_adjustment_is_kept_when_no_ledger_field_changes(tmp_path: Path) ->
         )
         clock.advance(600_001)
         app.writer.execute(lambda w: flush(w, w.connection, clock.now_utc()))
-        rows = app.readers.get().execute(
-            "SELECT c,note FROM wallet_flow WHERE kind='adjustment' AND note LIKE '重算调整%'"
-        ).fetchall()
+        rows = (
+            app.readers.get()
+            .execute("SELECT c,note FROM wallet_flow WHERE kind='adjustment' AND note LIKE '重算调整%'")
+            .fetchall()
+        )
         assert len(rows) == 2 and all(r["c"] == "0" and "2 → 2 USD" in r["note"] for r in rows)
 
 

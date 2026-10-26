@@ -4,11 +4,13 @@ from collections.abc import Callable
 
 from htd.adapters.sqlite.auto_maintenance_store import SqliteMaintenanceStore
 from htd.adapters.sqlite.command_store import SqliteCommandStore, connection, read_snapshot
+from htd.adapters.sqlite.connection import ReadPool
 from htd.adapters.sqlite.maintenance_files import backup, vacuum
 from htd.adapters.sqlite.maintenance_repo import MaintenanceRepository
-from htd.adapters.sqlite.storage_size import footprint
+from htd.adapters.sqlite.storage_size import StorageSampler
 from htd.adapters.sqlite.usage_codec import dumps
 from htd.adapters.sqlite.writer import UnitOfWork as SqlWork
+from htd.adapters.sqlite.writer import WriteExecutor
 from htd.application.ports import RetentionBatch, RetentionPlan, UnitOfWork
 from htd.application.ports.maintenance import Retention
 from htd.domain.common.errors import DomainError
@@ -16,6 +18,10 @@ from htd.domain.common.time import Instant, format_instant
 
 
 class SqliteManualMaintenanceStore(SqliteCommandStore):
+    def __init__(self, writer: WriteExecutor, readers: ReadPool) -> None:
+        super().__init__(writer, readers)
+        self._storage = StorageSampler()
+
     def status(self, *, at: Instant, app_version: str) -> dict[str, object]:
         with read_snapshot(self.readers) as db:
             state = MaintenanceRepository(db).status(at=at, app_version=app_version)
@@ -32,7 +38,9 @@ class SqliteManualMaintenanceStore(SqliteCommandStore):
                 "pendingExpired": state.pending_expired,
                 "logCount": state.log_count,
                 "databaseBytes": state.database_bytes,
-                "storage": footprint(db, at=at),
+                "storage": self._storage.sample(
+                    db, at=at, key=(state.retention, state.last_retention_at, state.last_vacuum_at)
+                ),
                 "appVersion": state.app_version,
                 "dataDir": str(state.data_dir),
             }
@@ -92,4 +100,7 @@ class SqliteManualMaintenanceStore(SqliteCommandStore):
             path = backup(work, at=at)
             return {"completedAt": format_instant(at), "path": str(path)}
 
-        return self.writer.submit_idle(action).result()
+        try:
+            return self.writer.submit_idle(action).result()
+        finally:
+            self._storage.clear()

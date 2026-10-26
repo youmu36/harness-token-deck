@@ -44,12 +44,12 @@ export function createMockPricing(emit: <K extends EventName>(name: K, payload: 
     return text.replace(/^0+(?=\d)/, '').replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
   }
   function fill(request: RequestMap['models.fillByMultiplier']): CommandData<'models.fillByMultiplier'> {
-    if (!/^[0-9]{1,9}(?:\.[0-9]{1,3})?$/.test(request.multiplier)) return fail('MULTIPLIER_INVALID');
+    if (!/^[0-9]{1,9}(?:\.[0-9]{1,4})?$/.test(request.multiplier)) return fail('MULTIPLIER_INVALID');
     const integer = (text: string, digits: number) => { const [whole, fraction = ''] = text.split('.'); return BigInt(whole!) * 10n ** BigInt(digits) + BigInt(fraction.padEnd(digits, '0')); };
-    const scale = integer(request.multiplier, 3);
+    const scale = integer(request.multiplier, 4);
     const result = (text: string | null | undefined) => {
       const normalized = rate(text); if (normalized === null) return null;
-      const value = (integer(normalized, 6) * scale + 500n) / 1000n;
+      const value = (integer(normalized, 6) * scale + 5000n) / 10000n;
       if (value > 999_999_999_999_999n) return fail('RATE_OVERFLOW');
       return rate(`${value / 1_000_000n}.${String(value % 1_000_000n).padStart(6, '0')}`);
     };
@@ -171,6 +171,6 @@ export function createMockPricing(emit: <K extends EventName>(name: K, payload: 
     if (result.changed) emit('pricing.changed', { revision: catalog.revision });
     return result;
   }
-  return { catalog: () => structuredClone(catalog), wallets, wallet: () => structuredClone(wallet), preview, switchCurrent, edit, fill, pool: () => structuredClone({ ...pool, revision: catalog.revision }),
+  return { catalog: (metadataOnly = false) => metadataOnly ? {...catalog,groups:catalog.groups.map(group=>({...group,versions:group.versions.map(version=>({...version,models:[],hints:[]}))}))} : structuredClone(catalog), wallets, wallet: () => structuredClone(wallet), preview, switchCurrent, edit, fill, pool: () => structuredClone({ ...pool, revision: catalog.revision }),
     editModels, revision: () => catalog.revision, walletRevision: () => wallet.revision };
 }

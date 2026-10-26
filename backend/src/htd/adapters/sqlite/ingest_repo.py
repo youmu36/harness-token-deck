@@ -6,15 +6,17 @@ from collections.abc import Callable, Iterable
 from dataclasses import asdict
 
 from htd.adapters.sqlite.key_codec import key_bytes
+from htd.adapters.sqlite.session_core import observe
 from htd.adapters.sqlite.sources_repo import SourcesRepository
 from htd.adapters.sqlite.transaction import require_transaction
 from htd.adapters.sqlite.usage_codec import decode_event, dumps, encode_event
 from htd.adapters.sqlite.usage_evidence import mark_compacted, supplement
-from htd.application.ports import BillBatchResult, BilledUsage, CommitBatchResult, UnitOfWork
+from htd.application.ports import BillBatchResult, BilledUsage, CommitBatchResult, UnitOfWork, UsageChanged
 from htd.domain.common.errors import DomainError
-from htd.domain.common.time import Instant, format_instant
+from htd.domain.common.time import Instant, format_instant, parse_instant
 from htd.domain.usage.model import OUTPUT_TIMING_UNCERTAIN, Harness, UsageEvent
 from htd.domain.usage.model_key import model_key
+from htd.domain.usage.session import UsageObservation
 
 
 class IngestRepository:
@@ -40,7 +42,9 @@ class IngestRepository:
         assert source.started_at is not None
         started_at, collected_at = format_instant(source.started_at), format_instant(at)
         inserted = duplicates = before_start = 0
+        watermark = hashlib.sha256(dumps(checkpoint).encode()).hexdigest()
         active_models: set[str] = set()
+        sealed_due = False
         for event in events:
             if type(event) is not UsageEvent or event.harness != harness:
                 raise ValueError("Batch events must match the source Harness")
@@ -136,6 +140,12 @@ class IngestRepository:
             if cursor.rowcount == 0:
                 duplicates += 1
                 continue
+            if not sealed_due:
+                # Freeze an elapsed account batch before admitting the eleventh-minute input.
+                from htd.adapters.sqlite.account_book import AccountBook
+
+                AccountBook(self.connection).begin_run(due_at=at)
+                sealed_due = True
             self.connection.execute(
                 "INSERT INTO inbox VALUES (?,?,?,?,?)",
                 (
@@ -147,12 +157,40 @@ class IngestRepository:
                 ),
             )
             inserted += 1
+            observe(self.connection, UsageObservation(event, at, watermark))
+            from htd.adapters.sqlite.session_activity import received as activity_received
+            from htd.adapters.sqlite.session_projection import received as usage_received
+
+            reference = self.connection.execute(
+                "SELECT session_ref FROM session_request WHERE harness=? AND dedupe_key=?",
+                (harness.value, key_bytes(event.dedupe_key)),
+            ).fetchone()[0]
+            activity_received(self.connection, UsageObservation(event, at, watermark), reference)
+            usage_received(self.connection, event)
             active_models.add(model_key(event.model_id) if event.model_id else "")
         if harness == Harness.CODEX:
             for key in compaction_keys:
                 mark_compacted(self.connection, work, key)
         sources.save_checkpoint(work, harness, source_key, checkpoint, at=at)
+        if harness == Harness.CODEX and isinstance(checkpoint.get("context"), dict):
+            from typing import cast
+
+            from htd.adapters.sqlite.session_core import directory
+
+            context = cast(dict[str, object], checkpoint["context"])
+            native = context.get("rawFileSessionId")
+            if isinstance(native, str) and context.get("originatorOk") and context.get("kind"):
+                ref = directory(self.connection, harness, native, occurred_at=None, received_at=None)
+                if ref is not None:
+                    self.connection.execute(
+                        "INSERT INTO session_weak_activity VALUES(?,?,?,?) "
+                        "ON CONFLICT(session_ref,source_key) DO UPDATE SET "
+                        "weak=excluded.weak,checked_at=excluded.checked_at",
+                        (ref, source_key, int(context.get("requestStartedAt") is not None), collected_at),
+                    )
         if inserted:
+            work.touch("usage")
+            work.emit(UsageChanged((harness,), work.revision("usage")))
             from htd.adapters.sqlite.token_activity import mark
 
             for model in active_models:
@@ -193,7 +231,9 @@ class IngestRepository:
         ).fetchall()
         billed = corrupt = duplicates = 0
         harnesses: set[Harness] = set()
-        output_samples: dict[tuple[str, str, str], list[tuple[str, int | None, int | None, str | None]]] = {}
+        output_samples: dict[
+            tuple[str, str, str], list[tuple[str, int | None, int | None, str | None, tuple[str, str, str]]]
+        ] = {}
         for row in rows:
             if (
                 row["billed"] == 1
@@ -222,7 +262,7 @@ class IngestRepository:
                         row["dedupe_key"] + ": 请求用量或身份数据损坏，已跳过",
                     ),
                 )
-                self._finish(row)
+                self._finish(row, state="corrupt")
                 corrupt += 1
                 continue
             priced = calculate(event)
@@ -231,9 +271,41 @@ class IngestRepository:
             if type(priced) is not BilledUsage or priced.event != event:
                 raise ValueError("Billing result must preserve the inbox event")
             self._insert_ledger(priced, at)
+            observed = self.connection.execute(
+                "SELECT first_seen_at,origin FROM identity WHERE harness=? AND dedupe_key=?",
+                (event.harness.value, key_bytes(event.dedupe_key)),
+            ).fetchone()
+            if observed is not None:
+                observe(
+                    self.connection, UsageObservation(event, parse_instant(observed[0]), "inbox"), valued=True
+                )
+            self.connection.execute(
+                "UPDATE session_request SET valued_revision=revision,state='billed' "
+                "WHERE harness=? AND dedupe_key=?",
+                (event.harness.value, key_bytes(event.dedupe_key)),
+            )
             from htd.adapters.sqlite.session_hit_rate import record as record_session_hit_rate
 
-            record_session_hit_rate(self.connection, event, at)
+            record_session_hit_rate(self.connection, event, parse_instant(observed[0]) if observed else at)
+            if on_billed is not None:
+                on_billed(work, priced)
+            from htd.adapters.sqlite.usage_attribution import vendor_for_request
+
+            vendor = vendor_for_request(
+                self.connection,
+                event.harness.value,
+                key_bytes(event.dedupe_key),
+                priced.group_id,
+                event.occurred_at,
+            )
+            from htd.adapters.sqlite.session_projection import valued
+
+            valued(
+                self.connection,
+                event,
+                priced.cost.pico_usd,
+                (priced.group_id or "", priced.version_id or "", vendor),
+            )
             key = (
                 event.harness.value,
                 model_key(event.model_id) if event.model_id else "",
@@ -247,12 +319,11 @@ class IngestRepository:
                     None if OUTPUT_TIMING_UNCERTAIN in event.issues else event.tokens.output,
                     event.generation_milliseconds,
                     event.session_id,
+                    (vendor, priced.group_id or "", priced.version_id or ""),
                 )
             )
             if priced.cost.unpriced or priced.cost.incomplete:
                 work.touch("quality")
-            if on_billed is not None:
-                on_billed(work, priced)
             self._finish(row)
             billed += 1
             harnesses.add(event.harness)
@@ -260,7 +331,6 @@ class IngestRepository:
             work.touch("sources")
         if billed:
             from htd.adapters.sqlite.output_speed import record
-            from htd.adapters.sqlite.token_activity import mark
 
             for (source, model, name), samples in output_samples.items():
                 record(
@@ -271,22 +341,21 @@ class IngestRepository:
                     output=None,
                     occurred_at=samples[-1][0],
                     at=at,
-                    samples=[(stamp, count, duration) for stamp, count, duration, _ in samples],
-                    session_ids=[session for _, _, _, session in samples],
+                    samples=[(stamp, count, duration) for stamp, count, duration, _, _ in samples],
+                    session_ids=[session for _, _, _, session, _ in samples],
+                    attributions=[attribution for _, _, _, _, attribution in samples],
                 )
-                mark(self.connection, source, model, at)
             work.touch("usage")
-            self.connection.execute(
-                "UPDATE collection_activity SET generation=generation+1,last_at=? WHERE id=1",
-                (format_instant(at),),
-            )
         more = self.connection.execute("SELECT 1 FROM inbox LIMIT 1").fetchone() is not None
         return BillBatchResult(billed, corrupt, duplicates, more, tuple(h for h in Harness if h in harnesses))
 
-    def _finish(self, row: sqlite3.Row) -> None:
+    def _finish(self, row: sqlite3.Row, *, state: str = "billed") -> None:
         identity = row["harness"], key_bytes(row["dedupe_key"])
         self.connection.execute("UPDATE identity SET billed=1 WHERE harness=? AND dedupe_key=?", identity)
         self.connection.execute("DELETE FROM inbox WHERE harness=? AND dedupe_key=?", identity)
+        self.connection.execute(
+            "UPDATE session_request SET state=? WHERE harness=? AND dedupe_key=?", (state, *identity)
+        )
 
     def _insert_ledger(self, priced: BilledUsage, at: Instant) -> None:
         event, cost = priced.event, priced.cost

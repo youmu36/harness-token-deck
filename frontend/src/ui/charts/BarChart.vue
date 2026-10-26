@@ -29,11 +29,14 @@ onMounted(() => {
   observer.observe(container.value);
 });
 onBeforeUnmount(() => observer?.disconnect());
-watch(() => props.points, () => {
-  focusIndex.value = Math.min(focusIndex.value, Math.max(0, props.points.length - 1));
+const plotted = computed(() => props.points.flatMap((point,index) =>
+  (point.value !== null && (props.variant === 'line' || point.value !== 0 || point.segments?.some(segment => segment.value !== null && segment.value !== 0)))
+  || point.flags?.cacheBust || point.flags?.cacheLoss || point.flags?.contextCompacted ? [{point,index}] : []));
+watch(plotted, values => {
+  if (!values.some(row => row.index === focusIndex.value)) focusIndex.value = values[0]?.index ?? 0;
   hovered.value = null;
-  if (focused.value !== null) focused.value = props.points.length ? focusIndex.value : null;
-});
+  if (focused.value !== null) focused.value = values.length ? focusIndex.value : null;
+}, {immediate:true});
 const axis = computed(() => createAxis(props.points, props.yFormat));
 const bottom = computed(() => props.height - 34);
 const plotWidth = computed(() => width.value - 90);
@@ -51,13 +54,13 @@ const bars = computed(() => props.points.map(point => {
   let positive = 0; let negative = 0;
   const segments = point.segments?.length ? point.segments : [{ label: '数值', value: point.value }];
   return segments.flatMap((segment, index) => {
-    if (point.value === null || segment.value === null) return [];
+    if (point.value === null || segment.value === null || segment.value === 0) return [];
     const start = segment.value < 0 ? negative : positive;
     const end = start + segment.value;
     if (segment.value < 0) negative = end; else positive = end;
     const colorIndex = series.value.length ? series.value.indexOf(segment.label) : index;
     const color = segment.color ?? (series.value.length ? `var(--chart-${colorIndex % 4 + 1})` : `url(#${id}-bar-gradient)`);
-    return [{ label: segment.label, y: Math.min(y(start), y(end)), height: Math.abs(y(end) - y(start)), color }];
+    return [{ label: segment.label, y: Math.min(y(start), y(end)), height: Math.abs(y(end) - y(start)), color, glow: 'glow' in segment && segment.glow }];
   });
 }));
 function pointText(point: ChartPoint) {
@@ -65,12 +68,13 @@ function pointText(point: ChartPoint) {
 }
 async function keydown(event: KeyboardEvent, index: number) {
   if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); emit('select', index); return; }
-  const targets: Record<string, number> = { ArrowRight: index + 1, ArrowDown: index + 1, ArrowLeft: index - 1, ArrowUp: index - 1, Home: 0, End: props.points.length - 1 };
+  const current = plotted.value.findIndex(row=>row.index===index), last = plotted.value.length-1;
+  const targets: Record<string, number> = { ArrowRight: current + 1, ArrowDown: current + 1, ArrowLeft: current - 1, ArrowUp: current - 1, Home: 0, End: last };
   if (event.key === 'Escape') { hovered.value = null; focused.value = null; return; }
   const target = targets[event.key];
   if (target === undefined) return;
   event.preventDefault();
-  focusIndex.value = Math.max(0, Math.min(props.points.length - 1, target));
+  focusIndex.value = plotted.value[Math.max(0,Math.min(last,target))]?.index ?? 0;
   await nextTick();
   svg.value?.querySelector<SVGGElement>(`[data-point="${focusIndex.value}"]`)?.focus();
 }
@@ -91,7 +95,7 @@ function mousemove(event: MouseEvent) {
   const overWarning = ((point.flags?.cacheBust || point.flags?.contextCompacted) && localY >= bottom.value - 10)
     || (point.flags?.cacheLoss && localY >= bottom.value - (point.flags?.cacheBust ? 18 : 8) && localY <= bottom.value - (point.flags?.cacheBust ? 10 : 0));
   const overBar = point.value === null
-    ? localY >= y(0) - 18 && localY <= y(0)
+    ? false
     : props.variant === 'line' ? Math.abs(localY - y(point.value)) <= 12 : bars.value[index]!.some(bar => localY >= bar.y - 2 && localY <= bar.y + Math.max(2, bar.height));
   hovered.value = overColumn && (overBar || overWarning) ? index : null;
 }
@@ -121,15 +125,15 @@ function mousemove(event: MouseEvent) {
           <text v-for="index in xTicks" :key="index" :x="x(index)" :y="height - 8" :text-anchor="index === 0 ? 'start' : index === points.length - 1 ? 'end' : 'middle'">{{ points[index]?.label }}</text>
         </g>
         <path v-if="variant === 'line'" :d="line" fill="none" stroke="var(--chart-1)" stroke-width="2" aria-hidden="true" class="line-series" />
-        <g v-for="(point, index) in points" :key="index" :data-point="index" class="point" role="graphics-symbol" :tabindex="index === focusIndex ? 0 : -1"
+        <g v-for="{point,index} in plotted" :key="index" :data-point="index" class="point" role="graphics-symbol" :tabindex="index === focusIndex ? 0 : -1"
           :aria-label="pointText(point)" :aria-describedby="activeIndex === index ? `${id}-tooltip` : undefined"
           @click="emit('select', index)" @focus="focusIndex = index; focused = index; hovered = null" @blur="focused = null" @keydown="keydown($event, index)">
           <rect class="hit-area" :x="x(index) - Math.max(barWidth, step) / 2" y="12" :width="Math.max(barWidth, step)" :height="bottom - 12" fill="transparent" />
-          <rect v-if="point.value === null" class="unknown" :x="x(index) - barWidth / 2" :y="y(0) - 18" :width="barWidth" height="18" />
           <circle v-if="variant === 'line' && point.value !== null" :cx="x(index)" :cy="y(point.value)" r="4" fill="var(--chart-1)" />
-          <foreignObject v-for="(bar, segment) in variant === 'line' ? [] : bars[index]" :key="segment" class="bar" :x="x(index) - barWidth / 2" :y="bar.y" :width="barWidth" :height="bar.height" aria-hidden="true">
-            <div xmlns="http://www.w3.org/1999/xhtml" class="trend-fill" :style="point.segments?.length ? { background: bar.color } : undefined" />
-          </foreignObject>
+          <template v-for="(bar, segment) in variant === 'line' ? [] : bars[index]" :key="segment">
+            <rect v-if="point.segments?.length" class="stack-segment" :class="{'segment-glow':bar.glow}" :style="{color:bar.color}" :fill="bar.color" :x="x(index) - barWidth / 2" :y="bar.y" :width="barWidth" :height="bar.height" aria-hidden="true" />
+            <foreignObject v-else class="bar" :x="x(index) - barWidth / 2" :y="bar.y" :width="barWidth" :height="bar.height" aria-hidden="true"><div xmlns="http://www.w3.org/1999/xhtml" class="trend-fill" /></foreignObject>
+          </template>
           <slot name="warnings" :point="point" :x="x(index) - barWidth / 2" :width="barWidth" :y="bottom - 10">
             <rect v-if="point.flags?.cacheBust || point.flags?.contextCompacted" class="cache-bust" rx="2" :fill="`url(#${id}-bust)`" :x="x(index) - barWidth / 2" :y="bottom - 10" :width="barWidth" height="10" />
             <rect v-if="point.flags?.cacheLoss && !point.flags?.cacheBust && !point.flags?.contextCompacted" class="cache-loss" rx="2" :fill="`url(#${id}-loss)`" :x="x(index) - barWidth / 2" :y="bottom - 8" :width="barWidth" height="8" />
@@ -165,8 +169,8 @@ svg { width: 100%; overflow: visible; }
 .bar-stop-top { stop-color: var(--chart-bar-top); }
 .plot-background { fill: var(--chart-plot-bg); stroke: var(--border); stroke-width: 1; }
 .bar { overflow: visible; pointer-events: none; }
+.stack-segment{pointer-events:none}.segment-glow{filter:drop-shadow(0 0 3px currentColor);stroke:currentColor;stroke-width:1;vector-effect:non-scaling-stroke}
 .bar-highlight { opacity: .88; filter: drop-shadow(0 0 5px var(--chart-glow)); pointer-events: none; }
-.unknown { fill: none; stroke: var(--text-muted); stroke-width: 1.5; stroke-dasharray: 3 2; }
 .point:focus { outline: none; }
 .point:focus-visible .hit-area { stroke: var(--accent); stroke-width: 2; }
 .cache-bust { filter: drop-shadow(0 -1px 5px #ff3f68cc) drop-shadow(0 0 7px #d3134288); }

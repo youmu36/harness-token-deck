@@ -29,7 +29,7 @@ export function createMockMaintenance(pricing: ReturnType<typeof createMockPrici
     const vendor = pricing.wallets.list(true).vendors.find(v => v.id === vendorId);
     const key = canonicalPayload([request, catalog.revision, pricing.walletRevision(), usageRevision(), old]);
     let hash = 2166136261; for (const char of key) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619);
-    return { recordCount: old.recordCount, oldTotal: old.picoUsd, newTotal: next.picoUsd, unpricedCount: 0, incompleteCount: 0, groupName: group.name, versionDisplayName: version.displayName, fingerprint: (hash >>> 0).toString(16).padStart(8, '0').repeat(8), vendors: vendor ? [{ vendorId: vendor.id, name: vendor.name, consumptionDelta: delta.toString(), balanceDelta: (-delta).toString() }] : [] };
+    return { totalCount: old.recordCount, pendingCount: 0, unavailableCount: 0, evidenceInsufficientCount: 0, targetRevisionId: version.id, targetRevisionSeq: catalog.revision, ruleCounts: { none: 0, base: old.recordCount, peak: 0, tier: 0 }, recordCount: old.recordCount, oldTotal: old.picoUsd, newTotal: next.picoUsd, unpricedCount: 0, incompleteCount: 0, groupName: group.name, versionDisplayName: version.displayName, fingerprint: (hash >>> 0).toString(16).padStart(8, '0').repeat(8), vendors: vendor ? [{ vendorId: vendor.id, name: vendor.name, consumptionDelta: delta.toString(), balanceDelta: (-delta).toString() }] : [] };
   }
   function commit(request: RequestMap['maintenance.commitRecalc']): CommandData<'maintenance.commitRecalc'> {
     const saved = receipt('maintenance.commitRecalc', request); if (saved.result) return structuredClone(saved.result) as CommandData<'maintenance.commitRecalc'>;

@@ -1,4 +1,4 @@
-import { flushPromises, mount } from '@vue/test-utils';
+import { flushPromises as flushVue, mount } from '@vue/test-utils';
 import { afterEach, expect, it, vi } from 'vitest';
 import { BridgeKey } from '../src/app/ports';
 import { unwrap } from '../src/app/errors';
@@ -7,25 +7,26 @@ import OverviewPage from '../src/features/overview/OverviewPage.vue';
 import DimensionExplorer from '../src/features/overview/DimensionExplorer.vue';
 import { emptyScope } from '../src/features/overview/scope';
 
+async function flushPromises() { await flushVue(); await vi.dynamicImportSettled(); await flushVue(); }
 const cleanup: (() => void)[] = [];
 afterEach(() => { cleanup.splice(0).reverse().forEach(fn => fn()); vi.restoreAllMocks(); });
 
-it('applies combined filters once, opens meaningful model details, and leaves hidden analysis idle', async () => {
+it('applies combined filters once, shows inline model structure, and leaves hidden analysis idle', async () => {
   const bridge = createMockBridge(); cleanup.push(() => bridge.dispose());
   const call = vi.spyOn(bridge, 'call');
   const initialPreferences = unwrap(await bridge.call('preferences.get', {}));
   const wrapper = mount(OverviewPage, { props: { initialPreferences }, global: { provide: { [BridgeKey as symbol]: bridge } } });
   cleanup.push(() => wrapper.unmount()); await flushPromises();
-  expect(call.mock.calls.some(([name]) => name === 'stats.explore')).toBe(false);
-  const supplier = wrapper.findAll('.scope-filters label').find(label => label.text() === '示例供应商 A')!;
-  await supplier.get('input').setValue(true);
-  expect(call.mock.calls.some(([name]) => name === 'stats.explore')).toBe(false);
-  await wrapper.findAll('button').find(button => button.text() === '应用筛选')!.trigger('click'); await flushPromises();
-  expect(call.mock.calls.filter(([name]) => name === 'stats.explore').at(-1)?.[1]).toMatchObject({ vendorIds: ['example-a'] });
-  expect(wrapper.get('[aria-label="供应商版本比较"]').text()).not.toContain('示例供应商 B');
-  await wrapper.findAll('button').find(button => button.text() === '模型详情')!.trigger('click'); await flushPromises();
-  expect(wrapper.text()).toContain('每美元用量结构');
-  expect(wrapper.text()).toContain('模型历史趋势');
+  const initialCount=call.mock.calls.filter(([name])=>name==='stats.explore').length;
+  const group=wrapper.findAll('.scope-filters label').find(label=>label.text().startsWith('示例价格组 A · '))!;
+  await group.get('input').setValue(true);
+  expect(call.mock.calls.filter(([name])=>name==='stats.explore')).toHaveLength(initialCount);
+  await wrapper.findAll('button').find(button=>button.text()==='应用筛选')!.trigger('click');await flushPromises();
+  expect(call.mock.calls.filter(([name])=>name==='stats.explore').at(-1)?.[1]).toMatchObject({groupIds:['example-ga']});
+  await wrapper.findAll('[aria-label="统计分析子页"] button').find(b=>b.text()==='数据分析')!.trigger('click');await flushPromises();
+  await wrapper.findAll('[aria-label="分析主题"] button').find(b=>b.text()==='性价比')!.trigger('click');await flushPromises();
+  expect(wrapper.text()).toContain('M Token/USD');expect(wrapper.text()).not.toContain('模型详情');
+  expect(wrapper.get('.model-ranking th').text()).toBe('模型');
   const before = call.mock.calls.filter(([name]) => name === 'stats.explore').length;
   bridge.receiveEvent('app.visibility', { visible: false });
   bridge.receiveEvent('usage.changed', { harnesses: ['codex'], revision: 2 }); await flushPromises();

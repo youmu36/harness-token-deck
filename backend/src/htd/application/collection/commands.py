@@ -1,5 +1,6 @@
 """Source configuration and collector controls using committed command receipts."""
 
+from collections.abc import Callable
 from threading import Lock
 
 from htd.application.ports import (
@@ -25,6 +26,7 @@ def source_data(snapshot: SourcesSnapshot) -> dict[str, object]:
             {
                 "harness": source.harness.value,
                 "path": source.path,
+                "scanEnabled": source.scan_enabled,
                 "startedAt": format_instant(source.started_at) if source.started_at else None,
                 "lastScanAt": format_instant(source.last_scan_at) if source.last_scan_at else None,
                 "status": source.status,
@@ -43,11 +45,18 @@ def source_data(snapshot: SourcesSnapshot) -> dict[str, object]:
 
 class CollectionCommands:
     def __init__(
-        self, store: CommandStore, discovery: SourceDiscovery, scheduler: SchedulerControl, clock: Clock
+        self,
+        store: CommandStore,
+        discovery: SourceDiscovery,
+        scheduler: SchedulerControl,
+        clock: Clock,
+        *,
+        on_sources_changed: Callable[[], None] = lambda: None,
     ) -> None:
         self.store, self.discovery, self.scheduler, self.clock = store, discovery, scheduler, clock
         self._pause_lock = Lock()
         self._scan_lock = Lock()
+        self._on_sources_changed = on_sources_changed
 
     def list_sources(self) -> dict[str, object]:
         return source_data(self.store.sources())
@@ -90,6 +99,10 @@ class CollectionCommands:
             for current in Harness:
                 if harness is not None and current != harness:
                     continue
+                if harness is None and any(
+                    source.harness == current and not source.scan_enabled for source in snapshot.sources
+                ):
+                    continue
                 target = path if harness is not None else self.discovery.default_path(current)
                 assert target is not None
                 available = self.discovery.available(current, target)
@@ -101,7 +114,35 @@ class CollectionCommands:
             self.store.record(work, operation_id, command, parameters, result, at=self.clock.now_utc())
             return result
 
-        return self.store.execute(save)
+        result = self.store.execute(save)
+        self._on_sources_changed()
+        return result
+
+    def set_enabled(
+        self, harness: Harness, enabled: bool, revision: int, operation_id: str
+    ) -> dict[str, object]:
+        command = "sources.setEnabled"
+        parameters: dict[str, object] = {
+            "harness": harness.value,
+            "enabled": enabled,
+            "expectedRevision": revision,
+        }
+
+        def save(work: UnitOfWork) -> dict[str, object]:
+            replay = self.store.replay(work, operation_id, command, parameters)
+            if replay is not None:
+                return replay
+            if work.revision("sources") != revision:
+                raise DomainError("SOURCES_REVISION_CONFLICT", "来源已变化，请刷新后重试")
+            self.store.set_scan_enabled(work, harness, enabled, self.clock.now_utc())
+            work.emit(SourcesChanged(work.revision("sources")))
+            result = source_data(self.store.sources(work))
+            self.store.record(work, operation_id, command, parameters, result, at=self.clock.now_utc())
+            return result
+
+        result = self.store.execute(save)
+        self._on_sources_changed()
+        return result
 
     def status(self, *, details: bool = True) -> dict[str, object]:
         state = self.scheduler.status()

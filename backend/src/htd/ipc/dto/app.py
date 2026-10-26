@@ -18,6 +18,7 @@ class HelloResponse(StrictModel):
     capabilities: list[str]
     mode: Literal["desktop"] = "desktop"
     dataDir: str
+    dataDirSource: str = "default"
     revisions: Revisions
 
 

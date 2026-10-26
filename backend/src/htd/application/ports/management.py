@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 
 class CommandStore(Protocol):
+    def set_scan_enabled(self, work: UnitOfWork, harness: Harness, enabled: bool, at: Instant) -> None: ...
     def execute[T](self, action: Callable[[UnitOfWork], T]) -> T: ...
 
     def preferences(self, work: UnitOfWork | None = None) -> PreferenceSnapshot: ...
@@ -90,7 +91,12 @@ class VendorSnapshot:
 
 class WalletCommandStore(CommandStore, Protocol):
     def wallets(
-        self, *, at: Instant, include_archived: bool, work: UnitOfWork | None = None
+        self,
+        *,
+        at: Instant,
+        include_archived: bool,
+        work: UnitOfWork | None = None,
+        vendor_id: str | None = None,
     ) -> tuple[tuple[VendorSnapshot, ...], int]: ...
 
     def wallet_entries(

@@ -3,7 +3,7 @@
 import hashlib
 import json
 import sqlite3
-from datetime import date
+from datetime import timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -14,9 +14,7 @@ from htd.domain.common.time import Instant, format_instant, parse_instant
 
 
 def cutoff(db: sqlite3.Connection, at: Instant) -> str:
-    local = at.value.astimezone(ZoneInfo(timezone(db)))
-    month = local.year * 12 + local.month - 1 - 2
-    day = date(month // 12, month % 12 + 1, 1).isoformat()
+    day = (at.value - timedelta(days=62)).astimezone(ZoneInfo(timezone(db))).date().isoformat()
     return format_instant(bounds(day, timezone(db))[0])
 
 
@@ -119,12 +117,23 @@ def publish(
     return count
 
 
-def rows(db: sqlite3.Connection, start: str, end: str, harness: str = "all", model_key: str | None = None):
+def rows(
+    db: sqlite3.Connection,
+    start: str,
+    end: str,
+    harness: str = "all",
+    model_key: str | None = None,
+    *,
+    vendor_ids: tuple[str, ...] = (),
+):
     clause = "" if harness == "all" else " AND harness=?"
     args = () if harness == "all" else (harness,)
     if model_key is not None:
         clause += " AND model_key=?"
         args += (model_key,)
+    if vendor_ids:
+        clause += " AND vendor_id IN (" + ",".join("?" for _ in vendor_ids) + ")"
+        args += vendor_ids
     for record in db.execute(
         "SELECT * FROM usage_daily WHERE end_at>? AND start_at<?"
         + clause

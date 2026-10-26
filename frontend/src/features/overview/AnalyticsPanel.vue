@@ -41,7 +41,7 @@ const query = useQuery('overview.analytics', async () => {
   return unwrap(await bridge.call('stats.analytics', { ...parameters.value, ...(range ? { start: range.start, end: range.end } : {}) }));
 }, {
   deps: [key], clearOnChange: true, coalesce: true, eventIntervalMs: 60_000,
-  events: [{ name: 'usage.changed', when: event => props.harness === 'all' || event.harnesses.includes(props.harness) }, { name: 'output.changed', when: () => !props.statistics && props.models }],
+  events: ['cost.changed', { name: 'usage.changed', when: event => props.harness === 'all' || event.harnesses.includes(props.harness) }, { name: 'output.changed', when: () => !props.statistics && props.models }],
 });
 watch([() => props.harness, () => props.period, year, endYear, quarter, focus], () => { offset.value = 0; compared.value = []; }, { flush: 'sync' });
 watch(() => props.models, () => { focus.value = null; compared.value = []; });

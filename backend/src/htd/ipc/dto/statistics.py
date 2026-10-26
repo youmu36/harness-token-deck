@@ -6,7 +6,7 @@ from pydantic import Field
 
 from htd.domain.statistics.aggregator import Section
 from htd.domain.statistics.analysis import AnalysisPeriod
-from htd.domain.statistics.window import Grain, MonitorMode
+from htd.domain.statistics.window import Grain
 from htd.ipc.dto.base import InstantStr, PicoStr, SafeInt, StrictModel
 from htd.ipc.dto.events import HarnessName
 
@@ -23,12 +23,17 @@ class SummaryRequest(StrictModel):
     grain: Grain | None = None
     sections: Annotated[list[Section], Field(max_length=5)] | None = None
     modelKey: Annotated[str, Field(max_length=160)] | None = None
+    queryId: Annotated[str, Field(max_length=100)] | None = None
 
 
 class CacheMonitorRequest(StrictModel):
     harness: HarnessName
-    mode: MonitorMode
+    mode: Literal["minute"] = "minute"
     offsetMinutes: OffsetMinutes
+    sessionRef: Annotated[str, Field(max_length=64)] | None = None
+    chartSessionRef: Annotated[str, Field(max_length=64)] | None = None
+    cursor: Annotated[str, Field(max_length=120)] | None = None
+    queryId: Annotated[str, Field(max_length=120)] | None = None
 
 
 class MetricsData(StrictModel):
@@ -45,6 +50,11 @@ class MetricsData(StrictModel):
     unpriced: bool
     unknownModelCount: SafeInt
     missingUsageCount: SafeInt
+    pendingValuationCount: SafeInt = 0
+    estimatePico: PicoStr | None = None
+    correctionPico: PicoStr = "0"
+    unallocatedCorrectionPico: PicoStr = "0"
+    allocationIncomplete: bool = False
 
 
 class TrendData(StrictModel):
@@ -95,6 +105,8 @@ class SummaryResponse(StrictModel):
     harnesses: list[HarnessData]
     historyNotice: str | None
     revision: SafeInt
+    costRevision: SafeInt = 0
+    unallocatedTrendCorrectionPico: PicoStr = "0"
 
 
 class OutputSpeed(StrictModel):
@@ -112,6 +124,7 @@ class OutputSpeed(StrictModel):
 
 
 class SessionHitRate(StrictModel):
+    sessionRef: str | None = None
     sessionKey: Annotated[str, Field(pattern=r"^[0-9a-f]{16}$")]
     displayName: Annotated[str, Field(max_length=512)]
     startedAt: InstantStr
@@ -119,17 +132,38 @@ class SessionHitRate(StrictModel):
     cacheHitRate: HitRate | None
     cacheCoverageIncomplete: bool
     frozen: bool
+    modelKey: str = ""
+    modelName: str = "未知模型"
+    tokensPerSecond: str | None = None
+    sessionAverageTps: str | None = None
+
+
+class MonitorTotals(StrictModel):
+    recordCount: PicoStr
+    inputTokens: PicoStr
+    outputTokens: PicoStr
+    cacheReadTokens: PicoStr
+    cacheHitRate: HitRate | None
+    cacheCoverageIncomplete: bool
 
 
 class CacheMonitorResponse(StrictModel):
     start: InstantStr
     end: InstantStr
     offsetMinutes: OffsetMinutes
-    grain: MonitorMode
+    grain: Literal["minute"]
     windowKey: str
     nextRefreshAt: InstantStr
     trend: list[TrendData]
     revision: SafeInt
+    outputRevision: SafeInt
+    selectedSessionRef: str | None
+    chartSessionRef: str | None = None
+    nextCursor: str | None
+    windowTotals: MonitorTotals
+    sessionTotals: MonitorTotals
+    batchTotals: MonitorTotals
+    evidenceComplete: bool
     outputSpeeds: list[OutputSpeed] = Field(default_factory=list[OutputSpeed])
     sessionHitRates: list[SessionHitRate] = Field(default_factory=list[SessionHitRate], max_length=100)
 
@@ -184,6 +218,10 @@ class AnalysisMetrics(StrictModel):
     cacheReadTokens: PicoStr
     totalTokens: PicoStr
     picoUsd: PicoStr
+    estimatePico: PicoStr | None = None
+    correctionPico: PicoStr = "0"
+    unallocatedCorrectionPico: PicoStr = "0"
+    allocationIncomplete: bool = False
     cacheHitRate: HitRate | None
     cacheCoverageIncomplete: bool
     incomplete: bool

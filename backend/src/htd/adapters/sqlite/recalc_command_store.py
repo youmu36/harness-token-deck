@@ -10,7 +10,7 @@ from htd.adapters.sqlite.manual_maintenance_store import SqliteManualMaintenance
 from htd.adapters.sqlite.pricing_repo import PricingRepository
 from htd.adapters.sqlite.recalc_repo import RecalcBatch, RecalcChange, RecalcRepository
 from htd.adapters.sqlite.usage_codec import loads
-from htd.adapters.sqlite.wallet_flows import local_override
+from htd.adapters.sqlite.wallet_flows import locked_consumption
 from htd.adapters.sqlite.wallet_repo import WalletRepository
 from htd.adapters.sqlite.wallet_store import decode_entry
 from htd.application.ports import UnitOfWork
@@ -94,7 +94,7 @@ class SqliteRecalcStore(SqliteManualMaintenanceStore):
                     decode_entry(original) if original else None,
                     local_override=bool(
                         original
-                        and local_override(
+                        and locked_consumption(
                             db, original["vendor_id"], original["seq"], original["occurred_at"]
                         )
                     ),
@@ -124,6 +124,19 @@ class SqliteRecalcStore(SqliteManualMaintenanceStore):
                 )
             ),
             links=wallet.links(),
+            cost_revision=db.execute("SELECT value FROM calibration_revision WHERE id=1").fetchone()[0],
+            unavailable=tuple(
+                (str(row[0]), bool(row[1]))
+                for row in db.execute(
+                    "SELECT i.dedupe_key,EXISTS(SELECT 1 FROM inbox b WHERE b.harness=i.harness "
+                    "AND b.dedupe_key=i.dedupe_key) FROM identity i WHERE i.harness=? "
+                    "AND i.occurred_at>=? AND i.occurred_at<? AND NOT EXISTS(SELECT 1 FROM ledger l "
+                    "WHERE l.harness=i.harness AND l.dedupe_key=i.dedupe_key) ORDER BY i.dedupe_key",
+                    (harness.value, format_instant(start), format_instant(end)),
+                )
+            )
+            if not unpriced
+            else (),
         )
 
     @staticmethod
@@ -195,5 +208,13 @@ class SqliteRecalcStore(SqliteManualMaintenanceStore):
                 entry = append_missing(db, work, update.row.event, update.new, batch.id, at)
                 if entry is not None:
                     changed.add(entry.vendor_id)
+            from htd.adapters.sqlite.session_core import remember_ledger
+
+            raw = db.execute(
+                "SELECT * FROM ledger WHERE harness=? AND dedupe_key=?",
+                (update.row.event.harness.value, key_bytes(update.row.event.dedupe_key)),
+            ).fetchone()
+            if raw is not None:
+                remember_ledger(db, raw)
         changed.update(stage(db, work, updates, batch.id, at))
         return batch.id, tuple(sorted(changed))

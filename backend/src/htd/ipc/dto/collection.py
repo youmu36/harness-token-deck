@@ -31,6 +31,7 @@ class UnmeteredRequestData(StrictModel):
 class SourceData(StrictModel):
     harness: HarnessName
     path: str
+    scanEnabled: bool = True
     startedAt: InstantStr | None
     lastScanAt: InstantStr | None
     status: SourceStatus
@@ -58,6 +59,12 @@ class SetPathRequest(SourcePathRequest, WriteRequest):
 
 
 class AutoDetectRequest(WriteRequest):
+    expectedRevision: SafeInt
+
+
+class SetScanEnabledRequest(WriteRequest):
+    harness: HarnessName
+    enabled: bool
     expectedRevision: SafeInt
 
 

@@ -8,6 +8,7 @@ from htd.adapters.sqlite.account_book import AccountBook, AccountSummary
 from htd.adapters.sqlite.connection import ReadPool
 from htd.adapters.sqlite.remote_store import SqliteRemoteStore
 from htd.adapters.sqlite.token_activity import QUIET
+from htd.adapters.sqlite.wallet_pending import display
 from htd.adapters.sqlite.wallet_repo import WalletRepository
 from htd.adapters.sqlite.writer import UnitOfWork, WriteExecutor
 from htd.domain.common.errors import DomainError
@@ -84,6 +85,46 @@ def test_one_dollar_and_two_identical_interval_recharges_are_valid(tmp_path: Pat
         observe(store, 11 * USD, 5)
         observe(store, 12 * USD, 10)
         assert summary(writer)["R"] == str(2 * USD)
+
+
+@pytest.mark.parametrize("reliable", [False, True])
+def test_fractional_recharge_preview_restart_and_settlement_share_integer_rule(
+    tmp_path: Path, reliable: bool
+) -> None:
+    path = tmp_path / "a.db"
+    observed_balance = 13_123_456_789_012
+    with WriteExecutor(path) as writer, ReadPool(path) as readers:
+        store = setup(writer, readers, "10", used=0 if reliable else None)
+        writer.execute(lambda w: consumption(w, amount=2_130_000_000_000, at=balance(0, 1).fetched_at))
+        value = replace(
+            balance(observed_balance, 5),
+            cumulative_used_pico=2_260_000_000_000 if reliable else None,
+            usage_scope="newapi:user:used_quota:v1" if reliable else None,
+        )
+        store.execute(lambda w: store.observe(w, value))
+        pending = display(readers.get(), "vendor", "remote", {"R": "0", "C": "0"})
+        assert pending and pending["pendingTopUpPico"] == str(6 * USD)
+        assert summary(writer)["R"] == "0"
+        endpoints = [
+            tuple(row) for row in readers.get().execute("SELECT * FROM account_endpoint ORDER BY id")
+        ]
+    with WriteExecutor(path) as writer, ReadPool(path) as readers:
+        store = SqliteRemoteStore(writer, readers)
+        store.begin_run(balance(0, 6).fetched_at)
+        for _ in range(2):
+            store.flush_pending(balance(0, 20).fetched_at)
+        actual = summary(writer)
+        assert (actual["R"], actual["B"]) == (str(6 * USD), str(observed_balance))
+        assert actual["C"] == str(2_260_000_000_000 if reliable else 2_876_543_210_988)
+        interval = readers.get().execute("SELECT * FROM account_interval").fetchone()
+        assert 10 * USD + int(interval["r"]) - int(interval["c"]) + int(interval["a"]) == observed_balance
+        assert interval["raw_inflow"] == str(5_383_456_789_012 if reliable else 5_253_456_789_012)
+        assert [
+            tuple(row) for row in readers.get().execute("SELECT * FROM account_endpoint ORDER BY id")
+        ] == endpoints
+        assert readers.get().execute("SELECT COUNT(*) FROM account_interval").fetchone()[0] == 1
+    with WriteExecutor(path) as writer:
+        assert summary(writer) == actual
 
 
 def test_small_reliable_inflow_stays_intermediate_and_reset_starts_new_baseline(tmp_path: Path) -> None:

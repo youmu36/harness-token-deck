@@ -71,14 +71,18 @@ def test_account_consumption_advances_independently_of_collection_and_restart(tm
 
 def test_account_settlement_failure_rolls_back_endpoint_and_retries_once(tmp_path: Path):
     import sqlite3
+
     with WriteExecutor(tmp_path / "ledger.sqlite3") as writer, ReadPool(writer.path) as readers:
         writer.execute(lambda w: vendor(w, initial="10"))
         store = SqliteRemoteStore(writer, readers)
         store.execute(lambda w: store.save_account(w, ACCOUNT, clear=True))
         store.execute(lambda w: store.observe(w, balance(10 * USD)))
-        writer.execute(lambda w: w.connection.execute(
-            "CREATE TRIGGER reject_settlement BEFORE INSERT ON account_interval "
-            "BEGIN SELECT RAISE(ABORT,'settlement failed'); END"))
+        writer.execute(
+            lambda w: w.connection.execute(
+                "CREATE TRIGGER reject_settlement BEFORE INSERT ON account_interval "
+                "BEGIN SELECT RAISE(ABORT,'settlement failed'); END"
+            )
+        )
         with pytest.raises(sqlite3.IntegrityError, match="settlement failed"):
             store.execute(lambda w: store.observe(w, balance(8 * USD, 10)))
         assert AccountBook(readers.get()).summary("vendor")["B"] == str(10 * USD)

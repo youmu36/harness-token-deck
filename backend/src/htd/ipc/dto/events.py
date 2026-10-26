@@ -19,6 +19,8 @@ class UsageChangedEvent(StrictModel):
 class WalletChangedEvent(StrictModel):
     vendorIds: list[str]
     revision: SafeInt
+    catalogChanged: bool = Field(default=False, exclude_if=lambda value: not value)
+    remoteFlowsChanged: bool = Field(default=False, exclude_if=lambda value: not value)
 
 
 class RevisionChangedEvent(StrictModel):
@@ -54,6 +56,8 @@ class RevisionRecord(StrictModel):
         "models.changed",
         "quality.changed",
         "output.changed",
+        "cost.changed",
+        "auxiliary.changed",
     ]
     payload: RevisionChangedEvent
 

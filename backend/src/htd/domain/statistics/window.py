@@ -14,7 +14,7 @@ from htd.domain.common.errors import (
 from htd.domain.common.time import Instant, format_instant
 
 type Grain = Literal["minute", "hour", "twoHours", "day"]
-type MonitorMode = Literal["minute", "hour"]
+type MonitorMode = Literal["minute"]
 MAX_POINTS = 1500
 _STEPS = {
     "minute": timedelta(minutes=1),
@@ -142,15 +142,11 @@ def next_minute(now: Instant) -> Instant:
 
 def monitor_window(now: Instant, mode: MonitorMode, offset_minutes: int) -> Window:
     validate_offset(offset_minutes)
-    if type(mode) is not str or mode not in ("minute", "hour"):
+    if type(mode) is not str or mode != "minute":
         raise DomainError(STATISTICS_INVALID, "缓存监控模式无效", "mode")
     end = floor_minute(now)
     try:
-        if mode == "minute":
-            start = Instant(end.value - timedelta(minutes=60))
-        else:
-            latest = align(Instant(end.value - timedelta(milliseconds=1)), offset_minutes, "hour")
-            start = Instant(latest - timedelta(hours=23))
+        start = Instant(end.value - timedelta(minutes=60))
         return Window(start, end, offset_minutes, mode)
     except OverflowError as error:
         raise DomainError(INVALID_TIMESTAMP, "缓存窗口超出有效日期范围", "timestamp") from error

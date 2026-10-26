@@ -9,7 +9,7 @@ import InlineAlert from '../../ui/InlineAlert.vue';
 import IconButton from '../../ui/IconButton.vue';
 const props = defineProps<{ harness?: Harness }>();
 const bridge = inject(BridgeKey)!;
-const query = useQuery('reconciliation.status', () => bridge.call('reconciliation.status', {}).then(unwrap), { events: [{ name: 'wallet.changed', immediate: true }, { name: 'pricing.changed', immediate: true }, 'usage.changed'], coalesce: true, eventIntervalMs: 3 * 3600_000 });
+const query = useQuery('reconciliation.status', () => bridge.call('reconciliation.status', {}).then(unwrap), { events: ['wallet.changed', { name: 'pricing.changed', immediate: true }, 'usage.changed'], coalesce: true, eventIntervalMs: 60_000 });
 const notices = computed(() => query.data.value?.notices.filter(n => !props.harness || n.harness === props.harness) ?? []);
 const dismissing = ref(false);
 const dismissError = ref('');

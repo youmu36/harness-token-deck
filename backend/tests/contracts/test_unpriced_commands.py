@@ -108,8 +108,9 @@ def test_original_latest_version_thirty_days_wallet_offsets_replay_and_restart(
         state = invoke(app, "wallet.list", {}, WalletListResponse)
         saved = next(x for x in state.vendors if x.id == supplier)
         assert ("80000000000000" if calibrated else "97900000000000") == saved.B
-        assert saved.localWallet and saved.localWallet.B == (
-            "77900000000000" if calibrated else "97900000000000"
+        assert (
+            saved.localWallet
+            and ("77900000000000" if calibrated else "97900000000000") == saved.localWallet.B
         )
         assert saved.unpricedCount == 0
         app.writer.execute(lambda w: RollupRepository(w.connection).compact(w, at=clock.now_utc()))

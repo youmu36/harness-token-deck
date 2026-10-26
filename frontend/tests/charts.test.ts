@@ -36,6 +36,16 @@ describe('chart axes', () => {
   });
 });
 describe('SVG bar chart', () => {
+  test('blank minutes create no per-point nodes while preserving time positions, reader data and keyboard navigation', async () => {
+    const data:ChartPoint[]=Array.from({length:60},(_,index)=>({label:String(index),value:null}));
+    const empty=render(data);expect(empty.findAll('[data-point]')).toHaveLength(0);
+    expect(empty.findAll('tbody tr')).toHaveLength(60);
+    const active=render(data.map((point,index)=>({...point,value:index===30||index===59 ? .5 : null})));
+    expect(active.findAll('[data-point]')).toHaveLength(2);
+    expect(active.get('[tabindex="0"]').attributes('data-point')).toBe('30');
+    await active.get('[data-point="30"]').trigger('keydown',{key:'ArrowRight'});
+    expect(document.activeElement).toBe(active.get('[data-point="59"]').element);
+  });
   test('renders the original layered bars while retaining chart semantics', () => {
     const wrapper = render([{ label: '一', value: 12000 }], 'tokens');
     expect(wrapper.findAll('foreignObject.bar')).toHaveLength(1);
@@ -43,11 +53,11 @@ describe('SVG bar chart', () => {
     expect(wrapper.find('rect.bar').exists()).toBe(false);
     expect(wrapper.get('[role=graphics-symbol]').attributes('aria-label')).toContain('12,000');
   });
-  test('unknown has a hollow marker, zero remains known; independent warnings and reader table explain both', () => {
+  test('unknown and zero have no placeholder bars; warnings and reader table retain their values', () => {
     const wrapper = render();
-    expect(wrapper.findAll('.unknown')).toHaveLength(1);
-    expect(wrapper.get('[data-point="0"] .unknown').attributes('height')).toBe('18');
-    expect(wrapper.get('[data-point="1"] .bar').attributes('height')).toBe('0');
+    expect(wrapper.findAll('.unknown')).toHaveLength(0);
+    expect(wrapper.find('[data-point="0"] .bar').exists()).toBe(false);
+    expect(wrapper.find('[data-point="1"] .bar').exists()).toBe(false);
     expect(wrapper.findAll('rect.cache-bust')).toHaveLength(2);
     expect(wrapper.findAll('rect.cache-loss')).toHaveLength(1);
     expect(wrapper.find('.legend').exists()).toBe(false);
@@ -76,7 +86,8 @@ describe('SVG bar chart', () => {
   });
   test('reader table retains full stack values and exact cost label', () => {
     const wrapper = render([{ label: '一', value: 123456, valueLabel: '$0.1234', segments: [{ label: '缓存', value: 123450 }, { label: '输出', value: 6 }] }], 'tokens');
-    expect(wrapper.findAll('foreignObject.bar')).toHaveLength(2);
+    expect(wrapper.findAll('rect.stack-segment')).toHaveLength(2);
+    expect(wrapper.findAll('foreignObject.bar')).toHaveLength(0);
     expect(wrapper.get('tbody').text()).toContain('一$0.1234123,4506无');
   });
   test('hover reveals exact values only over bars and closes over gaps, axes and mouse leave', async () => {
@@ -116,7 +127,7 @@ describe('SVG bar chart', () => {
     const elapsed = performance.now() - started;
     console.info(`BarChart 1500 points happy-dom: ${elapsed.toFixed(0)}ms (regression reference)`);
     expect(elapsed).toBeLessThan(10000);
-    expect(wrapper.findAll('[data-point]')).toHaveLength(1500);
+    expect(wrapper.findAll('[data-point]')).toHaveLength(1499);
     expect(wrapper.findAll('tbody tr')).toHaveLength(1500);
     const svg = wrapper.get('svg');
     Object.defineProperty(svg.element, 'getBoundingClientRect', { value: () => ({ left: 0, top: 0, width: 760, height: 280 }) });

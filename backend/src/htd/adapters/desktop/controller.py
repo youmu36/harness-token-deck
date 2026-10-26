@@ -87,6 +87,8 @@ class DesktopController:
         self._deadline = time.monotonic() + 15
         self._allow_close = False
         self._stopped = threading.Event()
+        self._restart_requested = threading.Event()
+        self._restarting = False
         self._geometry = window_store.load()
         window.events.before_show += self.setup
         window.events.closing += self.closing
@@ -96,7 +98,7 @@ class DesktopController:
     def setup(self) -> None:
         self.native = NativeWindow(self.window, self.tick, lambda: self.handle("webview_failed"))
         self.native.host_action = self.host_action
-        self.bridge._set_system_actions(self.native.pick_path, self.open_path)
+        self.bridge._set_system_actions(self.native.pick_path, self.open_path, self._restart_requested.set)
         self.native.place(self._geometry)
         self.native.form.Resize += self.resized
         self.native.form.Activated += callback(lambda: self.handle("focused"))
@@ -128,6 +130,7 @@ class DesktopController:
             return
         if action in {"htd.ready", "htd.unready"}:
             self._frontend_ready = action == "htd.ready"
+        elif action == "htd.startupSettled":
             if self._frontend_ready and self.native is not None:
                 self.native.power.startup_ready()
         elif action == "htd.openLogDir":
@@ -277,7 +280,8 @@ class DesktopController:
 
     def _cleanup(self) -> None:
         self._pool.shutdown(wait=True, cancel_futures=False)
-        self.save_page(self._last_page)
+        if not self._restarting:
+            self.save_page(self._last_page)
         self.shutdown(self._geometry)
 
     def closed(self) -> None:
@@ -315,6 +319,10 @@ class DesktopController:
             return
         try:
             native.poll()
+            if self._restart_requested.is_set() and not self._restarting:
+                self._restarting = True
+                self._frontend_ready = False
+                self.handle("quit")
             if self._shutdown is not None and self._shutdown.done():
                 try:
                     self._shutdown.result()

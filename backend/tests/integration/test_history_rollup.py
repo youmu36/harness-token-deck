@@ -64,7 +64,8 @@ def test_compaction_preserves_all_breakdowns_money_and_daily_filter_after_restar
         before = writer.execute(summary)
         total = writer.execute(lambda w: WalletRepository(w.connection).totals("vendor"))
         from htd.adapters.sqlite.wallet_closing import close_days
-        writer.execute(lambda w: close_days(w,w.connection,at=END))
+
+        writer.execute(lambda w: close_days(w, w.connection, at=END))
         total = writer.execute(lambda w: WalletRepository(w.connection).totals("vendor"))
         entries = writer.execute(
             lambda w: wallet_entries(w.connection, "vendor", None, 50, "consumption_daily", 480)
@@ -101,9 +102,12 @@ def test_compaction_preserves_all_breakdowns_money_and_daily_filter_after_restar
             lambda w: RollupRepository(w.connection).compact(w, at=Instant(AT.value + timedelta(days=31)))
         )
         assert writer.execute(summary) == before
-        assert writer.execute(
-            lambda w: wallet_entries(w.connection, "vendor", None, 50, "consumption_daily", 480)
-        ) == entries
+        assert (
+            writer.execute(
+                lambda w: wallet_entries(w.connection, "vendor", None, 50, "consumption_daily", 480)
+            )
+            == entries
+        )
         assert writer.execute(lambda w: RollupRepository(w.connection).compact(w, at=LATER)) == 0
     with WriteExecutor(path) as writer:
         assert writer.execute(summary) == before

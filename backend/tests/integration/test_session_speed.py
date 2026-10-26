@@ -216,10 +216,14 @@ def test_monitor_reuses_the_session_inventory_activity_and_existing_quiet_job(tm
         finally:
             with readers.connection() as traced:
                 traced.set_trace_callback(None)
-        assert len([sql for sql in statements if sql.startswith("SELECT * FROM session_hit_rate")]) == 1
-        assert len(monitor["sessionHitRates"]) == 1
+        assert len([sql for sql in statements if "FROM session_directory WHERE harness=" in sql]) == 1
+        assert len(monitor["sessionHitRates"]) == 2
         assert len(monitor["outputSpeeds"]) == 2
-        identity = monitor["sessionHitRates"][0]["sessionKey"]
+        identity = next(
+            row["sessionKey"]
+            for row in monitor["sessionHitRates"]
+            if row["sessionRef"] == monitor["selectedSessionRef"]
+        )
         assert all(row["sessionKey"] == identity and not row["frozen"] for row in monitor["outputSpeeds"])
         # A zero-output request in another model keeps the same session active.
         store = SqliteRemoteStore(writer, readers)

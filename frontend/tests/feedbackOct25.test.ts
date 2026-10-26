@@ -1,0 +1,56 @@
+import { flushPromises, mount } from '@vue/test-utils';
+import { defineComponent, h, ref } from 'vue';
+import { afterEach, expect, it, vi } from 'vitest';
+import { BridgeKey } from '../src/app/ports';
+import { UsageNavigationKey } from '../src/app/usageNavigation';
+import { unwrap } from '../src/app/errors';
+import { useShellPreferences } from '../src/app/useShellPreferences';
+import { createMockBridge } from '../src/infra/bridge/mock';
+import HarnessPage from '../src/features/harness/HarnessPage.vue';
+import MultiLineChart from '../src/ui/charts/MultiLineChart.vue';
+const cleanup: (() => void)[] = [];
+afterEach(() => { cleanup.splice(0).reverse().forEach(fn => fn()); vi.restoreAllMocks(); vi.useRealTimers(); });
+
+it('persists the end-follow toggle immediately across navigation, ticks visibly and stops explicitly', async () => {
+  vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-25T08:00:00Z'));
+  const bridge = createMockBridge(); cleanup.push(() => bridge.dispose());
+  await bridge.call('preferences.update',{patch:{timezone:'UTC'},expectedRevision:0,operationId:crypto.randomUUID()});
+  const initial = unwrap(await bridge.call('preferences.get', {}));
+  const visible = ref(true);
+  const Host = defineComponent({setup() {useShellPreferences(initial); return () => visible.value ? h(HarnessPage,{harness:'codex',initialPreferences:initial}) : h('div');}});
+  const wrapper = mount(Host,{global:{provide:{[BridgeKey as symbol]:bridge,[UsageNavigationKey as symbol]:{analyze:vi.fn(),back:vi.fn()}}}}); cleanup.push(() => wrapper.unmount());
+  await vi.dynamicImportSettled(); await flushPromises();
+  await wrapper.get('[data-value="custom"]').trigger('click');
+  const fields = wrapper.findAll('.custom-range .datetime-field');
+  await fields[0]!.get('button').trigger('click');
+  expect(fields[0]!.text()).not.toContain('随当前时间变动');
+  await fields[0]!.get('button').trigger('click');
+  await fields[1]!.get('button').trigger('click');
+  await fields[1]!.findAll('button').find(b => b.text() === '随当前时间变动')!.trigger('click');
+  await flushPromises();
+  expect(unwrap(await bridge.call('preferences.get',{})).preferences.filters.codex).toMatchObject({range:'custom',startNow:false,endNow:true});
+  visible.value = false; await flushPromises();
+  vi.setSystemTime(new Date('2026-10-25T08:07:00Z')); visible.value = true; await flushPromises();
+  expect(wrapper.get('[aria-label="结束时间"]').attributes('readonly')).toBeDefined();
+  expect(wrapper.get('[aria-label="结束时间"]').element).toHaveProperty('value','2026-10-25 08:07');
+  await vi.advanceTimersByTimeAsync(60_000); await flushPromises();
+  expect(wrapper.get('[aria-label="结束时间"]').element).toHaveProperty('value','2026-10-25 08:08');
+  const end = wrapper.findAll('.custom-range .datetime-field')[1]!;
+  await end.get('button').trigger('click');
+  await end.findAll('button').find(b => b.text() === '随当前时间变动')!.trigger('click'); await flushPromises();
+  expect(unwrap(await bridge.call('preferences.get',{})).preferences.filters.codex?.endNow).toBe(false);
+  await vi.advanceTimersByTimeAsync(60_000); await flushPromises();
+  expect(wrapper.get('[aria-label="结束时间"]').element).toHaveProperty('value','2026-10-25 08:08');
+});
+
+it('creates chart detail rows only while expanded and never displays series identity keys', async () => {
+  const wrapper = mount(MultiLineChart,{props:{label:'趋势',series:[{key:'private-session-id',name:'模型 A',points:[{day:'2026-10-25',value:12,label:'12 t/s'}]}]}});
+  cleanup.push(() => wrapper.unmount());
+  expect(wrapper.find('tbody').exists()).toBe(false);
+  expect(wrapper.text()).not.toContain('private-session-id');
+  expect(wrapper.get('circle').attributes('aria-label')).toContain('模型 A');
+  wrapper.get('details').element.open = true; await wrapper.get('details').trigger('toggle');
+  expect(wrapper.findAll('tbody tr')).toHaveLength(1);
+  wrapper.get('details').element.open = false; await wrapper.get('details').trigger('toggle');
+  expect(wrapper.find('tbody').exists()).toBe(false);
+});

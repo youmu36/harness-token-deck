@@ -36,6 +36,7 @@ export function mockAnalytics(request: RequestMap['stats.analytics']): CommandDa
     return {
       recordCount: String(active), inputTokens: String(input), outputTokens: String(output),
       cacheReadTokens: String(BigInt(input) * 7n / 10n), totalTokens: String(input + output), picoUsd: String(BigInt(active * factor) * 7200000000n),
+      estimatePico: String(BigInt(active * factor) * 7200000000n), correctionPico: '0', unallocatedCorrectionPico: '0', allocationIncomplete: false,
       cacheHitRate: input ? .7 : null, cacheCoverageIncomplete: false, incomplete: false, unpriced: false,
       unknownModelCount: '0', missingUsageCount: '0', activeMinutes: String(active),
       tokensPerMinute: active ? (output / active).toFixed(2) : null, tokensPerSecond: active ? (output / active / 60).toFixed(2) : null,

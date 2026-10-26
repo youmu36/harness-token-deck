@@ -16,11 +16,20 @@ FIELDS = (
     "unknown",
     "incomplete",
     "unpriced",
+    "pending",
     "eligible_input",
     "eligible_cache",
     "eligible_output",
     "eligible_write",
     "eligible_pico",
+    "quality_known",
+    "quality_legacy",
+    "quality_count",
+    "quality_signature",
+    "quality_version",
+    "quality_cache",
+    "quality_incomplete",
+    "quality_unpriced",
 )
 
 
@@ -57,6 +66,7 @@ class ExploreTotals:
             "cacheHitRate": v["rated_cache"] / v["rated_input"] if v["rated_input"] else None,
             "incomplete": bool(v["incomplete"]),
             "unpriced": bool(v["unpriced"]),
+            "pendingValuationCount": str(v["pending"]),
             "cacheCoverageIncomplete": bool(v["unknown"]),
             "tokensPerDollar": decimal_ratio(total * 10**12, cost, 1),
             "perDollar": parts,

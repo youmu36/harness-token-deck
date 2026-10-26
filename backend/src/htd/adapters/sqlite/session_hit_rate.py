@@ -1,11 +1,10 @@
-"""Current and recently frozen per-session cache ratios, retained only until the next session."""
+"""Compatibility session totals; durable sessions never reset on quiet or another session."""
 
 import sqlite3
 from decimal import Decimal
 from typing import Any, cast
 
 from htd.adapters.sqlite.session_state import frozen, session_key
-from htd.adapters.sqlite.token_activity import QUIET
 from htd.domain.common.time import Instant, format_instant
 from htd.domain.usage.model import Harness, UsageEvent
 from htd.domain.usage.model_key import model_key
@@ -17,15 +16,13 @@ def record(db: sqlite3.Connection, event: UsageEvent, at: Instant) -> None:
     harness = event.harness.value
     key = session_key(event.session_id)
     stamp = format_instant(at)
-    cutoff = format_instant(Instant(at.value - QUIET))
     previous = cast(
         sqlite3.Row | None,
         db.execute(
             "SELECT * FROM session_hit_rate WHERE harness=? AND session_key=?", (harness, key)
         ).fetchone(),
     )
-    if previous is None or previous["last_received_at"] <= cutoff:
-        db.execute("DELETE FROM session_hit_rate WHERE harness=? AND last_received_at<=?", (harness, cutoff))
+    if previous is None:
         started_at = event.occurred_at
         input_tokens = cache_tokens = missing_input = missing_cache = 0
     else:
@@ -68,20 +65,6 @@ def record(db: sqlite3.Connection, event: UsageEvent, at: Instant) -> None:
             missing_cache,
         ),
     )
-    # Once only one session remains active, obsolete parallel-session cards no
-    # longer belong to the current generation. Use the existing write batch.
-    db.execute(
-        "DELETE FROM session_hit_rate WHERE harness=? AND last_received_at<=? AND "
-        "(SELECT COUNT(*) FROM session_hit_rate WHERE harness=? AND last_received_at>?)=1",
-        (harness, cutoff, harness, cutoff),
-    )
-    if previous is None:
-        db.execute(
-            "DELETE FROM session_hit_rate WHERE harness=? AND session_key NOT IN "
-            "(SELECT session_key FROM session_hit_rate WHERE harness=? "
-            "ORDER BY last_received_at DESC LIMIT 100)",
-            (harness, harness),
-        )
 
 
 def read(db: sqlite3.Connection, harness: str, now: Instant) -> list[dict[str, Any]]:
@@ -103,5 +86,4 @@ def read(db: sqlite3.Connection, harness: str, now: Instant) -> list[dict[str, A
                 "frozen": frozen(row["last_received_at"], now),
             }
         )
-    active = [value for value in values if not value["frozen"]]
-    return active if len(active) == 1 else values
+    return values

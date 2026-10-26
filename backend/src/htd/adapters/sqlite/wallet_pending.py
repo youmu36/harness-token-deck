@@ -89,33 +89,43 @@ def commit_estimates(db: sqlite3.Connection, samples: dict[tuple[str, str], int]
 
 def _remote(db: sqlite3.Connection, vendor: str) -> tuple[int, int]:
     rows = db.execute(
+        "SELECT p.segment_id,p.estimate,b.observed_at start_at,b.b start_b,b.u start_u,"
+        "e.observed_at end_at,e.b end_b,e.u end_u FROM ("
         "SELECT p.segment_id,p.start_endpoint,p.end_endpoint,COALESCE(v.estimate,'0') estimate "
         "FROM account_pending p JOIN account_segment s ON s.id=p.segment_id "
         "LEFT JOIN remote_wallet_pending_estimate v ON v.segment_id=p.segment_id "
         "AND v.start_endpoint=p.start_endpoint AND v.end_endpoint=p.end_endpoint "
         "WHERE s.vendor_id=? AND s.ended_at IS NULL AND p.start_endpoint<>p.end_endpoint "
         "UNION ALL SELECT b.segment_id,b.start_endpoint,b.end_endpoint,b.estimate "
-        "FROM account_pending_batch b JOIN account_segment s ON s.id=b.segment_id WHERE s.vendor_id=?",
+        "FROM account_pending_batch b JOIN account_segment s ON s.id=b.segment_id WHERE s.vendor_id=?) p "
+        "LEFT JOIN account_endpoint b ON b.id=p.start_endpoint "
+        "LEFT JOIN account_endpoint e ON e.id=p.end_endpoint",
         (vendor, vendor),
-    ).fetchall()
+    )
     recharge = consumption = 0
     for row in rows:
-        start, end = (
-            db.execute("SELECT * FROM account_endpoint WHERE id=?", (row[key],)).fetchone()
-            for key in ("start_endpoint", "end_endpoint")
+        used = (
+            int(row["end_u"]) - int(row["start_u"])
+            if row["start_u"] is not None and row["end_u"] is not None
+            else None
         )
-        used = int(end["u"]) - int(start["u"]) if start["u"] is not None and end["u"] is not None else None
         manual = sum(
             int(p[0])
             for p in db.execute(
                 "SELECT r FROM account_posting WHERE segment_id=? AND interval_id IS NULL "
                 "AND kind='manual_top_up' AND occurred_at>? AND occurred_at<=?",
-                (row["segment_id"], start["observed_at"], end["observed_at"]),
+                (row["segment_id"], row["start_at"], row["end_at"]),
             )
         )
-        if abs(int(end["b"]) - int(start["b"])) < CENT and abs(used or 0) < CENT and not manual:
+        if abs(int(row["end_b"]) - int(row["start_b"])) < CENT and abs(used or 0) < CENT and not manual:
             continue
-        result = settle(int(start["b"]), int(end["b"]), int(row["estimate"]), used=used, manual_r=manual)
+        result = settle(
+            int(row["start_b"]),
+            int(row["end_b"]),
+            int(row["estimate"]),
+            used=used,
+            manual_r=manual,
+        )
         recharge += result.recharge
         consumption += result.consumption
     return recharge, consumption
@@ -130,24 +140,35 @@ def display(
 ) -> dict[str, Any] | None:
     if totals is None:
         return None
-    amounts = [
-        (int(r[0]), int(r[1]))
-        for r in db.execute(
-            "SELECT r,c FROM wallet_flow_pending WHERE vendor_id=? AND scope=?",
-            (vendor, scope),
-        )
-    ] + list(staged)
+    pr = pc = 0
+    for r, c in db.execute(
+        "SELECT r,c FROM wallet_flow_pending WHERE vendor_id=? AND scope=?", (vendor, scope)
+    ):
+        pr += int(r)
+        pc += int(c)
+    for r, c in staged:
+        pr += r
+        pc += c
     if scope == "local":
-        amounts.extend(
-            (0, int(row[0]))
+        pc += sum(
+            int(row[0])
             for row in db.execute("SELECT c FROM wallet_recalc_pending WHERE vendor_id=?", (vendor,))
         )
-    pr, pc = sum(r for r, _ in amounts), sum(c for _, c in amounts)
     rr, rc = _remote(db, vendor) if scope == "remote" else (0, 0)
+    updated = db.execute(
+        "SELECT MAX(stamp) FROM (SELECT received_at stamp FROM wallet_flow_pending "
+        "WHERE vendor_id=? AND scope=? "
+        "UNION ALL SELECT p.received_at FROM session_wallet_pending p WHERE p.vendor_id=? AND ?='local' "
+        "UNION ALL SELECT e.observed_at FROM account_pending p JOIN account_segment s ON s.id=p.segment_id "
+        "JOIN account_endpoint e ON e.id=p.end_endpoint WHERE s.vendor_id=? AND ?='remote' "
+        "AND p.start_endpoint<>p.end_endpoint)",
+        (vendor, scope, vendor, scope, vendor, scope),
+    ).fetchone()[0]
     return {
         **totals,
         "postedR": str(int(totals["R"]) - pr),
         "postedC": str(int(totals["C"]) - pc),
         "pendingTopUpPico": str(pr + rr),
         "pendingConsumptionPico": str(pc + rc),
+        "pendingUpdatedAt": updated,
     }

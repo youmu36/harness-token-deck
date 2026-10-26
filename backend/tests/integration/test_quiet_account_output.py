@@ -134,7 +134,7 @@ def test_sub_cent_noise_stays_staged_and_accumulates_from_original_baseline(
         assert summary(writer)["C"] == str(CENT)
 
 
-@pytest.mark.parametrize("inflow,expected", [(USD - 1, 0), (USD, USD), (USD + 123, USD + 123)])
+@pytest.mark.parametrize("inflow,expected", [(USD - 1, 0), (USD, USD), (USD + 123, 2 * USD)])
 def test_reliable_usage_also_requires_numeric_one_for_automatic_recharge(
     tmp_path: Path, inflow: int, expected: int
 ) -> None:
@@ -248,6 +248,8 @@ def test_live_window_keeps_only_sixty_minute_buckets(tmp_path: Path) -> None:
 
 
 def test_billing_batches_model_window_once_and_replays_do_not_add_output(tmp_path: Path) -> None:
+    from itertools import groupby
+
     with WriteExecutor(tmp_path / "a.db") as writer, ReadPool(writer.path) as readers:
         events = tuple(usage(i, at=balance(0, 1).fetched_at, tokens=Tokens(output=60)) for i in range(1, 51))
         collect(writer, events, at=balance(0, 1).fetched_at)
@@ -265,7 +267,9 @@ def test_billing_batches_model_window_once_and_replays_do_not_add_output(tmp_pat
                 work.connection.set_trace_callback(None)
 
         writer.execute(bill)
-        assert len([sql for sql in statements if sql.startswith("INSERT INTO output_session VALUES")]) == 1
+        # SQLite repeats the parent trace while executing invalidation triggers.
+        executions = [sql for sql, _ in groupby(statements)]
+        assert len([sql for sql in executions if sql.startswith("INSERT INTO output_session VALUES")]) == 1
         assert live(readers.get(), "codex", balance(0, 1).fetched_at)[0]["outputTokens"] == "3000"
         collect(writer, events, at=balance(0, 2).fetched_at)
         writer.execute(bill)

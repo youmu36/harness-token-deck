@@ -47,6 +47,7 @@ describe('event subscriptions', () => {
     window.__htd.emit('app.visibility', { visible: false });
     expect(transport).not.toHaveBeenCalled();
     window.__htd.emit('app.visibility', { visible: true });
+    await vi.dynamicImportSettled();
     await flushPromises();
     expect(transport).toHaveBeenCalledExactlyOnceWith('app.sync', {});
     expect(usage).toHaveBeenCalledExactlyOnceWith({ harnesses: ['codex'], revision: 2 });
@@ -67,6 +68,7 @@ describe('event subscriptions', () => {
     const uninstall = installEvents(bridge);
     window.__htd.emit('app.visibility', { visible: false });
     window.__htd.emit('app.visibility', { visible: true });
+    await vi.dynamicImportSettled();
     uninstall();
     resolve({ ok: true, data: { revisions: { usage: 1 }, pendingEvents: [
       { name: 'usage.changed', payload: { harnesses: ['codex'], revision: 1 } },

@@ -37,6 +37,7 @@ def install(db: sqlite3.Connection) -> None:
         "estimate_c TEXT NOT NULL DEFAULT '0') STRICT",
         "CREATE INDEX IF NOT EXISTS wallet_flow_page "
         "ON wallet_flow(vendor_id,scope,occurred_at DESC,id DESC)",
+        "CREATE INDEX IF NOT EXISTS wallet_flow_recent ON wallet_flow(scope,kind,posted_at,vendor_id)",
         "CREATE INDEX IF NOT EXISTS wallet_flow_retention ON wallet_flow(posted_at)",
         "CREATE INDEX IF NOT EXISTS wallet_flow_day ON wallet_flow(vendor_id,scope,day,kind,occurred_at)",
         "CREATE TABLE IF NOT EXISTS wallet_flow_notice("
@@ -225,6 +226,11 @@ def stage(
 ) -> None:
     if not (r or c or a):
         return
+    if scope == "local" and kind == "consumption" and source_seq and not (r or a):
+        from htd.adapters.sqlite.reconciliation_batches import stage as stage_session
+
+        if stage_session(db, vendor, source_seq, occurred, c):
+            return
     from htd.adapters.sqlite.wallet_closing import timezone
 
     if work is not None:
@@ -367,10 +373,25 @@ def local_override(db: sqlite3.Connection, vendor: str, source_seq: int, occurre
 
     day = parse_instant(occurred).value.astimezone(ZoneInfo(timezone(db))).date().isoformat()
     return db.execute(
-        "SELECT * FROM local_wallet_flow_override WHERE vendor_id=? AND day=? "
-        "AND source_first<=? AND source_last>=? LIMIT 1",
-        (vendor, day, source_seq, source_seq),
+        "SELECT * FROM local_wallet_flow_override o WHERE vendor_id=? AND day=? "
+        "AND source_first<=? AND source_last>=? AND (NOT EXISTS "
+        "(SELECT 1 FROM wallet_flow_member m WHERE m.flow_id=o.flow_id) OR EXISTS "
+        "(SELECT 1 FROM wallet_flow_member m WHERE m.flow_id=o.flow_id AND m.source_seq=?)) "
+        "AND NOT EXISTS(SELECT 1 FROM calibration_legacy_replacement r WHERE r.flow_id=o.flow_id) LIMIT 1",
+        (vendor, day, source_seq, source_seq, source_seq),
     ).fetchone()
+
+
+def locked_consumption(db: sqlite3.Connection, vendor: str, source_seq: int, occurred: str) -> bool:
+    return (
+        local_override(db, vendor, source_seq, occurred) is not None
+        or db.execute(
+            "SELECT 1 FROM wallet_entry w JOIN calibration_owner o "
+            "ON o.harness=w.usage_harness AND o.dedupe_key=w.usage_key WHERE w.vendor_id=? AND w.seq=?",
+            (vendor, source_seq),
+        ).fetchone()
+        is not None
+    )
 
 
 def reprice_local(
@@ -387,6 +408,42 @@ def reprice_local(
     from htd.adapters.sqlite.local_wallet import post
 
     if not delta:
+        return "absorbed"
+    owner = db.execute(
+        "SELECT o.target_id FROM wallet_entry w JOIN calibration_owner o "
+        "ON o.harness=w.usage_harness AND o.dedupe_key=w.usage_key WHERE w.vendor_id=? AND w.seq=?",
+        (vendor, source_seq),
+    ).fetchone()
+    if owner:
+        post(
+            db,
+            work,
+            vendor,
+            parse_instant(occurred),
+            "preserve-target:" + identity,
+            0,
+            -delta,
+            0,
+            "估值变化，保留锁定的消费目标",
+            owner[0],
+            journal=False,
+        )
+        for legacy in db.execute(
+            "SELECT DISTINCT r.flow_id FROM wallet_entry w JOIN calibration_member m "
+            "ON m.harness=w.usage_harness AND m.dedupe_key=w.usage_key "
+            "JOIN calibration_legacy_replacement r ON r.target_id=m.target_id "
+            "WHERE w.vendor_id=? AND w.seq=?",
+            (vendor, source_seq),
+        ).fetchall():
+            db.execute(
+                "UPDATE wallet_flow SET estimate_c=htd_pico_add(estimate_c,?) WHERE id=?",
+                (str(delta), legacy[0]),
+            )
+            db.execute(
+                "DELETE FROM wallet_flow_notice WHERE flow_id=? AND EXISTS "
+                "(SELECT 1 FROM wallet_flow WHERE id=? AND c=estimate_c)",
+                (legacy[0], legacy[0]),
+            )
         return "absorbed"
     override = local_override(db, vendor, source_seq, occurred)
     if override:
@@ -419,8 +476,11 @@ def reprice_local(
     return "absorbed" if state == "pending" else "adjustment" if state == "posted" else "consumption"
 
 
-def flush(work: UnitOfWork, db: sqlite3.Connection, at: Instant) -> tuple[str, ...]:
+def flush(
+    work: UnitOfWork, db: sqlite3.Connection, at: Instant, *, remote_vendors: set[str] | None = None
+) -> tuple[str, ...]:
     from htd.adapters.sqlite.local_wallet import remote_summary, summary
+    from htd.adapters.sqlite.reconciliation_batches import flush as flush_sessions
 
     cutoff = format_instant(Instant(at.value - QUIET))
     vendors = db.execute(
@@ -429,14 +489,14 @@ def flush(work: UnitOfWork, db: sqlite3.Connection, at: Instant) -> tuple[str, .
         "HAVING MAX(received_at)<=? LIMIT 200",
         (cutoff,),
     ).fetchall()
-    changed: set[str] = set()
+    changed: set[str] = flush_sessions(work, db, at)
     states: dict[str, tuple[str | None, bool]] = {}
     for item in vendors:
         vendor, scope = item["vendor_id"], item["scope"]
         if vendor not in states:
             states[vendor] = account_state(db, vendor)
         last, busy = states[vendor]
-        if busy or (last is not None and last > cutoff):
+        if scope == "local" and (busy or (last is not None and last > cutoff)):
             continue
         rows: list[dict[str, Any]] = [
             dict(row)
@@ -471,6 +531,8 @@ def flush(work: UnitOfWork, db: sqlite3.Connection, at: Instant) -> tuple[str, .
             dr, dc, da = (int(row[key]) for key in "rca")
             if not (dr or dc or da) and not row.get("forced"):
                 continue
+            if remote_vendors is not None and scope == "remote" and row["kind"] == "consumption":
+                remote_vendors.add(vendor)
             after = r + dr, c + dc, b + dr - dc + da
             db.execute(
                 "INSERT INTO wallet_flow(id,vendor_id,scope,day,kind,occurred_at,posted_at,r,c,a,"
@@ -503,6 +565,11 @@ def flush(work: UnitOfWork, db: sqlite3.Connection, at: Instant) -> tuple[str, .
         if scope == "local":
             db.execute("DELETE FROM wallet_recalc_pending WHERE vendor_id=?", (vendor,))
         changed.add(vendor)
+    from htd.adapters.sqlite.reconciliation_scope import backfill
+
+    recovered = backfill(db, at)
+    if remote_vendors is not None:
+        remote_vendors.update(recovered)
     # Bounded pruning is shared by the existing background cadence, once per day.
     day = format_instant(at)[:10]
     old = db.execute("SELECT value FROM runtime_state WHERE key='wallet_flow_pruned'").fetchone()
@@ -635,6 +702,10 @@ def correct(
     if (row["kind"] == "top_up" and target_c) or (row["kind"] == "consumption" and target_r):
         raise DomainError("ACCOUNT_AMOUNT_INVALID", "请只修改此流水所属类型的金额")
     dr, dc = target_r - int(row["r"]), target_c - int(row["c"])
+    if row["scope"] == "local" and row["kind"] == "consumption" and dc:
+        from htd.adapters.sqlite.calibration_legacy import assert_editable
+
+        assert_editable(db, row)
     current = summary(db, vendor) if row["scope"] == "local" else remote_summary(db, vendor)
     if current is None or int(current["R"]) + dr < 0 or int(current["C"]) + dc < 0:
         raise DomainError("ACCOUNT_AMOUNT_INVALID", "校准后的累计金额不能为负数")
@@ -723,6 +794,9 @@ def correct(
             )
         else:
             db.execute("DELETE FROM wallet_flow_notice WHERE flow_id=?", (row["id"],))
+        from htd.adapters.sqlite.calibration_legacy import capture
+
+        capture(work, db, row["id"], at)
     work.touch("wallet")
 
 

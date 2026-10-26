@@ -1,10 +1,11 @@
-import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
+import { flushPromises as flushVue, mount, type VueWrapper } from '@vue/test-utils';
 import { afterEach, expect, it, vi } from 'vitest';
 import MigrationWizard from '../src/features/migration/MigrationWizard.vue';
 import App from '../src/App.vue';
 import { BridgeKey, type Bridge } from '../src/app/ports';
 import { createMockBridge } from '../src/infra/bridge/mock';
 import { migrationResult } from '../src/features/migration/types';
+async function flushPromises() { await flushVue(); await vi.dynamicImportSettled(); await flushVue(); }
 const cleanup: (() => void)[] = [];
 afterEach(() => { cleanup.splice(0).forEach(fn => fn()); vi.useRealTimers(); vi.restoreAllMocks(); });
 function button(wrapper: VueWrapper, text: string) { return wrapper.findAll('button').find(b => b.text() === text)!; }

@@ -3,7 +3,7 @@ from typing import cast
 
 import pytest
 from htd.domain.common.errors import DomainError
-from htd.domain.common.time import Instant, format_instant, parse_instant
+from htd.domain.common.time import Instant, parse_instant
 from htd.domain.statistics.window import (
     Grain,
     MonitorMode,
@@ -103,26 +103,14 @@ def test_unaligned_max_minute_window_has_1441_buckets() -> None:
 @pytest.mark.parametrize(
     "now", ["2026-09-13T12:00:00Z", "2026-09-13T12:15:39.999Z", "2026-09-13T12:34:59.999Z"]
 )
-@pytest.mark.parametrize("mode", ["minute", "hour"])
-def test_monitor_has_exactly_60_minutes_or_24_hours(offset: int, now: str, mode: MonitorMode) -> None:
+@pytest.mark.parametrize("mode", ["minute"])
+def test_monitor_has_exactly_60_complete_minutes(offset: int, now: str, mode: MonitorMode) -> None:
     window = monitor_window(parse_instant(now), mode, offset)
     points = bucket_starts(window.start, window.end, offset, window.actual_grain)
-    assert len(points) == (60 if mode == "minute" else 24)
+    assert len(points) == 60
     assert window.end.value.second == window.end.value.microsecond == 0
     assert window.start.value == points[0]
     assert points[-1] < window.end.value
-
-
-@pytest.mark.parametrize(
-    ("now", "start"),
-    [
-        ("2026-09-13T12:00:00Z", "2026-09-12T12:00:00.000Z"),
-        ("2026-09-13T12:00:59.999Z", "2026-09-12T12:00:00.000Z"),
-        ("2026-09-13T12:01:00Z", "2026-09-12T13:00:00.000Z"),
-    ],
-)
-def test_monitor_hour_boundary_has_only_completed_minutes(now: str, start: str) -> None:
-    assert format_instant(monitor_window(parse_instant(now), "hour", 480).start) == start
 
 
 def test_monitor_key_changes_only_at_next_minute_and_includes_mode_offset() -> None:
@@ -131,11 +119,10 @@ def test_monitor_key_changes_only_at_next_minute_and_includes_mode_offset() -> N
     assert monitor_window(first, "minute", 480).key == monitor_window(last, "minute", 480).key
     assert next_minute(first) == next_minute(last) == parse_instant("2026-09-13T12:35:00Z")
     assert monitor_window(last, "minute", 480).key != monitor_window(next_minute(last), "minute", 480).key
-    assert monitor_window(first, "minute", 480).key != monitor_window(first, "hour", 480).key
     assert monitor_window(first, "minute", 480).key != monitor_window(first, "minute", 0).key
 
 
-@pytest.mark.parametrize("mode", ["day", None, False, []])
+@pytest.mark.parametrize("mode", ["hour", "day", None, False, []])
 def test_invalid_monitor_mode(mode: object) -> None:
     with pytest.raises(DomainError) as error:
         monitor_window(START, cast(MonitorMode, mode), 0)
@@ -159,7 +146,7 @@ def test_last_supported_bucket_does_not_increment_past_datetime_max() -> None:
 def test_monitor_and_next_tick_before_or_after_supported_dates() -> None:
     for now in (parse_instant("0001-01-01T00:00:00Z"),):
         with pytest.raises(DomainError) as error:
-            monitor_window(now, "hour", 0)
+            monitor_window(now, "minute", 0)
         assert error.value.code == "INVALID_TIMESTAMP"
     with pytest.raises(DomainError) as error:
         next_minute(parse_instant("9999-12-31T23:59:59Z"))

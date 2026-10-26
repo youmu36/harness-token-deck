@@ -5,10 +5,14 @@ import hashlib
 import json
 import logging
 import os
+import subprocess
 import sys
 import time
 from pathlib import Path
 
+from htd.adapters.data_cleanup import remove_application_data
+from htd.adapters.data_directory import DataDirectoryError, DataLocation, locator_path, resolve_data_directory
+from htd.adapters.data_migration import recover_unactivated_directory
 from htd.adapters.desktop._win32 import show_error
 from htd.adapters.desktop.host import run as run_host
 from htd.adapters.desktop.installer import shortcut_app_id
@@ -16,7 +20,7 @@ from htd.adapters.desktop.logging_setup import logging_session
 from htd.adapters.desktop.runtime import DOWNLOAD_URL, webview2_version
 from htd.adapters.desktop.single_instance import SingleInstance
 from htd.adapters.sqlite.installer_backup import backup_data
-from htd.bootstrap import Application, default_data_dir
+from htd.bootstrap import Application
 from htd.ipc.headless import serve
 
 _LOG = logging.getLogger(__name__)
@@ -45,7 +49,13 @@ def _instance_options(directory: Path, *, smoke: bool = False) -> dict[str, str]
 
 
 def _desktop(
-    directory: Path, *, smoke: bool, quit_requested: bool, debug: bool, wait_for_exit: bool = False
+    directory: Path,
+    *,
+    smoke: bool,
+    quit_requested: bool,
+    debug: bool,
+    wait_for_exit: bool = False,
+    location: DataLocation | None = None,
 ) -> int:
     instance_options = _instance_options(directory, smoke=smoke)
     with SingleInstance(directory, **instance_options) as instance:
@@ -74,7 +84,7 @@ def _desktop(
         if quit_requested:
             return 0
         if smoke:
-            with Application(directory, start_scheduler=False) as application:
+            with Application(directory, data_location=location, start_scheduler=False) as application:
                 hello = application.bridge.call("app.hello", {"clientProtocol": 1})
                 if not hello["ok"]:
                     raise RuntimeError("冒烟握手失败")
@@ -95,7 +105,7 @@ def _desktop(
         _LOG.info("WebView2 运行时 %s，初始化应用", runtime)
         if instance.quitting.is_set():
             return 0
-        with Application(directory) as application:
+        with Application(directory, data_location=location) as application:
             _LOG.info("应用初始化完成，启动桌面")
             run_host(
                 application.bridge,
@@ -107,6 +117,8 @@ def _desktop(
                 release_memory=application.release_idle_memory,
             )
         _LOG.info("应用资源关闭完成")
+        if getattr(application, "directory_changed", False):
+            return 42
     return 0
 
 
@@ -117,6 +129,9 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--smoke", action="store_true", help="无窗口迁移、握手与退出")
     mode.add_argument("--quit", action="store_true", help="请求已运行的桌面实例退出")
     mode.add_argument("--backup-data", type=Path, help="安装器: 一致性备份后退出")
+    mode.add_argument("--write-data-path", type=Path, help="安装器: 解析有效数据目录到 UTF-16LE 文件")
+    mode.add_argument("--remove-data", action="store_true", help="安装器: 显式删除本应用数据，保留无关文件")
+    mode.add_argument("--recover-data-dir", type=Path, help="显式恢复尚未激活的迁移原目录")
     mode.add_argument("--set-shortcut-app-id", type=Path, help="安装器: 设置快捷方式标识后退出")
     parser.add_argument("--wait-for-exit", action="store_true", help="与 --quit 一起等待单实例释放")
     args = parser.parse_args(argv)
@@ -133,7 +148,40 @@ def main(argv: list[str] | None = None) -> int:
         with Application() as application:
             serve(application.bridge, sys.stdin, sys.stdout)
         return 0
-    directory, debug = default_data_dir().resolve(), os.environ.get("HTD_DEBUG") == "1"
+    if args.recover_data_dir:
+        try:
+            original = args.recover_data_dir.resolve()
+            with SingleInstance(original, **_instance_options(original)) as instance:
+                if not instance.primary:
+                    return 2
+                recover_unactivated_directory(locator_path(), original)
+            return 0
+        except Exception as error:
+            if sys.stderr is not None:
+                sys.stderr.write(str(error) + "\n")
+            return 1
+    try:
+        location = resolve_data_directory()
+    except DataDirectoryError as error:
+        if args.smoke or args.quit or args.backup_data:
+            if sys.stderr is not None:
+                sys.stderr.write(str(error) + "\n")
+        else:
+            show_error(str(error))
+        return 1
+    directory, debug = location.root, os.environ.get("HTD_DEBUG") == "1"
+    if args.write_data_path:
+        args.write_data_path.write_bytes(str(directory).encode("utf-16le"))
+        return 0
+    if args.remove_data:
+        try:
+            with SingleInstance(directory, **_instance_options(directory)) as instance:
+                if not instance.primary:
+                    return 2
+                remove_application_data(location)
+            return 0
+        except Exception:
+            return 1
     with logging_session(directory, debug=debug) as log_path:
         try:
             if args.backup_data:
@@ -148,6 +196,7 @@ def main(argv: list[str] | None = None) -> int:
                 quit_requested=args.quit,
                 debug=debug,
                 wait_for_exit=args.wait_for_exit,
+                location=location,
             )
             if result == 0 and args.wait_for_exit:
                 deadline = time.monotonic() + 10
@@ -157,6 +206,10 @@ def main(argv: list[str] | None = None) -> int:
                             return 0
                     time.sleep(0.1)
                 return 2
+            if result == 42:
+                command = [sys.executable] if getattr(sys, "frozen", False) else [sys.executable, "-m", "htd"]
+                subprocess.Popen(command, creationflags=subprocess.CREATE_NO_WINDOW)
+                return 0
             return result
         except Exception:
             _LOG.exception("应用启动失败")

@@ -2,17 +2,19 @@
 
 import sqlite3
 from collections.abc import Iterable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import timedelta
 
 from htd.adapters.sqlite.key_codec import key_bytes
+from htd.adapters.sqlite.session_core import observe
 from htd.adapters.sqlite.sources_repo import SourcesRepository
 from htd.adapters.sqlite.transaction import require_transaction
 from htd.adapters.sqlite.usage_codec import decode_event, encode_event
-from htd.application.ports import UnitOfWork
+from htd.application.ports import UnitOfWork, UsageChanged
 from htd.domain.common.errors import DomainError
 from htd.domain.common.time import Instant, format_instant, parse_instant
 from htd.domain.usage.model import Harness, UsageEvent
+from htd.domain.usage.session import UsageObservation
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,6 +55,11 @@ class HistoryRepository:
             if type(scanned) is not UsageEvent or scanned.harness not in roots:
                 raise ValueError("Historical event has no scanned source path")
             event = decode_event(encode_event(scanned))
+            event = replace(
+                event,
+                native_session_id=scanned.native_session_id,
+                parent_session_id=scanned.parent_session_id,
+            )
             if parse_instant(event.occurred_at) < cutoff:
                 too_old += 1
                 continue
@@ -75,10 +82,20 @@ class HistoryRepository:
                 ),
             )
             inserted += 1
+            observation = UsageObservation(event, at, "history-import", "history")
+            ref = observe(self.connection, observation)
+            from htd.adapters.sqlite.session_activity import received as activity_received
+
+            activity_received(self.connection, observation, ref)
+            from htd.adapters.sqlite.session_projection import received
+
+            received(self.connection, event)
         self.connection.execute(
             "INSERT INTO diagnostic_log VALUES(NULL,?,NULL,'history_import',?)",
             (format_instant(at), f"新增 {inserted} 条，重复 {duplicates} 条，过期 {too_old} 条"),
         )
         if inserted:
             work.touch("sources")
+            work.touch("usage")
+            work.emit(UsageChanged(tuple(roots), work.revision("usage")))
         return HistoryImportResult(inserted, duplicates, too_old)

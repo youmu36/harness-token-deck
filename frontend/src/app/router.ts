@@ -3,7 +3,7 @@ import type { PreferenceValues } from '../infra/generated/contracts';
 
 export type Page = PreferenceValues['lastPage'];
 export type GuideTarget = 'models' | 'group' | 'versions' | 'rates' | 'vendor';
-export interface Route { page: Page; path: string; detail?: string; models?: boolean; unpriced?: boolean; background?: boolean; versions?: boolean; guideTarget?: GuideTarget }
+export interface Route { page: Page; path: string; detail?: string; models?: boolean; unpriced?: boolean; background?: boolean; versions?: boolean; walletSection?: 'reconcile' | 'allocate' | 'missing' | 'unassigned'; guideTarget?: GuideTarget }
 export const pagePaths: Record<Page, string> = {
   overview: '/overview', claude: '/harness/claude', codex: '/harness/codex', zcode: '/harness/zcode', dsh: '/harness/dsh',
   wallet: '/wallet', pricing: '/pricing', settings: '/settings',
@@ -18,6 +18,11 @@ export function parseRoute(hash: string): Route | undefined {
   if (path === '/pricing/rates') return { page: 'pricing', path, guideTarget: 'rates' };
   if (path === '/pricing/versions') return { page: 'pricing', path, versions: true, guideTarget: 'versions' };
   if (path === '/wallet/setup/new') return { page: 'wallet', path, guideTarget: 'vendor' };
+  if (path === '/wallet/unassigned') return { page: 'wallet', path, walletSection: 'unassigned' };
+  const wallet = /^\/wallet\/([^/]+)\/(reconcile|allocate|missing)$/.exec(path);
+  if (wallet) {
+    try { return { page: 'wallet', path, detail: decodeURIComponent(wallet[1]!), walletSection: wallet[2] as 'reconcile' | 'allocate' | 'missing' }; } catch { return undefined; }
+  }
   if (path === '/settings/background') return { page: 'settings', path, background: true };
   if (path === '/unpriced') return { page: 'pricing', path, unpriced: true };
   if (/^\/wallet\/[^/]+$/.test(path)) {

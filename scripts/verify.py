@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-LEVELS = ("quick", "full", "desktop", "release")
+LEVELS = ("quick", "full", "desktop", "release", "ci")
 
 
 @dataclass(frozen=True)
@@ -35,6 +35,14 @@ def steps(level: str) -> list[Step]:
     python = sys.executable
     npm = shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm"
     node = shutil.which("node") or "node"
+    if level == "ci":
+        return [
+            Step("Publication candidates and history", (python, "scripts/check_publication.py", "--history")),
+            Step("pytest CI", (python, "-m", "pytest", "-m", "not slow and not desktop")),
+            Step("vue-tsc", (npm, "run", "typecheck")),
+            Step("vitest", (npm, "test")),
+            Step("Production frontend", (npm, "run", "build")),
+        ]
     if level == "release":
         # Routine delivery checks functionality, then builds once. Deep diagnostics are opt-in.
         return [

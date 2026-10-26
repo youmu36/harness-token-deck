@@ -66,6 +66,22 @@ def test_close_is_cancelled_only_after_hide_then_quit_waits_for_cleanup(
         host.close()
 
 
+def test_startup_reclamation_waits_for_content_settlement_not_just_handshake(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    host, native = controller(monkeypatch, tmp_path)
+    try:
+        host.host_action("htd.startupSettled")
+        native.power.startup_ready.assert_not_called()
+        host.host_action("htd.ready")
+        native.power.startup_ready.assert_not_called()
+        host.host_action("htd.startupSettled")
+        native.power.startup_ready.assert_called_once()
+    finally:
+        host.close()
+
+
 def test_failed_hide_starts_real_exit_cleanup(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     host, native = controller(monkeypatch, tmp_path)
     try:

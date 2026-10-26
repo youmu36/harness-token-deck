@@ -44,16 +44,22 @@ def plan(
     updates: list[RecalcUpdate] = []
     old_total = new_total = unpriced = incomplete = 0
     vendors: dict[str, list[int]] = {}
+    rules = {"none": 0, "base": 0, "peak": 0, "tier": 0}
+    target_revision = max(
+        (revision for revision in catalog.revisions if revision.version_id == version.id),
+        key=lambda revision: (revision.effective_at, revision.seq),
+    )
     for row in snapshot.rows:
         event = row.event
         occurred = parse_instant(event.occurred_at)
-        revision = catalog.revision_at(version.id, occurred)
+        revision = target_revision
         rate = Resolution(group, version, revision).rate_for(event.model_id)
         cost = estimate_cost(event.tokens, rate, occurred)
         old_total += int(cast(str, row.old["pico"]))
         new_total += cost.pico_usd
         unpriced += cost.unpriced
         incomplete += cost.incomplete
+        rules[cost.rule_applied] += 1
         updates.append(
             RecalcUpdate(
                 row,
@@ -103,6 +109,8 @@ def plan(
         ],
         "window": parameters,
         "recordCount": len(snapshot.rows),
+        "unavailable": snapshot.unavailable,
+        "costRevision": snapshot.cost_revision,
         "identityDigest": hashlib.sha256(
             json.dumps(
                 [(r.event.harness.value, r.event.dedupe_key) for r in snapshot.rows],
@@ -134,6 +142,13 @@ def plan(
     ).hexdigest()
     return {
         "recordCount": len(updates),
+        "totalCount": len(updates) + len(snapshot.unavailable),
+        "pendingCount": sum(pending for _, pending in snapshot.unavailable),
+        "unavailableCount": len(snapshot.unavailable),
+        "evidenceInsufficientCount": len(snapshot.unavailable) + incomplete,
+        "targetRevisionId": target_revision.id,
+        "targetRevisionSeq": target_revision.seq,
+        "ruleCounts": rules,
         "oldTotal": str(old_total),
         "newTotal": str(new_total),
         "unpricedCount": unpriced,

@@ -12,8 +12,9 @@ from typing import Any
 
 from collect_licenses import collect
 from make_icon import make_icon
-from release_support import DIST, ROOT, find_makensis, smoke, write_report
+from release_support import DIST, ROOT, find_makensis, sha256, smoke, write_report
 from set_version import check_version
+from source_snapshot import source_fingerprint
 
 
 def run(*command: str) -> None:
@@ -70,6 +71,7 @@ def manifest(version: str, installer: Path, report: dict[str, Any]) -> None:
             "python": sys.version.split()[0],
             "installer": installer.name,
             "installer_bytes": installer.stat().st_size,
+            "installer_sha256": sha256(installer),
             "signing": "unsigned",
             "project_license": "MIT",
         }
@@ -101,6 +103,8 @@ def main() -> int:
         return 0
     if args.from_verifier and os.environ.get("HTD_RELEASE_VERIFIED") != "1":
         parser.error("--from-verifier is reserved for verify.py release")
+    # Extracted source archives can still build, but cannot provide reusable Git evidence.
+    fingerprint = source_fingerprint(ROOT) if (ROOT / ".git").exists() else None
     verified = bool(args.from_verifier or not args.skip_checks)
     if not args.from_verifier and not args.skip_checks and not args.reuse_checks:
         run(shutil.which("npm.cmd") or "npm.cmd", "run", "typecheck")
@@ -108,6 +112,7 @@ def main() -> int:
     if not args.from_verifier:
         run(shutil.which("npm.cmd") or "npm.cmd", "run", "build")
     report = build_frozen(version)
+    report["source_fingerprint"] = fingerprint
     report["checks"] = (
         "reused targeted checks"
         if args.reuse_checks
@@ -121,6 +126,8 @@ def main() -> int:
         write_report(ROOT / ".verify/release-build.json", report)
         return 0
     installer = build_installer(version)
+    if fingerprint is not None and source_fingerprint(ROOT) != fingerprint:
+        raise ValueError("Source changed during the build; refusing to record a reusable installer")
     manifest(version, installer, report)
     print(f"Installer: {installer}", flush=True)
     return 0

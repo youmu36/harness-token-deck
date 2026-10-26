@@ -55,17 +55,34 @@ class SqliteWalletCommandStore(SqliteCommandStore):
             self._daily_cache.clear()
             self._daily_bytes = 0
 
+    def expire_idle_cache(self) -> None:
+        with self._entries_lock:
+            if time.monotonic() - self._entries_at >= 60:
+                self._entries_cache.clear()
+                self._entries_revision.clear()
+                self._daily_cache.clear()
+                self._daily_bytes = 0
+
     def wallets(
-        self, *, at: Instant, include_archived: bool, work: UnitOfWork | None = None
+        self,
+        *,
+        at: Instant,
+        include_archived: bool,
+        work: UnitOfWork | None = None,
+        vendor_id: str | None = None,
     ) -> tuple[tuple[VendorSnapshot, ...], int]:
         if work is not None:
-            return self._wallets(connection(work), at, include_archived, work)
+            return self._wallets(connection(work), at, include_archived, work, vendor_id)
         with read_snapshot(self.readers) as db:
-            return self._wallets(db, at, include_archived)
+            return self._wallets(db, at, include_archived, vendor_id=vendor_id)
 
     @staticmethod
     def _wallets(
-        db: sqlite3.Connection, at: Instant, include_archived: bool, work: UnitOfWork | None = None
+        db: sqlite3.Connection,
+        at: Instant,
+        include_archived: bool,
+        work: UnitOfWork | None = None,
+        vendor_id: str | None = None,
     ) -> tuple[tuple[VendorSnapshot, ...], int]:
         repo = WalletRepository(db)
         from htd.adapters.sqlite.local_wallet import remote_summary, summary
@@ -74,7 +91,12 @@ class SqliteWalletCommandStore(SqliteCommandStore):
 
         snapshots: list[VendorSnapshot] = []
         visibility = dict(db.execute("SELECT vendor_id,mode FROM vendor_wallet_visibility"))
-        for vendor in repo.list_vendors(include_archived=include_archived):
+        selected = (
+            (repo.vendor(vendor_id),) if vendor_id else repo.list_vendors(include_archived=include_archived)
+        )
+        for vendor in selected:
+            if vendor.status == "archived" and not include_archived:
+                continue
             staged: dict[str, list[tuple[int, int]]] = {"local": [], "remote": []}
             if work is not None:
                 for key, value in cast(SqlWork, work).wallet_flows.items():
@@ -83,14 +105,21 @@ class SqliteWalletCommandStore(SqliteCommandStore):
             coverage = db.execute(
                 "SELECT value FROM runtime_state WHERE key=?", ("history_coverage_start:" + vendor.id,)
             ).fetchone()
+            totals = repo.totals(vendor.id)
             snapshots.append(
                 VendorSnapshot(
                     vendor,
-                    repo.totals(vendor.id),
+                    totals,
                     repo.linked_groups(vendor.id, at=at),
                     parse_instant(coverage[0]) if coverage else None,
-                    AccountBook(db).summary(vendor.id),
-                    display(db, vendor.id, "local", summary(db, vendor.id), staged["local"]),
+                    AccountBook(db).summary(vendor.id, local_totals=(totals.r, totals.c, totals.a)),
+                    display(
+                        db,
+                        vendor.id,
+                        "local",
+                        summary(db, vendor.id, vendor_record=vendor, totals=totals),
+                        staged["local"],
+                    ),
                     display(db, vendor.id, "remote", remote_summary(db, vendor.id), staged["remote"]),
                     visibility.get(vendor.id, "both"),
                 )

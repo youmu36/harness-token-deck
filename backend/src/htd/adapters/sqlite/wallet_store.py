@@ -119,7 +119,12 @@ class WalletStore:
         )
 
     def append(
-        self, work: UnitOfWork, entry: WalletEntry, *, calibration: Calibration | None = None
+        self,
+        work: UnitOfWork,
+        entry: WalletEntry,
+        *,
+        calibration: Calibration | None = None,
+        journal: bool = True,
     ) -> WalletEntry:
         require_transaction(work, self.connection)
         if type(entry) is not WalletEntry:
@@ -263,7 +268,7 @@ class WalletStore:
                 "DO UPDATE SET a=htd_pico_add(a,excluded.a)",
                 (entry.vendor_id, str(-entry.amount_pico)),
             )
-        elif not absorbed:
+        elif not absorbed and journal:
             stage(
                 self.connection,
                 entry.vendor_id,

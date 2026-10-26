@@ -275,7 +275,7 @@ def test_entries_keyset_cursor_daily_exactness_and_concurrent_append(app: Applic
     )
     assert page2.nextCursor is None and page2.entries[0].kind == "consumption_daily"
     assert page2.entries[0].amountPico == "1999999998000000000000" and page2.entries[0].count == 2
-    corrections=invoke(app,"wallet.entries",{"vendorId":v.id},EntriesResponse)
+    corrections = invoke(app, "wallet.entries", {"vendorId": v.id}, EntriesResponse)
     assert any("1999999998000000000000 → 1999999999000000000000" in e.note for e in corrections.entries)
 
 
@@ -296,9 +296,7 @@ def test_W10_real_ledger_retention_preserves_wallet_snapshot_and_vouchers(app: A
         app,
         "pricing.saveVersionPrices",
         versionId=v,
-        models=[
-            {"modelId": "Model", "input": "300000", "cache": "300000", "output": "0"}
-        ],
+        models=[{"modelId": "Model", "input": "300000", "cache": "300000", "output": "0"}],
     )
     price(app, "pricing.switchCurrent", harness="codex", groupId=g, versionId=v)
     supplier = vendor(app)

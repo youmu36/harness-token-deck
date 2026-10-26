@@ -43,6 +43,20 @@ it('keeps large snapshots shallow and defers passive events while explicit and r
   expect(fetcher).toHaveBeenCalledTimes(3);
 });
 
+it('releases closed detail snapshots and cancels pending results without retaining them on reopen', async () => {
+  const {scope,hub}=fixture(), opened=ref(true), next=deferred<number[]>();
+  const fetcher=vi.fn().mockResolvedValueOnce([1]).mockImplementationOnce(()=>next.promise).mockResolvedValue([3]);
+  const query=scope.run(()=>useQuery('details',fetcher,{eventSource:hub.source,visible:opened,clearOnHide:true,coalesce:true}))!;
+  await flushPromises();expect(query.data.value).toEqual([1]);
+  opened.value=false;expect(query.data.value).toBeUndefined();
+  opened.value=true;await flushPromises();expect(fetcher).toHaveBeenCalledTimes(2);
+  const signal=fetcher.mock.calls[1]![0] as AbortSignal;
+  opened.value=false;expect(signal.aborted).toBe(true);
+  next.resolve([2]);await flushPromises();expect(query.data.value).toBeUndefined();
+  opened.value=true;await flushPromises();expect(query.data.value).toEqual([3]);
+  scope.stop();expect(query.data.value).toBeUndefined();
+});
+
 describe('useQuery', () => {
   it('keeps rows when a refreshed parent object has the same query identity', async () => {
     const { scope, hub } = fixture(); const vendor = ref({ id: 'vendor', balance: '10' });
@@ -81,6 +95,21 @@ describe('useQuery', () => {
     void query.refresh(); void query.refresh();
     first.resolve(1); await flushPromises();
     expect(fetcher).toHaveBeenCalledTimes(1); expect(query.data.value).toBe(1);
+  });
+  it('reruns changed parameters immediately after an active request despite passive throttling', async () => {
+    vi.useFakeTimers();
+    const { scope, hub } = fixture(); const first = deferred<string>(); const parameter = ref('A');
+    let oldSignal: AbortSignal | undefined;
+    const fetcher = vi.fn((signal: AbortSignal) => { oldSignal ??= signal; return parameter.value === 'A' ? first.promise : Promise.resolve(parameter.value); });
+    const query = scope.run(() => useQuery('analysis', fetcher, {eventSource:hub.source,deps:[parameter],coalesce:true,clearOnChange:true,eventIntervalMs:86400000,events:['usage.changed']}))!;
+    parameter.value = 'B'; await flushPromises();
+    expect(oldSignal?.aborted).toBe(true);
+    first.resolve('A'); await flushPromises();
+    expect(fetcher).toHaveBeenCalledTimes(2); expect(query.data.value).toBe('B'); expect(query.loading.value).toBe(false);
+    hub.emit('usage.changed', {harnesses:['codex'],revision:2}); await flushPromises();
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    await query.refresh(); expect(fetcher).toHaveBeenCalledTimes(3);
+    vi.useRealTimers();
   });
   it.each(['event-first', 'completed-first'] as const)('reuses the scan event query when %s', async order => {
     const { scope, hub } = fixture();

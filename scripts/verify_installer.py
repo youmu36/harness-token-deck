@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 import psutil
+from htd.adapters.data_directory import atomic_json, dataset_id, locator_path
 from htd.adapters.desktop.installer import APP_ID, shortcut_app_id
 from release_support import ROOT, isolated_environment, write_report
 from set_version import check_version
@@ -147,6 +148,20 @@ def verify(installer: Path) -> dict[str, Any]:
             connection.execute("CREATE TABLE release_acceptance (value TEXT NOT NULL)")
             connection.execute("INSERT INTO release_acceptance VALUES ('preserved ledger')")
             connection.commit()
+        # Exercise the normal saved-location path for all upgrade/reinstall and
+        # uninstall helpers. The entire LOCALAPPDATA remains in the marked root.
+        environment.pop("HTD_DATA_DIR")
+        locator = locator_path(environment)
+        atomic_json(
+            locator,
+            {
+                "format": 1,
+                "root": str(database.parent),
+                "datasetId": dataset_id(database.parent),
+                "phase": "active",
+            },
+        )
+        check("saved custom data directory selected without environment override")
         sentinel = install_dir / "unrelated-user-file.txt"
         sentinel.write_text("keep\n", encoding="ascii")
         (install_dir / "_internal/obsolete-runtime-cache.tmp").write_text(
@@ -184,6 +199,10 @@ def verify(installer: Path) -> dict[str, Any]:
                     running.kill()
                     running.wait(timeout=10)
         check("overwrite preserves ledger", marker(database) == "preserved ledger")
+        check(
+            "upgrade does not initialize a default-path ledger",
+            not (Path(environment["LOCALAPPDATA"]) / "HarnessTokenDeck/htd.sqlite3").exists(),
+        )
         install("/UNINSTALLFIRST")
         check(
             "uninstall-first preserves ledger and unrelated files",
@@ -219,6 +238,10 @@ def verify(installer: Path) -> dict[str, Any]:
             "delete-data saves a valid desktop backup first",
             len(backups) == 1 and marker(backups[0]) == "preserved ledger" and not (root / "data").exists(),
         )
+        check(
+            "explicit deletion preserves the selected-path locator",
+            json.loads(locator.read_text(encoding="utf-8"))["phase"] == "deleted",
+        )
         report["backup"] = str(backups[0])
         sentinel.unlink()
         install()
@@ -226,6 +249,11 @@ def verify(installer: Path) -> dict[str, Any]:
         uninstall("/DELETEDATA", "/NOBACKUP")
         check("explicit no-backup deletion removes all application data", not (root / "data").exists())
         check("empty dedicated install directory is removed", not install_dir.exists())
+        check(
+            "reinstall and removal keep the selected path without a fallback ledger",
+            json.loads(locator.read_text(encoding="utf-8"))["root"] == str(database.parent)
+            and not (Path(environment["LOCALAPPDATA"]) / "HarnessTokenDeck/htd.sqlite3").exists(),
+        )
         check(
             "existing new and legacy registrations unchanged",
             registry(KEY) == original

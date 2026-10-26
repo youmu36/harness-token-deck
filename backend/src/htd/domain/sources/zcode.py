@@ -139,6 +139,7 @@ def normalize_row(row: ZcodeRow) -> UsageEvent | Diagnostic:
                 [cast(str, row.session_id), cast(str, row.logical_request_id), row.attempt_index]
             ),
             session_id=session,
+            native_session_id=cast(str, row.session_id),
             request_id=request,
             model_id=optional_text(row.model_id),
             occurred_at=format_instant(from_epoch_ms(cast(int, row.completed_at))),

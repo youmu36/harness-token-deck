@@ -51,12 +51,16 @@ class Scheduler:
         wait: Wait = condition_wait,
         on_completed: Callable[[ScanCompletion], None] | None = None,
         before_scan: Callable[[ScanTrigger], None] | None = None,
+        drain_inbox: Callable[[Callable[[], bool]], object] | None = None,
+        on_maintenance: Callable[[], None] | None = None,
     ) -> None:
         self.scan, self.store, self.clock = scan, store, clock
         self.watcher, self._wait = watcher, wait
         self.maintenance = maintenance
         self._on_completed = on_completed
         self._before_scan = before_scan
+        self._drain_inbox = drain_inbox
+        self._on_maintenance = on_maintenance
         self._condition = Condition()
         self._control = Lock()
         self._stop = Event()
@@ -201,6 +205,12 @@ class Scheduler:
             available = False
         self._watcher_available = available
 
+    def refresh_sources(self) -> None:
+        if self._thread is None or self._stop.is_set():
+            return
+        self._refresh_watch()
+        self.notify()
+
     def _run(self) -> None:
         try:
             self._refresh_watch()
@@ -265,8 +275,12 @@ class Scheduler:
 
     def _maintain(self, *, more: bool, paused: bool, should_stop: Callable[[], bool]) -> None:
         try:
+            if paused and self._drain_inbox is not None and not should_stop():
+                self._drain_inbox(should_stop)
             if self.maintenance is not None:
                 self.maintenance.run(more=more, paused=paused, should_stop=should_stop)
+            if self._on_maintenance is not None:
+                self._on_maintenance()
         except Exception:
             # Billing already committed; a failed hook must not turn it into a failed scan.
             _LOG.exception("Automatic collection maintenance failed")

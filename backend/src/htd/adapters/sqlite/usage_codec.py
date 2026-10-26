@@ -54,7 +54,12 @@ def object_json(text: str) -> dict[str, object]:
 
 
 def encode_event(event: UsageEvent) -> str:
-    return dumps({"schema": 1, **asdict(event)})
+    value = asdict(event)
+    # Keep the shared inbox memento readable by older binaries. Session evidence
+    # is committed atomically in additive session tables instead.
+    value.pop("native_session_id")
+    value.pop("parent_session_id")
+    return dumps({"schema": 1, **value})
 
 
 def decode_event(text: str) -> UsageEvent:

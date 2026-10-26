@@ -37,6 +37,18 @@ def main() -> int:
         "--remote-test", action="store_true", help="Read the user-provided key only in memory"
     )
     args = parser.parse_args()
+    web_root = os.environ.get("HTD_PROBE_WEB_ROOT")
+    if web_root:
+        import htd.adapters.desktop.host as host
+
+        frontend_index = Path(web_root).resolve() / "index.html"
+        if not frontend_index.is_file():
+            raise ValueError("Probe frontend root must contain index.html")
+
+        def frontend(*, debug: bool) -> str:
+            return str(frontend_index)
+
+        host.frontend_url = frontend
     startup_key = os.environ.get("HTD_PROBE_STARTUP_KEY")
     if startup_key:
         import htd.adapters.desktop.startup as startup
@@ -108,6 +120,34 @@ def main() -> int:
             },
         )
         assert result["ok"], result
+        if os.environ.get("HTD_PROBE_REFACTOR_HISTORY") == "1":
+            from htd.adapters.sqlite.history_repo import HistoryRepository
+
+            from backend.tests.integration.collection_helpers import usage
+
+            historical_roots = {source.harness: source.path for source in app.store.sources().sources}
+            history_models = int(os.environ.get("HTD_PROBE_HISTORY_MODELS", "0"))
+            if not 0 <= history_models <= 5000:
+                raise ValueError("HTD_PROBE_HISTORY_MODELS must be in 0..5000")
+            for day in range(1, 181):
+                observed = Instant(start - timedelta(days=day))
+                events = tuple(
+                    usage(
+                        1_000_000 + day * 32 + index,
+                        model=f"host-model-{(day * 32 + index) % history_models}"
+                        if history_models
+                        else "gpt-6-astra",
+                        session=f"history-{index % 8}",
+                        at=Instant(observed.value - timedelta(seconds=index)),
+                    )
+                    for index in range(32)
+                )
+                app.writer.execute(
+                    lambda work, events=events, observed=observed: HistoryRepository(
+                        work.connection
+                    ).import_events(work, events, roots=historical_roots, at=observed)
+                )
+            app.scan.billing.run()
         app.scan.collect()
     index = 0
 
@@ -184,8 +224,14 @@ def main() -> int:
             pending = None
         command = directory / "probe-command.json"
         if pending is None and native.form.webview.CoreWebView2 is not None and command.exists():
-            payload = json.loads(command.read_text(encoding="utf-8"))
-            command.unlink()
+            try:
+                payload = json.loads(command.read_text(encoding="utf-8"))
+                command.unlink()
+            except (PermissionError, FileNotFoundError, json.JSONDecodeError):
+                # Windows scanners may briefly lock an atomically replaced probe file.
+                # Retry on the existing GUI tick; this is not a WebView failure.
+                original_poll(native)
+                return
             if payload["action"] == "append":
                 append()
             elif payload["action"] == "background":
@@ -202,6 +248,37 @@ def main() -> int:
                 if focus_window is not None:
                     focus_window.Hide()
                 cast(Any, native.host_action).__self__.handle("activate")
+            elif payload["action"] == "host-memory":
+                import gc
+                import sys
+
+                import psutil
+
+                system: Any = importlib.import_module("System")
+                if payload.get("collect"):
+                    gc.collect()
+                    system.GC.Collect()
+                    system.GC.WaitForPendingFinalizers()
+                    system.GC.Collect()
+                memory = psutil.Process().memory_info()
+                (directory / "probe-result.json").write_text(
+                    json.dumps(
+                        {
+                            "id": payload["id"],
+                            "result": {
+                                "privateBytes": memory.private,
+                                "workingSetBytes": memory.rss,
+                                "pythonAllocatedBlocks": sys.getallocatedblocks(),
+                                "writerModule": sys.modules["htd.adapters.sqlite.writer"].__file__,
+                                "managedHeapBytes": int(system.GC.GetTotalMemory(False)),
+                                "managedCollections": [int(system.GC.CollectionCount(i)) for i in range(3)],
+                            },
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                original_poll(native)
+                return
             elif payload["action"] == "state":
                 (directory / "probe-result.json").write_text(
                     json.dumps(
@@ -231,6 +308,8 @@ def main() -> int:
                                     getattr(native.form.webview.CoreWebView2, "IsSuspended", False)
                                 ),
                                 "backgroundProcesses": len(native.power._background),
+                                "startupReclaimed": native.power._startup_reclaimed,
+                                "startupReclaimScheduled": native.power._startup_at is not None,
                                 "processes": process_states(native),
                             },
                         }

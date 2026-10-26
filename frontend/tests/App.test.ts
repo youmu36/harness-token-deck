@@ -1,4 +1,4 @@
-import { flushPromises, mount } from '@vue/test-utils';
+import { flushPromises as flushVue, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import App from '../src/App.vue';
 import { BridgeKey, type Bridge } from '../src/app/ports';
@@ -10,6 +10,7 @@ function createMockBridge() {
   void bridge.call('preferences.update', { expectedRevision: 0, operationId: crypto.randomUUID(), patch: { historyPrompted: true, guideSeen: true, lastRoute: '/harness/codex' } });
   return bridge;
 }
+async function flushPromises() { await flushVue(); await vi.dynamicImportSettled(); await flushVue(); }
 const cleanup: (() => void)[] = [];
 beforeEach(() => { history.replaceState(null, '', '/'); });
 afterEach(() => { cleanup.splice(0).forEach(fn => fn()); vi.restoreAllMocks(); });
@@ -68,7 +69,9 @@ test('startup opens Codex; successful navigation across eight pages persists eac
   expect(wrapper.get('.environment').text()).toContain('浏览器预览');
   for (const [label, title] of [['Claude Code', 'Claude Code 统计'], ['数据统计与分析', '数据统计与分析'], ['Zcode', 'Zcode 统计'], ['DSH', 'Deepseek Harness 统计'], ['供应商与钱包', '供应商与钱包'], ['价格与模型', '价格与模型'], ['设置', '设置'], ['Codex', 'Codex 统计']]) {
     await wrapper.get(`nav a[aria-label="${label}"]`).trigger('click', { button: 0 });
-    await flushPromises(); expect(wrapper.get('h1').text()).toBe(title);
+    await flushPromises();
+    if (label === '数据统计与分析') expect(wrapper.find('[aria-label="统计分析子页"]').exists()).toBe(true);
+    else expect(wrapper.get('h1').text()).toBe(title);
   }
   expect(call.mock.calls.filter(([name]) => name === 'preferences.update')).toHaveLength(8);
 });
@@ -155,7 +158,7 @@ test('theme saves immediately; a failed save rolls back and navigation stays usa
   fail = true; await wrapper.get('select[aria-label="显示主题"]').setValue('light'); await flushPromises();
   expect(document.documentElement.dataset.theme).toBe('dark'); expect(wrapper.get('[role="alert"]').text()).toContain('未能保存主题');
   await wrapper.get('nav a[aria-label="数据统计与分析"]').trigger('click', { button: 0 }); await flushPromises();
-  expect(wrapper.get('h1').text()).toBe('数据统计与分析');
+  expect(wrapper.find('[aria-label="统计分析子页"]').exists()).toBe(true);
 });
 test('new user reminder repeatedly opens the guide and dismissal persists', async () => {
   const bridge = createUnpromptedBridge({ migration: { detected: false } }); const wrapper = await render(bridge);

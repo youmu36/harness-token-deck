@@ -87,13 +87,15 @@ it('peak time cancellation emits no writes and completion updates the rule; empt
   await wrapper.get('input[aria-label="0 时"]').setValue(true); await wrapper.get('dialog .button--secondary').trigger('click'); expect(wrapper.emitted('done')).toBeUndefined();
   await wrapper.get('dialog .button--primary').trigger('click'); expect(wrapper.emitted('done')?.[0]?.[0]).toMatchObject({ hours: [0,9,10,11,12,13,14,15,16,17] }); expect(rule.hours).not.toContain(0);
   const editor = mount(BillingRuleEditor, { props: { modelValue: defaultRule('tier') }, global: { stubs: { teleport: true } } }); cleanup.push(() => editor.unmount()); expect(editor.text()).toContain('其余留空表示未定价，不回退到基础价格');
-  for (const label of ['附加输入', '附加缓存命中', '附加输出']) {
+  for (const label of ['最终输入', '最终缓存命中', '最终输出']) {
     const input = editor.get(`input[aria-label="${label}"]`).element as HTMLInputElement;
     input.value = '2'; input.dispatchEvent(new Event('input', { bubbles: true }));
   }
   expect(editor.emitted('update:modelValue')?.at(-1)?.[0]).toMatchObject({ rates: { input: '2', cache: '2', output: '2' } });
 });
 it('mock multiplier uses half-up decimal arithmetic and validates overflow', async () => {
+  const precise = createMockBridge(); cleanup.push(() => precise.dispose());
+  expect(unwrap(await precise.call('models.fillByMultiplier', { rates: { input: '2' }, multiplier: '1.0001' })).input).toBe('2.0002');
   const bridge = mock(); expect(unwrap(await bridge.call('models.fillByMultiplier', { rates: { input: '1.5', cache: '0.000001' }, multiplier: '1.75' }))).toEqual({ input: '2.625', cache: '0.000002', output: null, cacheWrite: null });
   expect(unwrap(await bridge.call('models.fillByMultiplier', { rates: { input: '0.000001' }, multiplier: '0.5' })).input).toBe('0.000001');
   expect(await bridge.call('models.fillByMultiplier', { rates: { input: '999999999' }, multiplier: '2' })).toMatchObject({ ok: false, error: { code: 'RATE_OVERFLOW' } });

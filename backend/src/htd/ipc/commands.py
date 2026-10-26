@@ -1,8 +1,12 @@
 """Register preference, source, collector and statistics use cases with strict DTOs."""
 
+from datetime import timedelta
+
 from htd.application.collection.commands import CollectionCommands
 from htd.application.preferences import Preferences
+from htd.application.query_control import analysis_read
 from htd.application.statistics import Statistics
+from htd.domain.common.errors import DomainError
 from htd.domain.common.time import parse_instant
 from htd.domain.statistics.analysis import AnalysisQuery
 from htd.domain.statistics.window import Window
@@ -16,14 +20,19 @@ from htd.ipc.dto.collection import (
     SetPathRequest,
     SetPausedRequest,
     SetPausedResponse,
+    SetScanEnabledRequest,
     SourcePathRequest,
     SourcesResponse,
     ValidatePathResponse,
 )
+from htd.ipc.dto.evidence import EvidenceRequest, EvidenceResponse
 from htd.ipc.dto.explorer import (
     AcknowledgeQualityRequest,
     AcknowledgeQualityResponse,
+    CancelAnalysisRequest,
+    CancelAnalysisResponse,
     ExploreOptions,
+    ExploreOptionsRequest,
     ExploreRequest,
     ExploreResponse,
     OutputReferencesRequest,
@@ -88,6 +97,19 @@ def register_commands(
         )
 
     @router.register(
+        "sources.setEnabled", request=SetScanEnabledRequest, response=SourcesResponse, kind="write"
+    )
+    def set_enabled(request: SetScanEnabledRequest) -> SourcesResponse:
+        return SourcesResponse.model_validate(
+            collection.set_enabled(
+                Harness(request.harness),
+                request.enabled,
+                request.expectedRevision,
+                request.operationId,
+            )
+        )
+
+    @router.register(
         "sources.validatePath", request=SourcePathRequest, response=ValidatePathResponse, kind="read"
     )
     def validate_path(request: SourcePathRequest) -> ValidatePathResponse:
@@ -126,9 +148,20 @@ def register_commands(
     def explore(request: ExploreRequest) -> ExploreResponse:
         return ExploreResponse.model_validate(statistics.explore(request.model_dump()))
 
-    @router.register("stats.exploreOptions", request=EmptyRequest, response=ExploreOptions, kind="read")
-    def explore_options(request: EmptyRequest) -> ExploreOptions:
-        return ExploreOptions.model_validate(statistics.explore_options())
+    @router.register(
+        "stats.exploreOptions", request=ExploreOptionsRequest, response=ExploreOptions, kind="read"
+    )
+    def explore_options(request: ExploreOptionsRequest) -> ExploreOptions:
+        return ExploreOptions.model_validate(statistics.explore_options(request.model_dump()))
+
+    @router.register(
+        "stats.cancelAnalysis", request=CancelAnalysisRequest, response=CancelAnalysisResponse, kind="read"
+    )
+    def cancel_analysis(request: CancelAnalysisRequest) -> CancelAnalysisResponse:
+        from htd.application.query_control import cancel_analysis as cancel
+
+        cancel(request.queryId)
+        return CancelAnalysisResponse(cancelled=True)
 
     @router.register(
         "stats.outputReferences",
@@ -160,7 +193,9 @@ def register_commands(
 
     @router.register("stats.longTerm", request=AuxiliaryRequest, response=LongTermResponse, kind="read")
     def long_term(request: AuxiliaryRequest) -> LongTermResponse:
-        Window(parse_instant(request.start), parse_instant(request.end), 0)
+        span = parse_instant(request.end).value - parse_instant(request.start).value
+        if span <= timedelta() or span > timedelta(days=36600):
+            raise DomainError("RANGE_INVALID", "长期范围须为正且不超过一百年")
         return LongTermResponse.model_validate(
             statistics.long_term(parse_instant(request.start), parse_instant(request.end), request.harness)
         )
@@ -174,16 +209,24 @@ def register_commands(
             statistics.auxiliary(parse_instant(request.start), parse_instant(request.end), request.harness)
         )
 
+    @router.register("stats.evidence", request=EvidenceRequest, response=EvidenceResponse, kind="read")
+    def evidence(request: EvidenceRequest) -> EvidenceResponse:
+        return EvidenceResponse.model_validate(statistics.evidence(request.model_dump()))
+
     @router.register("stats.summary", request=SummaryRequest, response=SummaryResponse, kind="read")
     def summary(request: SummaryRequest) -> SummaryResponse:
-        result, revision = statistics.summary(
-            "all" if request.harness == "all" else Harness(request.harness),
-            Window(
-                parse_instant(request.start), parse_instant(request.end), request.offsetMinutes, request.grain
-            ),
-            sections=None if request.sections is None else frozenset(request.sections),
-            model_key=request.modelKey,
-        )
+        with analysis_read(request.queryId):
+            result, revision = statistics.summary(
+                "all" if request.harness == "all" else Harness(request.harness),
+                Window(
+                    parse_instant(request.start),
+                    parse_instant(request.end),
+                    request.offsetMinutes,
+                    request.grain,
+                ),
+                sections=None if request.sections is None else frozenset(request.sections),
+                model_key=request.modelKey,
+            )
         return SummaryResponse.model_validate(result.to_dict() | {"revision": revision})
 
     @router.register(
@@ -191,5 +234,13 @@ def register_commands(
     )
     def cache_monitor(request: CacheMonitorRequest) -> CacheMonitorResponse:
         return CacheMonitorResponse.model_validate(
-            statistics.cache_monitor(Harness(request.harness), request.mode, request.offsetMinutes)
+            statistics.cache_monitor(
+                Harness(request.harness),
+                request.mode,
+                request.offsetMinutes,
+                request.sessionRef,
+                request.cursor,
+                request.queryId,
+                request.chartSessionRef,
+            )
         )

@@ -185,6 +185,7 @@ def test_restore_rejects_missing_fields(field: str, codex_context: CodexContext)
         assert not CodexContext.from_dict(saved).context_compacted
         return
     if field in {
+        "parentSessionId",
         "requestStartedAt",
         "requestOutputAt",
         "lastTimedResponse",

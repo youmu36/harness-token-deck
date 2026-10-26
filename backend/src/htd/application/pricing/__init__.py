@@ -108,8 +108,8 @@ class Pricing:
     def __init__(self, store: PricingStore, clock: Clock) -> None:
         self.store, self.clock = store, clock
 
-    def catalog(self) -> dict[str, object]:
-        return catalog_dict(self.store.pricing(), self.clock.now_utc())
+    def catalog(self, *, metadata_only: bool = False) -> dict[str, object]:
+        return catalog_dict(self.store.pricing(metadata_only=metadata_only), self.clock.now_utc())
 
     @staticmethod
     def _plan(catalog: Catalog, parameters: dict[str, object], operation_id: str, at: Instant) -> SwitchPlan:

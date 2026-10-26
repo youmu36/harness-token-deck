@@ -7,11 +7,13 @@ from collections.abc import Callable, Mapping
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from dataclasses import dataclass
 from threading import BoundedSemaphore, Condition, Lock
+from time import monotonic
 from types import MappingProxyType, TracebackType
 from typing import Literal, cast
 
 from pydantic import JsonValue, ValidationError
 
+from htd.application.query_control import ReadControl, current_read
 from htd.domain.common.errors import DomainError
 from htd.ipc.dto.base import StrictModel, Success
 from htd.ipc.errors import exception_envelope, invalid_request
@@ -36,6 +38,7 @@ class Router:
         self._commands: dict[str, Command] = {}
         self._lock = Lock()
         self._closed = False
+        self._parked = False
         self._slots = BoundedSemaphore(capacity)
         self._executor = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="htd-ipc")
         self._gate = Condition()
@@ -47,6 +50,10 @@ class Router:
         with self._lock:
             return MappingProxyType(dict(self._commands))
 
+    def park_for_restart(self) -> None:
+        with self._lock:
+            self._parked = True
+
     def register[Request: StrictModel, Response: StrictModel](
         self,
         name: str,
@@ -57,6 +64,7 @@ class Router:
         timeout: float = 30,
         exclusive: bool = False,
         after_success: Callable[[], None] | None = None,
+        allow_during_exclusive: bool = False,
     ) -> Callable[[Callable[[Request], Response]], Callable[[Request], Response]]:
         if _NAME.fullmatch(name) is None or kind not in ("read", "write"):
             raise ValueError("Invalid command name or kind")
@@ -66,7 +74,15 @@ class Router:
         def decorate(handler: Callable[[Request], Response]) -> Callable[[Request], Response]:
             def invoke(value: StrictModel) -> StrictModel:
                 with self._gate:
-                    if self._exclusive:
+                    if self._parked and name not in {
+                        "app.hello",
+                        "app.sync",
+                        "app.openPath",
+                        "dataDirectory.status",
+                        "dataDirectory.move",
+                    }:
+                        raise DomainError("APP_RESTART_REQUIRED", "数据目录已切换，正在重启应用")
+                    if self._exclusive and not allow_during_exclusive:
                         raise DomainError("SERVER_BUSY", "迁移正在切换数据库，请稍后重试", retryable=True)
                     if exclusive:
                         self._exclusive = True
@@ -104,6 +120,14 @@ class Router:
             with self._lock:
                 if self._closed:
                     raise DomainError("APP_SHUTTING_DOWN", "应用正在关闭，请稍后重试")
+                if self._parked and command not in {
+                    "app.hello",
+                    "app.sync",
+                    "app.openPath",
+                    "dataDirectory.status",
+                    "dataDirectory.move",
+                }:
+                    raise DomainError("APP_RESTART_REQUIRED", "数据目录已切换，正在重启应用")
                 definition = self._commands.get(command)
             if definition is None:
                 raise DomainError("UNKNOWN_COMMAND", "未知的应用命令", "command")
@@ -119,7 +143,20 @@ class Router:
                 with self._lock:
                     if self._closed:
                         raise DomainError("APP_SHUTTING_DOWN", "应用正在关闭，请稍后重试")
-                    future = self._executor.submit(definition.handler, value)
+                    control = (
+                        ReadControl(monotonic() + definition.timeout) if definition.kind == "read" else None
+                    )
+
+                    def run() -> StrictModel:
+                        token = current_read.set(control)
+                        try:
+                            if control:
+                                control.check()
+                            return definition.handler(value)
+                        finally:
+                            current_read.reset(token)
+
+                    future = self._executor.submit(run)
             except Exception:
                 self._slots.release()
                 raise
@@ -130,6 +167,8 @@ class Router:
                 if future.done():
                     result = future.result()  # A handler's own TimeoutError is an internal failure.
                 else:
+                    if control:
+                        control.stopped.set()
                     future.cancel()  # Running writes can still commit; reuse operationId on retry.
                     if definition.kind == "write":
                         raise DomainError("WRITE_TIMEOUT", "写入等待超时，请查询操作结果后重试") from None

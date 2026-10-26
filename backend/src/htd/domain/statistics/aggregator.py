@@ -44,6 +44,7 @@ class MetricsAccumulator:
     miss_input: int = 0
     missing_usage: int = 0
     unknown_model: int = 0
+    pending_valuation: int = 0
     incomplete: bool = False
     unpriced: bool = False
     pico: int = 0
@@ -65,6 +66,7 @@ class MetricsAccumulator:
             "missing_usage",
             "unknown_model",
             "pico",
+            "pending_valuation",
         ):
             setattr(self, name, getattr(self, name) + getattr(other, name))
         if (
@@ -96,6 +98,7 @@ class MetricsAccumulator:
         ):
             raise DomainError(COUNT_OVERFLOW, "统计计数超出 JSON 安全整数范围", "counts")
         self.records += records
+        self.pending_valuation += int(row.pending_valuation)
         bust, loss = (
             (counts.cache_bust, counts.large_miss)
             if counts
@@ -154,6 +157,7 @@ class MetricsAccumulator:
             self.unpriced,
             self.unknown_model,
             self.missing_usage,
+            self.pending_valuation,
         )
 
     def trend(self, bucket: datetime, grain: Grain) -> TrendPoint:

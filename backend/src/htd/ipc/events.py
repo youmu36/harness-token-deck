@@ -8,7 +8,9 @@ from threading import RLock
 from typing import cast
 
 from htd.application.ports import (
+    AuxiliaryChanged,
     CollectionCompleted,
+    CostChanged,
     EventBus,
     ModelsChanged,
     OutputChanged,
@@ -95,16 +97,25 @@ class EventForwarder:
         elif isinstance(event, WalletChanged):
             records.append(
                 WalletRecord(
-                    payload=WalletChangedEvent(vendorIds=list(event.vendor_ids), revision=event.revision)
+                    payload=WalletChangedEvent(
+                        vendorIds=list(event.vendor_ids),
+                        revision=event.revision,
+                        catalogChanged=event.catalog_changed,
+                        remoteFlowsChanged=event.remote_flows_changed,
+                    )
                 )
             )
-        elif isinstance(event, (QualityChanged, ModelsChanged, OutputChanged)):
+        elif isinstance(event, (QualityChanged, ModelsChanged, OutputChanged, CostChanged, AuxiliaryChanged)):
             records.append(
                 RevisionRecord(
                     name="quality.changed"
                     if isinstance(event, QualityChanged)
                     else "output.changed"
                     if isinstance(event, OutputChanged)
+                    else "cost.changed"
+                    if isinstance(event, CostChanged)
+                    else "auxiliary.changed"
+                    if isinstance(event, AuxiliaryChanged)
                     else "models.changed",
                     payload=RevisionChangedEvent(revision=event.revision),
                 )

@@ -30,7 +30,7 @@ RECENT = Instant(AT.value - timedelta(minutes=5))
 
 
 def seed(work: UnitOfWork, count: int = 1) -> None:
-    MaintenanceRepository(work.connection).save_retention(work,360)
+    MaintenanceRepository(work.connection).save_retention(work, 360)
     repo = IngestRepository(work.connection)
     for index in range(count + 1):
         at = OLD if index < count else RECENT
@@ -65,10 +65,10 @@ def test_M05_M06_retention_preserves_identity_pricing_and_wallet(tmp_path: Path)
         collect(writer, (usage(100, at=OLD),), at=AT)
         before = writer.execute(lambda w: WalletRepository(w.connection).totals("vendor"))
         preview = writer.execute(lambda w: MaintenanceRepository(w.connection).preview(360, at=AT))
-        assert (preview.ledger_count, preview.inbox_count, preview.identity_count) == (1, 1, 3)
+        assert (preview.ledger_count, preview.inbox_count, preview.identity_count) == (1, 0, 3)
         assert preview.earliest == preview.latest == OLD
         result = run_retention(writer, 360, at=AT)
-        assert (result.deleted_ledger, result.expired_inbox) == (1, 1)
+        assert (result.deleted_ledger, result.expired_inbox) == (1, 0)
         assert writer.execute(lambda w: WalletRepository(w.connection).totals("vendor")) == before
         assert (
             writer.execute(lambda w: w.connection.execute("SELECT COUNT(*) FROM identity").fetchone()[0]) == 3
@@ -85,7 +85,7 @@ def test_M05_M06_retention_preserves_identity_pricing_and_wallet(tmp_path: Path)
                     "SELECT billed FROM identity WHERE dedupe_key=?", (key_bytes(usage(100).dedupe_key),)
                 ).fetchone()[0]
             )
-            == 1
+            == 0
         )
         assert collect(writer, (usage(100, at=OLD),), at=AT).duplicates == 1
         status = writer.execute(lambda w: MaintenanceRepository(w.connection).status(at=AT))
@@ -142,6 +142,7 @@ def test_expire_inbox_atomicity(tmp_path: Path, failure: str) -> None:
         root = ensure_source(writer)
         writer.execute(lambda w: SourcesRepository(w.connection).begin_scan(w, Harness.CODEX, root, at=OLD))
         collect(writer, (usage(100, at=OLD),), at=AT)
+        writer.execute(lambda w: w.connection.execute("UPDATE session_request SET state='corrupt'"))
         action = "UPDATE" if failure == "identity" else "DELETE"
         writer.execute(
             lambda w: w.connection.execute(

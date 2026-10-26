@@ -15,7 +15,7 @@ type RoutePath = Annotated[
     str,
     StringConstraints(
         max_length=512,
-        pattern=r"^(?:|/overview|/harness/(?:claude|codex|zcode|dsh)|/wallet(?:/[^/?#\s]+|/setup/new)?|/pricing(?:/versions|/groups|/rates)?|/models(?:/setup)?|/unpriced|/settings(?:/background)?)$",
+        pattern=r"^(?:|/overview|/harness/(?:claude|codex|zcode|dsh)|/wallet(?:/[^/?#\s]+(?:/(?:reconcile|allocate|missing))?|/setup/new)?|/pricing(?:/versions|/groups|/rates)?|/models(?:/setup)?|/unpriced|/settings(?:/background)?)$",
     ),
 ]
 
@@ -41,6 +41,34 @@ class UsageFilter(StrictModel):
         return self
 
 
+class AnalysisScope(StrictModel):
+    harnesses: list[HarnessPage] = Field(default_factory=list[HarnessPage], max_length=4)
+    vendorIds: list[str] = Field(default_factory=list[str], max_length=50)
+    groupIds: list[str] = Field(default_factory=list[str], max_length=50)
+    versionIds: list[str] = Field(default_factory=list[str], max_length=50)
+    modelKeys: list[str] = Field(default_factory=list[str], max_length=50)
+
+
+class AnalysisView(StrictModel):
+    scope: AnalysisScope = Field(default_factory=AnalysisScope)
+    draft: AnalysisScope = Field(default_factory=AnalysisScope)
+    costBasis: Literal["local", "remote"] = "local"
+    section: Literal["statistics", "analysis", "quality"] = "statistics"
+    period: Literal["range", "month", "quarter", "year", "years", "all"] = "month"
+    panel: Literal["throughput", "cost", "cache", "value"] = "throughput"
+    recent: UsageFilter = Field(default_factory=UsageFilter)
+    draftStart: str = ""
+    draftEnd: str = ""
+    tpsModel: str | None = None
+    tpsCompareIds: list[str] = Field(default_factory=list[str], max_length=4)
+    year: Annotated[int, Field(ge=1971, le=9999)] = 2026
+    endYear: Annotated[int, Field(ge=1971, le=9999)] = 2026
+    quarter: Annotated[int, Field(ge=1, le=4)] = 1
+    compareDimension: Literal["vendor", "group", "version", "model"] = "vendor"
+    compareIds: list[str] = Field(default_factory=list[str], max_length=5)
+    focus: str | None = None
+
+
 class PreferenceValues(StrictModel):
     theme: Literal["light", "dark", "system"] = "system"
     timezone: Literal["system", "UTC"] = "system"
@@ -48,6 +76,8 @@ class PreferenceValues(StrictModel):
     hiddenHarnesses: list[HarnessPage] = Field(default_factory=list[HarnessPage], max_length=4)
     settingsSection: Literal["display", "sources", "background", "data", "about"] = "display"
     walletDefaultScope: Literal["local", "remote"] = "local"
+    analysisView: AnalysisView | None = None
+    statisticsView: AnalysisView | None = None
     collapsed: bool = False
     lastPage: Page = "codex"
     lastRoute: RoutePath = ""
@@ -69,6 +99,8 @@ class PreferencePatch(StrictModel):
     hiddenHarnesses: Annotated[list[HarnessPage], Field(max_length=4)] | None = None
     settingsSection: Literal["display", "sources", "background", "data", "about"] | None = None
     walletDefaultScope: Literal["local", "remote"] | None = None
+    analysisView: AnalysisView | None = None
+    statisticsView: AnalysisView | None = None
     collapsed: bool | None = None
     lastPage: Page | None = None
     lastRoute: RoutePath | None = None

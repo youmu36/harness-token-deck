@@ -3,6 +3,11 @@
 export type Visible = boolean;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "SafeInt-Output".
+ */
+export type SafeIntOutput = number;
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "InstantStr".
  */
 export type InstantStr = string;
@@ -16,11 +21,6 @@ export type SourceStatus = 'pending' | 'unavailable' | 'baselining' | 'watching'
  * via the `definition` "ScanTrigger".
  */
 export type ScanTrigger = 'startup' | 'periodic' | 'notification' | 'manual' | 'resume' | 'baseline';
-/**
- * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "SafeInt-Output".
- */
-export type SafeIntOutput = number;
 export type Code = string;
 export type Field = string | null;
 export type Logid = string | null;
@@ -46,6 +46,8 @@ export type Identifier = string;
  */
 export type HarnessName = 'claude' | 'codex' | 'zcode' | 'dsh';
 export type Harnesses = HarnessName[];
+export type Catalogchanged = boolean;
+export type Remoteflowschanged = boolean;
 export type Vendorids = string[];
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -62,11 +64,17 @@ export type Kind1 = 'file' | 'dir';
 export type OperationId = string;
 export type Paused = boolean;
 export type Details = boolean;
+export type Fingerprint = string;
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "DirectoryPath".
+ */
+export type DirectoryPath = string;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "Fingerprint".
  */
-export type Fingerprint = string;
+export type Fingerprint1 = string;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "Retention".
@@ -101,11 +109,44 @@ export type RateStr = string;
  */
 export type Models = BaseRates[];
 export type Harness = 'all' | 'claude' | 'codex' | 'zcode' | 'dsh';
-export type Closetotray = boolean | null;
-export type Collapsed = boolean | null;
-export type Filters = {
-  [k: string]: UsageFilter;
-} | null;
+export type Comparedimension = 'vendor' | 'group' | 'version' | 'model';
+/**
+ * @maxItems 5
+ */
+export type Compareids = string[];
+export type Costbasis = 'local' | 'remote';
+/**
+ * @maxItems 50
+ */
+export type Groupids = string[];
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "HarnessPage".
+ */
+export type HarnessPage = 'claude' | 'codex' | 'zcode' | 'dsh';
+/**
+ * @maxItems 4
+ */
+export type Harnesses1 = HarnessPage[];
+/**
+ * @maxItems 50
+ */
+export type Modelkeys = string[];
+/**
+ * @maxItems 50
+ */
+export type Vendorids1 = string[];
+/**
+ * @maxItems 50
+ */
+export type Versionids = string[];
+export type Draftend = string;
+export type Draftstart = string;
+export type Endyear = number;
+export type Focus = string | null;
+export type Panel = 'throughput' | 'cost' | 'cache' | 'value';
+export type Period = 'range' | 'month' | 'quarter' | 'year' | 'years' | 'all';
+export type Quarter = number;
 export type Endnow = boolean;
 export type Grain = 'hour' | 'day';
 export type Harness1 = 'all' | 'claude' | 'codex' | 'zcode' | 'dsh';
@@ -114,14 +155,21 @@ export type Modelkey = string | null;
 export type Monitormode = 'minute' | 'hour';
 export type Range = 'today' | '24hours' | '7days' | '30days' | 'custom';
 export type Startnow = boolean;
+export type Section = 'statistics' | 'analysis' | 'quality';
+/**
+ * @maxItems 4
+ */
+export type Tpscompareids = string[];
+export type Tpsmodel = string | null;
+export type Year = number;
+export type Closetotray = boolean | null;
+export type Collapsed = boolean | null;
+export type Filters = {
+  [k: string]: UsageFilter;
+} | null;
 export type Guidedismissed = boolean | null;
 export type Guideseen = boolean | null;
 export type Hiddenharnesses = HarnessPage[] | null;
-/**
- * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "HarnessPage".
- */
-export type HarnessPage = 'claude' | 'codex' | 'zcode' | 'dsh';
 export type Historyprompted = boolean | null;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -143,6 +191,7 @@ export type Unpricednoticedismissed = string | null;
 export type Walletdefaultscope = ('local' | 'remote') | null;
 export type Label = string;
 export type Number = number;
+export type Metadataonly = boolean;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "Name".
@@ -180,7 +229,119 @@ export type Models1 = ModelPrice[];
 export type Disabled = boolean;
 export type Disabled1 = boolean;
 export type Label1 = string;
+/**
+ * @maxItems 100
+ */
+export type Intervalids = string[];
+/**
+ * @maxItems 500
+ */
+export type Localbatchids = string[];
+export type Offset = number;
+export type Remoteoffset = number;
 export type Vendorid = string;
+export type Acknowledgeincomplete = boolean;
+export type Action1 = 'apply' | 'revoke';
+export type Allocationmode = 'explicit' | 'unallocated' | 'proportional' | 'weighted';
+export type Confirmmodelcoverage = boolean;
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "DateStr".
+ */
+export type DateStr = string;
+/**
+ * @maxItems 100
+ */
+export type Groupids1 = string[];
+/**
+ * @maxItems 4
+ */
+export type Harnesses2 = HarnessName[];
+/**
+ * @maxItems 100
+ */
+export type Modelkeys1 = string[];
+/**
+ * @maxItems 100
+ */
+export type Sessionrefs = string[];
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "htd__ipc__dto__base__PicoStr__1".
+ */
+export type Htd_Ipc_Dto_Base__PicoStr__1 = string;
+/**
+ * @maxItems 100
+ */
+export type Versionids1 = string[];
+/**
+ * @maxItems 100
+ */
+export type Allocations = CalibrationAllocation[];
+export type Basis = 'manual' | 'remote';
+export type Confirmlocalscope = boolean;
+export type Confirmreplacement = boolean;
+/**
+ * @maxItems 366
+ */
+export type Daytargets = CalibrationDayTarget[];
+/**
+ * @maxItems 100
+ */
+export type Intervalids1 = string[];
+/**
+ * @maxItems 500
+ */
+export type Localbatchids1 = string[];
+export type Note = string;
+/**
+ * @maxItems 100
+ */
+export type Replacetargetids = string[];
+export type Targetid = string | null;
+export type Vendorid1 = string;
+export type Vendorid2 = string;
+/**
+ * @maxItems 100
+ */
+export type Intervalids2 = string[];
+/**
+ * @maxItems 500
+ */
+export type Localbatchids2 = string[];
+export type Vendorid3 = string;
+export type Acknowledgeincomplete1 = boolean;
+export type Action2 = 'apply' | 'revoke';
+export type Allocationmode1 = 'explicit' | 'unallocated' | 'proportional' | 'weighted';
+/**
+ * @maxItems 100
+ */
+export type Allocations1 = CalibrationAllocation[];
+export type Basis1 = 'manual' | 'remote';
+export type Confirmlocalscope1 = boolean;
+export type Confirmreplacement1 = boolean;
+/**
+ * @maxItems 366
+ */
+export type Daytargets1 = CalibrationDayTarget[];
+/**
+ * @maxItems 100
+ */
+export type Intervalids3 = string[];
+/**
+ * @maxItems 500
+ */
+export type Localbatchids3 = string[];
+export type Note1 = string;
+/**
+ * @maxItems 100
+ */
+export type Replacetargetids1 = string[];
+export type Targetid1 = string | null;
+export type Vendorid4 = string;
+export type Cursor = string | null;
+export type State = 'all' | 'active' | 'replaced' | 'revoked';
+export type Vendorid5 = string;
 export type Baseurl = string;
 export type Credential = string | null;
 export type Enabled = boolean;
@@ -198,36 +359,47 @@ export type Enabled1 = boolean;
 export type Refreshminutes1 = number;
 export type Sitetype1 = 'newapi' | 'sub2api' | 'deepseek';
 export type Userid1 = string | null;
+export type Enabled2 = boolean;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "SourcePath".
  */
 export type SourcePath = string;
-export type Fingerprint1 = string;
+export type Fingerprint2 = string;
 export type Id = string;
 /**
  * @maxItems 100
  */
 export type Items = QualityAcknowledgement[];
-export type Endyear = number | null;
+export type Endyear1 = number | null;
 export type Harness2 = 'claude' | 'codex' | 'zcode' | 'dsh' | 'all';
 export type Limit = number;
 export type Modelkey1 = string | null;
-export type Offset = number;
-export type Quarter = number | null;
-export type Year = number | null;
+export type Offset1 = number;
+export type Quarter1 = number | null;
+export type Year1 = number | null;
 export type Harness3 = 'claude' | 'codex' | 'zcode' | 'dsh' | 'all';
-/**
- * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "MonitorMode".
- */
-export type MonitorMode = 'minute' | 'hour';
+export type Chartsessionref = string | null;
+export type Cursor1 = string | null;
+export type Mode1 = 'minute';
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "OffsetMinutes".
  */
 export type OffsetMinutes = number;
-export type Grain1 = 'hour' | 'day' | 'month' | 'year';
+export type Queryid = string | null;
+export type Sessionref = string | null;
+export type Queryid1 = string;
+/**
+ * @maxItems 500
+ */
+export type Localbatchids4 = string[];
+export type Offset2 = number;
+export type Queryid2 = string | null;
+export type Sessionref1 = string | null;
+export type Vendorid6 = string | null;
+export type Accountcorrectionoffset = number;
+export type Accountoffset = number;
 /**
  * @maxItems 50
  *
@@ -235,21 +407,46 @@ export type Grain1 = 'hour' | 'day' | 'month' | 'year';
  * via the `definition` "Choices".
  */
 export type Choices = string[];
-/**
- * @maxItems 4
- */
-export type Harnesses1 = ('claude' | 'codex' | 'zcode' | 'dsh')[];
-export type Limit1 = number;
-export type Offset1 = number;
-export type Qualityoffset = number;
-/**
- * @maxItems 4
- */
-export type Harnesses2 = ('claude' | 'codex' | 'zcode' | 'dsh')[];
+export type Comparedimension1 = 'vendor' | 'group' | 'version' | 'model';
 /**
  * @maxItems 5
  */
-export type Modelkeys = string[];
+export type Compareids1 = string[];
+export type Costbasis1 = 'local' | 'remote';
+export type Grain1 = 'hour' | 'day' | 'month' | 'year';
+/**
+ * @maxItems 4
+ */
+export type Harnesses3 = ('claude' | 'codex' | 'zcode' | 'dsh')[];
+export type Limit1 = number;
+export type Offset3 = number;
+export type Qualityoffset = number;
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "QualityReason".
+ */
+export type QualityReason = 'version' | 'cache' | 'incomplete' | 'unpriced';
+/**
+ * @maxItems 4
+ */
+export type Qualityreasons = QualityReason[];
+export type Qualitystatus = 'all' | 'unacknowledged' | 'acknowledged';
+export type Queryid3 = string | null;
+export type Rangekind = ('recent' | 'custom' | 'month' | 'quarter' | 'year' | 'all') | null;
+export type Sections = ('totals' | 'models' | 'trend' | 'breakdowns' | 'quality' | 'comparison' | 'accounts')[];
+export type Includecatalog = boolean;
+export type Modellimit = number;
+export type Modeloffset = number;
+export type Modelsearch = string;
+/**
+ * @maxItems 4
+ */
+export type Harnesses4 = ('claude' | 'codex' | 'zcode' | 'dsh')[];
+/**
+ * @maxItems 5
+ */
+export type Modelkeys2 = string[];
+export type Queryid4 = string | null;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "Grain".
@@ -257,13 +454,14 @@ export type Modelkeys = string[];
 export type Grain2 = 'minute' | 'hour' | 'twoHours' | 'day';
 export type Harness4 = 'claude' | 'codex' | 'zcode' | 'dsh' | 'all';
 export type Modelkey2 = string | null;
-export type Sections = Section[] | null;
+export type Queryid5 = string | null;
+export type Sections1 = Section1[] | null;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "Section".
  */
-export type Section = 'trend' | 'models' | 'hourly' | 'hourlyTotals' | 'harnesses';
-export type Cursor = string | null;
+export type Section1 = 'trend' | 'models' | 'hourly' | 'hourlyTotals' | 'harnesses';
+export type Cursor2 = string | null;
 export type Endday = string | null;
 export type Kind2 = 'all' | 'top_up' | 'consumption' | 'adjustment';
 export type Limit2 = number;
@@ -275,14 +473,14 @@ export type Startday = string | null;
  */
 export type AmountStr = string;
 export type Walletscope = 'legacy' | 'remote';
-export type Note = string;
+export type Note2 = string;
 export type Scope1 = 'legacy' | 'remote';
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "PicoStr-Input".
+ * via the `definition` "htd__ipc__dto__base__PicoStr__2".
  */
-export type PicoStrInput = string;
-export type Note1 = string;
+export type Htd_Ipc_Dto_Base__PicoStr__2 = string;
+export type Note3 = string;
 export type Scope2 = 'local' | 'remote';
 /**
  * @minItems 1
@@ -296,28 +494,29 @@ export type Pasttopup = string;
 export type Url = string | null;
 export type Month = string;
 export type Scope3 = 'local' | 'remote';
-export type Cursor1 = number | null;
+export type Cursor3 = number | null;
 export type Kind3 = 'all' | 'top_up' | 'adjustment' | 'consumption_daily';
 export type Limit3 = number;
 export type Offsetminutes1 = number;
 /**
  * @maxItems 100
  */
-export type Groupids = Identifier[];
+export type Groupids2 = Identifier[];
 export type Includearchived = boolean;
-export type Note2 = string;
+export type Note4 = string;
 export type Scope4 = 'legacy' | 'local' | 'remote';
 export type Targetkind = 'top_up' | 'consumption' | 'adjustment';
-export type Fingerprint2 = string;
+export type Fingerprint3 = string;
 export type Pastconsumption1 = string | null;
 export type Pasttopup1 = string | null;
 export type Url1 = string | null;
-export type Mode1 = 'both' | 'local' | 'remote';
+export type Mode2 = 'both' | 'local' | 'remote';
 export type Walletscope1 = 'legacy' | 'local' | 'remote';
 export type Appversion = string;
 export type Capabilities = string[];
 export type Datadir = string;
-export type Mode2 = 'desktop';
+export type Datadirsource = string;
+export type Mode3 = 'desktop';
 export type Protocol = 1;
 export type Ok1 = true;
 export type Ok2 = false;
@@ -345,7 +544,9 @@ export type Name3 =
   | 'sources.changed'
   | 'models.changed'
   | 'quality.changed'
-  | 'output.changed';
+  | 'output.changed'
+  | 'cost.changed'
+  | 'auxiliary.changed';
 export type Name4 = 'collection.tick';
 export type Name5 = 'app.visibility';
 export type Name6 = 'task.progress';
@@ -359,6 +560,7 @@ export type Lasterror = string | null;
 export type Paused2 = boolean;
 export type Diagnostics = string[];
 export type Path1 = string;
+export type Scanenabled = boolean;
 export type Unmeteredrequests = UnmeteredRequestData[] | null;
 export type Date = string;
 export type Kind4 = 'title_generation';
@@ -370,6 +572,25 @@ export type Sources = SourceData[];
 export type SchedulerState = 'idle' | 'scanning' | 'paused' | 'stopping';
 export type Ok8 = true;
 export type Ok9 = true;
+export type Restartrequired = boolean;
+export type Root = string;
+export type Ok10 = true;
+export type Datasetid = string;
+export type Fingerprint4 = string;
+export type Resumeoperationid = string | null;
+export type Source = string;
+export type Target = string;
+export type Unchanged = boolean;
+export type Ok11 = true;
+export type Cancleanup = boolean;
+export type Canmove = boolean;
+export type Pendingtarget = string | null;
+export type Phase = string;
+export type Previousroot = string | null;
+export type Root1 = string;
+export type Source1 = 'explicit' | 'environment' | 'locator' | 'default';
+export type Ok12 = true;
+export type Ok13 = true;
 export type Groupname = string;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -379,44 +600,75 @@ export type PicoStrOutput = string;
 export type Name8 = string;
 export type Vendors = VendorDelta[];
 export type Versiondisplayname = string;
-export type Ok10 = true;
+export type Ok14 = true;
 export type Groupname1 = string;
 export type Vendors1 = VendorDelta[];
 export type Versiondisplayname1 = string;
-export type Ok11 = true;
-export type Ok12 = true;
+export type Ok15 = true;
+export type Ok16 = true;
 export type Complete = boolean;
 export type Errorcode = string | null;
-export type Ok13 = true;
+export type Ok17 = true;
 export type Appversion1 = string;
 export type Datadir1 = string;
 export type Paused3 = boolean;
-export type Ok14 = true;
+export type Ok18 = true;
 export type Activated = boolean;
 export type Reportpath = string;
 export type Sourcepath2 = string;
 export type Targetpath = string;
-export type Ok15 = true;
+export type Ok19 = true;
 export type Canmigrate = boolean;
 export type Detected = boolean;
 export type Legacyrunning = boolean;
 export type Reason = string | null;
 export type Sourcepath3 = string;
 export type Targetempty = boolean;
-export type Ok16 = true;
+export type Ok20 = true;
 export type Migrationid1 = string;
 export type Reportpath1 = string;
-export type Ok17 = true;
+export type Ok21 = true;
 export type Affectedharnesses = HarnessName[];
 export type Changed = boolean;
-export type Ok18 = true;
-export type Ok19 = true;
+export type Ok22 = true;
+export type Ok23 = true;
 export type Excluded = Identifier[];
 export type Models2 = BaseRates1[];
-export type Ok20 = true;
+export type Ok24 = true;
 export type Accountingtimezone = string;
-export type Closetotray1 = boolean;
-export type Collapsed1 = boolean;
+export type Comparedimension2 = 'vendor' | 'group' | 'version' | 'model';
+/**
+ * @maxItems 5
+ */
+export type Compareids2 = string[];
+export type Costbasis2 = 'local' | 'remote';
+/**
+ * @maxItems 50
+ */
+export type Groupids3 = string[];
+/**
+ * @maxItems 4
+ */
+export type Harnesses5 = HarnessPage[];
+/**
+ * @maxItems 50
+ */
+export type Modelkeys3 = string[];
+/**
+ * @maxItems 50
+ */
+export type Vendorids2 = string[];
+/**
+ * @maxItems 50
+ */
+export type Versionids2 = string[];
+export type Draftend1 = string;
+export type Draftstart1 = string;
+export type Endyear2 = number;
+export type Focus1 = string | null;
+export type Panel1 = 'throughput' | 'cost' | 'cache' | 'value';
+export type Period1 = 'range' | 'month' | 'quarter' | 'year' | 'years' | 'all';
+export type Quarter2 = number;
 export type Endnow1 = boolean;
 export type Grain3 = 'hour' | 'day';
 export type Harness5 = 'all' | 'claude' | 'codex' | 'zcode' | 'dsh';
@@ -425,6 +677,15 @@ export type Modelkey3 = string | null;
 export type Monitormode1 = 'minute' | 'hour';
 export type Range1 = 'today' | '24hours' | '7days' | '30days' | 'custom';
 export type Startnow1 = boolean;
+export type Section2 = 'statistics' | 'analysis' | 'quality';
+/**
+ * @maxItems 4
+ */
+export type Tpscompareids1 = string[];
+export type Tpsmodel1 = string | null;
+export type Year2 = number;
+export type Closetotray1 = boolean;
+export type Collapsed1 = boolean;
 export type Guidedismissed1 = boolean;
 export type Guideseen1 = boolean;
 /**
@@ -440,11 +701,11 @@ export type Theme1 = 'light' | 'dark' | 'system';
 export type Timezone1 = 'system' | 'UTC';
 export type Unpricednoticedismissed1 = string;
 export type Walletdefaultscope1 = 'local' | 'remote';
-export type Ok21 = true;
+export type Ok25 = true;
 export type Candelete = boolean;
 export type Deletereason = 'GROUP_REFERENCED' | null;
 export type Disabled2 = boolean;
-export type Harnesses3 = HarnessName[];
+export type Harnesses6 = HarnessName[];
 export type Historical = boolean;
 export type Current1 = boolean;
 export type Disabled3 = boolean;
@@ -456,7 +717,7 @@ export type Label2 = string;
  * @maxItems 24
  */
 export type Hours1 = [number, ...number[]];
-export type Mode3 = 'peak' | 'tier';
+export type Mode4 = 'peak' | 'tier';
 export type Offsetminutes2 = number;
 export type Thresholdk1 = number;
 /**
@@ -468,11 +729,11 @@ export type Models3 = ModelPrice1[];
 export type Number1 = number;
 export type Versions = Version[];
 export type Groups = Group[];
-export type Ok22 = true;
+export type Ok26 = true;
 export type Complete1 = boolean;
 export type Errorcode1 = string | null;
-export type Ok23 = true;
-export type Ok24 = true;
+export type Ok27 = true;
+export type Ok28 = true;
 export type Modelid = string | null;
 export type Archived = ArchivedUnpriced[];
 export type Editable = boolean;
@@ -487,23 +748,146 @@ export type Versionid = string | null;
 export type Versionname = string;
 export type Items1 = UnpricedItem[];
 export type Limited = boolean;
-export type Ok25 = true;
-export type Harnesses4 = string[];
+export type Ok29 = true;
+export type Harnesses7 = string[];
 export type Signature = string;
-export type Ok26 = true;
+export type Ok30 = true;
+export type Id3 = string;
+export type Sessionref2 = string | null;
+export type State1 = string;
+export type Batches = LocalBatch[];
+export type Id4 = string;
+export type Method = string;
+export type Unitversion = string;
+export type Remoteintervals = ReconciliationInterval[];
+export type Ok31 = true;
+export type Action3 = 'apply' | 'revoke';
+export type Allocationincomplete = boolean;
+export type Auxiliaryincluded = boolean;
+export type Batchids = string[];
+export type Businesstimezone = string;
+export type Coveragealigned = boolean;
+export type Days = CalibrationDayPreview[];
+export type Externalusagepossible = boolean;
+export type Fingerprint5 = string;
+export type Groupids4 = string[];
+export type Harnesses8 = string[];
+export type Legacyallocationincomplete = boolean;
+export type Legacyflowids = string[];
+export type Localcomplete = boolean;
+export type Memberdays = DateStr[];
+export type Memberdigest = string;
+export type Modelkeys4 = string[];
+export type Modelkey4 = string;
+export type Modeltargets = CalibrationModelPreview[];
+export type Notices = string[];
+export type Quiet = boolean;
+export type Reliability = 'missing' | 'invalid' | 'reliable_usage' | 'balance_estimate';
+export type Remoteintervals1 = ReconciliationInterval[];
+export type Id5 = string;
+export type Replacedtargets = ReplacedTarget[];
+export type Targetid2 = string;
+export type Vendorid7 = string;
+export type Ok32 = true;
 export type Selectedgroupid = string | null;
 export type Selectedgroupname = string | null;
-export type Vendorid1 = string;
+export type Vendorid8 = string;
 export type Vendorname = string;
-export type Notices = ReconciliationNotice[];
-export type Ok27 = true;
+export type Notices1 = ReconciliationNotice[];
+export type Ok33 = true;
+export type Allocationincomplete1 = boolean;
+export type Auxiliaryincluded1 = boolean;
+export type Batchids1 = string[];
+export type Businesstimezone1 = string;
+export type Coveragealigned1 = boolean;
+export type Externalusagepossible1 = boolean;
+export type Fingerprint6 = string;
+export type Groupids5 = string[];
+export type Harnesses9 = string[];
+export type Legacyallocationincomplete1 = boolean;
+export type Legacyflowids1 = string[];
+export type Localcomplete1 = boolean;
+export type Memberdays1 = DateStr[];
+export type Memberdigest1 = string;
+export type Modelkeys5 = string[];
+export type Notices2 = string[];
+export type Quiet1 = boolean;
+export type Reliability1 = 'missing' | 'invalid' | 'reliable_usage' | 'balance_estimate';
+export type Remoteintervals2 = ReconciliationInterval[];
+export type Vendorid9 = string;
+export type Ok34 = true;
+export type Action4 = 'apply' | 'revoke';
+export type Allocationincomplete2 = boolean;
+export type Auxiliaryincluded2 = boolean;
+export type Batchids2 = string[];
+export type Businesstimezone2 = string;
+export type Coveragealigned2 = boolean;
+export type Days1 = CalibrationDayPreview[];
+export type Externalusagepossible2 = boolean;
+export type Fingerprint7 = string;
+export type Groupids6 = string[];
+export type Harnesses10 = string[];
+export type Legacyallocationincomplete2 = boolean;
+export type Legacyflowids2 = string[];
+export type Localcomplete2 = boolean;
+export type Memberdays2 = DateStr[];
+export type Memberdigest2 = string;
+export type Modelkeys6 = string[];
+export type Modeltargets1 = CalibrationModelPreview[];
+export type Notices3 = string[];
+export type Quiet2 = boolean;
+export type Reliability2 = 'missing' | 'invalid' | 'reliable_usage' | 'balance_estimate';
+export type Remoteintervals3 = ReconciliationInterval[];
+export type Replacedtargets1 = ReplacedTarget[];
+export type Vendorid10 = string;
+export type Ok35 = true;
+export type Nextcursor = string | null;
+export type Confirmmodelcoverage1 = boolean;
+/**
+ * @maxItems 100
+ */
+export type Groupids7 = string[];
+/**
+ * @maxItems 4
+ */
+export type Harnesses11 = HarnessName[];
+/**
+ * @maxItems 100
+ */
+export type Modelkeys7 = string[];
+/**
+ * @maxItems 100
+ */
+export type Sessionrefs1 = string[];
+/**
+ * @maxItems 100
+ */
+export type Versionids3 = string[];
+export type Allocations2 = CalibrationAllocation1[];
+export type Basis2 = 'manual' | 'remote' | 'legacy_flow';
+export type Daytargets2 = CalibrationDayTarget1[];
+export type Id6 = string;
+export type Legacyflowid = string | null;
+/**
+ * @maxItems 100
+ */
+export type Intervalids4 = string[];
+/**
+ * @maxItems 500
+ */
+export type Localbatchids5 = string[];
+export type Vendorid11 = string;
+export type State2 = 'active' | 'replaced' | 'revoked';
+export type Vendorid12 = string;
+export type Targets = CalibrationTarget[];
+export type Ok36 = true;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "AuthMode".
  */
 export type AuthMode = 'api_key' | 'access_token' | 'billing';
 export type Baseurl2 = string;
-export type Enabled2 = boolean;
+export type Enabled3 = boolean;
 export type Maskedcredential = string | null;
 export type Refreshminutes2 = number;
 /**
@@ -522,25 +906,26 @@ export type Currencyuncertain = boolean;
 export type Displayincurrency = boolean | null;
 export type Kind5 = 'token_remaining' | 'account_remaining' | 'subscription_remaining' | 'unlimited' | 'quota_units';
 export type Originalcurrency = string | null;
-export type Source = string;
+export type Source2 = string;
 export type Stale = boolean;
 export type Usagescope = string | null;
 export type Refreshing = boolean;
 export type Status1 =
   'unconfigured' | 'pending' | 'ok' | 'stale' | 'offline' | 'auth_failed' | 'rate_limited' | 'failed';
-export type Ok28 = true;
-export type Ok29 = true;
+export type Ok37 = true;
+export type Ok38 = true;
 export type Paused4 = boolean;
 export type Sources1 = SourceData[];
-export type Ok30 = true;
+export type Ok39 = true;
 export type Available = boolean;
 export type Diagnostics1 = string[];
 export type Path2 = string;
-export type Ok31 = true;
-export type Ok32 = true;
-export type Basis = string;
-export type Businesstimezone = string;
+export type Ok40 = true;
+export type Ok41 = true;
+export type Basis3 = string;
+export type Businesstimezone3 = string;
 export type Includeswholeboundarydays = boolean;
+export type Allocationincomplete3 = boolean;
 export type Cachecoverageincomplete = boolean;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -554,28 +939,31 @@ export type Tokenspersecond = string | null;
 export type Unpriced = boolean;
 export type Comparisonnotice = string;
 export type Grain4 = 'day' | 'month' | 'year';
+export type Allocationincomplete4 = boolean;
 export type Cachecoverageincomplete1 = boolean;
 export type Incomplete1 = boolean;
 export type Missingcapabilities1 = string[];
 export type Tokensperminute1 = string | null;
 export type Tokenspersecond1 = string | null;
 export type Unpriced1 = boolean;
-export type Harnesses5 = AnalysisHarness[];
+export type Harnesses12 = AnalysisHarness[];
 export type Includeswholeboundarydays1 = boolean;
+export type Allocationincomplete5 = boolean;
 export type Cachecoverageincomplete2 = boolean;
 export type Displayname1 = string;
 export type Incomplete2 = boolean;
 export type Missingcapabilities2 = string[];
-export type Modelkey4 = string;
+export type Modelkey5 = string;
 export type Tokensperminute2 = string | null;
 export type Tokenspersecond2 = string | null;
 export type Unpriced2 = boolean;
 export type Models4 = AnalysisModel[];
 export type Day = string;
 export type Displayname2 = string;
-export type Modelkey5 = string;
+export type Modelkey6 = string;
 export type Tokenspersecond3 = string | null;
 export type Outputreferences = OutputReference[];
+export type Allocationincomplete6 = boolean;
 export type Bucket = string;
 export type Cachecoverageincomplete3 = boolean;
 export type Incomplete3 = boolean;
@@ -585,24 +973,35 @@ export type Tokensperminute3 = string | null;
 export type Tokenspersecond4 = string | null;
 export type Unpriced3 = boolean;
 export type Trend = AnalysisPoint[];
-export type Ok33 = true;
+export type Ok42 = true;
 export type Modelid2 = string | null;
 export type Purpose = string;
 export type Tokens = null;
 export type Models5 = AuxiliaryModel[];
-export type Ok34 = true;
-export type Basis1 = 'generation' | 'request_estimate' | 'minute_estimate';
+export type Ok43 = true;
+export type Cachecoverageincomplete4 = boolean;
+export type Chartsessionref1 = string | null;
+export type Evidencecomplete = boolean;
+export type Grain5 = 'minute';
+export type Nextcursor1 = string | null;
+export type Basis4 = 'generation' | 'request_estimate' | 'minute_estimate';
 export type Displayname3 = string;
 export type Frozen = boolean;
-export type Modelkey6 = string;
+export type Modelkey7 = string;
 export type Sessionaveragetps = string | null;
 export type Sessionkey = string | null;
 export type Tokenspersecond5 = string | null;
 export type Outputspeeds = OutputSpeed[];
-export type Cachecoverageincomplete4 = boolean;
+export type Selectedsessionref = string | null;
+export type Cachecoverageincomplete5 = boolean;
 export type Displayname4 = string;
 export type Frozen1 = boolean;
+export type Modelkey8 = string;
+export type Modelname = string;
+export type Sessionaveragetps1 = string | null;
 export type Sessionkey1 = string;
+export type Sessionref3 = string | null;
+export type Tokenspersecond6 = string | null;
 /**
  * @maxItems 100
  */
@@ -614,139 +1013,206 @@ export type Contextcompacted = boolean;
 export type Label4 = string;
 export type Trend1 = TrendData[];
 export type Windowkey = string;
-export type Ok35 = true;
-export type Cachecoverageincomplete5 = boolean;
+export type Ok44 = true;
+export type Cancelled = boolean;
+export type Ok45 = true;
+export type Calibrationtargetid = string | null;
+export type Canrecalculate = boolean;
+export type Groupid1 = string | null;
+export type Localbatchid = string | null;
+export type Originalgroupid = string | null;
+export type Originalversionid = string | null;
+export type Pricerevisionid = string | null;
+export type Remoteintervalids = string[];
+export type Requestkey = string;
+export type Sessionref4 = string | null;
+export type State3 = string;
+export type Versionid1 = string | null;
+export type Watermark = string;
+export type Items2 = RequestEvidence[];
+export type Ok46 = true;
+export type Id7 = string;
+export type Kind6 = string;
+export type Note5 = string;
+export type Vendorid13 = string;
+export type Accountcorrections = AccountCorrection[];
+export type Coveragecomplete = boolean;
+export type Id8 = string;
+export type Method1 = string;
+export type Status2 = 'matched' | 'review' | 'estimated' | 'collecting' | 'coverage_incomplete';
+export type Vendorid14 = string;
+export type Accounts = AccountInterval[];
+export type Allocationincomplete7 = boolean;
+export type Cachecoverageincomplete6 = boolean;
+export type Componentcostestimated = boolean;
 export type Displayname5 = string;
-export type Groupid1 = string;
+export type Groupid2 = string;
 export type Harness6 = string;
 export type Incomplete4 = boolean;
-export type Modelkey7 = string;
+export type Modelkey9 = string;
+export type Ratiounavailable = boolean;
 export type Tokensperdollar = string | null;
 export type Unpriced4 = boolean;
-export type Vendorid2 = string;
-export type Versionid1 = string;
+export type Vendorid15 = string;
+export type Versionid2 = string;
 export type Breakdowns = ExploreBreakdown[];
-export type Businesstimezone1 = string;
-export type Grain5 = 'hour' | 'day' | 'month' | 'year';
-export type Cachecoverageincomplete6 = boolean;
-export type Displayname6 = string;
+export type Businesstimezone4 = string;
+export type Id9 = string;
+export type Allocationincomplete8 = boolean;
+export type Cachecoverageincomplete7 = boolean;
+export type Componentcostestimated1 = boolean;
 export type Incomplete5 = boolean;
-export type Modelkey8 = string;
+export type Ratiounavailable1 = boolean;
 export type Tokensperdollar1 = string | null;
 export type Unpriced5 = boolean;
-export type Models6 = ExploreModel[];
-export type Notices1 = string[];
-export type Acknowledged = boolean;
-export type Date1 = string;
-export type Displayname7 = string;
-export type Fingerprint3 = string;
-export type Groupid2 = string;
-export type Harness7 = string;
-export type Id3 = string;
-export type Modelkey9 = string;
-export type Reasons1 = string[];
-export type Vendorid3 = string;
-export type Versionid2 = string;
-export type Quality = QualityItem[];
-export type Cachecoverageincomplete7 = boolean;
-export type Incomplete6 = boolean;
-export type Tokensperdollar2 = string | null;
-export type Unpriced6 = boolean;
+export type Allocationincomplete9 = boolean;
 export type Bucket2 = string;
 export type Cachecoverageincomplete8 = boolean;
-export type Incomplete7 = boolean;
+export type Componentcostestimated2 = boolean;
+export type Incomplete6 = boolean;
 export type Label5 = string;
+export type Ratiounavailable2 = boolean;
+export type Tokensperdollar2 = string | null;
+export type Unpriced6 = boolean;
+export type Trend2 = ExplorePoint[];
+export type Comparisons = ExploreComparison[];
+export type Costbasis3 = 'local' | 'remote';
+export type Code2 = string;
+export type Message2 = string;
+export type Coverage = AnalysisCoverage[];
+export type Grain6 = 'hour' | 'day' | 'month' | 'year';
+export type Allocationincomplete10 = boolean;
+export type Cachecoverageincomplete9 = boolean;
+export type Componentcostestimated3 = boolean;
+export type Displayname6 = string;
+export type Incomplete7 = boolean;
+export type Ratiounavailable3 = boolean;
 export type Tokensperdollar3 = string | null;
 export type Unpriced7 = boolean;
-export type Trend2 = ExplorePoint[];
-export type Ok36 = true;
-export type Id4 = string;
+export type Harnesses13 = ExploreHarness[];
+export type Allocationincomplete11 = boolean;
+export type Cachecoverageincomplete10 = boolean;
+export type Componentcostestimated4 = boolean;
+export type Displayname7 = string;
+export type Incomplete8 = boolean;
+export type Modelkey10 = string;
+export type Ratiounavailable4 = boolean;
+export type Tokensperdollar4 = string | null;
+export type Unpriced8 = boolean;
+export type Models6 = ExploreModel[];
+export type Notices4 = string[];
+export type Layer = 'recent' | 'day_month' | 'mixed';
+export type Rangekind1 = ('recent' | 'custom' | 'month' | 'quarter' | 'year' | 'all') | null;
+export type Sessionscoped = boolean;
+export type Acknowledged = boolean;
+export type Countaccuracy = 'exact' | 'at_least';
+export type Date1 = string;
+export type Displayname8 = string;
+export type Fingerprint8 = string;
+export type Groupid3 = string;
+export type Harness7 = string;
+export type Id10 = string;
+export type Modelkey11 = string;
+export type Reasons1 = string[];
+export type Vendorid16 = string;
+export type Versionid3 = string;
+export type Quality = QualityItem[];
+export type Trend3 = ExplorePoint[];
+export type Ok47 = true;
+export type Id11 = string;
 export type Name9 = string;
 export type Parentid = string | null;
 export type Groups1 = ExploreOption[];
 export type Models7 = ExploreOption[];
+export type Selectedmodels = ExploreOption[];
 export type Vendors2 = ExploreOption[];
 export type Versions1 = ExploreOption[];
-export type Ok37 = true;
-export type Basis2 = string;
-export type Businesstimezone2 = string;
+export type Ok48 = true;
+export type Basis5 = string;
+export type Businesstimezone5 = string;
 export type Includeswholeboundarydays2 = boolean;
 export type Missingcapabilities4 = string[];
-export type Ok38 = true;
+export type Ok49 = true;
+export type Businesstimezone6 = string;
+export type Coverage1 = AnalysisCoverage[];
 export type Day1 = string;
-export type Displayname8 = string;
-export type Modelkey10 = string;
-export type Tokenspersecond6 = string | null;
+export type Displayname9 = string;
+export type Modelkey12 = string;
+export type Tokenspersecond7 = string | null;
 export type References = OutputDaily[];
 export type Today = string;
-export type Ok39 = true;
-export type Cachecoverageincomplete9 = boolean;
-export type Displayname9 = string;
-export type Incomplete8 = boolean;
+export type Todayreferences = OutputDaily[] | null;
+export type Ok50 = true;
+export type Allocationincomplete12 = boolean;
+export type Cachecoverageincomplete11 = boolean;
+export type Displayname10 = string;
+export type Incomplete9 = boolean;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "SignedSafeInt".
  */
 export type SignedSafeInt = number;
-export type Unpriced8 = boolean;
-export type Harnesses6 = HarnessData[];
+export type Unpriced9 = boolean;
+export type Harnesses14 = HarnessData[];
 export type Historynotice = string | null;
 export type Bucket3 = string;
-export type Displayname10 = string;
+export type Displayname11 = string;
 export type Label6 = string;
-export type Cachecoverageincomplete10 = boolean;
-export type Incomplete9 = boolean;
-export type Unpriced9 = boolean;
-export type Modelkey11 = string;
+export type Allocationincomplete13 = boolean;
+export type Cachecoverageincomplete12 = boolean;
+export type Incomplete10 = boolean;
+export type Unpriced10 = boolean;
+export type Modelkey13 = string;
 export type Hourly = HourlyData[];
 export type Bucket4 = string;
-export type Displayname11 = string;
+export type Displayname12 = string;
 export type Label7 = string;
 export type Hourlytotals = HourlyTotalData[];
-export type Cachecoverageincomplete11 = boolean;
-export type Displayname12 = string;
-export type Incomplete10 = boolean;
-export type Modelkey12 = string;
-export type Unpriced10 = boolean;
+export type Allocationincomplete14 = boolean;
+export type Cachecoverageincomplete13 = boolean;
+export type Displayname13 = string;
+export type Incomplete11 = boolean;
+export type Modelkey14 = string;
+export type Unpriced11 = boolean;
 export type Models8 = ModelData[];
-export type Trend3 = TrendData[];
-export type Ok40 = true;
+export type Trend4 = TrendData[];
+export type Ok51 = true;
 export type Cancelrequested = boolean;
 export type Result1 = {
   [k: string]: JsonValue;
 } | null;
-export type Status2 = 'pending' | 'running' | 'completed' | 'cancelled' | 'failed';
-export type Ok41 = true;
-export type Kind6 = string;
+export type Status3 = 'pending' | 'running' | 'completed' | 'cancelled' | 'failed';
+export type Ok52 = true;
+export type Kind7 = string;
 export type Manuallycalibrated = boolean;
-export type Note3 = string;
+export type Note6 = string;
 export type Entries = AccountEntry[];
-export type Nextcursor = string | null;
-export type Ok42 = true;
-export type Action1 = ('archive' | 'delete') | null;
+export type Nextcursor2 = string | null;
+export type Ok53 = true;
+export type Action5 = ('archive' | 'delete') | null;
 export type Changed1 = boolean;
 export type Methods = string[];
 export type Remote = boolean;
 export type Coverageincomplete = boolean;
 export type Linkedgroups = Identifier[];
-export type Status3 = 'active' | 'archived';
+export type Status4 = 'active' | 'archived';
 export type Url2 = string | null;
 export type Walletvisibility = 'both' | 'local' | 'remote';
-export type Ok43 = true;
+export type Ok54 = true;
 export type Day2 = string;
-export type Days = DailyBookRow[];
+export type Days2 = DailyBookRow[];
 export type Notice = string;
 export type Pending = boolean;
-export type Ok44 = true;
-export type Kind7 = 'top_up' | 'adjustment' | 'consumption_daily';
-export type Note4 = string;
+export type Ok55 = true;
+export type Kind8 = 'top_up' | 'adjustment' | 'consumption_daily';
+export type Note7 = string;
 export type Entries1 = Entry[];
-export type Ok45 = true;
+export type Ok56 = true;
 export type Vendors3 = Vendor[];
-export type Ok46 = true;
-export type Fingerprint4 = string;
-export type Method = string;
-export type Ok47 = true;
+export type Ok57 = true;
+export type Fingerprint9 = string;
+export type Method2 = string;
+export type Ok58 = true;
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "AnalysisPeriod".
@@ -768,7 +1234,8 @@ export type Scope5 =
   | 'models'
   | 'ownership'
   | 'auxiliary'
-  | 'output';
+  | 'output'
+  | 'cost';
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "UsagePage".
@@ -778,7 +1245,9 @@ export type UsagePage = 'overview' | 'claude' | 'codex' | 'zcode' | 'dsh';
 export interface Contracts {
   events: {
     'app.visibility': VisibilityEvent;
+    'auxiliary.changed': RevisionChangedEvent;
     'collection.tick': CollectionTickEvent;
+    'cost.changed': RevisionChangedEvent;
     'models.changed': RevisionChangedEvent;
     'output.changed': RevisionChangedEvent;
     'preferences.changed': RevisionChangedEvent;
@@ -798,6 +1267,10 @@ export interface Contracts {
     'collection.scanNow': WriteRequest;
     'collection.setPaused': SetPausedRequest;
     'collection.status': CollectionStatusRequest;
+    'dataDirectory.cleanup': WriteRequest;
+    'dataDirectory.move': DirectoryMoveRequest;
+    'dataDirectory.preview': DirectoryPreviewRequest;
+    'dataDirectory.status': StrictModel;
     'maintenance.backup': WriteRequest;
     'maintenance.commitRecalc': CommitRecalcRequest;
     'maintenance.previewRecalc': RecalcRequest;
@@ -819,7 +1292,7 @@ export interface Contracts {
     'preferences.update': PreferencesUpdateRequest;
     'pricing.activateVersion': ActivateVersionRequest;
     'pricing.addVersion': AddVersionRequest;
-    'pricing.catalog': EmptyRequest;
+    'pricing.catalog': CatalogRequest;
     'pricing.createGroup': CreateGroupRequest;
     'pricing.deleteGroup': GroupRequest;
     'pricing.deleteVersion': VersionRequest;
@@ -834,8 +1307,13 @@ export interface Contracts {
     'pricing.switchCurrent': SwitchCurrentRequest;
     'pricing.unpriced': EmptyRequest;
     'pricing.unpricedNotice': EmptyRequest;
+    'reconciliation.batches': BatchQuery;
+    'reconciliation.commitCalibration': CommitCalibrationRequest;
     'reconciliation.dismiss': DismissNoticeRequest;
+    'reconciliation.preview': ReconciliationQuery;
+    'reconciliation.previewCalibration': CalibrationRequest;
     'reconciliation.status': EmptyRequest;
+    'reconciliation.targets': CalibrationTargetsRequest;
     'remote.delete': RemoteWrite;
     'remote.get': RemoteRequest;
     'remote.refresh': RemoteWrite;
@@ -843,14 +1321,17 @@ export interface Contracts {
     'remote.test': RemoteSettings;
     'sources.autoDetect': AutoDetectRequest;
     'sources.list': EmptyRequest;
+    'sources.setEnabled': SetScanEnabledRequest;
     'sources.setPath': SetPathRequest;
     'sources.validatePath': SourcePathRequest;
     'stats.acknowledgeQuality': AcknowledgeQualityRequest;
     'stats.analytics': AnalysisRequest;
     'stats.auxiliaryCosts': AuxiliaryRequest;
     'stats.cacheMonitor': CacheMonitorRequest;
+    'stats.cancelAnalysis': CancelAnalysisRequest;
+    'stats.evidence': EvidenceRequest;
     'stats.explore': ExploreRequest;
-    'stats.exploreOptions': EmptyRequest;
+    'stats.exploreOptions': ExploreOptionsRequest;
     'stats.longTerm': AuxiliaryRequest;
     'stats.outputReferences': OutputReferencesRequest;
     'stats.summary': SummaryRequest;
@@ -886,6 +1367,10 @@ export interface Contracts {
     'collection.scanNow': SuccessScanNowResponse | Failure;
     'collection.setPaused': SuccessSetPausedResponse | Failure;
     'collection.status': SuccessCollectionStatusResponse | Failure;
+    'dataDirectory.cleanup': SuccessDirectoryCleanupResponse | Failure;
+    'dataDirectory.move': SuccessDirectoryMoveResponse | Failure;
+    'dataDirectory.preview': SuccessDirectoryPreview | Failure;
+    'dataDirectory.status': SuccessDirectoryStatus | Failure;
     'maintenance.backup': SuccessTaskStartedResponse | Failure;
     'maintenance.commitRecalc': SuccessRecalcResponse | Failure;
     'maintenance.previewRecalc': SuccessRecalcPreview | Failure;
@@ -922,8 +1407,13 @@ export interface Contracts {
     'pricing.switchCurrent': SuccessChangeResponse | Failure;
     'pricing.unpriced': SuccessUnpricedResponse | Failure;
     'pricing.unpricedNotice': SuccessUnpricedNotice | Failure;
+    'reconciliation.batches': SuccessBatchResponse | Failure;
+    'reconciliation.commitCalibration': SuccessCalibrationResponse | Failure;
     'reconciliation.dismiss': SuccessReconciliationResponse | Failure;
+    'reconciliation.preview': SuccessReconciliationPreview | Failure;
+    'reconciliation.previewCalibration': SuccessCalibrationPreview | Failure;
     'reconciliation.status': SuccessReconciliationResponse | Failure;
+    'reconciliation.targets': SuccessCalibrationTargetsResponse | Failure;
     'remote.delete': SuccessRemoteSnapshot | Failure;
     'remote.get': SuccessRemoteSnapshot | Failure;
     'remote.refresh': SuccessRemoteSnapshot | Failure;
@@ -931,12 +1421,15 @@ export interface Contracts {
     'remote.test': SuccessRemoteTestResponse | Failure;
     'sources.autoDetect': SuccessSourcesResponse | Failure;
     'sources.list': SuccessSourcesResponse | Failure;
+    'sources.setEnabled': SuccessSourcesResponse | Failure;
     'sources.setPath': SuccessSourcesResponse | Failure;
     'sources.validatePath': SuccessValidatePathResponse | Failure;
     'stats.acknowledgeQuality': SuccessAcknowledgeQualityResponse | Failure;
     'stats.analytics': SuccessAnalysisResponse | Failure;
     'stats.auxiliaryCosts': SuccessAuxiliaryResponse | Failure;
     'stats.cacheMonitor': SuccessCacheMonitorResponse | Failure;
+    'stats.cancelAnalysis': SuccessCancelAnalysisResponse | Failure;
+    'stats.evidence': SuccessEvidenceResponse | Failure;
     'stats.explore': SuccessExploreResponse | Failure;
     'stats.exploreOptions': SuccessExploreOptions | Failure;
     'stats.longTerm': SuccessLongTermResponse | Failure;
@@ -976,6 +1469,13 @@ export interface VisibilityEvent {
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "RevisionChangedEvent".
+ */
+export interface RevisionChangedEvent {
+  revision: SafeIntOutput;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "CollectionTickEvent".
  */
 export interface CollectionTickEvent {
@@ -986,13 +1486,6 @@ export interface CollectionTickEvent {
 }
 export interface Status {
   [k: string]: SourceStatus;
-}
-/**
- * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "RevisionChangedEvent".
- */
-export interface RevisionChangedEvent {
-  revision: SafeIntOutput;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -1038,6 +1531,8 @@ export interface UsageChangedEvent {
  * via the `definition` "WalletChangedEvent".
  */
 export interface WalletChangedEvent {
+  catalogChanged?: Catalogchanged;
+  remoteFlowsChanged?: Remoteflowschanged;
   revision: SafeIntOutput;
   vendorIds: Vendorids;
 }
@@ -1092,11 +1587,32 @@ export interface CollectionStatusRequest {
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "DirectoryMoveRequest".
+ */
+export interface DirectoryMoveRequest {
+  fingerprint: Fingerprint;
+  operationId: OperationId;
+  target: DirectoryPath;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "DirectoryPreviewRequest".
+ */
+export interface DirectoryPreviewRequest {
+  target: DirectoryPath;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "StrictModel".
+ */
+export interface StrictModel {}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "CommitRecalcRequest".
  */
 export interface CommitRecalcRequest {
   end: InstantStr;
-  fingerprint: Fingerprint;
+  fingerprint: Fingerprint1;
   groupId: Identifier;
   harness: HarnessName;
   operationId: OperationId;
@@ -1234,6 +1750,7 @@ export interface PreferencesUpdateRequest {
  * via the `definition` "PreferencePatch".
  */
 export interface PreferencePatch {
+  analysisView?: AnalysisView | null;
   closeToTray?: Closetotray;
   collapsed?: Collapsed;
   filters?: Filters;
@@ -1247,10 +1764,45 @@ export interface PreferencePatch {
   settingsSection?: Settingssection;
   showScanCountdown?: Showscancountdown;
   startAtLogin?: Startatlogin;
+  statisticsView?: AnalysisView | null;
   theme?: Theme;
   timezone?: Timezone;
   unpricedNoticeDismissed?: Unpricednoticedismissed;
   walletDefaultScope?: Walletdefaultscope;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "AnalysisView-Input".
+ */
+export interface AnalysisView {
+  compareDimension?: Comparedimension;
+  compareIds?: Compareids;
+  costBasis?: Costbasis;
+  draft?: AnalysisScope;
+  draftEnd?: Draftend;
+  draftStart?: Draftstart;
+  endYear?: Endyear;
+  focus?: Focus;
+  panel?: Panel;
+  period?: Period;
+  quarter?: Quarter;
+  recent?: UsageFilter;
+  scope?: AnalysisScope;
+  section?: Section;
+  tpsCompareIds?: Tpscompareids;
+  tpsModel?: Tpsmodel;
+  year?: Year;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "AnalysisScope-Input".
+ */
+export interface AnalysisScope {
+  groupIds?: Groupids;
+  harnesses?: Harnesses1;
+  modelKeys?: Modelkeys;
+  vendorIds?: Vendorids1;
+  versionIds?: Versionids;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -1289,6 +1841,13 @@ export interface AddVersionRequest {
   label?: Label;
   number: Number;
   operationId: OperationId;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CatalogRequest".
+ */
+export interface CatalogRequest {
+  metadataOnly?: Metadataonly;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -1447,11 +2006,122 @@ export interface SwitchCurrentRequest {
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "BatchQuery".
+ */
+export interface BatchQuery {
+  end: InstantStr;
+  intervalIds?: Intervalids;
+  localBatchIds?: Localbatchids;
+  offset?: Offset;
+  remoteOffset?: Remoteoffset;
+  start: InstantStr;
+  vendorId: Vendorid;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CommitCalibrationRequest".
+ */
+export interface CommitCalibrationRequest {
+  acknowledgeIncomplete?: Acknowledgeincomplete;
+  action?: Action1;
+  allocationMode?: Allocationmode;
+  allocations?: Allocations;
+  basis?: Basis;
+  confirmLocalScope?: Confirmlocalscope;
+  confirmReplacement?: Confirmreplacement;
+  dayTargets?: Daytargets;
+  end: InstantStr;
+  fingerprint: Fingerprint1;
+  intervalIds?: Intervalids1;
+  localBatchIds?: Localbatchids1;
+  modelWeights?: Modelweights;
+  note?: Note;
+  operationId: OperationId;
+  replaceTargetIds?: Replacetargetids;
+  start: InstantStr;
+  targetId?: Targetid;
+  targetPico?: string;
+  vendorId: Vendorid1;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationAllocation-Input".
+ */
+export interface CalibrationAllocation {
+  confirmModelCoverage?: Confirmmodelcoverage;
+  day: DateStr;
+  groupIds?: Groupids1;
+  harnesses?: Harnesses2;
+  modelKeys?: Modelkeys1;
+  sessionRefs?: Sessionrefs;
+  targetPico: Htd_Ipc_Dto_Base__PicoStr__1;
+  versionIds?: Versionids1;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationDayTarget-Input".
+ */
+export interface CalibrationDayTarget {
+  day: DateStr;
+  targetPico: Htd_Ipc_Dto_Base__PicoStr__1;
+}
+export interface Modelweights {
+  [k: string]: string;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "DismissNoticeRequest".
  */
 export interface DismissNoticeRequest {
   observedAt: InstantStr;
-  vendorId: Vendorid;
+  vendorId: Vendorid2;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "ReconciliationQuery-Input".
+ */
+export interface ReconciliationQuery {
+  end: InstantStr;
+  intervalIds?: Intervalids2;
+  localBatchIds?: Localbatchids2;
+  start: InstantStr;
+  vendorId: Vendorid3;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationRequest".
+ */
+export interface CalibrationRequest {
+  acknowledgeIncomplete?: Acknowledgeincomplete1;
+  action?: Action2;
+  allocationMode?: Allocationmode1;
+  allocations?: Allocations1;
+  basis?: Basis1;
+  confirmLocalScope?: Confirmlocalscope1;
+  confirmReplacement?: Confirmreplacement1;
+  dayTargets?: Daytargets1;
+  end: InstantStr;
+  intervalIds?: Intervalids3;
+  localBatchIds?: Localbatchids3;
+  modelWeights?: Modelweights1;
+  note?: Note1;
+  replaceTargetIds?: Replacetargetids1;
+  start: InstantStr;
+  targetId?: Targetid1;
+  targetPico?: string;
+  vendorId: Vendorid4;
+}
+export interface Modelweights1 {
+  [k: string]: string;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationTargetsRequest".
+ */
+export interface CalibrationTargetsRequest {
+  cursor?: Cursor;
+  state?: State;
+  vendorId: Vendorid5;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -1509,6 +2179,16 @@ export interface AutoDetectRequest {
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "SetScanEnabledRequest".
+ */
+export interface SetScanEnabledRequest {
+  enabled: Enabled2;
+  expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
+  harness: HarnessName;
+  operationId: OperationId;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "SetPathRequest".
  */
 export interface SetPathRequest {
@@ -1537,8 +2217,9 @@ export interface AcknowledgeQualityRequest {
  * via the `definition` "QualityAcknowledgement".
  */
 export interface QualityAcknowledgement {
-  fingerprint: Fingerprint1;
+  fingerprint: Fingerprint2;
   id: Id;
+  revision?: Htd_Ipc_Dto_Base__SafeInt__2 | null;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -1546,15 +2227,15 @@ export interface QualityAcknowledgement {
  */
 export interface AnalysisRequest {
   end?: InstantStr | null;
-  endYear?: Endyear;
+  endYear?: Endyear1;
   harness?: Harness2;
   limit?: Limit;
   modelKey?: Modelkey1;
-  offset?: Offset;
+  offset?: Offset1;
   period?: 'range' | 'month' | 'quarter' | 'year' | 'years' | 'all';
-  quarter?: Quarter;
+  quarter?: Quarter1;
   start?: InstantStr | null;
-  year?: Year;
+  year?: Year1;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -1570,35 +2251,86 @@ export interface AuxiliaryRequest {
  * via the `definition` "CacheMonitorRequest".
  */
 export interface CacheMonitorRequest {
+  chartSessionRef?: Chartsessionref;
+  cursor?: Cursor1;
   harness: HarnessName;
-  mode: MonitorMode;
+  mode?: Mode1;
   offsetMinutes: OffsetMinutes;
+  queryId?: Queryid;
+  sessionRef?: Sessionref;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CancelAnalysisRequest".
+ */
+export interface CancelAnalysisRequest {
+  queryId: Queryid1;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "EvidenceRequest".
+ */
+export interface EvidenceRequest {
+  end: InstantStr;
+  harness?: HarnessName | null;
+  localBatchIds?: Localbatchids4;
+  offset?: Offset2;
+  queryId?: Queryid2;
+  sessionRef?: Sessionref1;
+  start: InstantStr;
+  vendorId?: Vendorid6;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "ExploreRequest".
  */
 export interface ExploreRequest {
+  accountCorrectionOffset?: Accountcorrectionoffset;
+  accountOffset?: Accountoffset;
+  activityBatchIds?: Choices;
+  compareDimension?: Comparedimension1;
+  compareIds?: Compareids1;
+  costBasis?: Costbasis1;
   end: InstantStr;
   grain?: Grain1;
   groupIds?: Choices;
-  harnesses?: Harnesses1;
+  harnesses?: Harnesses3;
   limit?: Limit1;
   modelKeys?: Choices;
-  offset?: Offset1;
+  offset?: Offset3;
   qualityOffset?: Qualityoffset;
+  qualityReasons?: Qualityreasons;
+  qualityStatus?: Qualitystatus;
+  queryId?: Queryid3;
+  rangeKind?: Rangekind;
+  sections?: Sections;
+  sessionRefs?: Choices;
   start: InstantStr;
   vendorIds?: Choices;
   versionIds?: Choices;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "ExploreOptionsRequest".
+ */
+export interface ExploreOptionsRequest {
+  includeCatalog?: Includecatalog;
+  modelKeys?: Choices;
+  modelLimit?: Modellimit;
+  modelOffset?: Modeloffset;
+  modelSearch?: Modelsearch;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "OutputReferencesRequest".
  */
 export interface OutputReferencesRequest {
+  end?: InstantStr | null;
   groupIds?: Choices;
-  harnesses?: Harnesses2;
-  modelKeys?: Modelkeys;
+  harnesses?: Harnesses4;
+  modelKeys?: Modelkeys2;
+  queryId?: Queryid4;
+  start?: InstantStr | null;
   vendorIds?: Choices;
   versionIds?: Choices;
 }
@@ -1612,7 +2344,8 @@ export interface SummaryRequest {
   harness: Harness4;
   modelKey?: Modelkey2;
   offsetMinutes: OffsetMinutes;
-  sections?: Sections;
+  queryId?: Queryid5;
+  sections?: Sections1;
   start: InstantStr;
 }
 /**
@@ -1635,7 +2368,7 @@ export interface TaskRequest {
  * via the `definition` "AccountEntriesRequest".
  */
 export interface AccountEntriesRequest {
-  cursor?: Cursor;
+  cursor?: Cursor2;
   endDay?: Endday;
   kind?: Kind2;
   limit?: Limit2;
@@ -1661,11 +2394,11 @@ export interface CalibrateRequest {
  */
 export interface CorrectConsumptionRequest {
   expectedAccountRevision: Htd_Ipc_Dto_Base__SafeInt__2;
-  note?: Note;
+  note?: Note2;
   operationId: OperationId;
   scope?: Scope1;
   target?: AmountStr | null;
-  targetPico?: PicoStrInput | null;
+  targetPico?: Htd_Ipc_Dto_Base__PicoStr__2 | null;
   vendorId: Identifier;
 }
 /**
@@ -1673,11 +2406,11 @@ export interface CorrectConsumptionRequest {
  * via the `definition` "CorrectEntryRequest".
  */
 export interface CorrectEntryRequest {
-  C: PicoStrInput;
-  R: PicoStrInput;
+  C: Htd_Ipc_Dto_Base__PicoStr__2;
+  R: Htd_Ipc_Dto_Base__PicoStr__2;
   entryId: Identifier;
   expectedEntryRevision: Htd_Ipc_Dto_Base__SafeInt__2;
-  note?: Note1;
+  note?: Note3;
   operationId: OperationId;
   scope: Scope2;
   vendorId: Identifier;
@@ -1743,7 +2476,7 @@ export interface DismissWalletNoticeRequest {
  * via the `definition` "EntriesRequest".
  */
 export interface EntriesRequest {
-  cursor?: Cursor1;
+  cursor?: Cursor3;
   kind?: Kind3;
   limit?: Limit3;
   offsetMinutes?: Offsetminutes1;
@@ -1755,7 +2488,7 @@ export interface EntriesRequest {
  */
 export interface LinkGroupsRequest {
   expectedRevision: Htd_Ipc_Dto_Base__SafeInt__2;
-  groupIds: Groupids;
+  groupIds: Groupids2;
   operationId: OperationId;
   vendorId: Identifier;
 }
@@ -1765,6 +2498,7 @@ export interface LinkGroupsRequest {
  */
 export interface WalletListRequest {
   includeArchived?: Includearchived;
+  vendorId?: Identifier | null;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -1780,10 +2514,10 @@ export interface IntervalRequest {
  */
 export interface ReclassifyRequest {
   amount?: AmountStr | null;
-  amountPico?: PicoStrInput | null;
+  amountPico?: Htd_Ipc_Dto_Base__PicoStr__2 | null;
   entryId: Identifier;
   expectedAccountRevision: Htd_Ipc_Dto_Base__SafeInt__2;
-  note?: Note2;
+  note?: Note4;
   operationId: OperationId;
   scope?: Scope4;
   targetKind: Targetkind;
@@ -1795,7 +2529,7 @@ export interface ReclassifyRequest {
  */
 export interface ReconcileIntervalRequest {
   expectedAccountRevision: Htd_Ipc_Dto_Base__SafeInt__2;
-  fingerprint: Fingerprint2;
+  fingerprint: Fingerprint3;
   intervalId: Identifier;
   operationId: OperationId;
   vendorId: Identifier;
@@ -1817,13 +2551,13 @@ export interface RenameVendorRequest {
  * via the `definition` "SetLocalTotalsRequest".
  */
 export interface SetLocalTotalsRequest {
-  B?: PicoStrInput | null;
-  C?: PicoStrInput | null;
-  R?: PicoStrInput | null;
+  B?: Htd_Ipc_Dto_Base__PicoStr__2 | null;
+  C?: Htd_Ipc_Dto_Base__PicoStr__2 | null;
+  R?: Htd_Ipc_Dto_Base__PicoStr__2 | null;
   expectedWalletRevision: Htd_Ipc_Dto_Base__SafeInt__2;
   operationId: OperationId;
-  pastConsumptionPico?: PicoStrInput | null;
-  pastTopUpPico?: PicoStrInput | null;
+  pastConsumptionPico?: Htd_Ipc_Dto_Base__PicoStr__2 | null;
+  pastTopUpPico?: Htd_Ipc_Dto_Base__PicoStr__2 | null;
   vendorId: Identifier;
 }
 /**
@@ -1831,7 +2565,7 @@ export interface SetLocalTotalsRequest {
  * via the `definition` "WalletVisibilityRequest".
  */
 export interface WalletVisibilityRequest {
-  mode: Mode1;
+  mode: Mode2;
   operationId: OperationId;
   vendorId: Identifier;
 }
@@ -1862,7 +2596,8 @@ export interface HelloResponse {
   appVersion: Appversion;
   capabilities: Capabilities;
   dataDir: Datadir;
-  mode: Mode2;
+  dataDirSource: Datadirsource;
+  mode: Mode3;
   protocol: Protocol;
   revisions: Revisions;
 }
@@ -2056,6 +2791,7 @@ export interface SourceData {
   ledgerCount: SafeIntOutput | null;
   path: Path1;
   processedCount: SafeIntOutput | null;
+  scanEnabled: Scanenabled;
   startedAt: InstantStr | null;
   status: SourceStatus;
   unmeteredRequests: Unmeteredrequests;
@@ -2071,11 +2807,89 @@ export interface UnmeteredRequestData {
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_DirectoryCleanupResponse_".
+ */
+export interface SuccessDirectoryCleanupResponse {
+  data: DirectoryCleanupResponse;
+  ok: Ok9;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "DirectoryCleanupResponse".
+ */
+export interface DirectoryCleanupResponse {
+  deletedFiles: SafeIntOutput;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_DirectoryMoveResponse_".
+ */
+export interface SuccessDirectoryMoveResponse {
+  data: DirectoryMoveResponse;
+  ok: Ok10;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "DirectoryMoveResponse".
+ */
+export interface DirectoryMoveResponse {
+  restartRequired: Restartrequired;
+  root: Root;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_DirectoryPreview_".
+ */
+export interface SuccessDirectoryPreview {
+  data: DirectoryPreview;
+  ok: Ok11;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "DirectoryPreview".
+ */
+export interface DirectoryPreview {
+  availableBytes: SafeIntOutput;
+  datasetId: Datasetid;
+  fingerprint: Fingerprint4;
+  requiredBytes: SafeIntOutput;
+  resumeOperationId: Resumeoperationid;
+  source: Source;
+  target: Target;
+  unchanged: Unchanged;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_DirectoryStatus_".
+ */
+export interface SuccessDirectoryStatus {
+  data: DirectoryStatus;
+  ok: Ok12;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "DirectoryStatus".
+ */
+export interface DirectoryStatus {
+  canCleanup: Cancleanup;
+  canMove: Canmove;
+  pendingTarget: Pendingtarget;
+  phase: Phase;
+  previousRoot: Previousroot;
+  root: Root1;
+  source: Source1;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "Success_TaskStartedResponse_".
  */
 export interface SuccessTaskStartedResponse {
   data: TaskStartedResponse;
-  ok: Ok9;
+  ok: Ok13;
   revisions?: Revisions | null;
 }
 /**
@@ -2091,7 +2905,7 @@ export interface TaskStartedResponse {
  */
 export interface SuccessRecalcResponse {
   data: RecalcResponse;
-  ok: Ok10;
+  ok: Ok14;
   revisions?: Revisions | null;
 }
 /**
@@ -2100,16 +2914,26 @@ export interface SuccessRecalcResponse {
  */
 export interface RecalcResponse {
   batchId: Identifier;
-  fingerprint: Fingerprint;
+  evidenceInsufficientCount: SafeIntOutput;
+  fingerprint: Fingerprint1;
   groupName: Groupname;
   incompleteCount: SafeIntOutput;
   newTotal: PicoStrOutput;
   oldTotal: PicoStrOutput;
+  pendingCount: SafeIntOutput;
   recordCount: SafeIntOutput;
   revision: SafeIntOutput;
+  ruleCounts: Rulecounts;
+  targetRevisionId: Identifier;
+  targetRevisionSeq: SafeIntOutput;
+  totalCount: SafeIntOutput;
+  unavailableCount: SafeIntOutput;
   unpricedCount: SafeIntOutput;
   vendors: Vendors;
   versionDisplayName: Versiondisplayname;
+}
+export interface Rulecounts {
+  [k: string]: SafeIntOutput;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -2127,7 +2951,7 @@ export interface VendorDelta {
  */
 export interface SuccessRecalcPreview {
   data: RecalcPreview;
-  ok: Ok11;
+  ok: Ok15;
   revisions?: Revisions | null;
 }
 /**
@@ -2135,15 +2959,25 @@ export interface SuccessRecalcPreview {
  * via the `definition` "RecalcPreview".
  */
 export interface RecalcPreview {
-  fingerprint: Fingerprint;
+  evidenceInsufficientCount: SafeIntOutput;
+  fingerprint: Fingerprint1;
   groupName: Groupname1;
   incompleteCount: SafeIntOutput;
   newTotal: PicoStrOutput;
   oldTotal: PicoStrOutput;
+  pendingCount: SafeIntOutput;
   recordCount: SafeIntOutput;
+  ruleCounts: Rulecounts1;
+  targetRevisionId: Identifier;
+  targetRevisionSeq: SafeIntOutput;
+  totalCount: SafeIntOutput;
+  unavailableCount: SafeIntOutput;
   unpricedCount: SafeIntOutput;
   vendors: Vendors1;
   versionDisplayName: Versiondisplayname1;
+}
+export interface Rulecounts1 {
+  [k: string]: SafeIntOutput;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -2151,7 +2985,7 @@ export interface RecalcPreview {
  */
 export interface SuccessRetentionPreview {
   data: RetentionPreview;
-  ok: Ok12;
+  ok: Ok16;
   revisions?: Revisions | null;
 }
 /**
@@ -2173,7 +3007,7 @@ export interface RetentionPreview {
  */
 export interface SuccessRetentionResponse {
   data: RetentionResponse;
-  ok: Ok13;
+  ok: Ok17;
   revisions?: Revisions | null;
 }
 /**
@@ -2195,7 +3029,7 @@ export interface RetentionResponse {
  */
 export interface SuccessMaintenanceStatus {
   data: MaintenanceStatus;
-  ok: Ok14;
+  ok: Ok18;
   revisions?: Revisions | null;
 }
 /**
@@ -2227,6 +3061,7 @@ export interface StorageFootprint {
   migrationBytes: SafeIntOutput;
   sampledAt: InstantStr;
   shmBytes: SafeIntOutput;
+  totalBytes: SafeIntOutput | null;
   usedPageBytes: SafeIntOutput;
   walBytes: SafeIntOutput;
 }
@@ -2236,7 +3071,7 @@ export interface StorageFootprint {
  */
 export interface SuccessMigrationActivateResponse {
   data: MigrationActivateResponse;
-  ok: Ok15;
+  ok: Ok19;
   revisions?: Revisions | null;
 }
 /**
@@ -2255,7 +3090,7 @@ export interface MigrationActivateResponse {
  */
 export interface SuccessMigrationDetectResponse {
   data: MigrationDetectResponse;
-  ok: Ok16;
+  ok: Ok20;
   revisions?: Revisions | null;
 }
 /**
@@ -2276,7 +3111,7 @@ export interface MigrationDetectResponse {
  */
 export interface SuccessMigrationRunResponse {
   data: MigrationRunResponse;
-  ok: Ok17;
+  ok: Ok21;
   revisions?: Revisions | null;
 }
 /**
@@ -2294,7 +3129,7 @@ export interface MigrationRunResponse {
  */
 export interface SuccessChangeResponse {
   data: ChangeResponse;
-  ok: Ok18;
+  ok: Ok22;
   revisions?: Revisions | null;
 }
 /**
@@ -2314,7 +3149,7 @@ export interface ChangeResponse {
  */
 export interface SuccessRates {
   data: Rates1;
-  ok: Ok19;
+  ok: Ok23;
   revisions?: Revisions | null;
 }
 /**
@@ -2333,7 +3168,7 @@ export interface Rates1 {
  */
 export interface SuccessPoolResponse {
   data: PoolResponse;
-  ok: Ok20;
+  ok: Ok24;
   revisions?: Revisions | null;
 }
 /**
@@ -2359,7 +3194,7 @@ export interface BaseRates1 {
  */
 export interface SuccessPreferencesResponse {
   data: PreferencesResponse;
-  ok: Ok21;
+  ok: Ok25;
   revisions?: Revisions | null;
 }
 /**
@@ -2376,6 +3211,7 @@ export interface PreferencesResponse {
  */
 export interface PreferenceValues {
   accountingTimezone: Accountingtimezone;
+  analysisView: AnalysisView1 | null;
   closeToTray: Closetotray1;
   collapsed: Collapsed1;
   filters: Filters1;
@@ -2389,13 +3225,45 @@ export interface PreferenceValues {
   settingsSection: Settingssection1;
   showScanCountdown: Showscancountdown1;
   startAtLogin: Startatlogin1;
+  statisticsView: AnalysisView1 | null;
   theme: Theme1;
   timezone: Timezone1;
   unpricedNoticeDismissed: Unpricednoticedismissed1;
   walletDefaultScope: Walletdefaultscope1;
 }
-export interface Filters1 {
-  [k: string]: UsageFilter1;
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "AnalysisView-Output".
+ */
+export interface AnalysisView1 {
+  compareDimension: Comparedimension2;
+  compareIds: Compareids2;
+  costBasis: Costbasis2;
+  draft: AnalysisScope1;
+  draftEnd: Draftend1;
+  draftStart: Draftstart1;
+  endYear: Endyear2;
+  focus: Focus1;
+  panel: Panel1;
+  period: Period1;
+  quarter: Quarter2;
+  recent: UsageFilter1;
+  scope: AnalysisScope1;
+  section: Section2;
+  tpsCompareIds: Tpscompareids1;
+  tpsModel: Tpsmodel1;
+  year: Year2;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "AnalysisScope-Output".
+ */
+export interface AnalysisScope1 {
+  groupIds: Groupids3;
+  harnesses: Harnesses5;
+  modelKeys: Modelkeys3;
+  vendorIds: Vendorids2;
+  versionIds: Versionids2;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -2413,13 +3281,16 @@ export interface UsageFilter1 {
   start: InstantStr | null;
   startNow: Startnow1;
 }
+export interface Filters1 {
+  [k: string]: UsageFilter1;
+}
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "Success_CatalogResponse_".
  */
 export interface SuccessCatalogResponse {
   data: CatalogResponse;
-  ok: Ok22;
+  ok: Ok26;
   revisions?: Revisions | null;
 }
 /**
@@ -2451,7 +3322,7 @@ export interface Group {
   createdAt: InstantStr;
   deleteReason: Deletereason;
   disabled: Disabled2;
-  harnesses: Harnesses3;
+  harnesses: Harnesses6;
   historical: Historical;
   id: Identifier;
   name: Name;
@@ -2494,7 +3365,7 @@ export interface ModelPrice1 {
  */
 export interface Rule1 {
   hours: Hours1;
-  mode: Mode3;
+  mode: Mode4;
   offsetMinutes: Offsetminutes2;
   rates: Rates1;
   thresholdK: Thresholdk1;
@@ -2506,7 +3377,7 @@ export interface Rule1 {
  */
 export interface SuccessRecalculateUnpricedResponse {
   data: RecalculateUnpricedResponse;
-  ok: Ok23;
+  ok: Ok27;
   revisions?: Revisions | null;
 }
 /**
@@ -2527,7 +3398,7 @@ export interface RecalculateUnpricedResponse {
  */
 export interface SuccessResolveUnpricedResponse {
   data: ResolveUnpricedResponse;
-  ok: Ok24;
+  ok: Ok28;
   revisions?: Revisions | null;
 }
 /**
@@ -2544,7 +3415,7 @@ export interface ResolveUnpricedResponse {
  */
 export interface SuccessUnpricedResponse {
   data: UnpricedResponse;
-  ok: Ok25;
+  ok: Ok29;
   revisions?: Revisions | null;
 }
 /**
@@ -2602,7 +3473,7 @@ export interface UnpricedItem {
  */
 export interface SuccessUnpricedNotice {
   data: UnpricedNotice;
-  ok: Ok26;
+  ok: Ok30;
   revisions?: Revisions | null;
 }
 /**
@@ -2611,8 +3482,154 @@ export interface SuccessUnpricedNotice {
  */
 export interface UnpricedNotice {
   count: SafeIntOutput;
-  harnesses: Harnesses4;
+  harnesses: Harnesses7;
   signature: Signature;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_BatchResponse_".
+ */
+export interface SuccessBatchResponse {
+  data: BatchResponse;
+  ok: Ok31;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "BatchResponse".
+ */
+export interface BatchResponse {
+  batches: Batches;
+  generatedAt: InstantStr;
+  nextOffset: SafeIntOutput | null;
+  remoteIntervals: Remoteintervals;
+  remoteNextOffset: SafeIntOutput | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "LocalBatch".
+ */
+export interface LocalBatch {
+  end: InstantStr;
+  id: Id3;
+  publishedRevision: SafeIntOutput;
+  revision: SafeIntOutput;
+  sessionRef: Sessionref2;
+  start: InstantStr;
+  state: State1;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "ReconciliationInterval".
+ */
+export interface ReconciliationInterval {
+  consumptionPico: string;
+  end: InstantStr;
+  estimatePico: string;
+  id: Id4;
+  localEnd: InstantStr | null;
+  localStart: InstantStr | null;
+  method: Method;
+  revision: SafeIntOutput;
+  sessionCount: number;
+  start: InstantStr;
+  unitVersion: Unitversion;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_CalibrationResponse_".
+ */
+export interface SuccessCalibrationResponse {
+  data: CalibrationResponse;
+  ok: Ok32;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationResponse".
+ */
+export interface CalibrationResponse {
+  action: Action3;
+  allocationIncomplete: Allocationincomplete;
+  auxiliaryIncluded: Auxiliaryincluded;
+  batchIds: Batchids;
+  bookedEstimatePico: PicoStrOutput;
+  businessTimezone: Businesstimezone;
+  coverageAligned: Coveragealigned;
+  currentEffectivePico: PicoStrOutput;
+  currentEstimatePico: PicoStrOutput;
+  days: Days;
+  deltaPico: PicoStrOutput;
+  end: InstantStr;
+  existingCorrectionPico: PicoStrOutput;
+  externalUsagePossible: Externalusagepossible;
+  fingerprint: Fingerprint5;
+  groupIds: Groupids4;
+  harnesses: Harnesses8;
+  incompleteCount: PicoStrOutput;
+  independentCorrectionPico: PicoStrOutput;
+  legacyAllocationIncomplete: Legacyallocationincomplete;
+  legacyFlowIds: Legacyflowids;
+  legacyOverrides: SafeIntOutput;
+  localComplete: Localcomplete;
+  memberCount: PicoStrOutput;
+  memberDays: Memberdays;
+  memberDigest: Memberdigest;
+  modelAllocationCount: SafeIntOutput;
+  modelKeys: Modelkeys4;
+  modelTargets: Modeltargets;
+  notices: Notices;
+  omittedMemberCount: PicoStrOutput;
+  originalEstimatePico: PicoStrOutput;
+  pendingCount: PicoStrOutput;
+  quiet: Quiet;
+  reliability: Reliability;
+  remoteIntervals: Remoteintervals1;
+  remoteTargetPico: PicoStrOutput | null;
+  remoteUsedDeltaPico: PicoStrOutput | null;
+  replacedTargets: Replacedtargets;
+  revision: SafeIntOutput;
+  snapshot: Snapshot;
+  start: InstantStr;
+  targetId: Targetid2;
+  targetPico: PicoStrOutput;
+  unallocatedCorrectionPico: PicoStrOutput;
+  vendorId: Vendorid7;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationDayPreview".
+ */
+export interface CalibrationDayPreview {
+  currentEffectivePico: PicoStrOutput;
+  day: DateStr;
+  deltaPico: PicoStrOutput;
+  estimatePico: PicoStrOutput;
+  targetPico: PicoStrOutput;
+  unallocatedPico: PicoStrOutput;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationModelPreview".
+ */
+export interface CalibrationModelPreview {
+  day: DateStr;
+  deltaPico: PicoStrOutput;
+  estimatePico: PicoStrOutput;
+  modelKey: Modelkey4;
+  targetPico: PicoStrOutput;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "ReplacedTarget".
+ */
+export interface ReplacedTarget {
+  id: Id5;
+  revision: SafeIntOutput;
+  targetPico: PicoStrOutput;
+}
+export interface Snapshot {
+  [k: string]: SafeIntOutput;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -2620,7 +3637,7 @@ export interface UnpricedNotice {
  */
 export interface SuccessReconciliationResponse {
   data: ReconciliationResponse;
-  ok: Ok27;
+  ok: Ok33;
   revisions?: Revisions | null;
 }
 /**
@@ -2628,7 +3645,7 @@ export interface SuccessReconciliationResponse {
  * via the `definition` "ReconciliationResponse".
  */
 export interface ReconciliationResponse {
-  notices: Notices;
+  notices: Notices1;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -2640,8 +3657,195 @@ export interface ReconciliationNotice {
   remoteDecreasePico: PicoStrOutput;
   selectedGroupId: Selectedgroupid;
   selectedGroupName: Selectedgroupname;
-  vendorId: Vendorid1;
+  vendorId: Vendorid8;
   vendorName: Vendorname;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_ReconciliationPreview_".
+ */
+export interface SuccessReconciliationPreview {
+  data: ReconciliationPreview;
+  ok: Ok34;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "ReconciliationPreview".
+ */
+export interface ReconciliationPreview {
+  allocationIncomplete: Allocationincomplete1;
+  auxiliaryIncluded: Auxiliaryincluded1;
+  batchIds: Batchids1;
+  bookedEstimatePico: PicoStrOutput;
+  businessTimezone: Businesstimezone1;
+  coverageAligned: Coveragealigned1;
+  currentEffectivePico: PicoStrOutput;
+  currentEstimatePico: PicoStrOutput;
+  end: InstantStr;
+  existingCorrectionPico: PicoStrOutput;
+  externalUsagePossible: Externalusagepossible1;
+  fingerprint: Fingerprint6;
+  groupIds: Groupids5;
+  harnesses: Harnesses9;
+  incompleteCount: PicoStrOutput;
+  independentCorrectionPico: PicoStrOutput;
+  legacyAllocationIncomplete: Legacyallocationincomplete1;
+  legacyFlowIds: Legacyflowids1;
+  legacyOverrides: SafeIntOutput;
+  localComplete: Localcomplete1;
+  memberCount: PicoStrOutput;
+  memberDays: Memberdays1;
+  memberDigest: Memberdigest1;
+  modelKeys: Modelkeys5;
+  notices: Notices2;
+  omittedMemberCount: PicoStrOutput;
+  originalEstimatePico: PicoStrOutput;
+  pendingCount: PicoStrOutput;
+  quiet: Quiet1;
+  reliability: Reliability1;
+  remoteIntervals: Remoteintervals2;
+  remoteTargetPico: PicoStrOutput | null;
+  remoteUsedDeltaPico: PicoStrOutput | null;
+  snapshot: Snapshot1;
+  start: InstantStr;
+  unallocatedCorrectionPico: PicoStrOutput;
+  vendorId: Vendorid9;
+}
+export interface Snapshot1 {
+  [k: string]: SafeIntOutput;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_CalibrationPreview_".
+ */
+export interface SuccessCalibrationPreview {
+  data: CalibrationPreview;
+  ok: Ok35;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationPreview".
+ */
+export interface CalibrationPreview {
+  action: Action4;
+  allocationIncomplete: Allocationincomplete2;
+  auxiliaryIncluded: Auxiliaryincluded2;
+  batchIds: Batchids2;
+  bookedEstimatePico: PicoStrOutput;
+  businessTimezone: Businesstimezone2;
+  coverageAligned: Coveragealigned2;
+  currentEffectivePico: PicoStrOutput;
+  currentEstimatePico: PicoStrOutput;
+  days: Days1;
+  deltaPico: PicoStrOutput;
+  end: InstantStr;
+  existingCorrectionPico: PicoStrOutput;
+  externalUsagePossible: Externalusagepossible2;
+  fingerprint: Fingerprint7;
+  groupIds: Groupids6;
+  harnesses: Harnesses10;
+  incompleteCount: PicoStrOutput;
+  independentCorrectionPico: PicoStrOutput;
+  legacyAllocationIncomplete: Legacyallocationincomplete2;
+  legacyFlowIds: Legacyflowids2;
+  legacyOverrides: SafeIntOutput;
+  localComplete: Localcomplete2;
+  memberCount: PicoStrOutput;
+  memberDays: Memberdays2;
+  memberDigest: Memberdigest2;
+  modelAllocationCount: SafeIntOutput;
+  modelKeys: Modelkeys6;
+  modelTargets: Modeltargets1;
+  notices: Notices3;
+  omittedMemberCount: PicoStrOutput;
+  originalEstimatePico: PicoStrOutput;
+  pendingCount: PicoStrOutput;
+  quiet: Quiet2;
+  reliability: Reliability2;
+  remoteIntervals: Remoteintervals3;
+  remoteTargetPico: PicoStrOutput | null;
+  remoteUsedDeltaPico: PicoStrOutput | null;
+  replacedTargets: Replacedtargets1;
+  snapshot: Snapshot2;
+  start: InstantStr;
+  targetPico: PicoStrOutput;
+  unallocatedCorrectionPico: PicoStrOutput;
+  vendorId: Vendorid10;
+}
+export interface Snapshot2 {
+  [k: string]: SafeIntOutput;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_CalibrationTargetsResponse_".
+ */
+export interface SuccessCalibrationTargetsResponse {
+  data: CalibrationTargetsResponse;
+  ok: Ok36;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationTargetsResponse".
+ */
+export interface CalibrationTargetsResponse {
+  nextCursor: Nextcursor;
+  revision: SafeIntOutput;
+  targets: Targets;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationTarget".
+ */
+export interface CalibrationTarget {
+  allocations: Allocations2;
+  basis: Basis2;
+  createdAt: InstantStr;
+  dayTargets: Daytargets2;
+  deltaPico: PicoStrOutput;
+  estimatePico: PicoStrOutput;
+  id: Id6;
+  legacyFlowId: Legacyflowid;
+  revision: SafeIntOutput;
+  scope: ReconciliationQuery1;
+  state: State2;
+  targetPico: PicoStrOutput;
+  vendorId: Vendorid12;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationAllocation-Output".
+ */
+export interface CalibrationAllocation1 {
+  confirmModelCoverage: Confirmmodelcoverage1;
+  day: DateStr;
+  groupIds: Groupids7;
+  harnesses: Harnesses11;
+  modelKeys: Modelkeys7;
+  sessionRefs: Sessionrefs1;
+  targetPico: PicoStrOutput;
+  versionIds: Versionids3;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CalibrationDayTarget-Output".
+ */
+export interface CalibrationDayTarget1 {
+  day: DateStr;
+  targetPico: PicoStrOutput;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "ReconciliationQuery-Output".
+ */
+export interface ReconciliationQuery1 {
+  end: InstantStr;
+  intervalIds: Intervalids4;
+  localBatchIds: Localbatchids5;
+  start: InstantStr;
+  vendorId: Vendorid11;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -2649,7 +3853,7 @@ export interface ReconciliationNotice {
  */
 export interface SuccessRemoteSnapshot {
   data: RemoteSnapshot;
-  ok: Ok28;
+  ok: Ok37;
   revisions?: Revisions | null;
 }
 /**
@@ -2672,7 +3876,7 @@ export interface RemoteSnapshot {
 export interface RemoteAccountDto {
   authMode: AuthMode;
   baseUrl: Baseurl2;
-  enabled: Enabled2;
+  enabled: Enabled3;
   id: Identifier;
   maskedCredential: Maskedcredential;
   quotaPerUnit: PositiveInteger | null;
@@ -2709,7 +3913,7 @@ export interface Observation {
   originalCurrency: Originalcurrency;
   quotaPerUnit: PositiveInteger | null;
   rawQuota: PicoStrOutput | null;
-  source: Source;
+  source: Source2;
   stale: Stale;
   usageScope: Usagescope;
 }
@@ -2719,7 +3923,7 @@ export interface Observation {
  */
 export interface SuccessRemoteTestResponse {
   data: RemoteTestResponse;
-  ok: Ok29;
+  ok: Ok38;
   revisions?: Revisions | null;
 }
 /**
@@ -2736,7 +3940,7 @@ export interface RemoteTestResponse {
  */
 export interface SuccessSourcesResponse {
   data: SourcesResponse;
-  ok: Ok30;
+  ok: Ok39;
   revisions?: Revisions | null;
 }
 /**
@@ -2754,7 +3958,7 @@ export interface SourcesResponse {
  */
 export interface SuccessValidatePathResponse {
   data: ValidatePathResponse;
-  ok: Ok31;
+  ok: Ok40;
   revisions?: Revisions | null;
 }
 /**
@@ -2773,7 +3977,7 @@ export interface ValidatePathResponse {
  */
 export interface SuccessAcknowledgeQualityResponse {
   data: AcknowledgeQualityResponse;
-  ok: Ok32;
+  ok: Ok41;
   revisions?: Revisions | null;
 }
 /**
@@ -2782,6 +3986,7 @@ export interface SuccessAcknowledgeQualityResponse {
  */
 export interface AcknowledgeQualityResponse {
   acknowledged: SafeIntOutput;
+  conflicts: number;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -2789,7 +3994,7 @@ export interface AcknowledgeQualityResponse {
  */
 export interface SuccessAnalysisResponse {
   data: AnalysisResponse;
-  ok: Ok33;
+  ok: Ok42;
   revisions?: Revisions | null;
 }
 /**
@@ -2797,14 +4002,14 @@ export interface SuccessAnalysisResponse {
  * via the `definition` "AnalysisResponse".
  */
 export interface AnalysisResponse {
-  basis: Basis;
-  businessTimezone: Businesstimezone;
+  basis: Basis3;
+  businessTimezone: Businesstimezone3;
   comparison: AnalysisComparison | null;
   comparisonNotice: Comparisonnotice;
   end: InstantStr;
   generatedAt: InstantStr;
   grain: Grain4;
-  harnesses: Harnesses5;
+  harnesses: Harnesses12;
   includesWholeBoundaryDays: Includeswholeboundarydays1;
   models: Models4;
   nextOffset: SafeIntOutput | null;
@@ -2835,12 +4040,15 @@ export interface Changes {
  */
 export interface AnalysisMetrics {
   activeMinutes: PicoStrOutput;
+  allocationIncomplete: Allocationincomplete3;
   cacheCoverageIncomplete: Cachecoverageincomplete;
   cacheHitRate: HitRate | null;
   cacheReadTokens: PicoStrOutput;
+  correctionPico: string;
   coverageEnd: InstantStr | null;
   coverageStart: InstantStr | null;
   coveredDays: SafeIntOutput;
+  estimatePico: PicoStrOutput | null;
   incomplete: Incomplete;
   inputTokens: PicoStrOutput;
   lastOutputAt: InstantStr | null;
@@ -2852,6 +4060,7 @@ export interface AnalysisMetrics {
   tokensPerMinute: Tokensperminute;
   tokensPerSecond: Tokenspersecond;
   totalTokens: PicoStrOutput;
+  unallocatedCorrectionPico: string;
   unknownModelCount: PicoStrOutput;
   unpriced: Unpriced;
 }
@@ -2861,12 +4070,15 @@ export interface AnalysisMetrics {
  */
 export interface AnalysisHarness {
   activeMinutes: PicoStrOutput;
+  allocationIncomplete: Allocationincomplete4;
   cacheCoverageIncomplete: Cachecoverageincomplete1;
   cacheHitRate: HitRate | null;
   cacheReadTokens: PicoStrOutput;
+  correctionPico: string;
   coverageEnd: InstantStr | null;
   coverageStart: InstantStr | null;
   coveredDays: SafeIntOutput;
+  estimatePico: PicoStrOutput | null;
   harness: HarnessName;
   incomplete: Incomplete1;
   inputTokens: PicoStrOutput;
@@ -2879,6 +4091,7 @@ export interface AnalysisHarness {
   tokensPerMinute: Tokensperminute1;
   tokensPerSecond: Tokenspersecond1;
   totalTokens: PicoStrOutput;
+  unallocatedCorrectionPico: string;
   unknownModelCount: PicoStrOutput;
   unpriced: Unpriced1;
 }
@@ -2888,25 +4101,29 @@ export interface AnalysisHarness {
  */
 export interface AnalysisModel {
   activeMinutes: PicoStrOutput;
+  allocationIncomplete: Allocationincomplete5;
   cacheCoverageIncomplete: Cachecoverageincomplete2;
   cacheHitRate: HitRate | null;
   cacheReadTokens: PicoStrOutput;
+  correctionPico: string;
   coverageEnd: InstantStr | null;
   coverageStart: InstantStr | null;
   coveredDays: SafeIntOutput;
   displayName: Displayname1;
+  estimatePico: PicoStrOutput | null;
   incomplete: Incomplete2;
   inputTokens: PicoStrOutput;
   lastOutputAt: InstantStr | null;
   missingCapabilities: Missingcapabilities2;
   missingUsageCount: PicoStrOutput;
-  modelKey: Modelkey4;
+  modelKey: Modelkey5;
   outputTokens: PicoStrOutput;
   picoUsd: PicoStrOutput;
   recordCount: PicoStrOutput;
   tokensPerMinute: Tokensperminute2;
   tokensPerSecond: Tokenspersecond2;
   totalTokens: PicoStrOutput;
+  unallocatedCorrectionPico: string;
   unknownModelCount: PicoStrOutput;
   unpriced: Unpriced2;
 }
@@ -2917,7 +4134,7 @@ export interface AnalysisModel {
 export interface OutputReference {
   day: Day;
   displayName: Displayname2;
-  modelKey: Modelkey5;
+  modelKey: Modelkey6;
   samples: SafeIntOutput;
   tokensPerSecond: Tokenspersecond3;
 }
@@ -2927,13 +4144,16 @@ export interface OutputReference {
  */
 export interface AnalysisPoint {
   activeMinutes: PicoStrOutput;
+  allocationIncomplete: Allocationincomplete6;
   bucket: Bucket;
   cacheCoverageIncomplete: Cachecoverageincomplete3;
   cacheHitRate: HitRate | null;
   cacheReadTokens: PicoStrOutput;
+  correctionPico: string;
   coverageEnd: InstantStr | null;
   coverageStart: InstantStr | null;
   coveredDays: SafeIntOutput;
+  estimatePico: PicoStrOutput | null;
   incomplete: Incomplete3;
   inputTokens: PicoStrOutput;
   label: Label3;
@@ -2946,6 +4166,7 @@ export interface AnalysisPoint {
   tokensPerMinute: Tokensperminute3;
   tokensPerSecond: Tokenspersecond4;
   totalTokens: PicoStrOutput;
+  unallocatedCorrectionPico: string;
   unknownModelCount: PicoStrOutput;
   unpriced: Unpriced3;
 }
@@ -2955,7 +4176,7 @@ export interface AnalysisPoint {
  */
 export interface SuccessAuxiliaryResponse {
   data: AuxiliaryResponse;
-  ok: Ok34;
+  ok: Ok43;
   revisions?: Revisions | null;
 }
 /**
@@ -2984,7 +4205,7 @@ export interface AuxiliaryModel {
  */
 export interface SuccessCacheMonitorResponse {
   data: CacheMonitorResponse;
-  ok: Ok35;
+  ok: Ok44;
   revisions?: Revisions | null;
 }
 /**
@@ -2992,16 +4213,36 @@ export interface SuccessCacheMonitorResponse {
  * via the `definition` "CacheMonitorResponse".
  */
 export interface CacheMonitorResponse {
+  batchTotals: MonitorTotals;
+  chartSessionRef: Chartsessionref1;
   end: InstantStr;
-  grain: MonitorMode;
+  evidenceComplete: Evidencecomplete;
+  grain: Grain5;
+  nextCursor: Nextcursor1;
   nextRefreshAt: InstantStr;
   offsetMinutes: OffsetMinutes;
+  outputRevision: SafeIntOutput;
   outputSpeeds: Outputspeeds;
   revision: SafeIntOutput;
+  selectedSessionRef: Selectedsessionref;
   sessionHitRates: Sessionhitrates;
+  sessionTotals: MonitorTotals;
   start: InstantStr;
   trend: Trend1;
   windowKey: Windowkey;
+  windowTotals: MonitorTotals;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "MonitorTotals".
+ */
+export interface MonitorTotals {
+  cacheCoverageIncomplete: Cachecoverageincomplete4;
+  cacheHitRate: HitRate | null;
+  cacheReadTokens: PicoStrOutput;
+  inputTokens: PicoStrOutput;
+  outputTokens: PicoStrOutput;
+  recordCount: PicoStrOutput;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -3009,11 +4250,11 @@ export interface CacheMonitorResponse {
  */
 export interface OutputSpeed {
   activeMinutes: SafeIntOutput;
-  basis: Basis1;
+  basis: Basis4;
   displayName: Displayname3;
   frozen: Frozen;
   lastOutputAt: InstantStr | null;
-  modelKey: Modelkey6;
+  modelKey: Modelkey7;
   outputTokens: PicoStrOutput;
   sessionAverageTps: Sessionaveragetps;
   sessionKey: Sessionkey;
@@ -3025,13 +4266,18 @@ export interface OutputSpeed {
  * via the `definition` "SessionHitRate".
  */
 export interface SessionHitRate {
-  cacheCoverageIncomplete: Cachecoverageincomplete4;
+  cacheCoverageIncomplete: Cachecoverageincomplete5;
   cacheHitRate: HitRate | null;
   displayName: Displayname4;
   frozen: Frozen1;
   lastActivityAt: InstantStr;
+  modelKey: Modelkey8;
+  modelName: Modelname;
+  sessionAverageTps: Sessionaveragetps1;
   sessionKey: Sessionkey1;
+  sessionRef: Sessionref3;
   startedAt: InstantStr;
+  tokensPerSecond: Tokenspersecond6;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -3052,11 +4298,82 @@ export interface TrendData {
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_CancelAnalysisResponse_".
+ */
+export interface SuccessCancelAnalysisResponse {
+  data: CancelAnalysisResponse;
+  ok: Ok45;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "CancelAnalysisResponse".
+ */
+export interface CancelAnalysisResponse {
+  cancelled: Cancelled;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "Success_EvidenceResponse_".
+ */
+export interface SuccessEvidenceResponse {
+  data: EvidenceResponse;
+  ok: Ok46;
+  revisions?: Revisions | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "EvidenceResponse".
+ */
+export interface EvidenceResponse {
+  generatedAt: InstantStr;
+  items: Items2;
+  nextOffset: SafeIntOutput | null;
+  snapshot: Snapshot3;
+  sourceStates: Sourcestates;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "RequestEvidence".
+ */
+export interface RequestEvidence {
+  acceptedRevision: SafeIntOutput;
+  calibrationTargetId: Calibrationtargetid;
+  canRecalculate: Canrecalculate;
+  estimatePico: PicoStrOutput | null;
+  groupId: Groupid1;
+  harness: HarnessName;
+  localBatchId: Localbatchid;
+  occurredAt: InstantStr;
+  originalGroupId: Originalgroupid;
+  originalPico: PicoStrOutput | null;
+  originalVersionId: Originalversionid;
+  priceRevisionId: Pricerevisionid;
+  projectedRevision: SafeIntOutput;
+  publishedRevision: SafeIntOutput;
+  receivedAt: InstantStr;
+  remoteIntervalIds: Remoteintervalids;
+  requestKey: Requestkey;
+  sessionRef: Sessionref4;
+  state: State3;
+  valuedRevision: SafeIntOutput;
+  versionId: Versionid1;
+  voucherSequence: SafeIntOutput | null;
+  watermark: Watermark;
+}
+export interface Snapshot3 {
+  [k: string]: SafeIntOutput;
+}
+export interface Sourcestates {
+  [k: string]: string;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "Success_ExploreResponse_".
  */
 export interface SuccessExploreResponse {
   data: ExploreResponse;
-  ok: Ok36;
+  ok: Ok47;
   revisions?: Revisions | null;
 }
 /**
@@ -3064,53 +4381,106 @@ export interface SuccessExploreResponse {
  * via the `definition` "ExploreResponse".
  */
 export interface ExploreResponse {
+  accountCorrectionNextOffset: SafeIntOutput | null;
+  accountCorrectionTotal: number;
+  accountCorrections: Accountcorrections;
+  accountNextOffset: SafeIntOutput | null;
+  accountTotal: number;
+  accounts: Accounts;
   breakdowns: Breakdowns;
-  businessTimezone: Businesstimezone1;
+  businessTimezone: Businesstimezone4;
+  comparisons: Comparisons;
+  costBasis: Costbasis3;
+  coverage: Coverage;
   end: InstantStr;
   generatedAt: InstantStr;
-  grain: Grain5;
+  grain: Grain6;
+  harnesses: Harnesses13;
+  intervalCostPico: string;
   missingVersionRecords: PicoStrOutput;
   models: Models6;
   nextOffset: SafeIntOutput | null;
-  notices: Notices1;
+  notices: Notices4;
+  plan: QueryPlanDescription | null;
   quality: Quality;
   qualityNextOffset: SafeIntOutput | null;
   qualityTotal: SafeIntOutput;
   qualityUnacknowledged: SafeIntOutput;
+  remoteCostPico: string;
   revision: SafeIntOutput;
+  snapshot: Snapshot4;
   start: InstantStr;
   totalModels: SafeIntOutput;
   totals: ExploreMetrics;
-  trend: Trend2;
+  trend: Trend3;
+  unallocatedCostPico: string;
+  unallocatedTrendCorrectionPico: string;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "AccountCorrection".
+ */
+export interface AccountCorrection {
+  costPico: PicoStrOutput;
+  id: Id7;
+  kind: Kind6;
+  note: Note5;
+  occurredAt: InstantStr;
+  vendorId: Vendorid13;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "AccountInterval".
+ */
+export interface AccountInterval {
+  bookedEstimatePico: PicoStrOutput;
+  costPico: PicoStrOutput;
+  coverageComplete: Coveragecomplete;
+  currentEstimatePico: PicoStrOutput;
+  differencePico: PicoStrOutput;
+  end: InstantStr;
+  id: Id8;
+  method: Method1;
+  originalCostPico: PicoStrOutput;
+  start: InstantStr;
+  status: Status2;
+  vendorId: Vendorid14;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "ExploreBreakdown".
  */
 export interface ExploreBreakdown {
-  cacheCoverageIncomplete: Cachecoverageincomplete5;
+  allocationIncomplete: Allocationincomplete7;
+  cacheCoverageIncomplete: Cachecoverageincomplete6;
   cacheHitRate: HitRate | null;
   cacheReadTokens: PicoStrOutput;
   cacheWriteTokens: PicoStrOutput;
+  componentCostEstimated: Componentcostestimated;
+  correctionPico: string;
   displayName: Displayname5;
   eligibleCostPico: PicoStrOutput;
   eligibleTokens: PicoStrOutput;
-  groupId: Groupid1;
+  estimatePico: PicoStrOutput | null;
+  groupId: Groupid2;
   harness: Harness6;
   incomplete: Incomplete4;
   inputTokens: PicoStrOutput;
-  modelKey: Modelkey7;
+  modelKey: Modelkey9;
   newInput: PicoStrOutput;
   outputTokens: PicoStrOutput;
   parts: Parts;
+  pendingValuationCount: string;
   perDollar: Perdollar;
   picoUsd: PicoStrOutput;
+  ratioUnavailable: Ratiounavailable;
   recordCount: PicoStrOutput;
   tokensPerDollar: Tokensperdollar;
   totalTokens: PicoStrOutput;
+  unallocatedCorrectionPico: string;
   unpriced: Unpriced4;
-  vendorId: Vendorid2;
-  versionId: Versionid1;
+  vendorId: Vendorid15;
+  versionId: Versionid2;
 }
 export interface Parts {
   [k: string]: PicoStrOutput;
@@ -3120,27 +4490,41 @@ export interface Perdollar {
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "ExploreModel".
+ * via the `definition` "ExploreComparison".
  */
-export interface ExploreModel {
-  cacheCoverageIncomplete: Cachecoverageincomplete6;
+export interface ExploreComparison {
+  id: Id9;
+  totals: ExploreMetrics;
+  trend: Trend2;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "ExploreMetrics".
+ */
+export interface ExploreMetrics {
+  allocationIncomplete: Allocationincomplete8;
+  cacheCoverageIncomplete: Cachecoverageincomplete7;
   cacheHitRate: HitRate | null;
   cacheReadTokens: PicoStrOutput;
   cacheWriteTokens: PicoStrOutput;
-  displayName: Displayname6;
+  componentCostEstimated: Componentcostestimated1;
+  correctionPico: string;
   eligibleCostPico: PicoStrOutput;
   eligibleTokens: PicoStrOutput;
+  estimatePico: PicoStrOutput | null;
   incomplete: Incomplete5;
   inputTokens: PicoStrOutput;
-  modelKey: Modelkey8;
   newInput: PicoStrOutput;
   outputTokens: PicoStrOutput;
   parts: Parts1;
+  pendingValuationCount: string;
   perDollar: Perdollar1;
   picoUsd: PicoStrOutput;
+  ratioUnavailable: Ratiounavailable1;
   recordCount: PicoStrOutput;
   tokensPerDollar: Tokensperdollar1;
   totalTokens: PicoStrOutput;
+  unallocatedCorrectionPico: string;
   unpriced: Unpriced5;
 }
 export interface Parts1 {
@@ -3151,44 +4535,34 @@ export interface Perdollar1 {
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "QualityItem".
+ * via the `definition` "ExplorePoint".
  */
-export interface QualityItem {
-  acknowledged: Acknowledged;
-  costDifferencePico: PicoStrOutput | null;
-  date: Date1;
-  displayName: Displayname7;
-  fingerprint: Fingerprint3;
-  groupId: Groupid2;
-  harness: Harness7;
-  id: Id3;
-  modelKey: Modelkey9;
-  reasons: Reasons1;
-  recordCount: PicoStrOutput;
-  vendorId: Vendorid3;
-  versionId: Versionid2;
-}
-/**
- * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "ExploreMetrics".
- */
-export interface ExploreMetrics {
-  cacheCoverageIncomplete: Cachecoverageincomplete7;
+export interface ExplorePoint {
+  allocationIncomplete: Allocationincomplete9;
+  bucket: Bucket2;
+  cacheCoverageIncomplete: Cachecoverageincomplete8;
   cacheHitRate: HitRate | null;
   cacheReadTokens: PicoStrOutput;
   cacheWriteTokens: PicoStrOutput;
+  componentCostEstimated: Componentcostestimated2;
+  correctionPico: string;
   eligibleCostPico: PicoStrOutput;
   eligibleTokens: PicoStrOutput;
+  estimatePico: PicoStrOutput | null;
   incomplete: Incomplete6;
   inputTokens: PicoStrOutput;
+  label: Label5;
   newInput: PicoStrOutput;
   outputTokens: PicoStrOutput;
   parts: Parts2;
+  pendingValuationCount: string;
   perDollar: Perdollar2;
   picoUsd: PicoStrOutput;
+  ratioUnavailable: Ratiounavailable2;
   recordCount: PicoStrOutput;
   tokensPerDollar: Tokensperdollar2;
   totalTokens: PicoStrOutput;
+  unallocatedCorrectionPico: string;
   unpriced: Unpriced6;
 }
 export interface Parts2 {
@@ -3199,27 +4573,42 @@ export interface Perdollar2 {
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
- * via the `definition` "ExplorePoint".
+ * via the `definition` "AnalysisCoverage".
  */
-export interface ExplorePoint {
-  bucket: Bucket2;
-  cacheCoverageIncomplete: Cachecoverageincomplete8;
+export interface AnalysisCoverage {
+  code: Code2;
+  message: Message2;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "ExploreHarness".
+ */
+export interface ExploreHarness {
+  allocationIncomplete: Allocationincomplete10;
+  cacheCoverageIncomplete: Cachecoverageincomplete9;
   cacheHitRate: HitRate | null;
   cacheReadTokens: PicoStrOutput;
   cacheWriteTokens: PicoStrOutput;
+  componentCostEstimated: Componentcostestimated3;
+  correctionPico: string;
+  displayName: Displayname6;
   eligibleCostPico: PicoStrOutput;
   eligibleTokens: PicoStrOutput;
+  estimatePico: PicoStrOutput | null;
+  harness: HarnessName;
   incomplete: Incomplete7;
   inputTokens: PicoStrOutput;
-  label: Label5;
   newInput: PicoStrOutput;
   outputTokens: PicoStrOutput;
   parts: Parts3;
+  pendingValuationCount: string;
   perDollar: Perdollar3;
   picoUsd: PicoStrOutput;
+  ratioUnavailable: Ratiounavailable3;
   recordCount: PicoStrOutput;
   tokensPerDollar: Tokensperdollar3;
   totalTokens: PicoStrOutput;
+  unallocatedCorrectionPico: string;
   unpriced: Unpriced7;
 }
 export interface Parts3 {
@@ -3230,11 +4619,86 @@ export interface Perdollar3 {
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "ExploreModel".
+ */
+export interface ExploreModel {
+  allocationIncomplete: Allocationincomplete11;
+  cacheCoverageIncomplete: Cachecoverageincomplete10;
+  cacheHitRate: HitRate | null;
+  cacheReadTokens: PicoStrOutput;
+  cacheWriteTokens: PicoStrOutput;
+  componentCostEstimated: Componentcostestimated4;
+  correctionPico: string;
+  displayName: Displayname7;
+  eligibleCostPico: PicoStrOutput;
+  eligibleTokens: PicoStrOutput;
+  estimatePico: PicoStrOutput | null;
+  incomplete: Incomplete8;
+  inputTokens: PicoStrOutput;
+  modelKey: Modelkey10;
+  newInput: PicoStrOutput;
+  outputTokens: PicoStrOutput;
+  parts: Parts4;
+  pendingValuationCount: string;
+  perDollar: Perdollar4;
+  picoUsd: PicoStrOutput;
+  ratioUnavailable: Ratiounavailable4;
+  recordCount: PicoStrOutput;
+  tokensPerDollar: Tokensperdollar4;
+  totalTokens: PicoStrOutput;
+  unallocatedCorrectionPico: string;
+  unpriced: Unpriced8;
+}
+export interface Parts4 {
+  [k: string]: PicoStrOutput;
+}
+export interface Perdollar4 {
+  [k: string]: string | null;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "QueryPlanDescription".
+ */
+export interface QueryPlanDescription {
+  layer: Layer;
+  rangeKind: Rangekind1;
+  recentBoundary: InstantStr;
+  sessionScoped: Sessionscoped;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
+ * via the `definition` "QualityItem".
+ */
+export interface QualityItem {
+  acknowledged: Acknowledged;
+  costDifferencePico: PicoStrOutput | null;
+  countAccuracy: Countaccuracy;
+  date: Date1;
+  displayName: Displayname8;
+  fingerprint: Fingerprint8;
+  groupId: Groupid3;
+  harness: Harness7;
+  id: Id10;
+  modelKey: Modelkey11;
+  reasonCounts: Reasoncounts;
+  reasons: Reasons1;
+  recordCount: PicoStrOutput;
+  vendorId: Vendorid16;
+  versionId: Versionid3;
+}
+export interface Reasoncounts {
+  [k: string]: PicoStrOutput;
+}
+export interface Snapshot4 {
+  [k: string]: SafeIntOutput;
+}
+/**
+ * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "Success_ExploreOptions_".
  */
 export interface SuccessExploreOptions {
   data: ExploreOptions;
-  ok: Ok37;
+  ok: Ok48;
   revisions?: Revisions | null;
 }
 /**
@@ -3242,17 +4706,24 @@ export interface SuccessExploreOptions {
  * via the `definition` "ExploreOptions".
  */
 export interface ExploreOptions {
+  groupVendors: Groupvendors;
   groups: Groups1;
+  modelNextOffset: SafeIntOutput | null;
   models: Models7;
+  selectedModels: Selectedmodels;
+  totalModels: number;
   vendors: Vendors2;
   versions: Versions1;
+}
+export interface Groupvendors {
+  [k: string]: string[];
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "ExploreOption".
  */
 export interface ExploreOption {
-  id: Id4;
+  id: Id11;
   name: Name9;
   parentId: Parentid;
 }
@@ -3262,7 +4733,7 @@ export interface ExploreOption {
  */
 export interface SuccessLongTermResponse {
   data: LongTermResponse;
-  ok: Ok38;
+  ok: Ok49;
   revisions?: Revisions | null;
 }
 /**
@@ -3271,8 +4742,8 @@ export interface SuccessLongTermResponse {
  */
 export interface LongTermResponse {
   activeMinutes: PicoStrOutput;
-  basis: Basis2;
-  businessTimezone: Businesstimezone2;
+  basis: Basis5;
+  businessTimezone: Businesstimezone5;
   coveredDays: SafeIntOutput;
   includesWholeBoundaryDays: Includeswholeboundarydays2;
   missingCapabilities: Missingcapabilities4;
@@ -3287,7 +4758,7 @@ export interface Totals {
  */
 export interface SuccessOutputReferencesResponse {
   data: OutputReferencesResponse;
-  ok: Ok39;
+  ok: Ok50;
   revisions?: Revisions | null;
 }
 /**
@@ -3295,9 +4766,14 @@ export interface SuccessOutputReferencesResponse {
  * via the `definition` "OutputReferencesResponse".
  */
 export interface OutputReferencesResponse {
+  businessTimezone: Businesstimezone6;
+  coverage: Coverage1;
+  end: InstantStr | null;
   generatedAt: InstantStr;
   references: References;
+  start: InstantStr | null;
   today: Today;
+  todayReferences: Todayreferences;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -3305,10 +4781,10 @@ export interface OutputReferencesResponse {
  */
 export interface OutputDaily {
   day: Day1;
-  displayName: Displayname8;
-  modelKey: Modelkey10;
+  displayName: Displayname9;
+  modelKey: Modelkey12;
   samples: SafeIntOutput;
-  tokensPerSecond: Tokenspersecond6;
+  tokensPerSecond: Tokenspersecond7;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -3316,7 +4792,7 @@ export interface OutputDaily {
  */
 export interface SuccessSummaryResponse {
   data: SummaryResponse;
-  ok: Ok40;
+  ok: Ok51;
   revisions?: Revisions | null;
 }
 /**
@@ -3324,9 +4800,10 @@ export interface SuccessSummaryResponse {
  * via the `definition` "SummaryResponse".
  */
 export interface SummaryResponse {
+  costRevision: number;
   end: InstantStr;
   grain: Grain2;
-  harnesses: Harnesses6;
+  harnesses: Harnesses14;
   historyNotice: Historynotice;
   hourly: Hourly;
   hourlyTotals: Hourlytotals;
@@ -3335,28 +4812,34 @@ export interface SummaryResponse {
   offsetMinutes: OffsetMinutes;
   revision: SafeIntOutput;
   start: InstantStr;
-  trend: Trend3;
+  trend: Trend4;
+  unallocatedTrendCorrectionPico: string;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "HarnessData".
  */
 export interface HarnessData {
-  cacheCoverageIncomplete: Cachecoverageincomplete9;
+  allocationIncomplete: Allocationincomplete12;
+  cacheCoverageIncomplete: Cachecoverageincomplete11;
   cacheHitRate: HitRate | null;
   cacheReadTokens: SafeIntOutput;
-  displayName: Displayname9;
+  correctionPico: string;
+  displayName: Displayname10;
+  estimatePico: PicoStrOutput | null;
   harness: HarnessName;
-  incomplete: Incomplete8;
+  incomplete: Incomplete9;
   inputTokens: SafeIntOutput;
   missingUsageCount: SafeIntOutput;
   newInput: SignedSafeInt;
   outputTokens: SafeIntOutput;
+  pendingValuationCount: number;
   picoUsd: PicoStrOutput;
   recordCount: SafeIntOutput;
   totalTokens: SafeIntOutput;
+  unallocatedCorrectionPico: string;
   unknownModelCount: SafeIntOutput;
-  unpriced: Unpriced8;
+  unpriced: Unpriced9;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -3364,29 +4847,34 @@ export interface HarnessData {
  */
 export interface HourlyData {
   bucket: Bucket3;
-  displayName: Displayname10;
+  displayName: Displayname11;
   label: Label6;
   metrics: MetricsData;
-  modelKey: Modelkey11;
+  modelKey: Modelkey13;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
  * via the `definition` "MetricsData".
  */
 export interface MetricsData {
-  cacheCoverageIncomplete: Cachecoverageincomplete10;
+  allocationIncomplete: Allocationincomplete13;
+  cacheCoverageIncomplete: Cachecoverageincomplete12;
   cacheHitRate: HitRate | null;
   cacheReadTokens: SafeIntOutput;
-  incomplete: Incomplete9;
+  correctionPico: string;
+  estimatePico: PicoStrOutput | null;
+  incomplete: Incomplete10;
   inputTokens: SafeIntOutput;
   missingUsageCount: SafeIntOutput;
   newInput: SignedSafeInt;
   outputTokens: SafeIntOutput;
+  pendingValuationCount: number;
   picoUsd: PicoStrOutput;
   recordCount: SafeIntOutput;
   totalTokens: SafeIntOutput;
+  unallocatedCorrectionPico: string;
   unknownModelCount: SafeIntOutput;
-  unpriced: Unpriced9;
+  unpriced: Unpriced10;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -3394,7 +4882,7 @@ export interface MetricsData {
  */
 export interface HourlyTotalData {
   bucket: Bucket4;
-  displayName: Displayname11;
+  displayName: Displayname12;
   label: Label7;
   metrics: MetricsData;
 }
@@ -3403,21 +4891,26 @@ export interface HourlyTotalData {
  * via the `definition` "ModelData".
  */
 export interface ModelData {
-  cacheCoverageIncomplete: Cachecoverageincomplete11;
+  allocationIncomplete: Allocationincomplete14;
+  cacheCoverageIncomplete: Cachecoverageincomplete13;
   cacheHitRate: HitRate | null;
   cacheReadTokens: SafeIntOutput;
-  displayName: Displayname12;
-  incomplete: Incomplete10;
+  correctionPico: string;
+  displayName: Displayname13;
+  estimatePico: PicoStrOutput | null;
+  incomplete: Incomplete11;
   inputTokens: SafeIntOutput;
   missingUsageCount: SafeIntOutput;
-  modelKey: Modelkey12;
+  modelKey: Modelkey14;
   newInput: SignedSafeInt;
   outputTokens: SafeIntOutput;
+  pendingValuationCount: number;
   picoUsd: PicoStrOutput;
   recordCount: SafeIntOutput;
   totalTokens: SafeIntOutput;
+  unallocatedCorrectionPico: string;
   unknownModelCount: SafeIntOutput;
-  unpriced: Unpriced10;
+  unpriced: Unpriced11;
 }
 /**
  * This interface was referenced by `Contracts`'s JSON-Schema
@@ -3425,7 +4918,7 @@ export interface ModelData {
  */
 export interface SuccessTaskResponse {
   data: TaskResponse;
-  ok: Ok41;
+  ok: Ok52;
   revisions?: Revisions | null;
 }
 /**
@@ -3437,7 +4930,7 @@ export interface TaskResponse {
   completed: SafeIntOutput;
   error: Error | null;
   result: Result1;
-  status: Status2;
+  status: Status3;
   taskId: Identifier;
   total: SafeIntOutput;
 }
@@ -3447,7 +4940,7 @@ export interface TaskResponse {
  */
 export interface SuccessAccountEntriesResponse {
   data: AccountEntriesResponse;
-  ok: Ok42;
+  ok: Ok53;
   revisions?: Revisions | null;
 }
 /**
@@ -3456,7 +4949,7 @@ export interface SuccessAccountEntriesResponse {
  */
 export interface AccountEntriesResponse {
   entries: Entries;
-  nextCursor: Nextcursor;
+  nextCursor: Nextcursor2;
   revision: SafeIntOutput;
 }
 /**
@@ -3479,9 +4972,9 @@ export interface AccountEntry {
   fromAt: InstantStr | null;
   id: Identifier;
   intervalId: Identifier | null;
-  kind: Kind6;
+  kind: Kind7;
   manuallyCalibrated: Manuallycalibrated;
-  note: Note3;
+  note: Note6;
   noticeId: Identifier | null;
   occurredAt: InstantStr;
   originalId: Identifier | null;
@@ -3494,7 +4987,7 @@ export interface AccountEntry {
  */
 export interface SuccessWalletChangeResponse {
   data: WalletChangeResponse;
-  ok: Ok43;
+  ok: Ok54;
   revisions?: Revisions | null;
 }
 /**
@@ -3502,7 +4995,7 @@ export interface SuccessWalletChangeResponse {
  * via the `definition` "WalletChangeResponse".
  */
 export interface WalletChangeResponse {
-  action: Action1;
+  action: Action5;
   changed: Changed1;
   pricingRevision: SafeIntOutput;
   revision: SafeIntOutput;
@@ -3531,7 +5024,7 @@ export interface Vendor {
   pastConsumptionPico: string;
   pastTopUpPico: string;
   remoteWallet: WalletTotals | null;
-  status: Status3;
+  status: Status4;
   unpricedCount: SafeIntOutput;
   url: Url2;
   walletRevision: SafeIntOutput;
@@ -3566,6 +5059,7 @@ export interface WalletTotals {
   pastTopUpPico: PicoStrOutput;
   pendingConsumptionPico: string;
   pendingTopUpPico: string;
+  pendingUpdatedAt: InstantStr | null;
   postedC: PicoStrOutput | null;
   postedR: PicoStrOutput | null;
 }
@@ -3575,7 +5069,7 @@ export interface WalletTotals {
  */
 export interface SuccessDailyBookResponse {
   data: DailyBookResponse;
-  ok: Ok44;
+  ok: Ok55;
   revisions?: Revisions | null;
 }
 /**
@@ -3586,7 +5080,7 @@ export interface DailyBookResponse {
   A: PicoStrOutput;
   C: PicoStrOutput;
   R: PicoStrOutput;
-  days: Days;
+  days: Days2;
   notice: Notice;
   pending: Pending;
   providerObservedAt: InstantStr | null;
@@ -3610,7 +5104,7 @@ export interface DailyBookRow {
  */
 export interface SuccessEntriesResponse {
   data: EntriesResponse;
-  ok: Ok45;
+  ok: Ok56;
   revisions?: Revisions | null;
 }
 /**
@@ -3631,8 +5125,8 @@ export interface Entry {
   calibration: Calibration | null;
   count: SafeIntOutput;
   id: Identifier | null;
-  kind: Kind7;
-  note: Note4;
+  kind: Kind8;
+  note: Note7;
   noteDetails: EntryNoteDetails | null;
   occurredAt: InstantStr;
   seq: SafeIntOutput;
@@ -3660,7 +5154,7 @@ export interface EntryNoteDetails {
  */
 export interface SuccessWalletListResponse {
   data: WalletListResponse;
-  ok: Ok46;
+  ok: Ok57;
   revisions?: Revisions | null;
 }
 /**
@@ -3677,7 +5171,7 @@ export interface WalletListResponse {
  */
 export interface SuccessIntervalPreview {
   data: IntervalPreview;
-  ok: Ok47;
+  ok: Ok58;
   revisions?: Revisions | null;
 }
 /**
@@ -3692,11 +5186,11 @@ export interface IntervalPreview {
   beforeA: PicoStrOutput;
   beforeC: PicoStrOutput;
   beforeR: PicoStrOutput;
-  fingerprint: Fingerprint4;
+  fingerprint: Fingerprint9;
   fromAt: InstantStr;
   intervalId: Identifier;
   intervalRevision: SafeIntOutput;
   localEstimatePico: PicoStrOutput;
-  method: Method;
+  method: Method2;
   toAt: InstantStr;
 }

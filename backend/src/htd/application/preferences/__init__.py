@@ -16,6 +16,8 @@ DEFAULTS: dict[str, object] = {
     "hiddenHarnesses": [],
     "settingsSection": "display",
     "walletDefaultScope": "local",
+    "analysisView": None,
+    "statisticsView": None,
     "collapsed": False,
     "lastPage": "codex",
     "lastRoute": "",

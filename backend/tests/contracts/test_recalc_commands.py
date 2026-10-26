@@ -116,8 +116,8 @@ def test_M01_commit_original_wallet_delta_and_late_offset_replay_restart(
     )
     current = next(v for v in invoke(app, "wallet.list", {}, WalletListResponse).vendors if v.id == supplier)
     assert current.C == "4000000000000" and ("50000000000000" if calibrate else "-4000000000000") == current.B
-    assert current.localWallet and current.localWallet.B == (
-        "47000000000000" if calibrate else "-4000000000000"
+    assert (
+        current.localWallet and ("47000000000000" if calibrate else "-4000000000000") == current.localWallet.B
     )
     assert any(isinstance(e, UsageChanged) for e in events) and any(
         isinstance(e, WalletChanged) for e in events
@@ -188,7 +188,7 @@ def test_M03_window_edges(app: Application, start_offset: int, end_offset: int, 
         assert invoke(app, "maintenance.previewRecalc", params, RecalcPreview).recordCount == 0
 
 
-def test_M04_per_request_revision_and_half_open_window(app: Application) -> None:
+def test_M04_latest_target_revision_and_half_open_window(app: Application) -> None:
     g, v = group(app)
     rates(app, v, "1")
     price(app, "pricing.switchCurrent", harness="codex", groupId=g, versionId=v)
@@ -206,18 +206,18 @@ def test_M04_per_request_revision_and_half_open_window(app: Application) -> None
     )
     params = parameters(app, g, v)
     preview = invoke(app, "maintenance.previewRecalc", params, RecalcPreview)
-    assert preview.recordCount == 2 and preview.newTotal == "4000000000000"
+    assert preview.recordCount == 2 and preview.newTotal == "6000000000000"
     result = invoke(
         app,
         "maintenance.commitRecalc",
         {**params, "fingerprint": preview.fingerprint, "operationId": str(uuid4())},
         RecalcResponse,
     )
-    assert result.newTotal == "4000000000000"
+    assert result.newTotal == "6000000000000"
     revisions = (
         app.readers.get().execute("SELECT price_revision_id FROM ledger ORDER BY dedupe_key").fetchall()
     )
-    assert revisions[0][0] != revisions[1][0]
+    assert revisions[0][0] == revisions[1][0]
 
 
 @pytest.mark.parametrize("table", ["recalc_item", "wallet_total", "operation", "diagnostic_log"])
@@ -278,8 +278,9 @@ def test_recalc_keeps_original_vendor_when_target_group_and_links_differ(app: Ap
 def test_unpriced_incomplete_counts_and_zero_amount_quality_delta(app: Application) -> None:
     params, supplier = setup(app)
     app.writer.execute(lambda work: work.connection.execute("UPDATE ledger SET unpriced=1,incomplete=1"))
-    # The original version resolves to input=1 at this request, so only quality changes.
+    # Freeze a latest target rate equal to the original amount; only quality changes.
     params["versionId"] = app.readers.get().execute("SELECT price_version_id FROM ledger").fetchone()[0]
+    rates(app, str(params["versionId"]), "1")
     preview = invoke(app, "maintenance.previewRecalc", params, RecalcPreview)
     assert preview.unpricedCount == preview.incompleteCount == 0
     invoke(

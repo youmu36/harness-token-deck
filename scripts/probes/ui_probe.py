@@ -29,7 +29,9 @@ class UiProbe:
             cwd=ROOT,
             env={
                 **os.environ,
-                "PYTHONPATH": str(ROOT / "backend/src") + os.pathsep + str(ROOT),
+                "PYTHONPATH": os.environ.get("HTD_PROBE_BACKEND_ROOT", str(ROOT / "backend/src"))
+                + os.pathsep
+                + str(ROOT),
                 "HTD_PROBE_SYNTHETIC_REMOTE": "1" if synthetic_remote else "0",
                 "HTD_PROBE_STARTUP_KEY": self.startup_key,
             },
@@ -49,7 +51,8 @@ class UiProbe:
             if result.exists():
                 try:
                     reply = json.loads(result.read_text(encoding="utf-8"))
-                except json.JSONDecodeError:
+                except (PermissionError, FileNotFoundError, json.JSONDecodeError):
+                    time.sleep(0.05)
                     continue
                 if reply.get("id") == identifier:
                     return reply.get("result", reply)
@@ -59,14 +62,15 @@ class UiProbe:
     def script(self, code: str) -> Any:
         return self.command("script", script=code)
 
-    def wait(self, code: str) -> Any:
-        deadline = time.monotonic() + 10
+    def wait(self, code: str, *, timeout: float = 10) -> Any:
+        deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             result = self.script(code)
             if result:
                 return result
             time.sleep(0.05)
-        raise AssertionError(f"DOM condition timed out: {code}")
+        details = self.script("({url:location.href,body:document.body.innerText.slice(0,800)})")
+        raise AssertionError(f"DOM condition timed out: {code}; {details}")
 
     def click(self, label: str, scope: str = "document") -> None:
         assert self.script(

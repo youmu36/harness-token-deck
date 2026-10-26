@@ -45,6 +45,7 @@ class LedgerRow:
     latest_at: Instant | None = None
     daily_history: bool = False
     context_compacted: bool = False
+    pending_valuation: bool = False
     model_key: str = field(init=False)
 
     def __post_init__(self) -> None:
@@ -101,6 +102,11 @@ class Metrics:
     unpriced: bool
     unknown_model_count: int
     missing_usage_count: int
+    pending_valuation_count: int = 0
+    estimate_pico: str | None = None
+    correction_pico: str = "0"
+    unallocated_correction_pico: str = "0"
+    allocation_incomplete: bool = False
 
     def to_dict(self) -> dict[str, MetricValue]:
         return {
@@ -117,6 +123,11 @@ class Metrics:
             "unpriced": self.unpriced,
             "unknownModelCount": self.unknown_model_count,
             "missingUsageCount": self.missing_usage_count,
+            "pendingValuationCount": self.pending_valuation_count,
+            "estimatePico": self.estimate_pico if self.estimate_pico is not None else self.pico_usd,
+            "correctionPico": self.correction_pico,
+            "unallocatedCorrectionPico": self.unallocated_correction_pico,
+            "allocationIncomplete": self.allocation_incomplete,
         }
 
 
@@ -203,6 +214,8 @@ class Summary:
     hourly_totals: tuple[HourlySummary, ...]
     harnesses: tuple[HarnessSummary, ...]
     history_notice: str | None = None
+    cost_revision: int = 0
+    unallocated_trend_correction_pico: str = "0"
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -217,4 +230,6 @@ class Summary:
             "hourlyTotals": [item.to_dict() for item in self.hourly_totals],
             "harnesses": [item.to_dict() for item in self.harnesses],
             "historyNotice": self.history_notice,
+            "costRevision": self.cost_revision,
+            "unallocatedTrendCorrectionPico": self.unallocated_trend_correction_pico,
         }

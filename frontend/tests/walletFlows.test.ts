@@ -15,12 +15,12 @@ afterEach(()=>{cleanup.splice(0).forEach(fn=>fn());vi.restoreAllMocks();document
 it.each(['local','remote'] as const)('shows pending recharge and consumption separately in the %s wallet',async(scope)=>{
   const bridge=createMockBridge();cleanup.push(()=>bridge.dispose());
   const vendor=unwrap(await bridge.call('wallet.list',{})).vendors[0]!;
-  const totals={R:'5000000000000',C:'3000000000000',A:'0',B:'2000000000000',pastTopUpPico:'0',pastConsumptionPico:'0',postedR:'4000000000000',postedC:'1000000000000',pendingTopUpPico:'1000000000000',pendingConsumptionPico:'2000000000000'};
+  const totals={R:'5000000000000',C:'3000000000000',A:'0',B:'2000000000000',pastTopUpPico:'0',pastConsumptionPico:'0',postedR:'4000000000000',postedC:'1000000000000',pendingUpdatedAt: null, pendingTopUpPico:'1000000000000',pendingConsumptionPico:'2000000000000'};
   vendor.localWallet=totals;vendor.remoteWallet=totals;
   const wrapper=mount(VendorCard,{props:{vendor,scope,mode:'UTC'}});cleanup.push(()=>wrapper.unmount());
   expect(wrapper.get('[aria-label="待更新充值金额"]').text()).toBe('$1.0000');
   expect(wrapper.get('[aria-label="待更新消费金额"]').text()).toBe('$2.0000');
-  await wrapper.setProps({vendor:{...vendor,[scope==='local'?'localWallet':'remoteWallet']:{...totals,postedR:totals.R,postedC:totals.C,pendingTopUpPico:'0',pendingConsumptionPico:'0'}}});
+  await wrapper.setProps({vendor:{...vendor,[scope==='local'?'localWallet':'remoteWallet']:{...totals,postedR:totals.R,postedC:totals.C,pendingUpdatedAt: null, pendingTopUpPico:'0',pendingConsumptionPico:'0'}}});
   expect(wrapper.get('[aria-label="待更新充值金额"]').text()).toBe('$0.0000');
   expect(wrapper.get('[aria-label="待更新消费金额"]').text()).toBe('$0.0000');
 });
@@ -69,7 +69,7 @@ it('saving past amounts does not round untouched local consumption or recharge',
   const bridge=createMockBridge();cleanup.push(()=>bridge.dispose());const original=bridge.call.bind(bridge);
   const vendor=unwrap(await bridge.call('wallet.list',{})).vendors[0]!;
   const spy=vi.spyOn(bridge,'call').mockImplementation(async(name,payload)=>name==='wallet.setLocalTotals'?{ok:true,data:{vendor,vendorId:vendor.id,action:null,changed:true,revision:3,pricingRevision:1}} as never:original(name,payload));
-  vendor.localWallet={R:'1000000000001',C:'1234567890123',B:'0',A:'0',pastTopUpPico:'0',pastConsumptionPico:'0',postedR:null,postedC:null,pendingTopUpPico:'0',pendingConsumptionPico:'0'};
+  vendor.localWallet={R:'1000000000001',C:'1234567890123',B:'0',A:'0',pastTopUpPico:'0',pastConsumptionPico:'0',postedR:null,postedC:null,pendingUpdatedAt: null, pendingTopUpPico:'0',pendingConsumptionPico:'0'};
   const wrapper=mount(LocalWalletDialog,{props:{vendor},global:{provide:{[BridgeKey as symbol]:bridge},stubs:{teleport:true}}});cleanup.push(()=>wrapper.unmount());
   await wrapper.get('[aria-label="本地过往充值"]').setValue('3');await wrapper.get('form').trigger('submit');await flushPromises();
   const payload=spy.mock.calls.find(([name])=>name==='wallet.setLocalTotals')![1];

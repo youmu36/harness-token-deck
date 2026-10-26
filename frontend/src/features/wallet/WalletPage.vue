@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import WalletReconciliation from './WalletReconciliation.vue';
 import { Plus } from 'lucide-vue-next';
 import { useWallet } from './useWallet';
 import type { CommandData } from '../../app/ports';
@@ -24,7 +25,7 @@ import EmptyState from '../../ui/EmptyState.vue';
 import { useCommand } from '../../shared/command';
 import type { GuideTarget } from '../../app/router';
 import { vGuideFocus } from '../../shared/guideFocus';
-const props = defineProps<{ detail?: string; initialPreferences: CommandData<'preferences.get'>; guideTarget?: GuideTarget }>();
+const props = defineProps<{ detail?: string; initialPreferences: CommandData<'preferences.get'>; guideTarget?: GuideTarget; walletSection?: 'reconcile' | 'allocate' | 'missing' | 'unassigned' }>();
 const wallet = useWallet(props.initialPreferences); const action = ref<WalletAction>(); const vendor = ref<Vendor>();
 const remoteVendor = ref<Vendor>(); const remoteObservation = ref<RemoteObservation>();
 const scanningProviders = ref(false);
@@ -44,7 +45,8 @@ const localEditing = ref(false);
 const adjustment = ref<{vendor:Vendor;target:'top_up'|'consumption'}>();
 const selectedId = ref(props.detail ?? '');
 const list = ref('active');
-const section = ref(props.detail ? 'entries' : 'summary');
+const normalizeSection = (value?:string) => value === 'missing' || value === 'unassigned' ? 'summary' : value;
+const section = ref(normalizeSection(props.walletSection) ?? (props.detail ? 'entries' : 'summary'));
 const current = computed(() => wallet.query.data.value?.vendors.find(v => v.id === selectedId.value));
 const visibilityCommand = useCommand('wallet.setVisibility');
 const walletTabs = computed(() => [
@@ -69,15 +71,16 @@ function displayBalance(item: Vendor) {
 }
 const visible = computed(() => list.value === 'archived' ? wallet.archived.value : wallet.active.value);
 const sections = computed(() => current.value?.status === 'archived'
-  ? [{ value: 'summary', label: '钱包概览' }, { value: 'entries', label: '资金流水' }, {value:'book',label:'记账本'}, { value: 'settings', label: '供应商设置' }]
-  : [{ value: 'summary', label: '钱包概览' }, { value: 'entries', label: '资金流水' }, {value:'book',label:'记账本'}, ...(walletScope.value === 'remote' ? [{ value: 'remote', label: '远程账户' }] : []), { value: 'settings', label: '供应商设置' }]);
-watch(sections, values => {if(!values.some(item=>item.value===section.value)) section.value='summary';});
-watch(() => props.detail, id => { selectedId.value = id ?? ''; walletScope.value = defaultScope.value; section.value = id ? 'entries' : 'summary'; });
+  ? [{ value: 'summary', label: '钱包概览' }, { value: 'entries', label: '资金流水' }, {value:'book',label:'记账本'}, {value:'reconcile',label:'本地消费校准'}, { value: 'settings', label: '供应商设置' }]
+  : [{ value: 'summary', label: '钱包概览' }, { value: 'entries', label: '资金流水' }, {value:'book',label:'记账本'}, {value:'reconcile',label:'本地消费校准'}, ...(walletScope.value === 'remote' ? [{ value: 'remote', label: '远程账户' }] : []), { value: 'settings', label: '供应商设置' }]);
+const specialSection = () => section.value === 'allocate';
+watch(sections, values => {if(!specialSection() && !values.some(item=>item.value===section.value)) section.value='summary';});
+watch([() => props.detail, () => props.walletSection], ([id, target]) => { selectedId.value = id ?? ''; walletScope.value = defaultScope.value; section.value = normalizeSection(target) ?? (id ? 'entries' : 'summary'); });
 watch([wallet.query.data, list, () => props.detail], () => {
   if (!wallet.query.data.value) return;
   if (props.detail && current.value) list.value = current.value.status;
   if (!props.detail && !visible.value.some(v => v.id === selectedId.value)) selectedId.value = visible.value[0]?.id ?? '';
-  if (!sections.value.some(item => item.value === section.value)) section.value = 'summary';
+  if (!specialSection() && !sections.value.some(item => item.value === section.value)) section.value = 'summary';
 });
 function selectVendor(id: string) { selectedId.value = id; walletScope.value = (current.value?.walletVisibility === 'local' || current.value?.walletVisibility === 'remote') ? current.value.walletVisibility : defaultScope.value; section.value = 'summary'; }
 async function scannedProviders(id: string) { await wallet.query.refresh(); list.value = 'active'; selectVendor(id); }
@@ -109,7 +112,8 @@ async function saved(id: string) {
         <p class="wallet-source text-muted">{{walletScope === 'local' ? '本地钱包 · 人工记录充值，按本地估算消费记账。' : '远程钱包 · 按远程账户余额变动核算充值与消费。'}} 金额校准仅作用于当前钱包。</p>
         <InlineAlert v-if="defaultError" severity="danger">{{defaultError}}</InlineAlert>
         <SectionNav :model-value="section" label="供应商二级导航" :items="sections" @update:model-value="section = $event" />
-        <VendorCard v-if="section === 'summary' && (walletScope === 'local' || current.remoteWallet)" :vendor="current" :scope="walletScope" :catalog="wallet.catalog.data.value" :mode="wallet.mode.value" @local="localEditing = true" @action="open($event, current)" @entries="section = 'entries'" @correct="$event === 'top_up' ? section = 'entries' : adjustment = { vendor: current, target: $event }" />
+        <WalletReconciliation v-if="section === 'reconcile' || section === 'allocate'" :key="current.id" :vendor-id="current.id" :mode="wallet.mode.value" :readonly="current.status === 'archived'" :manual="section === 'allocate'" />
+        <VendorCard v-else-if="section === 'summary' && (walletScope === 'local' || current.remoteWallet)" :vendor="current" :scope="walletScope" :catalog="wallet.catalog.data.value" :mode="wallet.mode.value" @local="localEditing = true" @action="open($event, current)" @entries="section = 'entries'" @correct="$event === 'top_up' ? section = 'entries' : adjustment = { vendor: current, target: $event }" />
         <section v-else-if="section === 'summary'" class="remote-panel surface"><EmptyState message="尚无远程钱包记录，请先配置远程账户。" /><Button v-if="current.status === 'active'" @click="remoteVendor=current">配置远程账户</Button></section><AccountEntries v-else-if="section === 'entries'" :key="`${walletScope}/${current.id}`" :vendor-id="current.id" :mode="wallet.mode.value" :scope="walletScope" :readonly="current.status === 'archived'" /><WalletDailyBook v-else-if="section === 'book'" :key="`${walletScope}/${current.id}`" :vendor-id="current.id" :scope="walletScope" />
         <section v-else-if="section === 'remote'" class="remote-panel surface"><h2>远程账户与余额</h2><p class="text-muted">远程余额按观测时点显示。支持累计消费时优先核算区间消费与精确净流入；只有余额时结合本地估算推算，候选净流入至少 1 USD 才向上取整记充值。首次观测只建基线，区间充值可包含多笔、赠送或退款。</p><RemoteBalanceRow :key="current.id" :vendor-id="current.id" :mode="wallet.mode.value" @configure="remoteVendor = current" @calibrate="calibrateRemote($event, current)" /><Button @click="remoteVendor = current">编辑远程账户</Button></section>
         <VendorSettings v-else :vendor="current" :scope="walletScope" @local="localEditing = true" @action="open($event, current)" @correct="walletScope === 'local' ? localEditing = true : $event === 'top_up' ? section = 'entries' : adjustment = { vendor: current, target: $event }" />

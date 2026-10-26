@@ -1,7 +1,7 @@
 import { formatAxisCost, formatMoney } from '../../shared/money';
 
 export type AxisFormat = 'tokens' | 'cost' | 'percent' | ((value: number) => string);
-export interface ChartSegment { label: string; value: number | null; color?: string }
+export interface ChartSegment { label: string; value: number | null; color?: string; glow?: boolean }
 export interface ChartPoint {
   label: string;
   tooltipLabel?: string;

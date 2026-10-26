@@ -196,6 +196,7 @@ def parse_record(record: object, ctx: DshContext, started_at: Instant | None = N
             harness=Harness.DSH,
             dedupe_key=identity_key([ctx.raw_session_id, turn, step]),
             session_id=ctx.session_id,
+            native_session_id=ctx.raw_session_id,
             request_id=f"{turn}:{step}",
             model_id=ctx.model_id,
             occurred_at=format_instant(occurred_at),

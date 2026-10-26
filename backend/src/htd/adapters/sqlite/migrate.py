@@ -87,7 +87,16 @@ def migrate(
         )
         if full_schema and any(
             connection.execute("SELECT 1 FROM sqlite_schema WHERE name=?", (table,)).fetchone() is None
-            for table in ("usage_dimensions", "wallet_recalc_pending")
+            for table in (
+                "usage_dimensions",
+                "wallet_recalc_pending",
+                "session_directory",
+                "session_request",
+                "reconciliation_member",
+                "calibration_target",
+                "usage_recent",
+                "session_monitor_revision",
+            )
         ):
             extension_missing = True
         if applied and (pending or extension_missing):

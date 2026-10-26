@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, onScopeDispose, ref, watch } from 'vue';
 import { BridgeKey, type CommandData } from '../../app/ports';
-import { unwrap } from '../../app/errors';
+import { readShared } from '../../shared/readService';
 import { useQuery } from '../../shared/query';
 import type { ModelRow, UsageHarness, UsageRange } from './types';
 import HourlyTable from './HourlyTable.vue';
@@ -39,30 +39,34 @@ let revisionGeneration = 0;
 onScopeDispose(bridge.events.subscribe('usage.changed', event => {
   if (props.harness === 'all' || event.harnesses.includes(props.harness)) { revisionGeneration++; pages.clear(); }
 }));
+onScopeDispose(bridge.events.subscribe('cost.changed', () => {revisionGeneration++;pages.clear();}));
+watch(opened, value => {if(!value)pages.clear();});
 watch(() => props.focusBucket, value => {
   if (!value) return;
   const at = Date.parse(value), offset = props.range.offsetMinutes * 60000;
   selectedDay.value = String(Math.floor((at + offset) / day) * day - offset);
   full.value = false; opened.value = true;
 });
-const query = useQuery('usage.hours', async () => {
+const query = useQuery('usage.hours', async signal => {
   const rows = [];
   const generation = revisionGeneration;
   for (const interval of intervals.value) {
     const key = [props.harness, props.modelValue, props.range.offsetMinutes, interval.start, interval.end].join('|');
     const cached = pages.get(key);
     if (cached) { rows.push(cached); continue; }
-    const result = unwrap(await bridge.call('stats.summary', {
+    const result = await readShared(bridge, 'stats.summary', {
       harness: props.harness, start: new Date(interval.start).toISOString(), end: new Date(interval.end).toISOString(),
       offsetMinutes: props.range.offsetMinutes, grain: 'hour', sections: props.modelValue === null ? ['hourlyTotals'] : ['hourly'], modelKey: props.modelValue,
-    }));
+    }, signal);
     rows.push(result);
-    if (generation === revisionGeneration) { pages.set(key, result); while (pages.size > 32) pages.delete(pages.keys().next().value!); }
+    if (generation === revisionGeneration) { pages.set(key, result); while (pages.size > 4) pages.delete(pages.keys().next().value!); }
   }
   const historyNotice = rows.find(row => row.historyNotice)?.historyNotice;
   return { hourly: historyNotice ? [] : rows.flatMap(row => row.hourly), hourlyTotals: historyNotice ? [] : rows.flatMap(row => row.hourlyTotals), historyNotice };
-}, { visible: opened, deps: [requestKey], clearOnChange: true, coalesce: true,
-  events: [{ name: 'usage.changed', when: event => props.harness === 'all' || event.harnesses.includes(props.harness) }] });
+}, { visible: opened, deps: [requestKey], clearOnChange: true, clearOnHide: true,
+  identity: () => [props.harness,props.queryKey,props.modelValue,props.range.offsetMinutes,selectedDay.value,full.value].join('|'),
+  coalesce: true, eventIntervalMs:5000,
+  events: ['cost.changed', { name: 'usage.changed', when: event => props.harness === 'all' || event.harnesses.includes(props.harness) }] });
 </script>
 <template>
   <section class="hourly-details">

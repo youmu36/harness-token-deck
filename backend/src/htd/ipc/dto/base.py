@@ -20,6 +20,7 @@ type Scope = Literal[
     "ownership",
     "auxiliary",
     "output",
+    "cost",
 ]
 type SafeInt = Annotated[int, Field(strict=True, ge=0, le=2**53 - 1)]
 type Revisions = dict[Scope, SafeInt]
@@ -51,7 +52,12 @@ type InstantStr = Annotated[
 
 
 class StrictModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True, json_schema_serialization_defaults_required=True)
+    model_config = ConfigDict(
+        extra="forbid",
+        strict=True,
+        json_schema_serialization_defaults_required=True,
+        defer_build=True,
+    )
 
 
 class EmptyRequest(StrictModel):

@@ -4,10 +4,21 @@ import {
   call, ContractMismatch, eventValidators, requestValidators, responseValidators, validateResponse,
 } from '../src/infra/generated/commands';
 import type { CommandName, ResponseMap } from '../src/infra/generated/commands';
+import { commandValidators } from '../src/infra/generated/lazyValidators';
 
 const recordings = recordedData as { command: CommandName; payload: object; response: unknown }[];
 
 describe('generated IPC contracts', () => {
+  it('loads the same strict Ajv validators through the lazy command path', async () => {
+    for (const recording of recordings) {
+      const lazy = await commandValidators(recording.command);
+      expect(lazy.request).toBe(requestValidators[recording.command]);
+      expect(lazy.response).toBe(responseValidators[recording.command]);
+      expect(lazy.response(recording.response)).toBe(true);
+      expect(lazy.response({ ok: true, data: null })).toBe(false);
+      expect(lazy.request({ ...recording.payload, __unexpected: true })).toBe(false);
+    }
+  });
   it('validates genuine router envelopes for every registered command', () => {
     const covered = new Set<string>();
     const coveredEvents = new Set<string>();

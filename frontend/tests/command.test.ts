@@ -61,6 +61,7 @@ describe('useCommand', () => {
     const pending = command.run(draft);
     const id = command.operationId.value;
     draft.patch.theme = 'light';
+    await vi.dynamicImportSettled();
     expect(sent?.patch.theme).toBe('dark');
     await expect(command.run(draft)).rejects.toMatchObject({ code: 'COMMAND_PENDING' });
     expect(command.operationId.value).toBe(id);

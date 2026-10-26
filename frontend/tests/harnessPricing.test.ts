@@ -149,7 +149,7 @@ describe('vendor balance card', () => {
     const call = vi.spyOn(bridge, 'call').mockImplementation(async (name, payload) => name === 'wallet.list' && failure ? { ok: false, error: { code: 'READ_TIMEOUT', message: 'timeout', retryable: true } } as never : original(name, payload));
     const wrapper = renderBalance(bridge); await flushPromises(); expect(wrapper.get('.money').text()).toBe('12.33');
     bridge.receiveEvent('wallet.changed', { revision: 2, vendorIds: ['vendor-alternate'] }); await flushPromises(); expect(calls(call, 'wallet.list')).toHaveLength(1);
-    failure = true; bridge.receiveEvent('wallet.changed', { revision: 3, vendorIds: ['vendor-standard'] }); await flushPromises();
+    failure = true; bridge.receiveEvent('wallet.changed', { revision: 3, vendorIds: ['vendor-standard'] }); await vi.advanceTimersByTimeAsync(5000); await flushPromises();
     expect(calls(call, 'wallet.list')).toHaveLength(2); expect(wrapper.get('.money').text()).toBe('---');
     expect(wrapper.attributes('title')).toContain('读取等待超时');
   });

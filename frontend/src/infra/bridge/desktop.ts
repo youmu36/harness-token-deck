@@ -35,6 +35,29 @@ function ready(timeoutMs: number): Promise<DesktopApi> {
 }
 
 export function createDesktopBridge(options: { timeoutMs?: number; readyTimeoutMs?: number } = {}): Bridge {
+  let pending = 0, frontendReady = false, contentReady = false, settled = false, disposed = false;
+  let idle: ReturnType<typeof setTimeout> | undefined;
+  let frame: number | undefined;
+  function cancelSettled() {
+    clearTimeout(idle); idle = undefined;
+    if (frame !== undefined) cancelAnimationFrame(frame);
+    frame = undefined;
+  }
+  function scheduleSettled() {
+    cancelSettled();
+    if (disposed || settled || !frontendReady || !contentReady || pending) return;
+    idle = setTimeout(() => {
+      idle = undefined;
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => {
+          frame = undefined;
+          if (disposed || pending || !frontendReady) return;
+          settled = true;
+          host()?.postMessage('htd.startupSettled');
+        });
+      });
+    }, 500);
+  }
   const bridge = createValidatedBridge('desktop', async (command, payload) => {
     const api = await ready(options.readyTimeoutMs ?? 15_000);
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -52,10 +75,16 @@ export function createDesktopBridge(options: { timeoutMs?: number; readyTimeoutM
       if (error instanceof AppError) throw error;
       throw new AppError({ code: 'BRIDGE_UNAVAILABLE', message: '本机应用连接中断', retryable: true });
     } finally { clearTimeout(timer); }
-  });
-  return { ...bridge, host: host() ? {
+  }, undefined, count => { pending = count; scheduleSettled(); });
+  return { ...bridge, dispose: () => { disposed = true; cancelSettled(); bridge.dispose(); }, host: host() ? {
     openLogDir: () => host()?.postMessage('htd.openLogDir'),
     quit: () => host()?.postMessage('htd.quit'),
-    setReady: (ready: boolean) => host()?.postMessage(ready ? 'htd.ready' : 'htd.unready'),
+    setReady: (ready: boolean) => {
+      frontendReady = ready;
+      if (!ready) contentReady = false;
+      host()?.postMessage(ready ? 'htd.ready' : 'htd.unready');
+      scheduleSettled();
+    },
+    setContentReady: () => { contentReady = true; scheduleSettled(); },
   } : undefined };
 }

@@ -11,6 +11,7 @@ from typing import Literal
 
 from htd.adapters.sqlite.counter_codec import unpack
 from htd.adapters.sqlite.usage_archive import ArchiveRow, archived_rows
+from htd.adapters.sqlite.usage_codec import decode_event
 from htd.application.ports import SourceCounts
 from htd.domain.common.errors import PICO_INVALID, DomainError
 from htd.domain.common.time import Instant, format_instant, parse_instant
@@ -62,7 +63,7 @@ class LedgerReader:
     def __init__(self, connection: sqlite3.Connection) -> None:
         self.connection = connection
 
-    def _details(
+    def _billed_details(
         self,
         start: Instant,
         end: Instant,
@@ -114,6 +115,54 @@ class LedgerReader:
                 )
         finally:
             cursor.close()
+
+    def _details(
+        self,
+        start: Instant,
+        end: Instant,
+        *,
+        harness: Harness | Literal["all"] = "all",
+        model_key: str | None = None,
+        validate: bool = True,
+    ) -> Generator[LedgerRow, None, None]:
+        def accepted() -> Generator[LedgerRow, None, None]:
+            clause, args = _harness_filter(harness)
+            for row in self.connection.execute(
+                "SELECT event_json FROM inbox WHERE occurred_at>=? AND occurred_at<?"
+                + clause
+                + " AND NOT EXISTS(SELECT 1 FROM ledger l WHERE l.harness=inbox.harness "
+                + "AND l.dedupe_key=inbox.dedupe_key) "
+                + "ORDER BY harness,COALESCE(CASE WHEN json_valid(event_json) THEN "
+                + "json_extract(event_json,'$.session_id') END,''),occurred_at,dedupe_key",
+                (format_instant(start), format_instant(end), *args),
+            ):
+                try:
+                    event = decode_event(row[0])
+                except (ValueError, DomainError):
+                    continue
+                item = LedgerRow(
+                    event.harness,
+                    event.dedupe_key,
+                    event.session_id,
+                    parse_instant(event.occurred_at),
+                    event.model_id,
+                    event.tokens.input,
+                    event.tokens.cache_read,
+                    event.tokens.output,
+                    0,
+                    True,
+                    False,
+                    pending_valuation=True,
+                    context_compacted="context_compacted" in event.issues,
+                )
+                if model_key is None or item.model_key == model_key:
+                    yield item
+
+        yield from heapq.merge(
+            self._billed_details(start, end, harness=harness, model_key=model_key, validate=validate),
+            accepted(),
+            key=lambda item: item.order_key,
+        )
 
     def _rollups(
         self,

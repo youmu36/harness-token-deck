@@ -8,7 +8,7 @@ from htd.adapters.sqlite.key_codec import key_bytes
 from htd.adapters.sqlite.pricing_repo import PricingRepository
 from htd.adapters.sqlite.transaction import require_transaction
 from htd.adapters.sqlite.wallet_repo import WalletRepository
-from htd.application.ports import TitleRequest, UnitOfWork, WalletChanged
+from htd.application.ports import AuxiliaryChanged, TitleRequest, UnitOfWork, WalletChanged
 from htd.domain.common.time import Instant, format_instant, parse_instant
 from htd.domain.usage.model import Harness
 from htd.domain.wallet.ledger import attribute_consumption
@@ -23,6 +23,7 @@ class TitleRepository:
 
     def collect(self, work: UnitOfWork, requests: tuple[TitleRequest, ...], *, at: Instant) -> None:
         require_transaction(work, self.connection)
+        before = work.revision("auxiliary")
         for request in requests:
             if re.fullmatch(r"[0-9a-f]{64}", request.dedupe_key) is None:
                 raise ValueError("Invalid title identity")
@@ -32,6 +33,8 @@ class TitleRepository:
             ).rowcount
             if inserted:
                 work.touch("auxiliary")
+        if work.revision("auxiliary") != before:
+            work.emit(AuxiliaryChanged(work.revision("auxiliary")))
         if (
             self.connection.execute(
                 "SELECT 1 FROM title_request WHERE wallet_entry_id IS NULL AND "

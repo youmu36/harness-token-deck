@@ -104,7 +104,7 @@ export function createMockWallet(state: CommandData<'wallet.list'>, catalog: Com
     if (!entries.has(id)) entries.set(id, []); if (appended) { seq++; entries.get(id)!.push(appended); } if (action === 'delete') entries.delete(id);
     const result: WalletChangeResponse = { changed, revision: state.revision, pricingRevision: catalog.revision, vendorId: id, vendor: state.vendors.find(v => v.id === id) ?? null, action };
     receipts.set(request.operationId, { fingerprint, result: structuredClone(result) });
-    if (changed) emit('wallet.changed', { revision: state.revision, vendorIds: [...affected] });
+    if (changed) emit('wallet.changed', { revision: state.revision, vendorIds: [...affected], catalogChanged: ['wallet.createVendor', 'wallet.renameVendor', 'wallet.deleteVendor', 'wallet.restoreVendor'].includes(command) });
     if (associationChanged) emit('pricing.changed', { revision: catalog.revision });
     return structuredClone(result);
   }
@@ -129,7 +129,7 @@ export function createMockWallet(state: CommandData<'wallet.list'>, catalog: Com
     for (const vendor of next.vendors) vendor.walletRevision = next.revision;
     Object.assign(state, next);
     const result: WalletChangeResponse = { vendor: next.vendors.at(-1)!, vendorId: ids.at(-1)!, action: null, changed: true, revision: next.revision, pricingRevision: catalog.revision };
-    receipts.set(request.operationId, { fingerprint, result: structuredClone(result) }); emit('wallet.changed', { vendorIds: ids, revision: state.revision }); return structuredClone(result);
+    receipts.set(request.operationId, { fingerprint, result: structuredClone(result) }); emit('wallet.changed', { vendorIds: ids, revision: state.revision, catalogChanged: true }); return structuredClone(result);
   }
   function recalc(deltas: CommandData<'maintenance.previewRecalc'>['vendors']) {
     if (!deltas.length) return;
@@ -138,6 +138,10 @@ export function createMockWallet(state: CommandData<'wallet.list'>, catalog: Com
       const vendor = state.vendors.find(v => v.id === delta.vendorId)!;
       vendor.C = (BigInt(vendor.C) + BigInt(delta.consumptionDelta)).toString();
       vendor.B = (BigInt(vendor.B) + BigInt(delta.balanceDelta)).toString();
+      if (vendor.localWallet) {
+        vendor.localWallet.C = (BigInt(vendor.localWallet.C) + BigInt(delta.consumptionDelta)).toString();
+        vendor.localWallet.B = (BigInt(vendor.localWallet.B) + BigInt(delta.balanceDelta)).toString();
+      }
       vendor.A = (BigInt(vendor.B) - BigInt(vendor.R) + BigInt(vendor.C)).toString();
       vendor.walletRevision = state.revision;
       entries.get(vendor.id)!.push({ id: null, kind: 'adjustment', seq: ++seq, amountPico: delta.balanceDelta, occurredAt: new Date().toISOString(), count: 1, note: 'recalc', calibration: null, noteDetails: null });

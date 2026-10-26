@@ -1,4 +1,4 @@
-import { flushPromises, mount } from '@vue/test-utils';
+import { flushPromises as flushVue, mount } from '@vue/test-utils';
 import { afterEach, expect, test, vi } from 'vitest';
 import App from '../src/App.vue';
 import { BridgeKey, type Bridge } from '../src/app/ports';
@@ -8,6 +8,7 @@ import { entryNote } from '../src/features/wallet/entryNotes';
 import ReconciliationNotice from '../src/features/reconciliation/ReconciliationNotice.vue';
 import RemoteAccountDialog from '../src/features/wallet/RemoteAccountDialog.vue';
 
+async function flushPromises() { await flushVue(); await vi.dynamicImportSettled(); await flushVue(); }
 const cleanup: (() => void)[] = [];
 afterEach(() => { cleanup.splice(0).reverse().forEach(fn => fn()); history.replaceState(null, '', '/'); document.body.innerHTML = ''; vi.restoreAllMocks(); });
 async function readyBridge(patch: object = {}) {
@@ -24,10 +25,10 @@ test('hidden pages stay inaccessible after restart and every Harness uses the sh
   history.replaceState(null, '', '/');
   const bridge = await readyBridge({ hiddenHarnesses: ['claude'], lastRoute: '/harness/claude', lastPage: 'claude' });
   const wrapper = await render(bridge);
-  expect(wrapper.get('h1').text()).toBe('数据统计与分析');
+  expect(wrapper.find('[aria-label="统计分析子页"]').exists()).toBe(true);
   expect(wrapper.find('nav a[aria-label="Claude Code"]').exists()).toBe(false);
   location.hash = '#/harness/claude'; window.dispatchEvent(new HashChangeEvent('hashchange')); await flushPromises();
-  expect(wrapper.get('h1').text()).toBe('数据统计与分析');
+  expect(wrapper.find('[aria-label="统计分析子页"]').exists()).toBe(true);
   const preferences = unwrap(await bridge.call('preferences.get', {}));
   expect(preferences.preferences.lastRoute).toBe('/overview');
   await wrapper.get('nav a[aria-label="设置"]').trigger('click'); await flushPromises();

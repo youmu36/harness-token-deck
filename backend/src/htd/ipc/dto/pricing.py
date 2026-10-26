@@ -10,7 +10,7 @@ from htd.ipc.dto.events import HarnessName
 
 type Identifier = Annotated[str, StringConstraints(min_length=1, max_length=160)]
 type Name = Annotated[str, StringConstraints(min_length=1, max_length=60)]
-type MultiplierStr = Annotated[str, StringConstraints(pattern=r"^[0-9]{1,9}(?:\.[0-9]{1,3})?$")]
+type MultiplierStr = Annotated[str, StringConstraints(pattern=r"^[0-9]{1,9}(?:\.[0-9]{1,4})?$")]
 
 
 class PricingWrite(WriteRequest):
@@ -98,6 +98,10 @@ class Group(StrictModel):
 class Selection(StrictModel):
     groupId: Identifier | None
     versionId: Identifier | None
+
+
+class CatalogRequest(StrictModel):
+    metadataOnly: bool = False
 
 
 class CatalogResponse(StrictModel):

@@ -17,7 +17,7 @@ from htd.domain.pricing.model import (
 from htd.domain.usage.model import Harness
 
 
-def load_catalog(connection: sqlite3.Connection) -> Catalog:
+def load_catalog(connection: sqlite3.Connection, *, metadata_only: bool = False) -> Catalog:
     own_transaction = not connection.in_transaction
     if own_transaction:
         connection.execute("BEGIN")
@@ -55,10 +55,11 @@ def load_catalog(connection: sqlite3.Connection) -> Catalog:
         models: dict[str, list[ModelRate]] = {}
         cursor = connection.cursor()
         cursor.row_factory = None
-        cursor.execute(
-            "SELECT revision_id,model_id,display_name,input,cache,output,rule_json,cache_write "
-            "FROM price_revision_model ORDER BY revision_id,model_key"
-        )
+        if not metadata_only:
+            cursor.execute(
+                "SELECT revision_id,model_id,display_name,input,cache,output,rule_json,cache_write "
+                "FROM price_revision_model ORDER BY revision_id,model_key"
+            )
         for row in cursor:
             key = row[1:]
             if key not in model_cache:
@@ -72,6 +73,7 @@ def load_catalog(connection: sqlite3.Connection) -> Catalog:
                     row[7],
                 )
             models.setdefault(row[0], []).append(model_cache[key])
+        cursor.close()
         revisions = tuple(
             PriceRevision(
                 row["id"],
@@ -96,12 +98,18 @@ def load_catalog(connection: sqlite3.Connection) -> Catalog:
         )
         hints = tuple(
             EditorHints(row["version_id"], row["model_id"], row["multiplier"])
-            for row in connection.execute("SELECT * FROM editor_hint ORDER BY rowid")
+            for row in (
+                () if metadata_only else connection.execute("SELECT * FROM editor_hint ORDER BY rowid")
+            )
         )
         switches = tuple(
             decode_switch(row[0])
-            for row in connection.execute(
-                "SELECT result_json FROM operation WHERE command='pricing.switch' ORDER BY rowid"
+            for row in (
+                ()
+                if metadata_only
+                else connection.execute(
+                    "SELECT result_json FROM operation WHERE command='pricing.switch' ORDER BY rowid"
+                )
             )
         )
         revision = int(connection.execute("SELECT value FROM revision WHERE scope='pricing'").fetchone()[0])

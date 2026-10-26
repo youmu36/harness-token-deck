@@ -233,7 +233,7 @@ def test_scan_now_returns_after_real_billing_and_tick(app: Application) -> None:
     assert scanned.nextPeriodicAt == "2026-09-01T00:00:30.000Z"
     assert invoke(app, "collection.scanNow", payload, ScanNowResponse) == scanned
     events = {event.name: event.model_dump(mode="json")["payload"] for event in app.events.snapshot()}
-    assert events["usage.changed"]["revision"] == 1
+    assert events["usage.changed"]["revision"] == app.revisions()["usage"]
     assert events["collection.tick"]["lastCompletedAt"] == scanned.completedAt
     assert events["collection.tick"]["nextPeriodicAt"] == scanned.nextPeriodicAt
 

@@ -11,7 +11,8 @@ from typing import cast
 from uuid import uuid4
 
 import pytest
-from htd.application.ports import TaskDone
+from htd.adapters.data_directory import DataLocation, resolve_data_directory
+from htd.application.ports import AuxiliaryChanged, TaskDone
 from htd.application.remote.ports import MemoryCredentialStore
 from htd.bootstrap import Application
 from htd.domain.common.testing import FakeClock
@@ -93,6 +94,7 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
         recorder.call("pricing.unpriced")
         recorder.call("pricing.unpricedNotice")
         recorder.call("stats.exploreOptions")
+        recorder.call("stats.cancelAnalysis", {"queryId": "synthetic-cancel"})
         recorder.call("stats.outputReferences")
         recorder.call(
             "stats.explore", {"start": "2026-10-01T00:00:00.000Z", "end": "2026-10-02T00:00:00.000Z"}
@@ -107,6 +109,12 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
         )
         recorder.error("app.hello", {"clientProtocol": 1, "extra": True}, "INVALID_REQUEST")
         recorder.call("sources.list")
+        write(
+            "sources.setEnabled", harness="codex", enabled=False, expectedRevision=app.revisions()["sources"]
+        )
+        write(
+            "sources.setEnabled", harness="codex", enabled=True, expectedRevision=app.revisions()["sources"]
+        )
         write("sources.autoDetect", expectedRevision=app.revisions()["sources"])
         sessions = tmp_path / "synthetic sessions"
         sessions.mkdir()
@@ -310,15 +318,34 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
         }
         recorder.call("stats.auxiliaryCosts", window)
         recorder.call("stats.longTerm", window)
+        recorder.call("stats.evidence", window)
         recorder.call("stats.analytics", {"harness": "all", "period": "all", "limit": 1})
         recorder.call("stats.summary", {**window, "offsetMinutes": 480, "grain": "hour"})
         recorder.call("stats.cacheMonitor", {"harness": "codex", "mode": "minute", "offsetMinutes": 480})
+        scope = {"vendorId": vendor_id, "start": window["start"], "end": window["end"]}
+        recorder.call("reconciliation.preview", scope)
+        recorder.call("reconciliation.batches", scope)
         clock.advance(1)
         price("pricing.saveVersionPrices", versionId=version_id, models=[{**model, "input": "2"}])
         recalc = {**window, "groupId": group_id, "versionId": version_id}
+        write(
+            "wallet.linkGroups",
+            vendorId=vendor_id,
+            groupIds=[group_id],
+            expectedRevision=app.revisions()["wallet"],
+        )
         preview = recorder.call("maintenance.previewRecalc", recalc)
         assert preview["recordCount"] == 1
         write("maintenance.commitRecalc", **recalc, fingerprint=preview["fingerprint"])
+        calibration = {
+            **scope,
+            "targetPico": preview["newTotal"],
+            "confirmLocalScope": True,
+            "acknowledgeIncomplete": True,
+        }
+        target = recorder.call("reconciliation.previewCalibration", calibration)
+        write("reconciliation.commitCalibration", **calibration, fingerprint=target["fingerprint"])
+        recorder.call("reconciliation.targets", {"vendorId": vendor_id})
         recorder.call("pricing.catalog")
         recorder.call("maintenance.previewRetention", {"retention": 90})
         write(
@@ -332,6 +359,7 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
         app.remote.invoke(lambda service: service.store.flush_pending(clock.now_utc()))
         assert app.revisions()["output"] > 0
         app.events.set_visible(False)
+        app.bus.publish(AuxiliaryChanged(app.revisions()["auxiliary"]))
         recorder.call("app.sync")
         legacy_copy = tmp_path / "synthetic-legacy.sqlite3"
         shutil.copyfile(legacy, legacy_copy)
@@ -361,4 +389,25 @@ def test_record_all_registered_commands(tmp_path: Path, monkeypatch: pytest.Monk
                 {"migrationId": migration["migrationId"], "operationId": str(uuid4())},
             )
             recorder.records.extend(migration_recorder.records)
+        original = tmp_path / "directory-data"
+        destination = tmp_path / "directory-target"
+        location = DataLocation(original, "default", tmp_path / "locator/HarnessTokenDeck.location.json")
+        with Application(data_location=location, clock=clock, start_scheduler=False) as directory_app:
+            directory_recorder = Recorder(directory_app, tmp_path)
+            directory_recorder.call("dataDirectory.status")
+            directory_preview = directory_recorder.call("dataDirectory.preview", {"target": str(destination)})
+            directory_recorder.call(
+                "dataDirectory.move",
+                {
+                    "target": str(destination),
+                    "fingerprint": directory_preview["fingerprint"],
+                    "operationId": str(uuid4()),
+                },
+            )
+            recorder.records.extend(directory_recorder.records)
+        selected = resolve_data_directory(environ={"LOCALAPPDATA": str(location.locator.parent)})
+        with Application(data_location=selected, clock=clock, start_scheduler=False) as directory_app:
+            directory_recorder = Recorder(directory_app, tmp_path)
+            directory_recorder.call("dataDirectory.cleanup", {"operationId": str(uuid4())})
+            recorder.records.extend(directory_recorder.records)
         recorder.save(FIXTURE)

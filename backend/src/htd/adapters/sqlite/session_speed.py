@@ -21,6 +21,8 @@ def install(db: sqlite3.Connection) -> None:
         "output_tokens TEXT NOT NULL,duration_ms TEXT NOT NULL,window_json TEXT NOT NULL,"
         "PRIMARY KEY(harness,session_key,model_key)) STRICT, WITHOUT ROWID",
         "CREATE INDEX IF NOT EXISTS output_session_activity ON output_session(harness,last_received_at DESC)",
+        "CREATE INDEX IF NOT EXISTS output_session_latest "
+        "ON output_session(harness,session_key,last_received_at DESC,model_key)",
         "CREATE TABLE IF NOT EXISTS output_session_day("
         "day TEXT NOT NULL,timezone TEXT NOT NULL,harness TEXT NOT NULL,model_key TEXT NOT NULL,"
         "session_key TEXT NOT NULL,display_name TEXT NOT NULL,output_tokens TEXT NOT NULL,"
@@ -45,14 +47,15 @@ def record(
     samples: list[tuple[str, int | None, int | None]],
     sessions: list[str | None],
     at: Instant,
+    attributions: list[tuple[str, str, str] | None] | None = None,
 ) -> None:
     zone = timezone(db)
     received = format_instant(at)
-    grouped: dict[str, list[tuple[str, int | None, int | None]]] = {}
-    for sample, session in zip(samples, sessions, strict=True):
+    grouped: dict[str, list[tuple[tuple[str, int | None, int | None], tuple[str, str, str] | None]]] = {}
+    for index, (sample, session) in enumerate(zip(samples, sessions, strict=True)):
         if session:
             key = session_key(session)
-            grouped.setdefault(key, []).append(sample)
+            grouped.setdefault(key, []).append((sample, attributions[index] if attributions else None))
     for key, values in grouped.items():
         identity = harness, key, model
         old = db.execute(
@@ -67,7 +70,7 @@ def record(
         first = db.execute(
             "SELECT MIN(started_at) FROM output_session WHERE harness=? AND session_key=?", (harness, key)
         ).fetchone()[0]
-        start = min([sample[0] for sample in values] + ([first] if first else []))
+        start = min([sample[0][0] for sample in values] + ([first] if first else []))
         session_day = parse_instant(start).value.astimezone(ZoneInfo(zone)).date().isoformat()
         from htd.adapters.sqlite.output_day import rebase
 
@@ -77,7 +80,7 @@ def record(
             (start, harness, key),
         )
         days: dict[str, list[int]] = {}
-        for stamp, count, elapsed in sorted(values, key=lambda sample: sample[0]):
+        for (stamp, count, elapsed), attribution in sorted(values, key=lambda sample: sample[0][0]):
             effective = window.add(stamp, count, elapsed, key, received)
             if effective is None:
                 continue
@@ -91,8 +94,7 @@ def record(
             totals[1] += effective
             from htd.adapters.sqlite.output_scope import record as record_scope
 
-            session = next(value for value in sessions if value and session_key(value) == key)
-            record_scope(db, harness, session, key, model, name, stamp, day, count, effective, received)
+            record_scope(db, harness, key, model, name, day, count, effective, received, attribution)
         db.execute(
             "INSERT INTO output_session VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT DO UPDATE SET "
             "display_name=excluded.display_name,started_at=excluded.started_at,"
@@ -173,6 +175,9 @@ def close_quiet(db: sqlite3.Connection, at: Instant) -> bool:
             "day=? AND timezone=? AND harness=? AND model_key=? AND session_key=?",
             (speed, *key, row["session_key"]),
         )
+        from htd.adapters.sqlite.output_scope import publish
+
+        publish(db, row["day"], row["harness"], row["session_key"], row["model_key"])
     return bool(rows)
 
 

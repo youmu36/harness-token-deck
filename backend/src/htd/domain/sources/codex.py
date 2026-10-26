@@ -43,6 +43,7 @@ class CodexContext:
 
     file_session_id: str | None = None
     raw_file_session_id: str | None = None
+    parent_session_id: str | None = None
     saw_session_meta: bool = False
     originator_ok: bool = False
     kind: SourceKind | None = None
@@ -76,6 +77,7 @@ class CodexContext:
         return {
             "fileSessionId": self.file_session_id,
             "rawFileSessionId": self.raw_file_session_id,
+            "parentSessionId": self.parent_session_id,
             "sawSessionMeta": self.saw_session_meta,
             "originatorOk": self.originator_ok,
             "kind": self.kind,
@@ -107,6 +109,7 @@ class CodexContext:
         if _object(data) is None:
             raise DomainError(SOURCE_CONTEXT_INVALID, "Codex 检查点上下文须为对象", "context")
         data = {
+            "parentSessionId": None,
             "providerName": None,
             "contextCompacted": False,
             "requestStartedAt": None,
@@ -129,6 +132,8 @@ class CodexContext:
             **data,
         }
         expected = cls().to_dict()
+        if data["parentSessionId"] is not None and optional_text(data["parentSessionId"]) is None:
+            raise DomainError(SOURCE_CONTEXT_INVALID, "父会话身份无效", "parentSessionId")
         if _object(data) is None or not expected.keys() <= data.keys():
             raise DomainError(SOURCE_CONTEXT_INVALID, "Codex 检查点上下文字段缺失", "context")
         for name in (
@@ -178,6 +183,7 @@ class CodexContext:
         context = cls(
             file_session_id=cast(str | None, data["fileSessionId"]),
             raw_file_session_id=cast(str | None, raw_session),
+            parent_session_id=cast(str | None, data["parentSessionId"]),
             saw_session_meta=cast(bool, data["sawSessionMeta"]),
             originator_ok=cast(bool, data["originatorOk"]),
             kind=kind,
@@ -241,6 +247,8 @@ def parse_record(record: object, ctx: CodexContext) -> Result:
         ctx.saw_session_meta = True
         ctx.file_session_id = optional_text(payload.get("id"))
         ctx.raw_file_session_id = cast(str, payload["id"]) if ctx.file_session_id is not None else None
+        parent = payload.get("forked_from_id")
+        ctx.parent_session_id = cast(str, parent) if optional_text(parent) is not None else None
         ctx.originator_ok = payload.get("originator") in ("Codex Desktop", "codex_work_desktop")
         ctx.kind = classify_source(payload.get("originator"), payload.get("source"))
         ctx.provider_name = optional_text(payload.get("model_provider"))
@@ -517,6 +525,8 @@ def _parse_usage(record: dict[str, object], payload: dict[str, object], ctx: Cod
             harness=Harness.CODEX,
             dedupe_key=identity_key([raw_session, cast(str, payload["response_id"])]),
             session_id=session,
+            native_session_id=raw_session,
+            parent_session_id=ctx.parent_session_id,
             request_id=response,
             model_id=model,
             occurred_at=cast(str, timestamp),

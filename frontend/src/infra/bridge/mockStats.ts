@@ -26,7 +26,8 @@ function emptyMetrics(): MetricsData {
   return {
     recordCount: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, newInput: 0,
     totalTokens: 0, cacheHitRate: null, cacheCoverageIncomplete: false, picoUsd: '0',
-    incomplete: false, unpriced: false, unknownModelCount: 0, missingUsageCount: 0,
+    incomplete: false, unpriced: false, unknownModelCount: 0, missingUsageCount: 0, pendingValuationCount: 0,
+    estimatePico: '0', correctionPico: '0', unallocatedCorrectionPico: '0', allocationIncomplete: false,
   };
 }
 
@@ -39,6 +40,7 @@ function add(target: MetricsData, input: number, output: number, cache: number, 
   target.totalTokens = target.inputTokens + target.outputTokens;
   target.cacheHitRate = target.cacheReadTokens / target.inputTokens;
   target.picoUsd = (BigInt(target.picoUsd) + pico).toString();
+  target.estimatePico = target.picoUsd;
 }
 
 function align(instant: number, offset: number, grain: Grain): number {
@@ -129,24 +131,27 @@ export function generateMockSummary(request: RequestMap['stats.summary'], cost: 
     ? a.displayName.localeCompare(b.displayName) : BigInt(a.picoUsd) > BigInt(b.picoUsd) ? -1 : 1);
   hourly.sort((a, b) => a.bucket.localeCompare(b.bucket) || a.modelKey.localeCompare(b.modelKey));
   return {
-    grain, metrics, trend: includes('trend') ? points : [], models: includes('models') ? models : [], hourly: includes('hourly') ? hourly : [],
+    unallocatedTrendCorrectionPico: '0', grain, metrics, trend: includes('trend') ? points : [], models: includes('models') ? models : [], hourly: includes('hourly') ? hourly : [],
     hourlyTotals: !includes('hourlyTotals') ? [] : [...hourlyTotals.entries()].sort(([a], [b]) => a - b).map(([, value]) => value),
-    harnesses: request.harness === 'all' && includes('harnesses') ? split : [], revision: 1,
+    harnesses: request.harness === 'all' && includes('harnesses') ? split : [], revision: 1, costRevision: 0,
     start: request.start, end: request.end, offsetMinutes: offset, historyNotice: null,
   };
 }
 
 export function generateMockMonitor(request: RequestMap['stats.cacheMonitor'], now = Date.now()): CommandData<'stats.cacheMonitor'> {
   const end = Math.floor(now / minute) * minute;
-  const start = request.mode === 'minute' ? end - hour : align(end - 1, request.offsetMinutes, 'hour') - 23 * hour;
-  const summary = generateMockSummary({ harness: request.harness, start: new Date(start).toISOString(), end: new Date(end).toISOString(), offsetMinutes: request.offsetMinutes, grain: request.mode });
-  return { start: summary.start, end: summary.end, offsetMinutes: request.offsetMinutes, grain: request.mode,
-    outputSpeeds: summary.models.filter(model => model.outputTokens > 0).map(model => ({sessionKey:'0123456789abcdef',startedAt:new Date(end-8*minute).toISOString(),sessionAverageTps:'24.5',modelKey:model.modelKey,displayName:model.displayName,tokensPerSecond:(model.outputTokens / Math.max(1, summary.trend.filter(point => point.outputTokens > 0).length) / 60).toFixed(1),outputTokens:String(model.outputTokens),activeMinutes:summary.trend.filter(point => point.outputTokens > 0).length,lastOutputAt:summary.end,frozen:false,basis:'minute_estimate'})),
-    sessionHitRates: summary.metrics.recordCount ? [
-      {sessionKey:'0123456789abcdef',displayName:'预览模型',startedAt:new Date(end-8*minute).toISOString(),lastActivityAt:new Date(end-minute).toISOString(),cacheHitRate:summary.metrics.cacheHitRate,cacheCoverageIncomplete:summary.metrics.cacheCoverageIncomplete,frozen:false},
-      {sessionKey:'123456789abcdef0',displayName:'并行会话示例',startedAt:new Date(end-5*minute).toISOString(),lastActivityAt:new Date(end-minute).toISOString(),cacheHitRate:0.82,cacheCoverageIncomplete:false,frozen:false},
-      {sessionKey:'23456789abcdef01',displayName:'并行会话示例',startedAt:new Date(end-3*minute).toISOString(),lastActivityAt:new Date(end-minute).toISOString(),cacheHitRate:0.56,cacheCoverageIncomplete:false,frozen:false},
-    ] : [],
-    trend: summary.trend, revision: 1, nextRefreshAt: new Date(end + minute).toISOString(),
-    windowKey: `${summary.start}/${summary.end}/${request.offsetMinutes}/${request.mode}` };
+  const start = end - hour;
+  const refs = ['0123456789abcdef', '123456789abcdef0', '23456789abcdef01'];
+  const selected = request.sessionRef && refs.includes(request.sessionRef) ? request.sessionRef : refs[0]!;
+  const chart = request.chartSessionRef && refs.includes(request.chartSessionRef) ? request.chartSessionRef : refs[0]!;
+  const factor = refs.indexOf(chart) + 1;
+  const summary = generateMockSummary({ harness: request.harness, start: new Date(start).toISOString(), end: new Date(end).toISOString(), offsetMinutes: request.offsetMinutes, grain: 'minute' });
+  const trend = summary.trend.map(point => ({ ...point, inputTokens: point.inputTokens * factor, outputTokens: point.outputTokens * factor, cacheReadTokens: point.cacheReadTokens * factor }));
+  const totals = { recordCount: String(summary.metrics.recordCount), inputTokens: String(summary.metrics.inputTokens * factor), outputTokens: String(summary.metrics.outputTokens * factor), cacheReadTokens: String(summary.metrics.cacheReadTokens * factor), cacheHitRate: summary.metrics.cacheHitRate, cacheCoverageIncomplete: false };
+  return { start: summary.start, end: summary.end, offsetMinutes: request.offsetMinutes, grain: 'minute',
+    outputSpeeds: summary.models.filter(model => model.outputTokens > 0).map(model => ({sessionKey:selected,startedAt:new Date(end-8*minute).toISOString(),sessionAverageTps:'24.5',modelKey:model.modelKey,displayName:model.displayName,tokensPerSecond:'24.5',outputTokens:String(model.outputTokens * factor),activeMinutes:3,lastOutputAt:summary.end,frozen:false,basis:'minute_estimate'})),
+    sessionHitRates: refs.map((sessionRef, index) => ({ sessionRef, sessionKey: sessionRef, displayName: `预览会话${index + 1}`, modelKey: summary.models[0]?.modelKey ?? '', modelName:summary.models[0]?.displayName ?? '未知模型', tokensPerSecond:'24.5', sessionAverageTps:'24.5', startedAt: new Date(end-(8-index)*minute).toISOString(), lastActivityAt: new Date(end-(index+1)*minute).toISOString(), cacheHitRate: summary.metrics.cacheHitRate, cacheCoverageIncomplete: false, frozen: false })),
+    selectedSessionRef: selected, chartSessionRef: chart, nextCursor: null, outputRevision: 1, evidenceComplete: true, windowTotals: totals, sessionTotals: totals, batchTotals: totals,
+    trend, revision: 1, nextRefreshAt: new Date(end + minute).toISOString(),
+    windowKey: `${chart}/${summary.start}/${summary.end}/${request.offsetMinutes}/minute` };
 }

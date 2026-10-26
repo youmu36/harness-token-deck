@@ -1,5 +1,6 @@
 """Bridge thread churn cannot retain one database/page cache per transient caller."""
 
+import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Barrier, Event
@@ -7,6 +8,26 @@ from threading import Barrier, Event
 import pytest
 from htd.adapters.sqlite.connection import ReadPool
 from htd.adapters.sqlite.writer import WriteExecutor
+
+
+def test_existing_maintenance_expires_idle_readers_without_touching_a_borrowed_reader(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    now = [0.0]
+    monkeypatch.setattr("htd.adapters.sqlite.connection.time.monotonic", lambda: now[0])
+    with (
+        WriteExecutor(tmp_path / "ledger.sqlite3") as writer,
+        ReadPool(writer.path) as pool,
+        pool.connection() as active,
+    ):
+        with pool.connection() as idle:
+            assert idle.execute("SELECT 1").fetchone()[0] == 1
+        now[0] = 31
+        pool.expire_idle()
+        with pytest.raises(sqlite3.ProgrammingError, match="closed"):
+            idle.execute("SELECT 1")
+        assert active.execute("SELECT 1").fetchone()[0] == 1
 
 
 def test_many_threads_share_four_scoped_readers_and_hidden_trim_keeps_active_reads(tmp_path: Path) -> None:
@@ -85,8 +106,14 @@ def test_daily_pages_are_reused_until_wallet_revision_or_timezone_changes(
     original = module.wallet_entries
 
     def counted(
-        db: sqlite3.Connection, vendor_id: str, cursor: int | None, limit: int, kind: str, offset: int,
-        *, daily: DailySpending | None = None,
+        db: sqlite3.Connection,
+        vendor_id: str,
+        cursor: int | None,
+        limit: int,
+        kind: str,
+        offset: int,
+        *,
+        daily: DailySpending | None = None,
     ) -> dict[str, object]:
         calls.append(1)
         return original(db, vendor_id, cursor, limit, kind, offset, daily=daily)

@@ -21,8 +21,8 @@ class PricingRepository:
     def __init__(self, connection: sqlite3.Connection) -> None:
         self.connection = connection
 
-    def load(self) -> Catalog:
-        return load_catalog(self.connection)
+    def load(self, *, metadata_only: bool = False) -> Catalog:
+        return load_catalog(self.connection, metadata_only=metadata_only)
 
     def save(self, work: UnitOfWork, old: Catalog, new: Catalog) -> None:
         if work.connection is not self.connection or not self.connection.in_transaction:

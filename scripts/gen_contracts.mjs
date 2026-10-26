@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { compile } from 'json-schema-to-typescript';
 import Ajv from 'ajv';
 import standaloneCode from 'ajv/dist/standalone/index.js';
+import { contractChunks } from './contract_chunks.mjs';
 
 const destination = path.resolve(process.argv[2] ?? fileURLToPath(new URL('../frontend/src/infra/generated', import.meta.url)));
 const schema = JSON.parse(await fs.readFile(path.join(destination, 'contracts.schema.json'), 'utf8'));
@@ -27,8 +28,20 @@ for (const [section, names] of [['requests', commands], ['responses', commands],
 const validators = standaloneCode(ajv, exports).replaceAll(
   'require("ajv/dist/runtime/ucs2length").default', '(value => Array.from(value).length)',
 );
-await fs.writeFile(path.join(destination, 'validators.js'),
-  `${banner}${validators}\n`);
+const groups = { events: events.map((_, index) => `events${index}`) };
+for (const [index, command] of commands.entries()) {
+  const group = command;
+  (groups[group] ??= []).push(`requests${index}`, `responses${index}`);
+}
+for (const [group, code] of Object.entries(contractChunks(validators, groups))) {
+  await fs.writeFile(path.join(destination, `validators.${group}.js`), banner + code);
+  const names = groups[group] ?? [];
+  await fs.writeFile(path.join(destination, `validators.${group}.d.ts`), banner +
+    "import type { ValidateFunction } from 'ajv';\n" + names
+      .map(name => `export declare const ${name}: ValidateFunction;`).join('\n') + '\nexport {};\n');
+}
+await fs.writeFile(path.join(destination, 'validators.js'), banner + Object.entries(groups)
+  .map(([group, names]) => `export { ${names.join(', ')} } from './validators.${group}.js';`).join('\n') + '\n');
 await fs.writeFile(path.join(destination, 'validators.d.ts'), banner +
   "import type { ValidateFunction } from 'ajv';\n" + Object.keys(exports)
     .map(name => `export declare const ${name}: ValidateFunction;`).join('\n') + '\n');
@@ -37,6 +50,28 @@ await fs.writeFile(path.join(destination, 'contracts.d.ts'), await compile(schem
   maxItems: -1, style: { singleQuote: true, tabWidth: 2 },
 }));
 const table = (section, names) => names.map((name, index) => `  '${name}': validators.${section}${index},`).join('\n');
+await fs.writeFile(path.join(destination, 'lazyValidators.ts'), `${banner}
+import type { ValidateFunction } from 'ajv';
+import type { CommandName } from './commands';
+import * as events from './validators.events.js';
+
+export const eventValidators = {
+${events.map((name, index) => `  '${name}': events.events${index},`).join('\n')}
+} as const;
+
+const loaders: Record<string, () => Promise<Record<string, unknown>>> = {
+${Object.keys(groups).filter(group => group !== 'events').map(group => `  '${group}': () => import('./validators.${group}.js'),`).join('\n')}
+};
+const indices = {
+${commands.map((name, index) => `  '${name}': ${index},`).join('\n')}
+} as const;
+
+export async function commandValidators(command: CommandName) {
+  const validators = await loaders[command]!();
+  const index = indices[command];
+  return { request: validators['requests' + index] as ValidateFunction, response: validators['responses' + index] as ValidateFunction };
+}
+`);
 await fs.writeFile(path.join(destination, 'commands.ts'), `${banner}
 import type { Contracts } from './contracts';
 import * as validators from './validators.js';
@@ -59,13 +94,8 @@ export const eventValidators = {
 ${table('events', events)}
 } as const;
 
-export class ContractMismatch extends Error {
-  readonly code = 'CONTRACT_MISMATCH';
-  constructor(readonly command: CommandName) {
-    super('响应与契约不一致：' + command);
-    this.name = 'ContractMismatch';
-  }
-}
+import { ContractMismatch } from '../bridge/contractError';
+export { ContractMismatch };
 
 export function validateResponse<K extends CommandName>(command: K, value: unknown): ResponseMap[K] {
   if (!responseValidators[command](value)) throw new ContractMismatch(command);

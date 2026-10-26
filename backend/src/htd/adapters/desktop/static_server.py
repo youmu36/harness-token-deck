@@ -5,12 +5,31 @@ import functools
 import os
 import socket
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
 
 class StaticHandler(SimpleHTTPRequestHandler):
+    def guess_type(self, path: str | os.PathLike[str]) -> str:
+        # These are our build assets. Avoid initializing the machine-wide Windows
+        # MIME registry (and racing that initialization in parallel HTTP workers).
+        return {
+            ".html": "text/html",
+            ".js": "text/javascript",
+            ".mjs": "text/javascript",
+            ".css": "text/css",
+            ".json": "application/json",
+            ".map": "application/json",
+            ".svg": "image/svg+xml",
+            ".png": "image/png",
+            ".ico": "image/x-icon",
+            ".woff": "font/woff",
+            ".woff2": "font/woff2",
+            ".ttf": "font/ttf",
+        }.get(Path(path).suffix.lower(), "application/octet-stream")
+
     def do_GET(self) -> None:
         # Never answer 304 using a cached entry page from another installation.
         for header in ("If-Modified-Since", "If-None-Match"):
@@ -38,6 +57,31 @@ class ExclusiveHTTPServer(ThreadingHTTPServer):
     # Windows SO_REUSEADDR can bind two listeners and route a new window to an
     # older application's assets. Keep the listener exclusive on this platform.
     allow_reuse_address = False
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self._workers = ThreadPoolExecutor(max_workers=2, thread_name_prefix="htd-static-file")
+        self._slots = threading.BoundedSemaphore(8)
+        super().__init__(*args, **kwargs)
+
+    def process_request(self, request: Any, client_address: Any) -> None:
+        self._slots.acquire()
+        try:
+            request.settimeout(5)
+            self._workers.submit(self._serve_request, request, client_address)
+        except BaseException:
+            self._slots.release()
+            self.shutdown_request(request)
+            raise
+
+    def _serve_request(self, request: socket.socket, client_address: Any) -> None:
+        try:
+            self.process_request_thread(request, client_address)
+        finally:
+            self._slots.release()
+
+    def server_close(self) -> None:
+        super().server_close()
+        self._workers.shutdown(wait=True)
 
     def server_bind(self) -> None:
         if os.name == "nt":

@@ -1,4 +1,4 @@
-"""Thirty-day scoped throughput evidence; no raw session IDs or request history."""
+"""Sixty-two-day scoped throughput evidence; no raw session IDs or request history."""
 
 import sqlite3
 from datetime import timedelta
@@ -7,7 +7,8 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from htd.adapters.sqlite.wallet_closing import timezone
-from htd.domain.common.time import Instant, format_instant
+from htd.application.ports.query_control import check_read
+from htd.domain.common.time import Instant
 
 
 def install(db: sqlite3.Connection) -> None:
@@ -20,38 +21,44 @@ def install(db: sqlite3.Connection) -> None:
         "ROWID"
     )
     db.execute("CREATE INDEX IF NOT EXISTS output_scope_session ON output_session_scope(harness,session_key)")
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS output_scope_published AS SELECT * FROM output_session_scope WHERE 0"
+    )
+    db.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS output_scope_published_key ON output_scope_published"
+        "(day,harness,session_key,model_key,vendor_id,group_id,version_id)"
+    )
+    if not db.execute("SELECT 1 FROM runtime_state WHERE key='output_scope_identity_v2'").fetchone():
+        had_rows = db.execute("SELECT 1 FROM output_session_scope LIMIT 1").fetchone() is not None
+        # Old aggregates have lost request identity. Keep ordinary published daily
+        # speeds, but never present ambiguous dimensional evidence as repaired.
+        db.execute("DELETE FROM output_session_scope")
+        db.execute(
+            "INSERT INTO runtime_state VALUES('output_scope_identity_v2',?)",
+            ("partial" if had_rows else "complete",),
+        )
 
 
 def record(
     db: sqlite3.Connection,
     harness: str,
-    session: str,
     hashed: str,
     model: str,
     name: str,
-    stamp: str,
     day: str,
     output: int,
     elapsed: int,
     received: str,
+    attribution: tuple[str, str, str] | None,
 ) -> None:
-    row = db.execute(
-        "SELECT l.price_group_id,l.price_version_id,COALESCE(w.vendor_id,'') vendor_id FROM ledger l "
-        "LEFT JOIN wallet_entry w ON w.usage_harness=l.harness AND w.usage_key=l.dedupe_key "
-        "AND w.kind='consumption' WHERE l.harness=? AND l.session_id=? AND l.model_key=? AND "
-        "l.occurred_at=? LIMIT 1",
-        (harness, session, model, stamp),
-    ).fetchone()
-    if row is None:
+    if attribution is None:
         return
     key = (
         day,
         harness,
         hashed,
         model,
-        row["vendor_id"],
-        row["price_group_id"] or "",
-        row["price_version_id"] or "",
+        *attribution,
     )
     old = db.execute(
         "SELECT output_tokens,duration_ms FROM output_session_scope WHERE day=? AND harness=? "
@@ -69,6 +76,18 @@ def record(
             str(elapsed + (int(old[1]) if old else 0)),
             received,
         ),
+    )
+
+
+def publish(db: sqlite3.Connection, day: str, harness: str, session: str, model: str) -> None:
+    key = day, harness, session, model
+    db.execute(
+        "DELETE FROM output_scope_published WHERE day=? AND harness=? AND session_key=? AND model_key=?", key
+    )
+    db.execute(
+        "INSERT INTO output_scope_published SELECT * FROM output_session_scope "
+        "WHERE day=? AND harness=? AND session_key=? AND model_key=?",
+        key,
     )
 
 
@@ -91,14 +110,10 @@ def references(db: sqlite3.Connection, query: dict[str, Any], at: Instant) -> li
             args.extend(values)
     clause = " AND " + " AND ".join(clauses) if clauses else ""
     rows = db.execute(
-        "SELECT o.* FROM output_session_scope o LEFT JOIN session_hit_rate s ON "
-        "s.harness=o.harness AND s.session_key=o.session_key WHERE o.day>=? AND o.day<=? AND "
-        "MAX(o.last_received_at,COALESCE(s.last_received_at,o.last_received_at))<=?"
-        + clause,
+        "SELECT o.* FROM output_scope_published o WHERE o.day>=? AND o.day<=?" + clause,
         (
-            (today - timedelta(days=29)).isoformat(),
-            today.isoformat(),
-            format_instant(Instant(at.value - timedelta(minutes=10))),
+            query.get("startDay", (today - timedelta(days=29)).isoformat()),
+            query.get("endDay", today.isoformat()),
             *args,
         ),
     )
@@ -106,6 +121,7 @@ def references(db: sqlite3.Connection, query: dict[str, Any], at: Instant) -> li
     # A session spanning multiple selected versions is one weighted session sample.
     sessions: dict[tuple[str, str, str, str], list[Any]] = {}
     for row in rows:
+        check_read()
         if len(sessions) >= 10000:
             from htd.domain.common.errors import DomainError
 

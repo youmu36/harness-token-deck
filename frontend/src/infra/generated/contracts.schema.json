@@ -1,5 +1,42 @@
 {
   "$defs": {
+    "AccountCorrection": {
+      "additionalProperties": false,
+      "properties": {
+        "costPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "note": {
+          "title": "Note",
+          "type": "string"
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "vendorId": {
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "vendorId",
+        "occurredAt",
+        "kind",
+        "costPico",
+        "note"
+      ],
+      "title": "AccountCorrection",
+      "type": "object"
+    },
     "AccountEntriesRequest": {
       "additionalProperties": false,
       "properties": {
@@ -320,6 +357,75 @@
       "title": "AccountEntry",
       "type": "object"
     },
+    "AccountInterval": {
+      "additionalProperties": false,
+      "properties": {
+        "bookedEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "costPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "coverageComplete": {
+          "title": "Coveragecomplete",
+          "type": "boolean"
+        },
+        "currentEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "differencePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "originalCostPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "status": {
+          "enum": [
+            "matched",
+            "review",
+            "estimated",
+            "collecting",
+            "coverage_incomplete"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "vendorId": {
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "vendorId",
+        "start",
+        "end",
+        "method",
+        "originalCostPico",
+        "costPico",
+        "bookedEstimatePico",
+        "currentEstimatePico",
+        "differencePico",
+        "status",
+        "coverageComplete"
+      ],
+      "title": "AccountInterval",
+      "type": "object"
+    },
     "AccountSummary": {
       "additionalProperties": false,
       "properties": {
@@ -411,10 +517,15 @@
       "properties": {
         "acknowledged": {
           "$ref": "#/$defs/SafeInt-Output"
+        },
+        "conflicts": {
+          "$ref": "#/$defs/SafeInt-Output",
+          "default": 0
         }
       },
       "required": [
-        "acknowledged"
+        "acknowledged",
+        "conflicts"
       ],
       "title": "AcknowledgeQualityResponse",
       "type": "object"
@@ -561,11 +672,35 @@
       "title": "AnalysisComparison",
       "type": "object"
     },
+    "AnalysisCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "AnalysisCoverage",
+      "type": "object"
+    },
     "AnalysisHarness": {
       "additionalProperties": false,
       "properties": {
         "activeMinutes": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
         },
         "cacheCoverageIncomplete": {
           "title": "Cachecoverageincomplete",
@@ -583,6 +718,10 @@
         },
         "cacheReadTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "coverageEnd": {
           "anyOf": [
@@ -606,6 +745,17 @@
         },
         "coveredDays": {
           "$ref": "#/$defs/SafeInt-Output"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "harness": {
           "$ref": "#/$defs/HarnessName"
@@ -671,6 +821,10 @@
         "totalTokens": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "unknownModelCount": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -686,6 +840,10 @@
         "cacheReadTokens",
         "totalTokens",
         "picoUsd",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
         "cacheHitRate",
         "cacheCoverageIncomplete",
         "incomplete",
@@ -711,6 +869,11 @@
         "activeMinutes": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
         "cacheCoverageIncomplete": {
           "title": "Cachecoverageincomplete",
           "type": "boolean"
@@ -727,6 +890,10 @@
         },
         "cacheReadTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "coverageEnd": {
           "anyOf": [
@@ -750,6 +917,17 @@
         },
         "coveredDays": {
           "$ref": "#/$defs/SafeInt-Output"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "incomplete": {
           "title": "Incomplete",
@@ -812,6 +990,10 @@
         "totalTokens": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "unknownModelCount": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -827,6 +1009,10 @@
         "cacheReadTokens",
         "totalTokens",
         "picoUsd",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
         "cacheHitRate",
         "cacheCoverageIncomplete",
         "incomplete",
@@ -851,6 +1037,11 @@
         "activeMinutes": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
         "cacheCoverageIncomplete": {
           "title": "Cachecoverageincomplete",
           "type": "boolean"
@@ -867,6 +1058,10 @@
         },
         "cacheReadTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "coverageEnd": {
           "anyOf": [
@@ -894,6 +1089,17 @@
         "displayName": {
           "title": "Displayname",
           "type": "string"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "incomplete": {
           "title": "Incomplete",
@@ -960,6 +1166,10 @@
         "totalTokens": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "unknownModelCount": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -975,6 +1185,10 @@
         "cacheReadTokens",
         "totalTokens",
         "picoUsd",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
         "cacheHitRate",
         "cacheCoverageIncomplete",
         "incomplete",
@@ -1012,6 +1226,11 @@
         "activeMinutes": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
         "bucket": {
           "title": "Bucket",
           "type": "string"
@@ -1032,6 +1251,10 @@
         },
         "cacheReadTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "coverageEnd": {
           "anyOf": [
@@ -1055,6 +1278,17 @@
         },
         "coveredDays": {
           "$ref": "#/$defs/SafeInt-Output"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "incomplete": {
           "title": "Incomplete",
@@ -1121,6 +1355,10 @@
         "totalTokens": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "unknownModelCount": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -1136,6 +1374,10 @@
         "cacheReadTokens",
         "totalTokens",
         "picoUsd",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
         "cacheHitRate",
         "cacheCoverageIncomplete",
         "incomplete",
@@ -1387,6 +1629,408 @@
       "title": "AnalysisResponse",
       "type": "object"
     },
+    "AnalysisScope-Input": {
+      "additionalProperties": false,
+      "properties": {
+        "groupIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Groupids",
+          "type": "array"
+        },
+        "harnesses": {
+          "items": {
+            "$ref": "#/$defs/HarnessPage"
+          },
+          "maxItems": 4,
+          "title": "Harnesses",
+          "type": "array"
+        },
+        "modelKeys": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Modelkeys",
+          "type": "array"
+        },
+        "vendorIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Vendorids",
+          "type": "array"
+        },
+        "versionIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Versionids",
+          "type": "array"
+        }
+      },
+      "title": "AnalysisScope",
+      "type": "object"
+    },
+    "AnalysisScope-Output": {
+      "additionalProperties": false,
+      "properties": {
+        "groupIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Groupids",
+          "type": "array"
+        },
+        "harnesses": {
+          "items": {
+            "$ref": "#/$defs/HarnessPage"
+          },
+          "maxItems": 4,
+          "title": "Harnesses",
+          "type": "array"
+        },
+        "modelKeys": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Modelkeys",
+          "type": "array"
+        },
+        "vendorIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Vendorids",
+          "type": "array"
+        },
+        "versionIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Versionids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "harnesses",
+        "vendorIds",
+        "groupIds",
+        "versionIds",
+        "modelKeys"
+      ],
+      "title": "AnalysisScope",
+      "type": "object"
+    },
+    "AnalysisView-Input": {
+      "additionalProperties": false,
+      "properties": {
+        "compareDimension": {
+          "default": "vendor",
+          "enum": [
+            "vendor",
+            "group",
+            "version",
+            "model"
+          ],
+          "title": "Comparedimension",
+          "type": "string"
+        },
+        "compareIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Compareids",
+          "type": "array"
+        },
+        "costBasis": {
+          "default": "local",
+          "enum": [
+            "local",
+            "remote"
+          ],
+          "title": "Costbasis",
+          "type": "string"
+        },
+        "draft": {
+          "$ref": "#/$defs/AnalysisScope-Input"
+        },
+        "draftEnd": {
+          "default": "",
+          "title": "Draftend",
+          "type": "string"
+        },
+        "draftStart": {
+          "default": "",
+          "title": "Draftstart",
+          "type": "string"
+        },
+        "endYear": {
+          "default": 2026,
+          "maximum": 9999,
+          "minimum": 1971,
+          "title": "Endyear",
+          "type": "integer"
+        },
+        "focus": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Focus"
+        },
+        "panel": {
+          "default": "throughput",
+          "enum": [
+            "throughput",
+            "cost",
+            "cache",
+            "value"
+          ],
+          "title": "Panel",
+          "type": "string"
+        },
+        "period": {
+          "default": "month",
+          "enum": [
+            "range",
+            "month",
+            "quarter",
+            "year",
+            "years",
+            "all"
+          ],
+          "title": "Period",
+          "type": "string"
+        },
+        "quarter": {
+          "default": 1,
+          "maximum": 4,
+          "minimum": 1,
+          "title": "Quarter",
+          "type": "integer"
+        },
+        "recent": {
+          "$ref": "#/$defs/UsageFilter-Input"
+        },
+        "scope": {
+          "$ref": "#/$defs/AnalysisScope-Input"
+        },
+        "section": {
+          "default": "statistics",
+          "enum": [
+            "statistics",
+            "analysis",
+            "quality"
+          ],
+          "title": "Section",
+          "type": "string"
+        },
+        "tpsCompareIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Tpscompareids",
+          "type": "array"
+        },
+        "tpsModel": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tpsmodel"
+        },
+        "year": {
+          "default": 2026,
+          "maximum": 9999,
+          "minimum": 1971,
+          "title": "Year",
+          "type": "integer"
+        }
+      },
+      "title": "AnalysisView",
+      "type": "object"
+    },
+    "AnalysisView-Output": {
+      "additionalProperties": false,
+      "properties": {
+        "compareDimension": {
+          "default": "vendor",
+          "enum": [
+            "vendor",
+            "group",
+            "version",
+            "model"
+          ],
+          "title": "Comparedimension",
+          "type": "string"
+        },
+        "compareIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Compareids",
+          "type": "array"
+        },
+        "costBasis": {
+          "default": "local",
+          "enum": [
+            "local",
+            "remote"
+          ],
+          "title": "Costbasis",
+          "type": "string"
+        },
+        "draft": {
+          "$ref": "#/$defs/AnalysisScope-Output"
+        },
+        "draftEnd": {
+          "default": "",
+          "title": "Draftend",
+          "type": "string"
+        },
+        "draftStart": {
+          "default": "",
+          "title": "Draftstart",
+          "type": "string"
+        },
+        "endYear": {
+          "default": 2026,
+          "maximum": 9999,
+          "minimum": 1971,
+          "title": "Endyear",
+          "type": "integer"
+        },
+        "focus": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Focus"
+        },
+        "panel": {
+          "default": "throughput",
+          "enum": [
+            "throughput",
+            "cost",
+            "cache",
+            "value"
+          ],
+          "title": "Panel",
+          "type": "string"
+        },
+        "period": {
+          "default": "month",
+          "enum": [
+            "range",
+            "month",
+            "quarter",
+            "year",
+            "years",
+            "all"
+          ],
+          "title": "Period",
+          "type": "string"
+        },
+        "quarter": {
+          "default": 1,
+          "maximum": 4,
+          "minimum": 1,
+          "title": "Quarter",
+          "type": "integer"
+        },
+        "recent": {
+          "$ref": "#/$defs/UsageFilter-Output"
+        },
+        "scope": {
+          "$ref": "#/$defs/AnalysisScope-Output"
+        },
+        "section": {
+          "default": "statistics",
+          "enum": [
+            "statistics",
+            "analysis",
+            "quality"
+          ],
+          "title": "Section",
+          "type": "string"
+        },
+        "tpsCompareIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Tpscompareids",
+          "type": "array"
+        },
+        "tpsModel": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tpsmodel"
+        },
+        "year": {
+          "default": 2026,
+          "maximum": 9999,
+          "minimum": 1971,
+          "title": "Year",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "scope",
+        "draft",
+        "costBasis",
+        "section",
+        "period",
+        "panel",
+        "recent",
+        "draftStart",
+        "draftEnd",
+        "tpsModel",
+        "tpsCompareIds",
+        "year",
+        "endYear",
+        "quarter",
+        "compareDimension",
+        "compareIds",
+        "focus"
+      ],
+      "title": "AnalysisView",
+      "type": "object"
+    },
     "ArchivedUnpriced": {
       "additionalProperties": false,
       "properties": {
@@ -1577,22 +2221,182 @@
       "title": "BaseRates",
       "type": "object"
     },
+    "BatchQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "intervalIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Intervalids",
+          "type": "array"
+        },
+        "localBatchIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 500,
+          "title": "Localbatchids",
+          "type": "array"
+        },
+        "offset": {
+          "default": 0,
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Offset",
+          "type": "integer"
+        },
+        "remoteOffset": {
+          "default": 0,
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Remoteoffset",
+          "type": "integer"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "vendorId": {
+          "maxLength": 512,
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendorId",
+        "start",
+        "end"
+      ],
+      "title": "BatchQuery",
+      "type": "object"
+    },
+    "BatchResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "batches": {
+          "items": {
+            "$ref": "#/$defs/LocalBatch"
+          },
+          "title": "Batches",
+          "type": "array"
+        },
+        "generatedAt": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "nextOffset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SafeInt-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "remoteIntervals": {
+          "items": {
+            "$ref": "#/$defs/ReconciliationInterval"
+          },
+          "title": "Remoteintervals",
+          "type": "array"
+        },
+        "remoteNextOffset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SafeInt-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "batches",
+        "remoteIntervals",
+        "nextOffset",
+        "remoteNextOffset",
+        "generatedAt"
+      ],
+      "title": "BatchResponse",
+      "type": "object"
+    },
     "CacheMonitorRequest": {
       "additionalProperties": false,
       "properties": {
+        "chartSessionRef": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Chartsessionref"
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cursor"
+        },
         "harness": {
           "$ref": "#/$defs/HarnessName"
         },
         "mode": {
-          "$ref": "#/$defs/MonitorMode"
+          "default": "minute",
+          "enum": [
+            "minute"
+          ],
+          "title": "Mode",
+          "type": "string"
         },
         "offsetMinutes": {
           "$ref": "#/$defs/OffsetMinutes"
+        },
+        "queryId": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Queryid"
+        },
+        "sessionRef": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sessionref"
         }
       },
       "required": [
         "harness",
-        "mode",
         "offsetMinutes"
       ],
       "title": "CacheMonitorRequest",
@@ -1601,17 +2405,54 @@
     "CacheMonitorResponse": {
       "additionalProperties": false,
       "properties": {
+        "batchTotals": {
+          "$ref": "#/$defs/MonitorTotals"
+        },
+        "chartSessionRef": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Chartsessionref"
+        },
         "end": {
           "$ref": "#/$defs/InstantStr"
         },
+        "evidenceComplete": {
+          "title": "Evidencecomplete",
+          "type": "boolean"
+        },
         "grain": {
-          "$ref": "#/$defs/MonitorMode"
+          "enum": [
+            "minute"
+          ],
+          "title": "Grain",
+          "type": "string"
+        },
+        "nextCursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nextcursor"
         },
         "nextRefreshAt": {
           "$ref": "#/$defs/InstantStr"
         },
         "offsetMinutes": {
           "$ref": "#/$defs/OffsetMinutes"
+        },
+        "outputRevision": {
+          "$ref": "#/$defs/SafeInt-Output"
         },
         "outputSpeeds": {
           "items": {
@@ -1623,6 +2464,17 @@
         "revision": {
           "$ref": "#/$defs/SafeInt-Output"
         },
+        "selectedSessionRef": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Selectedsessionref"
+        },
         "sessionHitRates": {
           "items": {
             "$ref": "#/$defs/SessionHitRate"
@@ -1630,6 +2482,9 @@
           "maxItems": 100,
           "title": "Sessionhitrates",
           "type": "array"
+        },
+        "sessionTotals": {
+          "$ref": "#/$defs/MonitorTotals"
         },
         "start": {
           "$ref": "#/$defs/InstantStr"
@@ -1644,6 +2499,9 @@
         "windowKey": {
           "title": "Windowkey",
           "type": "string"
+        },
+        "windowTotals": {
+          "$ref": "#/$defs/MonitorTotals"
         }
       },
       "required": [
@@ -1655,6 +2513,14 @@
         "nextRefreshAt",
         "trend",
         "revision",
+        "outputRevision",
+        "selectedSessionRef",
+        "chartSessionRef",
+        "nextCursor",
+        "windowTotals",
+        "sessionTotals",
+        "batchTotals",
+        "evidenceComplete",
         "outputSpeeds",
         "sessionHitRates"
       ],
@@ -1727,6 +2593,1111 @@
       "title": "Calibration",
       "type": "object"
     },
+    "CalibrationAllocation-Input": {
+      "additionalProperties": false,
+      "properties": {
+        "confirmModelCoverage": {
+          "default": false,
+          "title": "Confirmmodelcoverage",
+          "type": "boolean"
+        },
+        "day": {
+          "$ref": "#/$defs/DateStr"
+        },
+        "groupIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Groupids",
+          "type": "array"
+        },
+        "harnesses": {
+          "items": {
+            "$ref": "#/$defs/HarnessName"
+          },
+          "maxItems": 4,
+          "title": "Harnesses",
+          "type": "array"
+        },
+        "modelKeys": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Modelkeys",
+          "type": "array"
+        },
+        "sessionRefs": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Sessionrefs",
+          "type": "array"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__1"
+        },
+        "versionIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Versionids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "day",
+        "targetPico"
+      ],
+      "title": "CalibrationAllocation",
+      "type": "object"
+    },
+    "CalibrationAllocation-Output": {
+      "additionalProperties": false,
+      "properties": {
+        "confirmModelCoverage": {
+          "default": false,
+          "title": "Confirmmodelcoverage",
+          "type": "boolean"
+        },
+        "day": {
+          "$ref": "#/$defs/DateStr"
+        },
+        "groupIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Groupids",
+          "type": "array"
+        },
+        "harnesses": {
+          "items": {
+            "$ref": "#/$defs/HarnessName"
+          },
+          "maxItems": 4,
+          "title": "Harnesses",
+          "type": "array"
+        },
+        "modelKeys": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Modelkeys",
+          "type": "array"
+        },
+        "sessionRefs": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Sessionrefs",
+          "type": "array"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "versionIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Versionids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "day",
+        "targetPico",
+        "harnesses",
+        "sessionRefs",
+        "modelKeys",
+        "groupIds",
+        "versionIds",
+        "confirmModelCoverage"
+      ],
+      "title": "CalibrationAllocation",
+      "type": "object"
+    },
+    "CalibrationDayPreview": {
+      "additionalProperties": false,
+      "properties": {
+        "currentEffectivePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "day": {
+          "$ref": "#/$defs/DateStr"
+        },
+        "deltaPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "estimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unallocatedPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        }
+      },
+      "required": [
+        "day",
+        "targetPico",
+        "estimatePico",
+        "currentEffectivePico",
+        "deltaPico",
+        "unallocatedPico"
+      ],
+      "title": "CalibrationDayPreview",
+      "type": "object"
+    },
+    "CalibrationDayTarget-Input": {
+      "additionalProperties": false,
+      "properties": {
+        "day": {
+          "$ref": "#/$defs/DateStr"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__1"
+        }
+      },
+      "required": [
+        "day",
+        "targetPico"
+      ],
+      "title": "CalibrationDayTarget",
+      "type": "object"
+    },
+    "CalibrationDayTarget-Output": {
+      "additionalProperties": false,
+      "properties": {
+        "day": {
+          "$ref": "#/$defs/DateStr"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        }
+      },
+      "required": [
+        "day",
+        "targetPico"
+      ],
+      "title": "CalibrationDayTarget",
+      "type": "object"
+    },
+    "CalibrationModelPreview": {
+      "additionalProperties": false,
+      "properties": {
+        "day": {
+          "$ref": "#/$defs/DateStr"
+        },
+        "deltaPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "estimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "modelKey": {
+          "title": "Modelkey",
+          "type": "string"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        }
+      },
+      "required": [
+        "day",
+        "targetPico",
+        "modelKey",
+        "estimatePico",
+        "deltaPico"
+      ],
+      "title": "CalibrationModelPreview",
+      "type": "object"
+    },
+    "CalibrationPreview": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "apply",
+            "revoke"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "allocationIncomplete": {
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
+        "auxiliaryIncluded": {
+          "title": "Auxiliaryincluded",
+          "type": "boolean"
+        },
+        "batchIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Batchids",
+          "type": "array"
+        },
+        "bookedEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "businessTimezone": {
+          "title": "Businesstimezone",
+          "type": "string"
+        },
+        "coverageAligned": {
+          "title": "Coveragealigned",
+          "type": "boolean"
+        },
+        "currentEffectivePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "currentEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "days": {
+          "items": {
+            "$ref": "#/$defs/CalibrationDayPreview"
+          },
+          "title": "Days",
+          "type": "array"
+        },
+        "deltaPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "existingCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "externalUsagePossible": {
+          "title": "Externalusagepossible",
+          "type": "boolean"
+        },
+        "fingerprint": {
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "groupIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Groupids",
+          "type": "array"
+        },
+        "harnesses": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Harnesses",
+          "type": "array"
+        },
+        "incompleteCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "independentCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "legacyAllocationIncomplete": {
+          "title": "Legacyallocationincomplete",
+          "type": "boolean"
+        },
+        "legacyFlowIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Legacyflowids",
+          "type": "array"
+        },
+        "legacyOverrides": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "localComplete": {
+          "title": "Localcomplete",
+          "type": "boolean"
+        },
+        "memberCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "memberDays": {
+          "items": {
+            "$ref": "#/$defs/DateStr"
+          },
+          "title": "Memberdays",
+          "type": "array"
+        },
+        "memberDigest": {
+          "title": "Memberdigest",
+          "type": "string"
+        },
+        "modelAllocationCount": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "modelKeys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Modelkeys",
+          "type": "array"
+        },
+        "modelTargets": {
+          "items": {
+            "$ref": "#/$defs/CalibrationModelPreview"
+          },
+          "title": "Modeltargets",
+          "type": "array"
+        },
+        "notices": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notices",
+          "type": "array"
+        },
+        "omittedMemberCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "originalEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "pendingCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "quiet": {
+          "title": "Quiet",
+          "type": "boolean"
+        },
+        "reliability": {
+          "enum": [
+            "missing",
+            "invalid",
+            "reliable_usage",
+            "balance_estimate"
+          ],
+          "title": "Reliability",
+          "type": "string"
+        },
+        "remoteIntervals": {
+          "items": {
+            "$ref": "#/$defs/ReconciliationInterval"
+          },
+          "title": "Remoteintervals",
+          "type": "array"
+        },
+        "remoteTargetPico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "remoteUsedDeltaPico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replacedTargets": {
+          "items": {
+            "$ref": "#/$defs/ReplacedTarget"
+          },
+          "title": "Replacedtargets",
+          "type": "array"
+        },
+        "snapshot": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SafeInt-Output"
+          },
+          "title": "Snapshot",
+          "type": "object"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "vendorId": {
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendorId",
+        "start",
+        "end",
+        "businessTimezone",
+        "memberDays",
+        "memberCount",
+        "memberDigest",
+        "batchIds",
+        "originalEstimatePico",
+        "currentEstimatePico",
+        "currentEffectivePico",
+        "existingCorrectionPico",
+        "pendingCount",
+        "incompleteCount",
+        "harnesses",
+        "modelKeys",
+        "groupIds",
+        "localComplete",
+        "quiet",
+        "coverageAligned",
+        "omittedMemberCount",
+        "auxiliaryIncluded",
+        "externalUsagePossible",
+        "legacyOverrides",
+        "legacyFlowIds",
+        "legacyAllocationIncomplete",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
+        "independentCorrectionPico",
+        "fingerprint",
+        "snapshot",
+        "notices",
+        "remoteTargetPico",
+        "remoteUsedDeltaPico",
+        "bookedEstimatePico",
+        "reliability",
+        "remoteIntervals",
+        "action",
+        "targetPico",
+        "deltaPico",
+        "days",
+        "modelAllocationCount",
+        "replacedTargets",
+        "modelTargets"
+      ],
+      "title": "CalibrationPreview",
+      "type": "object"
+    },
+    "CalibrationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "acknowledgeIncomplete": {
+          "default": false,
+          "title": "Acknowledgeincomplete",
+          "type": "boolean"
+        },
+        "action": {
+          "default": "apply",
+          "enum": [
+            "apply",
+            "revoke"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "allocationMode": {
+          "default": "explicit",
+          "enum": [
+            "explicit",
+            "unallocated",
+            "proportional",
+            "weighted"
+          ],
+          "title": "Allocationmode",
+          "type": "string"
+        },
+        "allocations": {
+          "items": {
+            "$ref": "#/$defs/CalibrationAllocation-Input"
+          },
+          "maxItems": 100,
+          "title": "Allocations",
+          "type": "array"
+        },
+        "basis": {
+          "default": "manual",
+          "enum": [
+            "manual",
+            "remote"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "confirmLocalScope": {
+          "default": false,
+          "title": "Confirmlocalscope",
+          "type": "boolean"
+        },
+        "confirmReplacement": {
+          "default": false,
+          "title": "Confirmreplacement",
+          "type": "boolean"
+        },
+        "dayTargets": {
+          "items": {
+            "$ref": "#/$defs/CalibrationDayTarget-Input"
+          },
+          "maxItems": 366,
+          "title": "Daytargets",
+          "type": "array"
+        },
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "intervalIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Intervalids",
+          "type": "array"
+        },
+        "localBatchIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 500,
+          "title": "Localbatchids",
+          "type": "array"
+        },
+        "modelWeights": {
+          "additionalProperties": {
+            "pattern": "^(?:0(?:\\.[0-9]{1,4})?|1(?:\\.0{1,4})?)$",
+            "type": "string"
+          },
+          "maxProperties": 100,
+          "title": "Modelweights",
+          "type": "object"
+        },
+        "note": {
+          "default": "",
+          "maxLength": 500,
+          "title": "Note",
+          "type": "string"
+        },
+        "replaceTargetIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Replacetargetids",
+          "type": "array"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "targetId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Targetid"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__1",
+          "default": "0"
+        },
+        "vendorId": {
+          "maxLength": 512,
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendorId",
+        "start",
+        "end"
+      ],
+      "title": "CalibrationRequest",
+      "type": "object"
+    },
+    "CalibrationResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "apply",
+            "revoke"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "allocationIncomplete": {
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
+        "auxiliaryIncluded": {
+          "title": "Auxiliaryincluded",
+          "type": "boolean"
+        },
+        "batchIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Batchids",
+          "type": "array"
+        },
+        "bookedEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "businessTimezone": {
+          "title": "Businesstimezone",
+          "type": "string"
+        },
+        "coverageAligned": {
+          "title": "Coveragealigned",
+          "type": "boolean"
+        },
+        "currentEffectivePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "currentEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "days": {
+          "items": {
+            "$ref": "#/$defs/CalibrationDayPreview"
+          },
+          "title": "Days",
+          "type": "array"
+        },
+        "deltaPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "existingCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "externalUsagePossible": {
+          "title": "Externalusagepossible",
+          "type": "boolean"
+        },
+        "fingerprint": {
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "groupIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Groupids",
+          "type": "array"
+        },
+        "harnesses": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Harnesses",
+          "type": "array"
+        },
+        "incompleteCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "independentCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "legacyAllocationIncomplete": {
+          "title": "Legacyallocationincomplete",
+          "type": "boolean"
+        },
+        "legacyFlowIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Legacyflowids",
+          "type": "array"
+        },
+        "legacyOverrides": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "localComplete": {
+          "title": "Localcomplete",
+          "type": "boolean"
+        },
+        "memberCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "memberDays": {
+          "items": {
+            "$ref": "#/$defs/DateStr"
+          },
+          "title": "Memberdays",
+          "type": "array"
+        },
+        "memberDigest": {
+          "title": "Memberdigest",
+          "type": "string"
+        },
+        "modelAllocationCount": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "modelKeys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Modelkeys",
+          "type": "array"
+        },
+        "modelTargets": {
+          "items": {
+            "$ref": "#/$defs/CalibrationModelPreview"
+          },
+          "title": "Modeltargets",
+          "type": "array"
+        },
+        "notices": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notices",
+          "type": "array"
+        },
+        "omittedMemberCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "originalEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "pendingCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "quiet": {
+          "title": "Quiet",
+          "type": "boolean"
+        },
+        "reliability": {
+          "enum": [
+            "missing",
+            "invalid",
+            "reliable_usage",
+            "balance_estimate"
+          ],
+          "title": "Reliability",
+          "type": "string"
+        },
+        "remoteIntervals": {
+          "items": {
+            "$ref": "#/$defs/ReconciliationInterval"
+          },
+          "title": "Remoteintervals",
+          "type": "array"
+        },
+        "remoteTargetPico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "remoteUsedDeltaPico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replacedTargets": {
+          "items": {
+            "$ref": "#/$defs/ReplacedTarget"
+          },
+          "title": "Replacedtargets",
+          "type": "array"
+        },
+        "revision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "snapshot": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SafeInt-Output"
+          },
+          "title": "Snapshot",
+          "type": "object"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "targetId": {
+          "title": "Targetid",
+          "type": "string"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "vendorId": {
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendorId",
+        "start",
+        "end",
+        "businessTimezone",
+        "memberDays",
+        "memberCount",
+        "memberDigest",
+        "batchIds",
+        "originalEstimatePico",
+        "currentEstimatePico",
+        "currentEffectivePico",
+        "existingCorrectionPico",
+        "pendingCount",
+        "incompleteCount",
+        "harnesses",
+        "modelKeys",
+        "groupIds",
+        "localComplete",
+        "quiet",
+        "coverageAligned",
+        "omittedMemberCount",
+        "auxiliaryIncluded",
+        "externalUsagePossible",
+        "legacyOverrides",
+        "legacyFlowIds",
+        "legacyAllocationIncomplete",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
+        "independentCorrectionPico",
+        "fingerprint",
+        "snapshot",
+        "notices",
+        "remoteTargetPico",
+        "remoteUsedDeltaPico",
+        "bookedEstimatePico",
+        "reliability",
+        "remoteIntervals",
+        "action",
+        "targetPico",
+        "deltaPico",
+        "days",
+        "modelAllocationCount",
+        "replacedTargets",
+        "modelTargets",
+        "targetId",
+        "revision"
+      ],
+      "title": "CalibrationResponse",
+      "type": "object"
+    },
+    "CalibrationTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "allocations": {
+          "items": {
+            "$ref": "#/$defs/CalibrationAllocation-Output"
+          },
+          "title": "Allocations",
+          "type": "array"
+        },
+        "basis": {
+          "enum": [
+            "manual",
+            "remote",
+            "legacy_flow"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "dayTargets": {
+          "items": {
+            "$ref": "#/$defs/CalibrationDayTarget-Output"
+          },
+          "title": "Daytargets",
+          "type": "array"
+        },
+        "deltaPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "estimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "legacyFlowId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Legacyflowid"
+        },
+        "revision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "scope": {
+          "$ref": "#/$defs/ReconciliationQuery-Output"
+        },
+        "state": {
+          "enum": [
+            "active",
+            "replaced",
+            "revoked"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "vendorId": {
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "targetPico",
+        "revision",
+        "vendorId",
+        "state",
+        "estimatePico",
+        "deltaPico",
+        "scope",
+        "createdAt",
+        "basis",
+        "legacyFlowId",
+        "allocations",
+        "dayTargets"
+      ],
+      "title": "CalibrationTarget",
+      "type": "object"
+    },
+    "CalibrationTargetsRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "cursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cursor"
+        },
+        "state": {
+          "default": "all",
+          "enum": [
+            "all",
+            "active",
+            "replaced",
+            "revoked"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "vendorId": {
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendorId"
+      ],
+      "title": "CalibrationTargetsRequest",
+      "type": "object"
+    },
+    "CalibrationTargetsResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "nextCursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nextcursor"
+        },
+        "revision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "targets": {
+          "items": {
+            "$ref": "#/$defs/CalibrationTarget"
+          },
+          "title": "Targets",
+          "type": "array"
+        }
+      },
+      "required": [
+        "targets",
+        "nextCursor",
+        "revision"
+      ],
+      "title": "CalibrationTargetsResponse",
+      "type": "object"
+    },
+    "CancelAnalysisRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "queryId": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Queryid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "queryId"
+      ],
+      "title": "CancelAnalysisRequest",
+      "type": "object"
+    },
+    "CancelAnalysisResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "cancelled": {
+          "title": "Cancelled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "cancelled"
+      ],
+      "title": "CancelAnalysisResponse",
+      "type": "object"
+    },
     "CancelTaskRequest": {
       "additionalProperties": false,
       "properties": {
@@ -1742,6 +3713,18 @@
         "taskId"
       ],
       "title": "CancelTaskRequest",
+      "type": "object"
+    },
+    "CatalogRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "metadataOnly": {
+          "default": false,
+          "title": "Metadataonly",
+          "type": "boolean"
+        }
+      },
+      "title": "CatalogRequest",
       "type": "object"
     },
     "CatalogResponse": {
@@ -1989,6 +3972,152 @@
       "title": "CollectionTickEvent",
       "type": "object"
     },
+    "CommitCalibrationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "acknowledgeIncomplete": {
+          "default": false,
+          "title": "Acknowledgeincomplete",
+          "type": "boolean"
+        },
+        "action": {
+          "default": "apply",
+          "enum": [
+            "apply",
+            "revoke"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "allocationMode": {
+          "default": "explicit",
+          "enum": [
+            "explicit",
+            "unallocated",
+            "proportional",
+            "weighted"
+          ],
+          "title": "Allocationmode",
+          "type": "string"
+        },
+        "allocations": {
+          "items": {
+            "$ref": "#/$defs/CalibrationAllocation-Input"
+          },
+          "maxItems": 100,
+          "title": "Allocations",
+          "type": "array"
+        },
+        "basis": {
+          "default": "manual",
+          "enum": [
+            "manual",
+            "remote"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "confirmLocalScope": {
+          "default": false,
+          "title": "Confirmlocalscope",
+          "type": "boolean"
+        },
+        "confirmReplacement": {
+          "default": false,
+          "title": "Confirmreplacement",
+          "type": "boolean"
+        },
+        "dayTargets": {
+          "items": {
+            "$ref": "#/$defs/CalibrationDayTarget-Input"
+          },
+          "maxItems": 366,
+          "title": "Daytargets",
+          "type": "array"
+        },
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "fingerprint": {
+          "$ref": "#/$defs/Fingerprint"
+        },
+        "intervalIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Intervalids",
+          "type": "array"
+        },
+        "localBatchIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 500,
+          "title": "Localbatchids",
+          "type": "array"
+        },
+        "modelWeights": {
+          "additionalProperties": {
+            "pattern": "^(?:0(?:\\.[0-9]{1,4})?|1(?:\\.0{1,4})?)$",
+            "type": "string"
+          },
+          "maxProperties": 100,
+          "title": "Modelweights",
+          "type": "object"
+        },
+        "note": {
+          "default": "",
+          "maxLength": 500,
+          "title": "Note",
+          "type": "string"
+        },
+        "operationId": {
+          "$ref": "#/$defs/OperationId"
+        },
+        "replaceTargetIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Replacetargetids",
+          "type": "array"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "targetId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Targetid"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__1",
+          "default": "0"
+        },
+        "vendorId": {
+          "maxLength": 512,
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operationId",
+        "vendorId",
+        "start",
+        "end",
+        "fingerprint"
+      ],
+      "title": "CommitCalibrationRequest",
+      "type": "object"
+    },
     "CommitRecalcRequest": {
       "additionalProperties": false,
       "properties": {
@@ -2064,7 +4193,7 @@
         "targetPico": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PicoStr-Input"
+              "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__2"
             },
             {
               "type": "null"
@@ -2088,10 +4217,10 @@
       "additionalProperties": false,
       "properties": {
         "C": {
-          "$ref": "#/$defs/PicoStr-Input"
+          "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__2"
         },
         "R": {
-          "$ref": "#/$defs/PicoStr-Input"
+          "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__2"
         },
         "entryId": {
           "$ref": "#/$defs/Identifier"
@@ -2382,6 +4511,202 @@
         "A"
       ],
       "title": "DailyBookRow",
+      "type": "object"
+    },
+    "DateStr": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "type": "string"
+    },
+    "DirectoryCleanupResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "deletedFiles": {
+          "$ref": "#/$defs/SafeInt-Output"
+        }
+      },
+      "required": [
+        "deletedFiles"
+      ],
+      "title": "DirectoryCleanupResponse",
+      "type": "object"
+    },
+    "DirectoryMoveRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "fingerprint": {
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "operationId": {
+          "$ref": "#/$defs/OperationId"
+        },
+        "target": {
+          "$ref": "#/$defs/DirectoryPath"
+        }
+      },
+      "required": [
+        "operationId",
+        "target",
+        "fingerprint"
+      ],
+      "title": "DirectoryMoveRequest",
+      "type": "object"
+    },
+    "DirectoryMoveResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "restartRequired": {
+          "title": "Restartrequired",
+          "type": "boolean"
+        },
+        "root": {
+          "title": "Root",
+          "type": "string"
+        }
+      },
+      "required": [
+        "root",
+        "restartRequired"
+      ],
+      "title": "DirectoryMoveResponse",
+      "type": "object"
+    },
+    "DirectoryPath": {
+      "maxLength": 32767,
+      "minLength": 1,
+      "type": "string"
+    },
+    "DirectoryPreview": {
+      "additionalProperties": false,
+      "properties": {
+        "availableBytes": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "datasetId": {
+          "title": "Datasetid",
+          "type": "string"
+        },
+        "fingerprint": {
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "requiredBytes": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "resumeOperationId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resumeoperationid"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "unchanged": {
+          "title": "Unchanged",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source",
+        "target",
+        "datasetId",
+        "requiredBytes",
+        "availableBytes",
+        "unchanged",
+        "fingerprint",
+        "resumeOperationId"
+      ],
+      "title": "DirectoryPreview",
+      "type": "object"
+    },
+    "DirectoryPreviewRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/DirectoryPath"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "title": "DirectoryPreviewRequest",
+      "type": "object"
+    },
+    "DirectoryStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "canCleanup": {
+          "title": "Cancleanup",
+          "type": "boolean"
+        },
+        "canMove": {
+          "title": "Canmove",
+          "type": "boolean"
+        },
+        "pendingTarget": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pendingtarget"
+        },
+        "phase": {
+          "title": "Phase",
+          "type": "string"
+        },
+        "previousRoot": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Previousroot"
+        },
+        "root": {
+          "title": "Root",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "explicit",
+            "environment",
+            "locator",
+            "default"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "root",
+        "source",
+        "phase",
+        "previousRoot",
+        "canMove",
+        "canCleanup",
+        "pendingTarget"
+      ],
+      "title": "DirectoryStatus",
       "type": "object"
     },
     "DismissNoticeRequest": {
@@ -2695,9 +5020,144 @@
         }
       ]
     },
+    "EvidenceRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "harness": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HarnessName"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "localBatchIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 500,
+          "title": "Localbatchids",
+          "type": "array"
+        },
+        "offset": {
+          "default": 0,
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Offset",
+          "type": "integer"
+        },
+        "queryId": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Queryid"
+        },
+        "sessionRef": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sessionref"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "vendorId": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vendorid"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "EvidenceRequest",
+      "type": "object"
+    },
+    "EvidenceResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "generatedAt": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/RequestEvidence"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "nextOffset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SafeInt-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "snapshot": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SafeInt-Output"
+          },
+          "title": "Snapshot",
+          "type": "object"
+        },
+        "sourceStates": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Sourcestates",
+          "type": "object"
+        }
+      },
+      "required": [
+        "items",
+        "nextOffset",
+        "sourceStates",
+        "snapshot",
+        "generatedAt"
+      ],
+      "title": "EvidenceResponse",
+      "type": "object"
+    },
     "ExploreBreakdown": {
       "additionalProperties": false,
       "properties": {
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
         "cacheCoverageIncomplete": {
           "title": "Cachecoverageincomplete",
           "type": "boolean"
@@ -2718,6 +5178,15 @@
         "cacheWriteTokens": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "componentCostEstimated": {
+          "default": false,
+          "title": "Componentcostestimated",
+          "type": "boolean"
+        },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "displayName": {
           "title": "Displayname",
           "type": "string"
@@ -2727,6 +5196,17 @@
         },
         "eligibleTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "groupId": {
           "title": "Groupid",
@@ -2760,6 +5240,10 @@
           "title": "Parts",
           "type": "object"
         },
+        "pendingValuationCount": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "perDollar": {
           "additionalProperties": {
             "anyOf": [
@@ -2777,6 +5261,11 @@
         "picoUsd": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "ratioUnavailable": {
+          "default": false,
+          "title": "Ratiounavailable",
+          "type": "boolean"
+        },
         "recordCount": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -2793,6 +5282,10 @@
         },
         "totalTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "unpriced": {
           "title": "Unpriced",
@@ -2825,6 +5318,13 @@
         "parts",
         "eligibleCostPico",
         "eligibleTokens",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
+        "ratioUnavailable",
+        "componentCostEstimated",
+        "pendingValuationCount",
         "harness",
         "vendorId",
         "groupId",
@@ -2835,9 +5335,40 @@
       "title": "ExploreBreakdown",
       "type": "object"
     },
-    "ExploreMetrics": {
+    "ExploreComparison": {
       "additionalProperties": false,
       "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "totals": {
+          "$ref": "#/$defs/ExploreMetrics"
+        },
+        "trend": {
+          "items": {
+            "$ref": "#/$defs/ExplorePoint"
+          },
+          "title": "Trend",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "totals",
+        "trend"
+      ],
+      "title": "ExploreComparison",
+      "type": "object"
+    },
+    "ExploreHarness": {
+      "additionalProperties": false,
+      "properties": {
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
         "cacheCoverageIncomplete": {
           "title": "Cachecoverageincomplete",
           "type": "boolean"
@@ -2858,11 +5389,38 @@
         "cacheWriteTokens": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "componentCostEstimated": {
+          "default": false,
+          "title": "Componentcostestimated",
+          "type": "boolean"
+        },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
+        "displayName": {
+          "title": "Displayname",
+          "type": "string"
+        },
         "eligibleCostPico": {
           "$ref": "#/$defs/PicoStr-Output"
         },
         "eligibleTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "harness": {
+          "$ref": "#/$defs/HarnessName"
         },
         "incomplete": {
           "title": "Incomplete",
@@ -2884,6 +5442,10 @@
           "title": "Parts",
           "type": "object"
         },
+        "pendingValuationCount": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "perDollar": {
           "additionalProperties": {
             "anyOf": [
@@ -2901,6 +5463,11 @@
         "picoUsd": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "ratioUnavailable": {
+          "default": false,
+          "title": "Ratiounavailable",
+          "type": "boolean"
+        },
         "recordCount": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -2917,6 +5484,10 @@
         },
         "totalTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "unpriced": {
           "title": "Unpriced",
@@ -2940,14 +5511,28 @@
         "perDollar",
         "parts",
         "eligibleCostPico",
-        "eligibleTokens"
+        "eligibleTokens",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
+        "ratioUnavailable",
+        "componentCostEstimated",
+        "pendingValuationCount",
+        "harness",
+        "displayName"
       ],
-      "title": "ExploreMetrics",
+      "title": "ExploreHarness",
       "type": "object"
     },
-    "ExploreModel": {
+    "ExploreMetrics": {
       "additionalProperties": false,
       "properties": {
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
         "cacheCoverageIncomplete": {
           "title": "Cachecoverageincomplete",
           "type": "boolean"
@@ -2968,6 +5553,170 @@
         "cacheWriteTokens": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "componentCostEstimated": {
+          "default": false,
+          "title": "Componentcostestimated",
+          "type": "boolean"
+        },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
+        "eligibleCostPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "eligibleTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "incomplete": {
+          "title": "Incomplete",
+          "type": "boolean"
+        },
+        "inputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "newInput": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "outputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "parts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/PicoStr-Output"
+          },
+          "title": "Parts",
+          "type": "object"
+        },
+        "pendingValuationCount": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
+        "perDollar": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Perdollar",
+          "type": "object"
+        },
+        "picoUsd": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "ratioUnavailable": {
+          "default": false,
+          "title": "Ratiounavailable",
+          "type": "boolean"
+        },
+        "recordCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "tokensPerDollar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tokensperdollar"
+        },
+        "totalTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
+        "unpriced": {
+          "title": "Unpriced",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "recordCount",
+        "inputTokens",
+        "cacheReadTokens",
+        "outputTokens",
+        "cacheWriteTokens",
+        "newInput",
+        "totalTokens",
+        "picoUsd",
+        "cacheHitRate",
+        "incomplete",
+        "unpriced",
+        "cacheCoverageIncomplete",
+        "tokensPerDollar",
+        "perDollar",
+        "parts",
+        "eligibleCostPico",
+        "eligibleTokens",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
+        "ratioUnavailable",
+        "componentCostEstimated",
+        "pendingValuationCount"
+      ],
+      "title": "ExploreMetrics",
+      "type": "object"
+    },
+    "ExploreModel": {
+      "additionalProperties": false,
+      "properties": {
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
+        "cacheCoverageIncomplete": {
+          "title": "Cachecoverageincomplete",
+          "type": "boolean"
+        },
+        "cacheHitRate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HitRate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cacheReadTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "cacheWriteTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "componentCostEstimated": {
+          "default": false,
+          "title": "Componentcostestimated",
+          "type": "boolean"
+        },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "displayName": {
           "title": "Displayname",
           "type": "string"
@@ -2977,6 +5726,17 @@
         },
         "eligibleTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "incomplete": {
           "title": "Incomplete",
@@ -3002,6 +5762,10 @@
           "title": "Parts",
           "type": "object"
         },
+        "pendingValuationCount": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "perDollar": {
           "additionalProperties": {
             "anyOf": [
@@ -3019,6 +5783,11 @@
         "picoUsd": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "ratioUnavailable": {
+          "default": false,
+          "title": "Ratiounavailable",
+          "type": "boolean"
+        },
         "recordCount": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -3035,6 +5804,10 @@
         },
         "totalTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "unpriced": {
           "title": "Unpriced",
@@ -3059,6 +5832,13 @@
         "parts",
         "eligibleCostPico",
         "eligibleTokens",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
+        "ratioUnavailable",
+        "componentCostEstimated",
+        "pendingValuationCount",
         "modelKey",
         "displayName"
       ],
@@ -3100,6 +5880,16 @@
     "ExploreOptions": {
       "additionalProperties": false,
       "properties": {
+        "groupVendors": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Groupvendors",
+          "type": "object"
+        },
         "groups": {
           "items": {
             "$ref": "#/$defs/ExploreOption"
@@ -3107,12 +5897,34 @@
           "title": "Groups",
           "type": "array"
         },
+        "modelNextOffset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SafeInt-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "models": {
           "items": {
             "$ref": "#/$defs/ExploreOption"
           },
           "title": "Models",
           "type": "array"
+        },
+        "selectedModels": {
+          "items": {
+            "$ref": "#/$defs/ExploreOption"
+          },
+          "title": "Selectedmodels",
+          "type": "array"
+        },
+        "totalModels": {
+          "$ref": "#/$defs/SafeInt-Output",
+          "default": 0
         },
         "vendors": {
           "items": {
@@ -3133,14 +5945,58 @@
         "vendors",
         "groups",
         "versions",
-        "models"
+        "models",
+        "totalModels",
+        "modelNextOffset",
+        "groupVendors",
+        "selectedModels"
       ],
       "title": "ExploreOptions",
+      "type": "object"
+    },
+    "ExploreOptionsRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "includeCatalog": {
+          "default": true,
+          "title": "Includecatalog",
+          "type": "boolean"
+        },
+        "modelKeys": {
+          "$ref": "#/$defs/Choices"
+        },
+        "modelLimit": {
+          "default": 100,
+          "maximum": 500,
+          "minimum": 1,
+          "title": "Modellimit",
+          "type": "integer"
+        },
+        "modelOffset": {
+          "default": 0,
+          "maximum": 30000,
+          "minimum": 0,
+          "title": "Modeloffset",
+          "type": "integer"
+        },
+        "modelSearch": {
+          "default": "",
+          "maxLength": 160,
+          "title": "Modelsearch",
+          "type": "string"
+        }
+      },
+      "title": "ExploreOptionsRequest",
       "type": "object"
     },
     "ExplorePoint": {
       "additionalProperties": false,
       "properties": {
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
         "bucket": {
           "title": "Bucket",
           "type": "string"
@@ -3165,11 +6021,31 @@
         "cacheWriteTokens": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "componentCostEstimated": {
+          "default": false,
+          "title": "Componentcostestimated",
+          "type": "boolean"
+        },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "eligibleCostPico": {
           "$ref": "#/$defs/PicoStr-Output"
         },
         "eligibleTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "incomplete": {
           "title": "Incomplete",
@@ -3195,6 +6071,10 @@
           "title": "Parts",
           "type": "object"
         },
+        "pendingValuationCount": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "perDollar": {
           "additionalProperties": {
             "anyOf": [
@@ -3212,6 +6092,11 @@
         "picoUsd": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "ratioUnavailable": {
+          "default": false,
+          "title": "Ratiounavailable",
+          "type": "boolean"
+        },
         "recordCount": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -3228,6 +6113,10 @@
         },
         "totalTokens": {
           "$ref": "#/$defs/PicoStr-Output"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "unpriced": {
           "title": "Unpriced",
@@ -3252,6 +6141,13 @@
         "parts",
         "eligibleCostPico",
         "eligibleTokens",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
+        "ratioUnavailable",
+        "componentCostEstimated",
+        "pendingValuationCount",
         "bucket",
         "label"
       ],
@@ -3261,6 +6157,52 @@
     "ExploreRequest": {
       "additionalProperties": false,
       "properties": {
+        "accountCorrectionOffset": {
+          "default": 0,
+          "maximum": 30000,
+          "minimum": 0,
+          "title": "Accountcorrectionoffset",
+          "type": "integer"
+        },
+        "accountOffset": {
+          "default": 0,
+          "maximum": 30000,
+          "minimum": 0,
+          "title": "Accountoffset",
+          "type": "integer"
+        },
+        "activityBatchIds": {
+          "$ref": "#/$defs/Choices"
+        },
+        "compareDimension": {
+          "default": "vendor",
+          "enum": [
+            "vendor",
+            "group",
+            "version",
+            "model"
+          ],
+          "title": "Comparedimension",
+          "type": "string"
+        },
+        "compareIds": {
+          "items": {
+            "maxLength": 160,
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Compareids",
+          "type": "array"
+        },
+        "costBasis": {
+          "default": "local",
+          "enum": [
+            "local",
+            "remote"
+          ],
+          "title": "Costbasis",
+          "type": "string"
+        },
         "end": {
           "$ref": "#/$defs/InstantStr"
         },
@@ -3316,6 +6258,76 @@
           "title": "Qualityoffset",
           "type": "integer"
         },
+        "qualityReasons": {
+          "items": {
+            "$ref": "#/$defs/QualityReason"
+          },
+          "maxItems": 4,
+          "title": "Qualityreasons",
+          "type": "array"
+        },
+        "qualityStatus": {
+          "default": "all",
+          "enum": [
+            "all",
+            "unacknowledged",
+            "acknowledged"
+          ],
+          "title": "Qualitystatus",
+          "type": "string"
+        },
+        "queryId": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Queryid"
+        },
+        "rangeKind": {
+          "anyOf": [
+            {
+              "enum": [
+                "recent",
+                "custom",
+                "month",
+                "quarter",
+                "year",
+                "all"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rangekind"
+        },
+        "sections": {
+          "items": {
+            "enum": [
+              "totals",
+              "models",
+              "trend",
+              "breakdowns",
+              "quality",
+              "comparison",
+              "accounts"
+            ],
+            "type": "string"
+          },
+          "title": "Sections",
+          "type": "array"
+        },
+        "sessionRefs": {
+          "$ref": "#/$defs/Choices"
+        },
         "start": {
           "$ref": "#/$defs/InstantStr"
         },
@@ -3336,6 +6348,50 @@
     "ExploreResponse": {
       "additionalProperties": false,
       "properties": {
+        "accountCorrectionNextOffset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SafeInt-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "accountCorrectionTotal": {
+          "$ref": "#/$defs/SafeInt-Output",
+          "default": 0
+        },
+        "accountCorrections": {
+          "items": {
+            "$ref": "#/$defs/AccountCorrection"
+          },
+          "title": "Accountcorrections",
+          "type": "array"
+        },
+        "accountNextOffset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SafeInt-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "accountTotal": {
+          "$ref": "#/$defs/SafeInt-Output",
+          "default": 0
+        },
+        "accounts": {
+          "items": {
+            "$ref": "#/$defs/AccountInterval"
+          },
+          "title": "Accounts",
+          "type": "array"
+        },
         "breakdowns": {
           "items": {
             "$ref": "#/$defs/ExploreBreakdown"
@@ -3346,6 +6402,29 @@
         "businessTimezone": {
           "title": "Businesstimezone",
           "type": "string"
+        },
+        "comparisons": {
+          "items": {
+            "$ref": "#/$defs/ExploreComparison"
+          },
+          "title": "Comparisons",
+          "type": "array"
+        },
+        "costBasis": {
+          "default": "local",
+          "enum": [
+            "local",
+            "remote"
+          ],
+          "title": "Costbasis",
+          "type": "string"
+        },
+        "coverage": {
+          "items": {
+            "$ref": "#/$defs/AnalysisCoverage"
+          },
+          "title": "Coverage",
+          "type": "array"
         },
         "end": {
           "$ref": "#/$defs/InstantStr"
@@ -3362,6 +6441,17 @@
           ],
           "title": "Grain",
           "type": "string"
+        },
+        "harnesses": {
+          "items": {
+            "$ref": "#/$defs/ExploreHarness"
+          },
+          "title": "Harnesses",
+          "type": "array"
+        },
+        "intervalCostPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "missingVersionRecords": {
           "$ref": "#/$defs/PicoStr-Output"
@@ -3390,6 +6480,17 @@
           "title": "Notices",
           "type": "array"
         },
+        "plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/QueryPlanDescription"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "quality": {
           "items": {
             "$ref": "#/$defs/QualityItem"
@@ -3413,8 +6514,19 @@
         "qualityUnacknowledged": {
           "$ref": "#/$defs/SafeInt-Output"
         },
+        "remoteCostPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "revision": {
           "$ref": "#/$defs/SafeInt-Output"
+        },
+        "snapshot": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SafeInt-Output"
+          },
+          "title": "Snapshot",
+          "type": "object"
         },
         "start": {
           "$ref": "#/$defs/InstantStr"
@@ -3431,6 +6543,14 @@
           },
           "title": "Trend",
           "type": "array"
+        },
+        "unallocatedCostPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
+        "unallocatedTrendCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         }
       },
       "required": [
@@ -3451,7 +6571,23 @@
         "quality",
         "qualityTotal",
         "qualityUnacknowledged",
-        "qualityNextOffset"
+        "qualityNextOffset",
+        "costBasis",
+        "snapshot",
+        "coverage",
+        "comparisons",
+        "accounts",
+        "accountTotal",
+        "accountNextOffset",
+        "remoteCostPico",
+        "intervalCostPico",
+        "unallocatedCostPico",
+        "accountCorrections",
+        "accountCorrectionTotal",
+        "accountCorrectionNextOffset",
+        "plan",
+        "unallocatedTrendCorrectionPico",
+        "harnesses"
       ],
       "title": "ExploreResponse",
       "type": "object"
@@ -3615,6 +6751,11 @@
     "HarnessData": {
       "additionalProperties": false,
       "properties": {
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
         "cacheCoverageIncomplete": {
           "title": "Cachecoverageincomplete",
           "type": "boolean"
@@ -3632,9 +6773,24 @@
         "cacheReadTokens": {
           "$ref": "#/$defs/SafeInt-Output"
         },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "displayName": {
           "title": "Displayname",
           "type": "string"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "harness": {
           "$ref": "#/$defs/HarnessName"
@@ -3655,6 +6811,10 @@
         "outputTokens": {
           "$ref": "#/$defs/SafeInt-Output"
         },
+        "pendingValuationCount": {
+          "$ref": "#/$defs/SafeInt-Output",
+          "default": 0
+        },
         "picoUsd": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -3663,6 +6823,10 @@
         },
         "totalTokens": {
           "$ref": "#/$defs/SafeInt-Output"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "unknownModelCount": {
           "$ref": "#/$defs/SafeInt-Output"
@@ -3686,6 +6850,11 @@
         "unpriced",
         "unknownModelCount",
         "missingUsageCount",
+        "pendingValuationCount",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
         "harness",
         "displayName"
       ],
@@ -3741,6 +6910,11 @@
           "title": "Datadir",
           "type": "string"
         },
+        "dataDirSource": {
+          "default": "default",
+          "title": "Datadirsource",
+          "type": "string"
+        },
         "mode": {
           "default": "desktop",
           "enum": [
@@ -3767,6 +6941,7 @@
         "capabilities",
         "mode",
         "dataDir",
+        "dataDirSource",
         "revisions"
       ],
       "title": "HelloResponse",
@@ -3979,6 +7154,53 @@
       "title": "LinkGroupsRequest",
       "type": "object"
     },
+    "LocalBatch": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "publishedRevision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "revision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "sessionRef": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sessionref"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "state": {
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "sessionRef",
+        "start",
+        "end",
+        "revision",
+        "publishedRevision",
+        "state"
+      ],
+      "title": "LocalBatch",
+      "type": "object"
+    },
     "LongTermResponse": {
       "additionalProperties": false,
       "properties": {
@@ -4115,6 +7337,11 @@
     "MetricsData": {
       "additionalProperties": false,
       "properties": {
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
         "cacheCoverageIncomplete": {
           "title": "Cachecoverageincomplete",
           "type": "boolean"
@@ -4132,6 +7359,21 @@
         "cacheReadTokens": {
           "$ref": "#/$defs/SafeInt-Output"
         },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "incomplete": {
           "title": "Incomplete",
           "type": "boolean"
@@ -4148,6 +7390,10 @@
         "outputTokens": {
           "$ref": "#/$defs/SafeInt-Output"
         },
+        "pendingValuationCount": {
+          "$ref": "#/$defs/SafeInt-Output",
+          "default": 0
+        },
         "picoUsd": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -4156,6 +7402,10 @@
         },
         "totalTokens": {
           "$ref": "#/$defs/SafeInt-Output"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "unknownModelCount": {
           "$ref": "#/$defs/SafeInt-Output"
@@ -4178,7 +7428,12 @@
         "incomplete",
         "unpriced",
         "unknownModelCount",
-        "missingUsageCount"
+        "missingUsageCount",
+        "pendingValuationCount",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete"
       ],
       "title": "MetricsData",
       "type": "object"
@@ -4358,6 +7613,11 @@
     "ModelData": {
       "additionalProperties": false,
       "properties": {
+        "allocationIncomplete": {
+          "default": false,
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
         "cacheCoverageIncomplete": {
           "title": "Cachecoverageincomplete",
           "type": "boolean"
@@ -4375,9 +7635,24 @@
         "cacheReadTokens": {
           "$ref": "#/$defs/SafeInt-Output"
         },
+        "correctionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
         "displayName": {
           "title": "Displayname",
           "type": "string"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "incomplete": {
           "title": "Incomplete",
@@ -4399,6 +7674,10 @@
         "outputTokens": {
           "$ref": "#/$defs/SafeInt-Output"
         },
+        "pendingValuationCount": {
+          "$ref": "#/$defs/SafeInt-Output",
+          "default": 0
+        },
         "picoUsd": {
           "$ref": "#/$defs/PicoStr-Output"
         },
@@ -4407,6 +7686,10 @@
         },
         "totalTokens": {
           "$ref": "#/$defs/SafeInt-Output"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         },
         "unknownModelCount": {
           "$ref": "#/$defs/SafeInt-Output"
@@ -4430,6 +7713,11 @@
         "unpriced",
         "unknownModelCount",
         "missingUsageCount",
+        "pendingValuationCount",
+        "estimatePico",
+        "correctionPico",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
         "modelKey",
         "displayName"
       ],
@@ -4577,15 +7865,49 @@
       "title": "ModelPrice",
       "type": "object"
     },
-    "MonitorMode": {
-      "enum": [
-        "minute",
-        "hour"
+    "MonitorTotals": {
+      "additionalProperties": false,
+      "properties": {
+        "cacheCoverageIncomplete": {
+          "title": "Cachecoverageincomplete",
+          "type": "boolean"
+        },
+        "cacheHitRate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HitRate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cacheReadTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "inputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "outputTokens": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "recordCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        }
+      },
+      "required": [
+        "recordCount",
+        "inputTokens",
+        "outputTokens",
+        "cacheReadTokens",
+        "cacheHitRate",
+        "cacheCoverageIncomplete"
       ],
-      "type": "string"
+      "title": "MonitorTotals",
+      "type": "object"
     },
     "MultiplierStr": {
-      "pattern": "^[0-9]{1,9}(?:\\.[0-9]{1,3})?$",
+      "pattern": "^[0-9]{1,9}(?:\\.[0-9]{1,4})?$",
       "type": "string"
     },
     "Name": {
@@ -4870,6 +8192,17 @@
     "OutputReferencesRequest": {
       "additionalProperties": false,
       "properties": {
+        "end": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InstantStr"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "groupIds": {
           "$ref": "#/$defs/Choices"
         },
@@ -4895,6 +8228,30 @@
           "title": "Modelkeys",
           "type": "array"
         },
+        "queryId": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Queryid"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InstantStr"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "vendorIds": {
           "$ref": "#/$defs/Choices"
         },
@@ -4908,6 +8265,29 @@
     "OutputReferencesResponse": {
       "additionalProperties": false,
       "properties": {
+        "businessTimezone": {
+          "default": "Asia/Shanghai",
+          "title": "Businesstimezone",
+          "type": "string"
+        },
+        "coverage": {
+          "items": {
+            "$ref": "#/$defs/AnalysisCoverage"
+          },
+          "title": "Coverage",
+          "type": "array"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InstantStr"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "generatedAt": {
           "$ref": "#/$defs/InstantStr"
         },
@@ -4918,15 +8298,46 @@
           "title": "References",
           "type": "array"
         },
+        "start": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InstantStr"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "today": {
           "title": "Today",
           "type": "string"
+        },
+        "todayReferences": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/OutputDaily"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Todayreferences"
         }
       },
       "required": [
         "today",
         "references",
-        "generatedAt"
+        "generatedAt",
+        "start",
+        "end",
+        "coverage",
+        "todayReferences",
+        "businessTimezone"
       ],
       "title": "OutputReferencesResponse",
       "type": "object"
@@ -5101,11 +8512,6 @@
       "title": "PickPathResponse",
       "type": "object"
     },
-    "PicoStr-Input": {
-      "maxLength": 40,
-      "pattern": "^(?:0|-?[1-9][0-9]*)$",
-      "type": "string"
-    },
     "PicoStr-Output": {
       "pattern": "^(?:0|-?[1-9][0-9]*)$",
       "type": "string"
@@ -5146,6 +8552,17 @@
     "PreferencePatch": {
       "additionalProperties": false,
       "properties": {
+        "analysisView": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnalysisView-Input"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "closeToTray": {
           "anyOf": [
             {
@@ -5317,6 +8734,17 @@
           "default": null,
           "title": "Startatlogin"
         },
+        "statisticsView": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnalysisView-Input"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "theme": {
           "anyOf": [
             {
@@ -5390,6 +8818,17 @@
           "default": "Asia/Shanghai",
           "title": "Accountingtimezone",
           "type": "string"
+        },
+        "analysisView": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnalysisView-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "closeToTray": {
           "default": true,
@@ -5469,6 +8908,17 @@
           "title": "Startatlogin",
           "type": "boolean"
         },
+        "statisticsView": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AnalysisView-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "theme": {
           "default": "system",
           "enum": [
@@ -5510,6 +8960,8 @@
         "hiddenHarnesses",
         "settingsSection",
         "walletDefaultScope",
+        "analysisView",
+        "statisticsView",
         "collapsed",
         "lastPage",
         "lastRoute",
@@ -5597,6 +9049,17 @@
           "pattern": "^[0-9a-f]{64}$",
           "title": "Id",
           "type": "string"
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -5623,6 +9086,15 @@
             }
           ],
           "default": null
+        },
+        "countAccuracy": {
+          "default": "exact",
+          "enum": [
+            "exact",
+            "at_least"
+          ],
+          "title": "Countaccuracy",
+          "type": "string"
         },
         "date": {
           "title": "Date",
@@ -5651,6 +9123,13 @@
         "modelKey": {
           "title": "Modelkey",
           "type": "string"
+        },
+        "reasonCounts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/PicoStr-Output"
+          },
+          "title": "Reasoncounts",
+          "type": "object"
         },
         "reasons": {
           "items": {
@@ -5684,9 +9163,68 @@
         "reasons",
         "recordCount",
         "acknowledged",
-        "costDifferencePico"
+        "costDifferencePico",
+        "countAccuracy",
+        "reasonCounts"
       ],
       "title": "QualityItem",
+      "type": "object"
+    },
+    "QualityReason": {
+      "enum": [
+        "version",
+        "cache",
+        "incomplete",
+        "unpriced"
+      ],
+      "type": "string"
+    },
+    "QueryPlanDescription": {
+      "additionalProperties": false,
+      "properties": {
+        "layer": {
+          "enum": [
+            "recent",
+            "day_month",
+            "mixed"
+          ],
+          "title": "Layer",
+          "type": "string"
+        },
+        "rangeKind": {
+          "anyOf": [
+            {
+              "enum": [
+                "recent",
+                "custom",
+                "month",
+                "quarter",
+                "year",
+                "all"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rangekind"
+        },
+        "recentBoundary": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "sessionScoped": {
+          "title": "Sessionscoped",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "layer",
+        "recentBoundary",
+        "sessionScoped",
+        "rangeKind"
+      ],
+      "title": "QueryPlanDescription",
       "type": "object"
     },
     "RateStr": {
@@ -5804,6 +9342,9 @@
     "RecalcPreview": {
       "additionalProperties": false,
       "properties": {
+        "evidenceInsufficientCount": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
         "fingerprint": {
           "$ref": "#/$defs/Fingerprint"
         },
@@ -5820,7 +9361,37 @@
         "oldTotal": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "pendingCount": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
         "recordCount": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "ruleCounts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SafeInt-Output"
+          },
+          "propertyNames": {
+            "enum": [
+              "none",
+              "base",
+              "peak",
+              "tier"
+            ]
+          },
+          "title": "Rulecounts",
+          "type": "object"
+        },
+        "targetRevisionId": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "targetRevisionSeq": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "totalCount": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "unavailableCount": {
           "$ref": "#/$defs/SafeInt-Output"
         },
         "unpricedCount": {
@@ -5840,6 +9411,13 @@
       },
       "required": [
         "recordCount",
+        "totalCount",
+        "pendingCount",
+        "unavailableCount",
+        "evidenceInsufficientCount",
+        "targetRevisionId",
+        "targetRevisionSeq",
+        "ruleCounts",
         "oldTotal",
         "newTotal",
         "unpricedCount",
@@ -5887,6 +9465,9 @@
         "batchId": {
           "$ref": "#/$defs/Identifier"
         },
+        "evidenceInsufficientCount": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
         "fingerprint": {
           "$ref": "#/$defs/Fingerprint"
         },
@@ -5903,10 +9484,40 @@
         "oldTotal": {
           "$ref": "#/$defs/PicoStr-Output"
         },
+        "pendingCount": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
         "recordCount": {
           "$ref": "#/$defs/SafeInt-Output"
         },
         "revision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "ruleCounts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SafeInt-Output"
+          },
+          "propertyNames": {
+            "enum": [
+              "none",
+              "base",
+              "peak",
+              "tier"
+            ]
+          },
+          "title": "Rulecounts",
+          "type": "object"
+        },
+        "targetRevisionId": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "targetRevisionSeq": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "totalCount": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "unavailableCount": {
           "$ref": "#/$defs/SafeInt-Output"
         },
         "unpricedCount": {
@@ -5926,6 +9537,13 @@
       },
       "required": [
         "recordCount",
+        "totalCount",
+        "pendingCount",
+        "unavailableCount",
+        "evidenceInsufficientCount",
+        "targetRevisionId",
+        "targetRevisionSeq",
+        "ruleCounts",
         "oldTotal",
         "newTotal",
         "unpricedCount",
@@ -6018,7 +9636,7 @@
         "amountPico": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PicoStr-Input"
+              "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__2"
             },
             {
               "type": "null"
@@ -6105,6 +9723,81 @@
       "title": "ReconcileIntervalRequest",
       "type": "object"
     },
+    "ReconciliationInterval": {
+      "additionalProperties": false,
+      "properties": {
+        "consumptionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "estimatePico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "localEnd": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InstantStr"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "localStart": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InstantStr"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "revision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "sessionCount": {
+          "$ref": "#/$defs/SafeInt-Output",
+          "default": 0
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "unitVersion": {
+          "title": "Unitversion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "start",
+        "end",
+        "revision",
+        "method",
+        "unitVersion",
+        "consumptionPico",
+        "estimatePico",
+        "localStart",
+        "localEnd",
+        "sessionCount"
+      ],
+      "title": "ReconciliationInterval",
+      "type": "object"
+    },
     "ReconciliationNotice": {
       "additionalProperties": false,
       "properties": {
@@ -6158,6 +9851,311 @@
         "remoteDecreasePico"
       ],
       "title": "ReconciliationNotice",
+      "type": "object"
+    },
+    "ReconciliationPreview": {
+      "additionalProperties": false,
+      "properties": {
+        "allocationIncomplete": {
+          "title": "Allocationincomplete",
+          "type": "boolean"
+        },
+        "auxiliaryIncluded": {
+          "title": "Auxiliaryincluded",
+          "type": "boolean"
+        },
+        "batchIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Batchids",
+          "type": "array"
+        },
+        "bookedEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "businessTimezone": {
+          "title": "Businesstimezone",
+          "type": "string"
+        },
+        "coverageAligned": {
+          "title": "Coveragealigned",
+          "type": "boolean"
+        },
+        "currentEffectivePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "currentEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "existingCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "externalUsagePossible": {
+          "title": "Externalusagepossible",
+          "type": "boolean"
+        },
+        "fingerprint": {
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "groupIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Groupids",
+          "type": "array"
+        },
+        "harnesses": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Harnesses",
+          "type": "array"
+        },
+        "incompleteCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "independentCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "legacyAllocationIncomplete": {
+          "title": "Legacyallocationincomplete",
+          "type": "boolean"
+        },
+        "legacyFlowIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Legacyflowids",
+          "type": "array"
+        },
+        "legacyOverrides": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "localComplete": {
+          "title": "Localcomplete",
+          "type": "boolean"
+        },
+        "memberCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "memberDays": {
+          "items": {
+            "$ref": "#/$defs/DateStr"
+          },
+          "title": "Memberdays",
+          "type": "array"
+        },
+        "memberDigest": {
+          "title": "Memberdigest",
+          "type": "string"
+        },
+        "modelKeys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Modelkeys",
+          "type": "array"
+        },
+        "notices": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notices",
+          "type": "array"
+        },
+        "omittedMemberCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "originalEstimatePico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "pendingCount": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "quiet": {
+          "title": "Quiet",
+          "type": "boolean"
+        },
+        "reliability": {
+          "enum": [
+            "missing",
+            "invalid",
+            "reliable_usage",
+            "balance_estimate"
+          ],
+          "title": "Reliability",
+          "type": "string"
+        },
+        "remoteIntervals": {
+          "items": {
+            "$ref": "#/$defs/ReconciliationInterval"
+          },
+          "title": "Remoteintervals",
+          "type": "array"
+        },
+        "remoteTargetPico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "remoteUsedDeltaPico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "snapshot": {
+          "additionalProperties": {
+            "$ref": "#/$defs/SafeInt-Output"
+          },
+          "title": "Snapshot",
+          "type": "object"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "unallocatedCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        },
+        "vendorId": {
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendorId",
+        "start",
+        "end",
+        "businessTimezone",
+        "memberDays",
+        "memberCount",
+        "memberDigest",
+        "batchIds",
+        "originalEstimatePico",
+        "currentEstimatePico",
+        "currentEffectivePico",
+        "existingCorrectionPico",
+        "pendingCount",
+        "incompleteCount",
+        "harnesses",
+        "modelKeys",
+        "groupIds",
+        "localComplete",
+        "quiet",
+        "coverageAligned",
+        "omittedMemberCount",
+        "auxiliaryIncluded",
+        "externalUsagePossible",
+        "legacyOverrides",
+        "legacyFlowIds",
+        "legacyAllocationIncomplete",
+        "unallocatedCorrectionPico",
+        "allocationIncomplete",
+        "independentCorrectionPico",
+        "fingerprint",
+        "snapshot",
+        "notices",
+        "remoteTargetPico",
+        "remoteUsedDeltaPico",
+        "bookedEstimatePico",
+        "reliability",
+        "remoteIntervals"
+      ],
+      "title": "ReconciliationPreview",
+      "type": "object"
+    },
+    "ReconciliationQuery-Input": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "intervalIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Intervalids",
+          "type": "array"
+        },
+        "localBatchIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 500,
+          "title": "Localbatchids",
+          "type": "array"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "vendorId": {
+          "maxLength": 512,
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendorId",
+        "start",
+        "end"
+      ],
+      "title": "ReconciliationQuery",
+      "type": "object"
+    },
+    "ReconciliationQuery-Output": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "intervalIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Intervalids",
+          "type": "array"
+        },
+        "localBatchIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 500,
+          "title": "Localbatchids",
+          "type": "array"
+        },
+        "start": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "vendorId": {
+          "maxLength": 512,
+          "title": "Vendorid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendorId",
+        "start",
+        "end",
+        "localBatchIds",
+        "intervalIds"
+      ],
+      "title": "ReconciliationQuery",
       "type": "object"
     },
     "ReconciliationResponse": {
@@ -6625,6 +10623,222 @@
       "title": "RenameVendorRequest",
       "type": "object"
     },
+    "ReplacedTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "revision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "targetPico": {
+          "$ref": "#/$defs/PicoStr-Output"
+        }
+      },
+      "required": [
+        "id",
+        "targetPico",
+        "revision"
+      ],
+      "title": "ReplacedTarget",
+      "type": "object"
+    },
+    "RequestEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptedRevision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "calibrationTargetId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Calibrationtargetid"
+        },
+        "canRecalculate": {
+          "title": "Canrecalculate",
+          "type": "boolean"
+        },
+        "estimatePico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "groupId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Groupid"
+        },
+        "harness": {
+          "$ref": "#/$defs/HarnessName"
+        },
+        "localBatchId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Localbatchid"
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "originalGroupId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Originalgroupid"
+        },
+        "originalPico": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PicoStr-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "originalVersionId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Originalversionid"
+        },
+        "priceRevisionId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Pricerevisionid"
+        },
+        "projectedRevision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "publishedRevision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "receivedAt": {
+          "$ref": "#/$defs/InstantStr"
+        },
+        "remoteIntervalIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Remoteintervalids",
+          "type": "array"
+        },
+        "requestKey": {
+          "title": "Requestkey",
+          "type": "string"
+        },
+        "sessionRef": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sessionref"
+        },
+        "state": {
+          "title": "State",
+          "type": "string"
+        },
+        "valuedRevision": {
+          "$ref": "#/$defs/SafeInt-Output"
+        },
+        "versionId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Versionid"
+        },
+        "voucherSequence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SafeInt-Output"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "watermark": {
+          "title": "Watermark",
+          "type": "string"
+        }
+      },
+      "required": [
+        "harness",
+        "requestKey",
+        "sessionRef",
+        "occurredAt",
+        "receivedAt",
+        "watermark",
+        "state",
+        "acceptedRevision",
+        "valuedRevision",
+        "projectedRevision",
+        "publishedRevision",
+        "groupId",
+        "versionId",
+        "priceRevisionId",
+        "originalGroupId",
+        "originalVersionId",
+        "originalPico",
+        "estimatePico",
+        "voucherSequence",
+        "localBatchId",
+        "calibrationTargetId",
+        "remoteIntervalIds",
+        "canRecalculate"
+      ],
+      "title": "RequestEvidence",
+      "type": "object"
+    },
     "ResolveUnpricedRequest": {
       "additionalProperties": false,
       "properties": {
@@ -6902,7 +11116,9 @@
             "sources.changed",
             "models.changed",
             "quality.changed",
-            "output.changed"
+            "output.changed",
+            "cost.changed",
+            "auxiliary.changed"
           ],
           "title": "Name",
           "type": "string"
@@ -6929,7 +11145,7 @@
     },
     "RoutePath": {
       "maxLength": 512,
-      "pattern": "^(?:|/overview|/harness/(?:claude|codex|zcode|dsh)|/wallet(?:/[^/?#\\s]+|/setup/new)?|/pricing(?:/versions|/groups|/rates)?|/models(?:/setup)?|/unpriced|/settings(?:/background)?)$",
+      "pattern": "^(?:|/overview|/harness/(?:claude|codex|zcode|dsh)|/wallet(?:/[^/?#\\s]+(?:/(?:reconcile|allocate|missing))?|/setup/new)?|/pricing(?:/versions|/groups|/rates)?|/models(?:/setup)?|/unpriced|/settings(?:/background)?)$",
       "type": "string"
     },
     "Rule-Input": {
@@ -7302,7 +11518,8 @@
         "models",
         "ownership",
         "auxiliary",
-        "output"
+        "output",
+        "cost"
       ],
       "type": "string"
     },
@@ -7376,23 +11593,74 @@
         "lastActivityAt": {
           "$ref": "#/$defs/InstantStr"
         },
+        "modelKey": {
+          "default": "",
+          "title": "Modelkey",
+          "type": "string"
+        },
+        "modelName": {
+          "default": "\u672a\u77e5\u6a21\u578b",
+          "title": "Modelname",
+          "type": "string"
+        },
+        "sessionAverageTps": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sessionaveragetps"
+        },
         "sessionKey": {
           "pattern": "^[0-9a-f]{16}$",
           "title": "Sessionkey",
           "type": "string"
         },
+        "sessionRef": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sessionref"
+        },
         "startedAt": {
           "$ref": "#/$defs/InstantStr"
+        },
+        "tokensPerSecond": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tokenspersecond"
         }
       },
       "required": [
+        "sessionRef",
         "sessionKey",
         "displayName",
         "startedAt",
         "lastActivityAt",
         "cacheHitRate",
         "cacheCoverageIncomplete",
-        "frozen"
+        "frozen",
+        "modelKey",
+        "modelName",
+        "tokensPerSecond",
+        "sessionAverageTps"
       ],
       "title": "SessionHitRate",
       "type": "object"
@@ -7429,7 +11697,7 @@
         "B": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PicoStr-Input"
+              "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__2"
             },
             {
               "type": "null"
@@ -7440,7 +11708,7 @@
         "C": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PicoStr-Input"
+              "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__2"
             },
             {
               "type": "null"
@@ -7451,7 +11719,7 @@
         "R": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PicoStr-Input"
+              "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__2"
             },
             {
               "type": "null"
@@ -7468,7 +11736,7 @@
         "pastConsumptionPico": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PicoStr-Input"
+              "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__2"
             },
             {
               "type": "null"
@@ -7479,7 +11747,7 @@
         "pastTopUpPico": {
           "anyOf": [
             {
-              "$ref": "#/$defs/PicoStr-Input"
+              "$ref": "#/$defs/htd__ipc__dto__base__PicoStr__2"
             },
             {
               "type": "null"
@@ -7579,6 +11847,32 @@
         "expectedRevision"
       ],
       "title": "SetRetentionRequest",
+      "type": "object"
+    },
+    "SetScanEnabledRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "expectedRevision": {
+          "$ref": "#/$defs/htd__ipc__dto__base__SafeInt__2"
+        },
+        "harness": {
+          "$ref": "#/$defs/HarnessName"
+        },
+        "operationId": {
+          "$ref": "#/$defs/OperationId"
+        }
+      },
+      "required": [
+        "operationId",
+        "harness",
+        "enabled",
+        "expectedRevision"
+      ],
+      "title": "SetScanEnabledRequest",
       "type": "object"
     },
     "SetVersionDisabledRequest": {
@@ -7715,6 +12009,11 @@
             }
           ]
         },
+        "scanEnabled": {
+          "default": true,
+          "title": "Scanenabled",
+          "type": "boolean"
+        },
         "startedAt": {
           "anyOf": [
             {
@@ -7746,6 +12045,7 @@
       "required": [
         "harness",
         "path",
+        "scanEnabled",
         "startedAt",
         "lastScanAt",
         "status",
@@ -7841,6 +12141,17 @@
         "shmBytes": {
           "$ref": "#/$defs/SafeInt-Output"
         },
+        "totalBytes": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SafeInt-Output"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "usedPageBytes": {
           "$ref": "#/$defs/SafeInt-Output"
         },
@@ -7849,6 +12160,7 @@
         }
       },
       "required": [
+        "totalBytes",
         "mainFileBytes",
         "walBytes",
         "shmBytes",
@@ -7860,6 +12172,12 @@
         "sampledAt"
       ],
       "title": "StorageFootprint",
+      "type": "object"
+    },
+    "StrictModel": {
+      "additionalProperties": false,
+      "properties": {},
+      "title": "StrictModel",
       "type": "object"
     },
     "Success_AccountEntriesResponse_": {
@@ -7994,6 +12312,39 @@
       "title": "Success[AuxiliaryResponse]",
       "type": "object"
     },
+    "Success_BatchResponse_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/BatchResponse"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[BatchResponse]",
+      "type": "object"
+    },
     "Success_CacheMonitorResponse_": {
       "additionalProperties": false,
       "properties": {
@@ -8025,6 +12376,138 @@
         "data"
       ],
       "title": "Success[CacheMonitorResponse]",
+      "type": "object"
+    },
+    "Success_CalibrationPreview_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/CalibrationPreview"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[CalibrationPreview]",
+      "type": "object"
+    },
+    "Success_CalibrationResponse_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/CalibrationResponse"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[CalibrationResponse]",
+      "type": "object"
+    },
+    "Success_CalibrationTargetsResponse_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/CalibrationTargetsResponse"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[CalibrationTargetsResponse]",
+      "type": "object"
+    },
+    "Success_CancelAnalysisResponse_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/CancelAnalysisResponse"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[CancelAnalysisResponse]",
       "type": "object"
     },
     "Success_CatalogResponse_": {
@@ -8159,6 +12642,138 @@
       "title": "Success[DailyBookResponse]",
       "type": "object"
     },
+    "Success_DirectoryCleanupResponse_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/DirectoryCleanupResponse"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[DirectoryCleanupResponse]",
+      "type": "object"
+    },
+    "Success_DirectoryMoveResponse_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/DirectoryMoveResponse"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[DirectoryMoveResponse]",
+      "type": "object"
+    },
+    "Success_DirectoryPreview_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/DirectoryPreview"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[DirectoryPreview]",
+      "type": "object"
+    },
+    "Success_DirectoryStatus_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/DirectoryStatus"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[DirectoryStatus]",
+      "type": "object"
+    },
     "Success_EntriesResponse_": {
       "additionalProperties": false,
       "properties": {
@@ -8190,6 +12805,39 @@
         "data"
       ],
       "title": "Success[EntriesResponse]",
+      "type": "object"
+    },
+    "Success_EvidenceResponse_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/EvidenceResponse"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[EvidenceResponse]",
       "type": "object"
     },
     "Success_ExploreOptions_": {
@@ -8784,6 +13432,39 @@
         "data"
       ],
       "title": "Success[RecalculateUnpricedResponse]",
+      "type": "object"
+    },
+    "Success_ReconciliationPreview_": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/$defs/ReconciliationPreview"
+        },
+        "ok": {
+          "default": true,
+          "enum": [
+            true
+          ],
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "revisions": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revisions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ok",
+        "data"
+      ],
+      "title": "Success[ReconciliationPreview]",
       "type": "object"
     },
     "Success_ReconciliationResponse_": {
@@ -9424,6 +14105,19 @@
         "offsetMinutes": {
           "$ref": "#/$defs/OffsetMinutes"
         },
+        "queryId": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Queryid"
+        },
         "sections": {
           "anyOf": [
             {
@@ -9456,6 +14150,10 @@
     "SummaryResponse": {
       "additionalProperties": false,
       "properties": {
+        "costRevision": {
+          "$ref": "#/$defs/SafeInt-Output",
+          "default": 0
+        },
         "end": {
           "$ref": "#/$defs/InstantStr"
         },
@@ -9519,6 +14217,10 @@
           },
           "title": "Trend",
           "type": "array"
+        },
+        "unallocatedTrendCorrectionPico": {
+          "$ref": "#/$defs/PicoStr-Output",
+          "default": "0"
         }
       },
       "required": [
@@ -9533,7 +14235,9 @@
         "hourlyTotals",
         "harnesses",
         "historyNotice",
-        "revision"
+        "revision",
+        "costRevision",
+        "unallocatedTrendCorrectionPico"
       ],
       "title": "SummaryResponse",
       "type": "object"
@@ -10813,6 +15517,16 @@
     "WalletChangedEvent": {
       "additionalProperties": false,
       "properties": {
+        "catalogChanged": {
+          "default": false,
+          "title": "Catalogchanged",
+          "type": "boolean"
+        },
+        "remoteFlowsChanged": {
+          "default": false,
+          "title": "Remoteflowschanged",
+          "type": "boolean"
+        },
         "revision": {
           "$ref": "#/$defs/SafeInt-Output"
         },
@@ -10838,6 +15552,17 @@
           "default": false,
           "title": "Includearchived",
           "type": "boolean"
+        },
+        "vendorId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Identifier"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "WalletListRequest",
@@ -10915,6 +15640,17 @@
           "$ref": "#/$defs/PicoStr-Output",
           "default": "0"
         },
+        "pendingUpdatedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InstantStr"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "postedC": {
           "anyOf": [
             {
@@ -10948,7 +15684,8 @@
         "postedR",
         "postedC",
         "pendingTopUpPico",
-        "pendingConsumptionPico"
+        "pendingConsumptionPico",
+        "pendingUpdatedAt"
       ],
       "title": "WalletTotals",
       "type": "object"
@@ -10993,6 +15730,15 @@
       "title": "WriteRequest",
       "type": "object"
     },
+    "htd__ipc__dto__base__PicoStr__1": {
+      "pattern": "^(?:0|-?[1-9][0-9]*)$",
+      "type": "string"
+    },
+    "htd__ipc__dto__base__PicoStr__2": {
+      "maxLength": 40,
+      "pattern": "^(?:0|-?[1-9][0-9]*)$",
+      "type": "string"
+    },
     "htd__ipc__dto__base__SafeInt__1": {
       "maximum": 9007199254740991,
       "minimum": 1,
@@ -11014,8 +15760,14 @@
         "app.visibility": {
           "$ref": "#/$defs/VisibilityEvent"
         },
+        "auxiliary.changed": {
+          "$ref": "#/$defs/RevisionChangedEvent"
+        },
         "collection.tick": {
           "$ref": "#/$defs/CollectionTickEvent"
+        },
+        "cost.changed": {
+          "$ref": "#/$defs/RevisionChangedEvent"
         },
         "models.changed": {
           "$ref": "#/$defs/RevisionChangedEvent"
@@ -11050,7 +15802,9 @@
       },
       "required": [
         "app.visibility",
+        "auxiliary.changed",
         "collection.tick",
+        "cost.changed",
         "models.changed",
         "output.changed",
         "preferences.changed",
@@ -11087,6 +15841,18 @@
         },
         "collection.status": {
           "$ref": "#/$defs/CollectionStatusRequest"
+        },
+        "dataDirectory.cleanup": {
+          "$ref": "#/$defs/WriteRequest"
+        },
+        "dataDirectory.move": {
+          "$ref": "#/$defs/DirectoryMoveRequest"
+        },
+        "dataDirectory.preview": {
+          "$ref": "#/$defs/DirectoryPreviewRequest"
+        },
+        "dataDirectory.status": {
+          "$ref": "#/$defs/StrictModel"
         },
         "maintenance.backup": {
           "$ref": "#/$defs/WriteRequest"
@@ -11152,7 +15918,7 @@
           "$ref": "#/$defs/AddVersionRequest"
         },
         "pricing.catalog": {
-          "$ref": "#/$defs/EmptyRequest"
+          "$ref": "#/$defs/CatalogRequest"
         },
         "pricing.createGroup": {
           "$ref": "#/$defs/CreateGroupRequest"
@@ -11196,11 +15962,26 @@
         "pricing.unpricedNotice": {
           "$ref": "#/$defs/EmptyRequest"
         },
+        "reconciliation.batches": {
+          "$ref": "#/$defs/BatchQuery"
+        },
+        "reconciliation.commitCalibration": {
+          "$ref": "#/$defs/CommitCalibrationRequest"
+        },
         "reconciliation.dismiss": {
           "$ref": "#/$defs/DismissNoticeRequest"
         },
+        "reconciliation.preview": {
+          "$ref": "#/$defs/ReconciliationQuery-Input"
+        },
+        "reconciliation.previewCalibration": {
+          "$ref": "#/$defs/CalibrationRequest"
+        },
         "reconciliation.status": {
           "$ref": "#/$defs/EmptyRequest"
+        },
+        "reconciliation.targets": {
+          "$ref": "#/$defs/CalibrationTargetsRequest"
         },
         "remote.delete": {
           "$ref": "#/$defs/RemoteWrite"
@@ -11223,6 +16004,9 @@
         "sources.list": {
           "$ref": "#/$defs/EmptyRequest"
         },
+        "sources.setEnabled": {
+          "$ref": "#/$defs/SetScanEnabledRequest"
+        },
         "sources.setPath": {
           "$ref": "#/$defs/SetPathRequest"
         },
@@ -11241,11 +16025,17 @@
         "stats.cacheMonitor": {
           "$ref": "#/$defs/CacheMonitorRequest"
         },
+        "stats.cancelAnalysis": {
+          "$ref": "#/$defs/CancelAnalysisRequest"
+        },
+        "stats.evidence": {
+          "$ref": "#/$defs/EvidenceRequest"
+        },
         "stats.explore": {
           "$ref": "#/$defs/ExploreRequest"
         },
         "stats.exploreOptions": {
-          "$ref": "#/$defs/EmptyRequest"
+          "$ref": "#/$defs/ExploreOptionsRequest"
         },
         "stats.longTerm": {
           "$ref": "#/$defs/AuxiliaryRequest"
@@ -11334,6 +16124,10 @@
         "collection.scanNow",
         "collection.setPaused",
         "collection.status",
+        "dataDirectory.cleanup",
+        "dataDirectory.move",
+        "dataDirectory.preview",
+        "dataDirectory.status",
         "maintenance.backup",
         "maintenance.commitRecalc",
         "maintenance.previewRecalc",
@@ -11370,8 +16164,13 @@
         "pricing.switchCurrent",
         "pricing.unpriced",
         "pricing.unpricedNotice",
+        "reconciliation.batches",
+        "reconciliation.commitCalibration",
         "reconciliation.dismiss",
+        "reconciliation.preview",
+        "reconciliation.previewCalibration",
         "reconciliation.status",
+        "reconciliation.targets",
         "remote.delete",
         "remote.get",
         "remote.refresh",
@@ -11379,12 +16178,15 @@
         "remote.test",
         "sources.autoDetect",
         "sources.list",
+        "sources.setEnabled",
         "sources.setPath",
         "sources.validatePath",
         "stats.acknowledgeQuality",
         "stats.analytics",
         "stats.auxiliaryCosts",
         "stats.cacheMonitor",
+        "stats.cancelAnalysis",
+        "stats.evidence",
         "stats.explore",
         "stats.exploreOptions",
         "stats.longTerm",
@@ -11483,6 +16285,46 @@
           "oneOf": [
             {
               "$ref": "#/$defs/Success_CollectionStatusResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "dataDirectory.cleanup": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_DirectoryCleanupResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "dataDirectory.move": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_DirectoryMoveResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "dataDirectory.preview": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_DirectoryPreview_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "dataDirectory.status": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_DirectoryStatus_"
             },
             {
               "$ref": "#/$defs/Failure"
@@ -11849,6 +16691,26 @@
             }
           ]
         },
+        "reconciliation.batches": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_BatchResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "reconciliation.commitCalibration": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_CalibrationResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
         "reconciliation.dismiss": {
           "oneOf": [
             {
@@ -11859,10 +16721,40 @@
             }
           ]
         },
+        "reconciliation.preview": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_ReconciliationPreview_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "reconciliation.previewCalibration": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_CalibrationPreview_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
         "reconciliation.status": {
           "oneOf": [
             {
               "$ref": "#/$defs/Success_ReconciliationResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "reconciliation.targets": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_CalibrationTargetsResponse_"
             },
             {
               "$ref": "#/$defs/Failure"
@@ -11939,6 +16831,16 @@
             }
           ]
         },
+        "sources.setEnabled": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_SourcesResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
         "sources.setPath": {
           "oneOf": [
             {
@@ -11993,6 +16895,26 @@
           "oneOf": [
             {
               "$ref": "#/$defs/Success_CacheMonitorResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "stats.cancelAnalysis": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_CancelAnalysisResponse_"
+            },
+            {
+              "$ref": "#/$defs/Failure"
+            }
+          ]
+        },
+        "stats.evidence": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Success_EvidenceResponse_"
             },
             {
               "$ref": "#/$defs/Failure"
@@ -12288,6 +17210,10 @@
         "collection.scanNow",
         "collection.setPaused",
         "collection.status",
+        "dataDirectory.cleanup",
+        "dataDirectory.move",
+        "dataDirectory.preview",
+        "dataDirectory.status",
         "maintenance.backup",
         "maintenance.commitRecalc",
         "maintenance.previewRecalc",
@@ -12324,8 +17250,13 @@
         "pricing.switchCurrent",
         "pricing.unpriced",
         "pricing.unpricedNotice",
+        "reconciliation.batches",
+        "reconciliation.commitCalibration",
         "reconciliation.dismiss",
+        "reconciliation.preview",
+        "reconciliation.previewCalibration",
         "reconciliation.status",
+        "reconciliation.targets",
         "remote.delete",
         "remote.get",
         "remote.refresh",
@@ -12333,12 +17264,15 @@
         "remote.test",
         "sources.autoDetect",
         "sources.list",
+        "sources.setEnabled",
         "sources.setPath",
         "sources.validatePath",
         "stats.acknowledgeQuality",
         "stats.analytics",
         "stats.auxiliaryCosts",
         "stats.cacheMonitor",
+        "stats.cancelAnalysis",
+        "stats.evidence",
         "stats.explore",
         "stats.exploreOptions",
         "stats.longTerm",

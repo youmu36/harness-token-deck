@@ -13,6 +13,24 @@ afterEach(() => { cleanup.splice(0).forEach(fn => fn()); vi.restoreAllMocks(); v
 function mock() { const bridge = createMockBridge(); cleanup.push(() => bridge.dispose()); return bridge; }
 const button = (wrapper: ReturnType<typeof mount>, text: string) => wrapper.findAll('button').find(b => b.text() === text)!;
 async function data(bridge = mock()) { const wrapper = mount(Data, { global: { provide: { [BridgeKey as symbol]: bridge }, stubs: { teleport: true } } }); cleanup.push(() => wrapper.unmount()); await flushPromises(); return { wrapper, bridge }; }
+it('keeps a compact disk summary without refreshing it on unrelated events or a timer', async () => {
+  vi.useFakeTimers();
+  const bridge = mock(); const spy = vi.spyOn(bridge, 'call');
+  const { wrapper } = await data(bridge);
+  const statusReads = () => spy.mock.calls.filter(([name]) => name === 'maintenance.status').length;
+  expect(statusReads()).toBe(1);
+  expect(wrapper.get('.storage-details').findAll('p')).toHaveLength(2);
+  expect(wrapper.get('.storage-details').text()).toContain('总占用：');
+  expect(wrapper.get('.storage-details').text()).toContain('备份占用：');
+  expect(wrapper.get('.storage-details').text()).not.toMatch(/WAL|SHM|逻辑|内存|采样时间/);
+  bridge.receiveEvent('sources.changed', { revision: 2 });
+  bridge.receiveEvent('preferences.changed', { revision: 3 });
+  bridge.receiveEvent('usage.changed', { harnesses: ['codex'], revision: 4 });
+  await vi.advanceTimersByTimeAsync(10 * 60_000); await flushPromises();
+  expect(statusReads()).toBe(1);
+  await button(wrapper, '备份数据库').trigger('click'); await vi.advanceTimersByTimeAsync(250); await flushPromises();
+  expect(statusReads()).toBe(2);
+});
 it('display changes roll back every control on failed saves and synchronize after successful retry', async () => {
   const bridge = mock(); const initial = unwrap(await bridge.call('preferences.get', {})); const original = bridge.call.bind(bridge); let fail = true;
   vi.spyOn(bridge, 'call').mockImplementation(async (name, payload) => name === 'preferences.update' && fail ? { ok: false, error: { code: 'WRITE_TIMEOUT', message: 'timeout', retryable: true } } as never : original(name, payload));
@@ -85,4 +103,16 @@ it('source path validation ignores a late response for an older draft', async ()
 it('backup and vacuum use task completion and show the actual returned backup path', async () => {
   vi.useFakeTimers(); const { wrapper } = await data(); await button(wrapper, '备份数据库').trigger('click'); await flushPromises(); expect(wrapper.text()).toContain('正在备份'); await vi.advanceTimersByTimeAsync(250); await flushPromises(); expect(wrapper.text()).toContain('backups\\example.sqlite3');
   await button(wrapper, '回收空闲空间').trigger('click'); await flushPromises(); await vi.advanceTimersByTimeAsync(250); await flushPromises(); expect(wrapper.text()).toContain('空闲空间已回收');
+});
+
+it('source scan switches preserve paths, collection starts and navigation visibility', async () => {
+  const bridge = mock(); const before = unwrap(await bridge.call('sources.list', {}));
+  const wrapper = mount(Sources, { global: { provide: { [BridgeKey as symbol]: bridge } } }); cleanup.push(() => wrapper.unmount()); await flushPromises();
+  const card = wrapper.findAllComponents(SourceCard)[0]!;
+  await card.get('input[type="checkbox"]').setValue(false); await flushPromises();
+  let current = unwrap(await bridge.call('sources.list', {})).sources[0]!;
+  expect(current.scanEnabled).toBe(false); expect(current.path).toBe(before.sources[0]!.path); expect(current.startedAt).toBe(before.sources[0]!.startedAt);
+  expect(unwrap(await bridge.call('preferences.get', {})).preferences.hiddenHarnesses).toEqual([]);
+  await card.get('input[type="checkbox"]').setValue(true); await flushPromises();
+  current = unwrap(await bridge.call('sources.list', {})).sources[0]!; expect(current.scanEnabled).toBe(true); expect(current.startedAt).toBe(before.sources[0]!.startedAt);
 });

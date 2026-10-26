@@ -1,7 +1,6 @@
 """Inspect, snapshot, import, and verify legacy databases from the command line."""
 
 import argparse
-import os
 import sys
 import time
 from contextlib import closing
@@ -22,10 +21,9 @@ from htd.migration.verify import verify
 
 
 def data_dir() -> Path:
-    configured = os.environ.get("HTD_DATA_DIR")
-    if configured:
-        return Path(configured).resolve()
-    return Path(os.environ.get("LOCALAPPDATA", str(Path.home() / "AppData/Local"))) / "HarnessTokenDeck"
+    from htd.adapters.data_directory import resolve_data_directory
+
+    return resolve_data_directory().root
 
 
 def migration_dir() -> Path:

@@ -54,8 +54,12 @@ def analysis_bounds(query: AnalysisQuery, now: Instant, zone_name: str, first: s
         if not query.start or not query.end:
             raise DomainError("RANGE_INVALID", "请填写完整分析范围")
         start, end = parse_instant(query.start).value, parse_instant(query.end).value
-        if end - start > timedelta(days=93):
-            raise DomainError("RANGE_TOO_LONG", "近期分析范围最多 93 天，更长历史请选择年份或全部历史")
+        if end - start > timedelta(days=30):
+            raise DomainError(
+                "RANGE_TOO_LONG", "自定义分析范围最多 30 天，更长历史请选择季度、年份或全部历史"
+            )
+        if start < now.value - timedelta(days=62):
+            raise DomainError("HISTORY_CAPABILITY", "自定义分析范围须在最近 62 天内")
         previous = start - (end - start), start
     elif query.period == "all":
         start = parse_instant(first).value if first else local_now - timedelta(days=1)
@@ -110,6 +114,10 @@ class ExactMetrics:
     first: str | None = None
     last: str | None = None
     last_output: str | None = None
+    estimate_pico: int | None = None
+    correction_pico: int = 0
+    unallocated_correction_pico: int = 0
+    allocation_incomplete: bool = False
 
     def add(
         self,
@@ -157,6 +165,10 @@ class ExactMetrics:
             "cacheReadTokens": str(count.cache),
             "totalTokens": str(count.input + count.output),
             "picoUsd": str(count.pico),
+            "estimatePico": str(count.pico if self.estimate_pico is None else self.estimate_pico),
+            "correctionPico": str(self.correction_pico),
+            "unallocatedCorrectionPico": str(self.unallocated_correction_pico),
+            "allocationIncomplete": self.allocation_incomplete,
             "cacheHitRate": count.rated_cache / count.rated_input if count.rated_input else None,
             "cacheCoverageIncomplete": count.unknown_cache > 0,
             "incomplete": count.incomplete,

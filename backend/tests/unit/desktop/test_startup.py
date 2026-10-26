@@ -62,7 +62,9 @@ def calls(monkeypatch: pytest.MonkeyPatch) -> list[str]:
         return "154.0.0.0"
 
     class Application:
-        def __init__(self, directory: Path, *, start_scheduler: bool = True) -> None:
+        def __init__(
+            self, directory: Path, *, start_scheduler: bool = True, data_location: object = None
+        ) -> None:
             sequence.append("bootstrap" if start_scheduler else "smoke")
             self.bridge: Any = self
             self.window_state: Any = self

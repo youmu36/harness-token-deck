@@ -36,7 +36,28 @@ class SourcesRepository:
             cast(SourceStatus, row["status"]),
             tuple(cast(list[str], diagnostics)),
             decode_unmetered(row["unmetered_json"]),
+            self.scan_enabled(harness),
         )
+
+    def scan_enabled(self, harness: Harness) -> bool:
+        row = self.connection.execute(
+            "SELECT value FROM runtime_state WHERE key=?", ("scan_enabled." + harness.value,)
+        ).fetchone()
+        return row is None or row[0] != "false"
+
+    def set_enabled(self, work: UnitOfWork, harness: Harness, enabled: bool, at: Instant) -> None:
+        require_transaction(work, self.connection)
+        if self.scan_enabled(harness) == enabled:
+            return
+        self.connection.execute(
+            "INSERT INTO runtime_state VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            ("scan_enabled." + harness.value, "true" if enabled else "false"),
+        )
+        from htd.adapters.sqlite.session_activity import source_observed
+        from htd.domain.usage.session import SourceObservation
+
+        source_observed(self.connection, SourceObservation(harness, at, "pending" if enabled else "disabled"))
+        work.touch("sources")
 
     def ensure(self, work: UnitOfWork, harness: Harness, path: str, *, available: bool) -> SourceRecord:
         require_transaction(work, self.connection)
@@ -77,6 +98,12 @@ class SourcesRepository:
     def begin_scan(self, work: UnitOfWork, harness: Harness, root: str, *, at: Instant) -> SourceRecord:
         require_transaction(work, self.connection)
         source = self.require_path(harness, root)
+        if not source.scan_enabled:
+            raise DomainError("SOURCE_SCAN_DISABLED", "此来源扫描已停用", "harness")
+        from htd.adapters.sqlite.session_activity import source_observed
+        from htd.domain.usage.session import SourceObservation
+
+        source_observed(self.connection, SourceObservation(harness, at, "reading"))
         if source.started_at is None:
             self.connection.execute(
                 "UPDATE source SET started_at=COALESCE(started_at,?) WHERE harness=?",
@@ -98,6 +125,21 @@ class SourcesRepository:
         unmetered_requests: tuple[UnmeteredRequest, ...] | None = None,
     ) -> SourceRecord:
         require_transaction(work, self.connection)
+        from htd.adapters.sqlite.session_activity import source_observed
+        from htd.domain.usage.session import SourceObservation
+
+        source_observed(
+            self.connection,
+            SourceObservation(
+                harness,
+                at,
+                "ready"
+                if status == "watching"
+                else "pending"
+                if status in {"pending", "baselining"}
+                else "failed",
+            ),
+        )
         source = self.require_path(harness, root)
         if status not in _STATUSES or any(type(code) is not str or not code for code in diagnostics):
             raise ValueError("Invalid source status or diagnostics")
@@ -140,6 +182,8 @@ class SourcesRepository:
         for harness in Harness:
             source = self.get(harness)
             if source is None:
+                continue
+            if not source.scan_enabled:
                 continue
             diagnostics = set(source.diagnostics)
             diagnostics.discard(code)

@@ -46,6 +46,9 @@ def test_transaction_b_wallet_failure_rolls_back_events_and_inbox(tmp_path: Path
         writer.execute(lambda w: WalletRepository(w.connection).link_group(w, "g", "vendor", at=AT))
         scan = scanner(writer, pool, home, FakeClock(AT))
         scan.collect()
+        assert len(published) == 1 and isinstance(published[0], UsageChanged)
+        published.clear()
+        observed.clear()
         writer.execute(
             lambda w: w.connection.execute(
                 "CREATE TRIGGER fail BEFORE UPDATE ON wallet_total BEGIN SELECT RAISE(ABORT,'injected'); END"
@@ -58,7 +61,7 @@ def test_transaction_b_wallet_failure_rolls_back_events_and_inbox(tmp_path: Path
         writer.execute(lambda w: w.connection.execute("DROP TRIGGER fail"))
         assert scan.billing.run().batch.billed == 1
         assert len(published) == 2
-        assert isinstance(published[0], UsageChanged) and published[0].revision == 1
+        assert isinstance(published[0], UsageChanged) and published[0].revision == 2
         assert isinstance(published[1], WalletChanged) and published[1].vendor_ids == ("vendor",)
         assert observed == [(1, 1), (1, 1)]
         # Publication observes the committed database, not an uncommitted wallet callback.

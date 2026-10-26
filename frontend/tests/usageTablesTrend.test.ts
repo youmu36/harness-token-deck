@@ -25,7 +25,8 @@ describe('usage trend and tables', () => {
     await wrapper.setProps({ metric: 'cost', summary: { ...summary, trend: [{ ...point, picoUsd: '9007199254740993123456' }] } });
     expect(wrapper.get('.sr-only tbody').text()).toContain('$9,007,199,254.7410');
     await wrapper.setProps({ metric: 'hitRate', summary: { ...summary, trend: [{ ...point, cacheHitRate: null }] } });
-    expect(wrapper.findAll('.unknown')).toHaveLength(1);
+    expect(wrapper.findAll('.point')).toHaveLength(0);
+    expect(wrapper.get('.sr-only tbody').text()).toContain('--（未知）');
     wrapper.unmount();
   });
   it('keeps hourly data available across the full 30-day range', async () => {

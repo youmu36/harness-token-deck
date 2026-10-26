@@ -27,7 +27,14 @@ from pydantic.json_schema import models_json_schema
 
 ROOT = Path(__file__).resolve().parents[1]
 DESTINATION = ROOT / "frontend/src/infra/generated"
-FILES = ("contracts.schema.json", "contracts.d.ts", "validators.js", "validators.d.ts", "commands.ts")
+FILES = (
+    "contracts.schema.json",
+    "contracts.d.ts",
+    "validators.js",
+    "validators.d.ts",
+    "commands.ts",
+    "lazyValidators.ts",
+)
 EVENTS: dict[str, type[StrictModel]] = {
     "usage.changed": UsageChangedEvent,
     "wallet.changed": WalletChangedEvent,
@@ -35,6 +42,8 @@ EVENTS: dict[str, type[StrictModel]] = {
     "quality.changed": RevisionChangedEvent,
     "models.changed": RevisionChangedEvent,
     "output.changed": RevisionChangedEvent,
+    "cost.changed": RevisionChangedEvent,
+    "auxiliary.changed": RevisionChangedEvent,
     "preferences.changed": RevisionChangedEvent,
     "sources.changed": RevisionChangedEvent,
     "collection.tick": CollectionTickEvent,
@@ -131,7 +140,7 @@ def main() -> int:
         print("Registry/DTOs match the saved command and event schema")
         return 0
     with TemporaryDirectory(prefix="htd-contract-generation-") as temporary:
-        destination = Path(temporary) if args.check else DESTINATION
+        destination = Path(temporary)
         destination.mkdir(parents=True, exist_ok=True)
         (destination / FILES[0]).write_text(
             json.dumps(schema, ensure_ascii=True, indent=2, sort_keys=True) + "\n",
@@ -140,18 +149,30 @@ def main() -> int:
         )
         npm = shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm"
         subprocess.run([npm, "run", "gen:contracts", "--", str(destination)], cwd=ROOT, check=True)
+        if not args.check:
+            for pattern in ("validators.*.js", "validators.*.d.ts"):
+                for stale in DESTINATION.glob(pattern):
+                    if not (destination / stale.name).exists():
+                        stale.unlink()
+            for generated in destination.iterdir():
+                shutil.copyfile(generated, DESTINATION / generated.name)
         if args.check:
+            files: set[str] = set(FILES)
+            for folder in (destination, DESTINATION):
+                files.update(path.name for path in folder.glob("validators.*.js"))
+                files.update(path.name for path in folder.glob("validators.*.d.ts"))
             changed = [
                 name
-                for name in FILES
+                for name in sorted(files)
                 if not (DESTINATION / name).is_file()
+                or not (destination / name).is_file()
                 or (DESTINATION / name).read_bytes() != (destination / name).read_bytes()
             ]
             if changed:
                 print(f"Stale generated contracts: {', '.join(changed)}")
                 return 1
         print(
-            "Contracts: generated artifacts match" if args.check else f"Contracts: written to {destination}"
+            "Contracts: generated artifacts match" if args.check else f"Contracts: written to {DESTINATION}"
         )
     return 0
 

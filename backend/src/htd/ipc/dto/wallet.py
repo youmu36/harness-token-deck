@@ -34,6 +34,7 @@ class WalletTotals(StrictModel):
     postedC: PicoStr | None = None
     pendingTopUpPico: PicoStr = "0"
     pendingConsumptionPico: PicoStr = "0"
+    pendingUpdatedAt: InstantStr | None = None
 
 
 class Vendor(StrictModel):
@@ -63,6 +64,7 @@ class Vendor(StrictModel):
 
 class WalletListRequest(StrictModel):
     includeArchived: bool = False
+    vendorId: Identifier | None = None
 
 
 class WalletListResponse(StrictModel):

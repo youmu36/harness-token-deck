@@ -16,7 +16,7 @@ export interface EventSource {
 export interface Bridge {
   readonly mode: 'desktop' | 'preview';
   readonly events: EventSource;
-  readonly host?: { openLogDir(): void; quit(): void; setReady(ready: boolean): void };
+  readonly host?: { openLogDir(): void; quit(): void; setReady(ready: boolean): void; setContentReady?(): void };
   call<K extends CommandName>(command: K, payload: RequestMap[K]): Promise<ResponseMap[K]>;
   receiveEvent(name: string, payload: unknown): boolean;
   dispose(): void;

@@ -14,6 +14,7 @@ type Fingerprint = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 
 
 class StorageFootprint(StrictModel):
+    totalBytes: SafeInt | None = None
     mainFileBytes: SafeInt
     walBytes: SafeInt
     shmBytes: SafeInt
@@ -89,6 +90,13 @@ class VendorDelta(StrictModel):
 
 class RecalcPreview(StrictModel):
     recordCount: SafeInt
+    totalCount: SafeInt
+    pendingCount: SafeInt
+    unavailableCount: SafeInt
+    evidenceInsufficientCount: SafeInt
+    targetRevisionId: Identifier
+    targetRevisionSeq: SafeInt
+    ruleCounts: dict[Literal["none", "base", "peak", "tier"], SafeInt]
     oldTotal: PicoStr
     newTotal: PicoStr
     unpricedCount: SafeInt

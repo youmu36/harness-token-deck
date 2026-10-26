@@ -9,11 +9,11 @@ const props = defineProps<{ groupId?: string | null; vendorId?: string | null; g
 const bridge = inject(BridgeKey)!;
 const query = useQuery('harness.vendorBalance', async () => {
   if (props.groupLoading || props.groupError || !props.vendorId) return undefined;
-  const snapshot = unwrap(await bridge.call('wallet.list', {}));
+  const snapshot = unwrap(await bridge.call('wallet.list', {vendorId:props.vendorId}));
   const vendor = snapshot.vendors.find(vendor => vendor.id === props.vendorId);
   if (!vendor) throw new AppError({ code: 'VENDOR_NOT_FOUND', message: '供应商不存在', retryable: false });
   return vendor;
-}, { deps: [() => props.groupId, () => props.vendorId, () => props.groupLoading, () => props.groupError], clearOnChange: true, coalesce: true, events: [{ name: 'wallet.changed', when: event => !!props.vendorId && event.vendorIds.includes(props.vendorId) }] });
+}, { deps: [() => props.groupId, () => props.vendorId, () => props.groupLoading, () => props.groupError], clearOnChange: true, coalesce: true, eventIntervalMs:5000, events: [{ name: 'wallet.changed', when: event => !!props.vendorId && event.vendorIds.includes(props.vendorId) }] });
 const failure = computed(() => props.groupError || query.error.value?.message);
 const vendor = computed(() => props.groupLoading || failure.value ? undefined : query.data.value);
 const remote = computed(() => vendor.value?.walletVisibility === 'remote' || (vendor.value?.walletVisibility !== 'local' && !!vendor.value?.remoteWallet));

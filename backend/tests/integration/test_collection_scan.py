@@ -215,7 +215,15 @@ def test_all_three_sources_isolation_and_bounded_billing(tmp_path: Path) -> None
         assert result.sources[1].status == "unavailable"
         assert result.sources[2].inserted == 2 and result.billing.batch.billed == 3
         changed = [e for e in events if isinstance(e, UsageChanged)]
-        assert len(changed) == 3 and [e.revision for e in changed] == [1, 2, 3]
+        # Reception publishes reliable Token first; each billing batch publishes its cost revision.
+        assert [e.revision for e in changed] == [1, 2, 3, 4, 5]
+        assert [e.harnesses for e in changed] == [
+            (Harness.CODEX,),
+            (Harness.DSH,),
+            (Harness.CODEX,),
+            (Harness.DSH,),
+            (Harness.DSH,),
+        ]
         assert result.billing.batch.harnesses == (Harness.CODEX, Harness.DSH)
         rows = writer.execute(
             lambda w: w.connection.execute("SELECT * FROM ledger WHERE harness='dsh'").fetchall()

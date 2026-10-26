@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
+import { defineAsyncComponent, computed, inject, nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
 import { Activity, ChartColumn, Code2, PanelLeftClose, PanelLeftOpen, Settings, Wallet, Tag, Terminal, Cpu } from 'lucide-vue-next';
 import { UsageNavigationKey } from './usageNavigation';
 import { BridgeKey, NavigationGuardKey, type CommandData } from './ports';
@@ -9,14 +9,14 @@ import { useShellPreferences } from './useShellPreferences';
 import IconButton from '../ui/IconButton.vue';
 import InlineAlert from '../ui/InlineAlert.vue';
 import Toast from '../ui/Toast.vue';
-import OverviewPage from '../features/overview/OverviewPage.vue';
-import HarnessPage from '../features/harness/HarnessPage.vue';
-import WalletPage from '../features/wallet/WalletPage.vue';
-import PricingPage from '../features/pricing/PricingPage.vue';
-import SettingsPage from '../features/settings/SettingsPage.vue';
-import MigrationWizard from '../features/migration/MigrationWizard.vue';
+const OverviewPage = defineAsyncComponent(() => import('../features/overview/OverviewPage.vue'));
+const HarnessPage = defineAsyncComponent(() => import('../features/harness/HarnessPage.vue'));
+const WalletPage = defineAsyncComponent(() => import('../features/wallet/WalletPage.vue'));
+const PricingPage = defineAsyncComponent(() => import('../features/pricing/PricingPage.vue'));
+const SettingsPage = defineAsyncComponent(() => import('../features/settings/SettingsPage.vue'));
+const MigrationWizard = defineAsyncComponent(() => import('../features/migration/MigrationWizard.vue'));
 import Button from '../ui/Button.vue';
-import SetupGuideDialog from '../features/settings/SetupGuideDialog.vue';
+const SetupGuideDialog = defineAsyncComponent(() => import('../features/settings/SetupGuideDialog.vue'));
 import { unwrap } from './errors';
 const props = defineProps<{ hello: CommandData<'app.hello'>; initialPreferences: CommandData<'preferences.get'> }>();
 const bridge = inject(BridgeKey)!;
@@ -146,11 +146,13 @@ onBeforeUnmount(() => {
       <div v-if="!snapshot.preferences.guideDismissed" class="shell-error" role="status"><InlineAlert>欢迎使用。跟着使用指南完成配置，即可查看用量与钱包账目。<Button @click="guideOpen = true">打开使用指南</Button><Button @click="dismissGuide">不再显示</Button></InlineAlert></div>
       <div v-if="migrationHint" class="shell-error" role="status"><InlineAlert>检测到旧版数据。<Button @click="openMigration">导入旧版数据…</Button><Button aria-label="关闭旧版数据提示" @click="dismissMigrationHint">关闭提示</Button></InlineAlert></div>
       <main id="main-content" ref="main" class="content page-content" tabindex="-1">
+        <Suspense @resolve="bridge.host?.setContentReady?.()">
         <OverviewPage v-if="router.page.value === 'overview'" :initial-preferences="snapshot" :analysis-filter="analysisFilter" :can-return="!!returnPage" />
         <HarnessPage v-else-if="router.page.value === 'claude' || router.page.value === 'codex' || router.page.value === 'zcode' || router.page.value === 'dsh'" :key="router.page.value" :harness="router.page.value" :initial-preferences="snapshot" @ready="restoreUsageScroll" />
-        <WalletPage v-else-if="router.page.value === 'wallet'" :initial-preferences="snapshot" :detail="router.route.value.detail" :guide-target="router.route.value.guideTarget" />
+        <WalletPage v-else-if="router.page.value === 'wallet'" :initial-preferences="snapshot" :detail="router.route.value.detail" :wallet-section="router.route.value.walletSection" :guide-target="router.route.value.guideTarget" />
         <PricingPage v-else-if="router.page.value === 'pricing'" :models="router.route.value.models" :unpriced="router.route.value.unpriced" :versions="router.route.value.versions" :guide-target="router.route.value.guideTarget" />
         <SettingsPage v-else :initial="snapshot" :background="router.route.value.background" @migration="openMigration" />
+        </Suspense>
       </main>
     </div>
     <Toast />

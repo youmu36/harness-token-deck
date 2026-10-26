@@ -5,6 +5,7 @@ import sqlite3
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
+from typing import Any
 
 from htd.adapters.sqlite.connection import ReadPool
 from htd.adapters.sqlite.explorer_storage import detail
@@ -81,7 +82,7 @@ def bill(writer: WriteExecutor, events: tuple[UsageEvent, ...], version: str = "
     writer.execute(run)
 
 
-def request(**patch):
+def request(**patch: Any) -> dict[str, Any]:
     return ExploreRequest(
         start="2026-10-21T00:00:00.000Z", end="2026-10-22T00:00:00.000Z", **patch
     ).model_dump()

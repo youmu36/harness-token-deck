@@ -48,8 +48,10 @@ class Wallet:
     def __init__(self, store: WalletCommandStore, clock: Clock) -> None:
         self.store, self.clock = store, clock
 
-    def list(self, include_archived: bool) -> dict[str, object]:
-        snapshots, revision = self.store.wallets(at=self.clock.now_utc(), include_archived=include_archived)
+    def list(self, include_archived: bool, vendor_id: str | None = None) -> dict[str, object]:
+        snapshots, revision = self.store.wallets(
+            at=self.clock.now_utc(), include_archived=include_archived, vendor_id=vendor_id
+        )
         return {"vendors": [vendor_dict(s) for s in snapshots], "revision": revision}
 
     def entries(
@@ -111,7 +113,20 @@ class Wallet:
             snapshots, revision = self.store.wallets(at=at, include_archived=True, work=work)
             vendor = next((s for s in snapshots if s.vendor.id == vendor_id), None)
             if before != revision:
-                work.emit(WalletChanged(affected, revision))
+                work.emit(
+                    WalletChanged(
+                        affected,
+                        revision,
+                        command
+                        in (
+                            "wallet.createVendor",
+                            "wallet.createScannedVendors",
+                            "wallet.renameVendor",
+                            "wallet.deleteVendor",
+                            "wallet.restoreVendor",
+                        ),
+                    )
+                )
             if pricing_before != work.revision("pricing"):
                 work.emit(PricingChanged(work.revision("pricing")))
             return {

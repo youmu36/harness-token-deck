@@ -41,6 +41,8 @@ class RecalcSnapshot:
     usage_revision: int = 0
     remote_vendors: frozenset[str] = frozenset()
     links: tuple[VendorLink, ...] = ()
+    unavailable: tuple[tuple[str, bool], ...] = ()
+    cost_revision: int = 0
 
 
 @dataclass(frozen=True, slots=True)

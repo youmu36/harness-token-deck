@@ -194,8 +194,9 @@ class SqliteRemoteStore(SqliteCommandStore):
                 due = db.execute(
                     "SELECT 1 FROM wallet_flow_pending WHERE received_at<=? UNION ALL "
                     "SELECT 1 FROM wallet_recalc_pending WHERE received_at<=? UNION ALL "
+                    "SELECT 1 FROM session_wallet_pending WHERE received_at<=? UNION ALL "
                     "SELECT 1 FROM wallet_flow WHERE posted_at<? LIMIT 1",
-                    (cutoff, cutoff, format_instant(Instant(at.value - timedelta(days=30)))),
+                    (cutoff, cutoff, cutoff, format_instant(Instant(at.value - timedelta(days=30)))),
                 ).fetchone()
         if due is None:
             return
@@ -211,7 +212,8 @@ class SqliteRemoteStore(SqliteCommandStore):
             AccountBook(db).flush_due(work, at)
             from htd.adapters.sqlite.wallet_flows import flush as flush_flows
 
-            flow_vendors = flush_flows(work, db, at)
+            remote_vendors: set[str] = set()
+            flow_vendors = flush_flows(work, db, at, remote_vendors=remote_vendors)
             if work.revision("account") != before or flow_vendors:
                 vendors = tuple(
                     sorted(
@@ -225,7 +227,9 @@ class SqliteRemoteStore(SqliteCommandStore):
                         }
                     )
                 )
-                work.emit(WalletChanged(vendors, work.revision("wallet")))
+                work.emit(
+                    WalletChanged(vendors, work.revision("wallet"), remote_flows_changed=bool(remote_vendors))
+                )
 
         self.execute(flush)
 
@@ -234,6 +238,12 @@ class SqliteRemoteStore(SqliteCommandStore):
 
         def seal(work: UnitOfWork) -> None:
             db = connection(work)
+            from htd.adapters.sqlite.session_activity import begin_run as begin_sessions
+
+            begin_sessions(db, at)
+            from htd.adapters.sqlite.reconciliation_scope import backfill
+
+            backfill(db, at)
             AccountBook(db).begin_run()
             begin_run(db)
             if close_quiet(db, at):

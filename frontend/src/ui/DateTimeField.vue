@@ -54,7 +54,11 @@ function publish(value: string) {
   emit('validity-change', Boolean(value));
 }
 function choose(value: string) { emit('update:following', false); draft.value = value; commit(); }
-function follow() { now(); emit('update:following', !props.following); }
+function follow() {
+  const following = !props.following;
+  draft.value = formatDateTimeInput(new Date(), props.mode);
+  if (commit()) { emit('update:following', following); close(); }
+}
 function close(returnFocus = true) { open.value = false; if (returnFocus) calendarButton.value?.focus(); }
 function now() {
   emit('update:following', false);
@@ -84,7 +88,7 @@ defineExpose({ commit });
   <div ref="root" class="datetime-field" @keydown="onEscape">
     <div class="datetime-field__input">
       <input :id="fieldId" :value="draft" :aria-label="label" :disabled="disabled" type="text" placeholder="YYYY-MM-DD HH:mm"
-        :aria-invalid="Boolean(error)" :aria-describedby="error ? `${fieldId}-error` : undefined"
+        :readonly="following" :aria-invalid="Boolean(error)" :aria-describedby="error ? `${fieldId}-error` : undefined"
         @input="draft = ($event.target as HTMLInputElement).value; $emit('update:following', false); $emit('validity-change', false)" @blur="commit" @keydown.enter.prevent="commit" />
       <button ref="calendarButton" type="button" aria-label="打开日历" :disabled="disabled" :aria-expanded="open"
         :aria-controls="`${fieldId}-calendar`" aria-haspopup="dialog" @click="open = !open"><CalendarDays :size="17" aria-hidden="true" /></button>

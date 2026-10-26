@@ -23,6 +23,7 @@ class SystemActions:
 
     pick: Callable[[str, str | None], str | None] | None = None
     open: Callable[[str], None] | None = None
+    restart: Callable[[], None] | None = None
 
     def unavailable(self) -> None:
         raise DomainError("DESKTOP_REQUIRED", "此操作需要在桌面应用中执行")
@@ -33,6 +34,7 @@ def register_app_commands(
     *,
     app_version: str,
     data_dir: str,
+    data_dir_source: str = "default",
     revisions: Callable[[], Revisions],
     events: EventForwarder,
     system_actions: SystemActions | None = None,
@@ -66,6 +68,7 @@ def register_app_commands(
             appVersion=app_version,
             capabilities=sorted(router.commands),
             dataDir=data_dir,
+            dataDirSource=data_dir_source,
             revisions=revisions(),
         )
 

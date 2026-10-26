@@ -20,7 +20,7 @@ const cards = computed(() => [
     <MetricCard v-for="card in cards" :key="card.title" :title="card.title" :value="formatTokenCount(card.value).split(' ')[0]" :unit="formatTokenCount(card.value).split(' ')[1]" :full-value="formatInteger(card.value)" :description="card.note" :loading="loading" />
     <MetricCard title="缓存命中率" :value="formatPercent(metrics?.cacheHitRate)" :description="notes?.hitRate" :loading="loading" />
     <MetricCard title="总 token" :value="formatTokenCount(metrics?.totalTokens).split(' ')[0]" :unit="formatTokenCount(metrics?.totalTokens).split(' ')[1]" :full-value="formatInteger(metrics?.totalTokens)" :description="notes?.totalTokens" :loading="loading" />
-    <MetricCard title="估算成本 · USD" money :full-value="metrics ? formatMoney(cost!, 'full6') : undefined" :description="auxiliaryPico && BigInt(auxiliaryPico) > 0n ? '含生成会话标题的辅助成本，用量未知' : notes?.cost" :loading="loading">
+    <MetricCard title="本地有效成本 · USD" money :full-value="metrics ? formatMoney(cost!, 'full6') : undefined" :description="metrics?.correctionPico && metrics.correctionPico !== '0' ? `含校准金额 ${formatMoney(metrics.correctionPico, 'usd4')}` : auxiliaryPico && BigInt(auxiliaryPico) > 0n ? '含生成会话标题的辅助成本，用量未知' : notes?.cost" :loading="loading">
       <template #value><Money v-if="metrics" :pico="cost!" /><span v-else>--</span></template>
     </MetricCard>
   </section>

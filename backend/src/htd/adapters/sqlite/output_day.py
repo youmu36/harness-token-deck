@@ -60,6 +60,10 @@ def rebase(db: sqlite3.Connection, harness: str, session: str, day: str) -> None
     ).fetchall()
     for row in rows:
         withdraw(db, row)
+        db.execute(
+            "DELETE FROM output_scope_published WHERE day=? AND harness=? AND session_key=? AND model_key=?",
+            (row["day"], harness, session, row["model_key"]),
+        )
         key = day, row["timezone"], harness, row["model_key"], session
         prior = db.execute(
             "SELECT * FROM output_session_day "

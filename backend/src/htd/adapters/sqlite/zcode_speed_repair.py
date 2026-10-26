@@ -12,6 +12,7 @@ from htd.adapters.sqlite.command_store import connection, read_snapshot
 from htd.adapters.sqlite.connection import ReadPool
 from htd.adapters.sqlite.key_codec import key_bytes
 from htd.adapters.sqlite.session_state import session_key
+from htd.adapters.sqlite.usage_attribution import vendor_for_request
 from htd.adapters.sqlite.writer import WriteExecutor
 from htd.application.ports import OutputChanged, UnitOfWork
 from htd.domain.common.time import Instant, format_instant, parse_instant
@@ -55,7 +56,7 @@ def reset_session(db: sqlite3.Connection, hashed: str) -> None:
         "SELECT * FROM output_session_day WHERE harness='zcode' AND session_key=?", (hashed,)
     ).fetchall():
         withdraw(db, row)
-    for table in ("output_session", "output_session_day", "output_session_scope"):
+    for table in ("output_session", "output_session_day", "output_session_scope", "output_scope_published"):
         db.execute(f"DELETE FROM {table} WHERE harness='zcode' AND session_key=?", (hashed,))
 
 
@@ -106,7 +107,9 @@ def repair(readers: ReadPool, writer: WriteExecutor, at: Instant) -> int:
         if current is None or current[0] != saved[0]:
             return 0
         reset = set(state["reset"])
-        samples: dict[str, list[tuple[str, int | None, int | None, str | None]]] = defaultdict(list)
+        samples: dict[str, list[tuple[str, int | None, int | None, str | None, tuple[str, str, str]]]] = (
+            defaultdict(list)
+        )
         display: dict[str, str] = {}
         accepted = 0
         for event in sorted(events, key=lambda item: item.occurred_at):
@@ -142,6 +145,13 @@ def repair(readers: ReadPool, writer: WriteExecutor, at: Instant) -> int:
                     None if OUTPUT_TIMING_UNCERTAIN in event.issues else event.tokens.output,
                     event.generation_milliseconds,
                     event.session_id,
+                    (
+                        vendor_for_request(
+                            db, "zcode", key_bytes(event.dedupe_key), old["price_group_id"], event.occurred_at
+                        ),
+                        old["price_group_id"] or "",
+                        old["price_version_id"] or "",
+                    ),
                 )
             )
             accepted += 1
@@ -156,8 +166,9 @@ def repair(readers: ReadPool, writer: WriteExecutor, at: Instant) -> int:
                 output=None,
                 occurred_at=values[-1][0],
                 at=at,
-                samples=[(a, b, c) for a, b, c, _ in values],
-                session_ids=[sid for _, _, _, sid in values],
+                samples=[(a, b, c) for a, b, c, _, _ in values],
+                session_ids=[sid for _, _, _, sid, _ in values],
+                attributions=[scope for _, _, _, _, scope in values],
             )
         state.update(cursor=rows[-1]["rowid"] if rows else state["cursor"], done=len(rows) < 500)
         if state["done"]:

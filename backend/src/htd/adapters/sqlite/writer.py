@@ -39,7 +39,11 @@ class UnitOfWork:
         self.wallet_estimates: dict[tuple[str, str], int] = {}
 
     def revision(self, scope: str) -> int:
-        row = self.connection.execute("SELECT value FROM revision WHERE scope=?", (scope,)).fetchone()
+        row = (
+            self.connection.execute("SELECT value FROM calibration_revision WHERE id=1").fetchone()
+            if scope == "cost"
+            else self.connection.execute("SELECT value FROM revision WHERE scope=?", (scope,)).fetchone()
+        )
         if row is None:
             raise ValueError(f"Unknown revision scope: {scope}")
         return int(row[0])
@@ -47,7 +51,22 @@ class UnitOfWork:
     def touch(self, scope: str) -> int:
         if scope not in self._touched:
             self.revision(scope)
-            self.connection.execute("UPDATE revision SET value=value+1 WHERE scope=?", (scope,))
+            if scope == "cost":
+                self.connection.execute("UPDATE calibration_revision SET value=value+1 WHERE id=1")
+            else:
+                self.connection.execute("UPDATE revision SET value=value+1 WHERE scope=?", (scope,))
+                if scope == "usage":
+                    self.connection.execute(
+                        "INSERT INTO runtime_state SELECT 'session_writer_revision',CAST(value AS TEXT) "
+                        "FROM revision WHERE scope='usage' ON CONFLICT(key) "
+                        "DO UPDATE SET value=excluded.value"
+                    )
+                    self.connection.execute(
+                        "INSERT INTO runtime_state SELECT 'session_recalc_cursor',"
+                        "CAST(COALESCE(MAX(rowid),0) AS TEXT) FROM recalc_item "
+                        "HAVING NOT EXISTS(SELECT 1 FROM runtime_state WHERE key='session_recalc_until') "
+                        "ON CONFLICT(key) DO UPDATE SET value=excluded.value"
+                    )
             self._touched.add(scope)
         return self.revision(scope)
 
@@ -154,32 +173,40 @@ class WriteExecutor:
                         return
                     if not task.future.set_running_or_notify_cancel():
                         continue
-                    work = UnitOfWork(connection)
-                    try:
-                        if task.transactional:
-                            connection.execute("BEGIN IMMEDIATE")
-                        result = task.function(work)
-                        if work.wallet_flows or work.wallet_estimates:
-                            from htd.adapters.sqlite.wallet_flows import commit_staged
-
-                            commit_staged(work)
-                        connection.commit()
+                    if self._execute_task(connection, task):
                         last_write = time.monotonic()
-                    except BaseException as error:
-                        connection.rollback()
-                        task.future.set_exception(error)
-                        continue
-                    if self._publish is not None:
-                        for event in work.events:
-                            try:
-                                self._publish(event)
-                            except Exception:
-                                _LOG.exception("Post-commit event delivery failed")
-                    task.future.set_result(result)
                 finally:
                     self._queue.task_done()
+                    # A waiting worker must not own the last task's closure or future.
+                    del task
         finally:
             connection.close()
+
+    def _execute_task(self, connection: sqlite3.Connection, task: _Task) -> bool:
+        """Per-task locals expire before the long-lived worker waits for more work."""
+        assert task.function is not None
+        work = UnitOfWork(connection)
+        try:
+            if task.transactional:
+                connection.execute("BEGIN IMMEDIATE")
+            result = task.function(work)
+            if work.wallet_flows or work.wallet_estimates:
+                from htd.adapters.sqlite.wallet_flows import commit_staged
+
+                commit_staged(work)
+            connection.commit()
+        except BaseException as error:
+            connection.rollback()
+            task.future.set_exception(error)
+            return False
+        if self._publish is not None:
+            for event in work.events:
+                try:
+                    self._publish(event)
+                except Exception:
+                    _LOG.exception("Post-commit event delivery failed")
+        task.future.set_result(result)
+        return True
 
     def close(self, timeout: float = 10) -> None:
         if current_thread() is self._thread:

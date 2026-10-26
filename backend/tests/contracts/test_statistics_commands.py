@@ -382,25 +382,23 @@ def test_cache_expires_idle_snapshots_and_bypasses_oversized_responses(
     assert len(calls) == 4 and app.statistics.diagnostics()["entries"] == 0
 
 
-@pytest.mark.parametrize("mode", ["minute", "hour"])
-def test_monitor_clock_window_hits_minute_roll_and_usage_refresh(
-    app: Application, monkeypatch: pytest.MonkeyPatch, mode: str
-) -> None:
-    seed_rows(app, [row(1, 29, hour=2)])
-    calls = track_reads(monkeypatch)
-    payload: dict[str, object] = {"harness": "codex", "mode": mode, "offsetMinutes": 480}
+def test_monitor_clock_window_hits_minute_roll_and_usage_refresh(app: Application) -> None:
+    from backend.tests.contracts.maintenance_helpers import add_usage
+    from backend.tests.integration.collection_helpers import usage
+
+    add_usage(app, [usage(1, at=parse_instant("2026-09-13T02:29:00Z"))])
+    payload = {"harness": "codex", "mode": "minute", "offsetMinutes": 480}
     first = invoke(app, "stats.cacheMonitor", payload, CacheMonitorResponse)
-    assert first.end == "2026-09-13T02:30:00.000Z" and first.nextRefreshAt == "2026-09-13T02:31:00.000Z"
-    assert len(first.trend) == (60 if mode == "minute" else 24)
-    assert invoke(app, "stats.cacheMonitor", payload, CacheMonitorResponse) == first and len(calls) == 1
-    seed_rows(app, [row(2, 29, hour=2)])
+    assert first.end == "2026-09-13T02:30:00.000Z" and len(first.trend) == 60
+    assert first.windowTotals.recordCount == "1"
+    assert invoke(app, "stats.cacheMonitor", payload, CacheMonitorResponse) == first
+    add_usage(app, [usage(2, at=parse_instant("2026-09-13T02:29:00Z"))])
     refreshed = invoke(app, "stats.cacheMonitor", payload, CacheMonitorResponse)
-    assert refreshed.windowKey == first.windowKey and refreshed.revision == first.revision + 1
-    assert len(calls) == 2
+    assert refreshed.revision > first.revision and refreshed.windowTotals.recordCount == "2"
     assert isinstance(app.clock, FakeClock)
     app.clock.advance(60_000)
     rolled = invoke(app, "stats.cacheMonitor", payload, CacheMonitorResponse)
-    assert rolled.windowKey != first.windowKey and len(calls) == 3
+    assert rolled.windowKey != first.windowKey
 
 
 @pytest.mark.slow

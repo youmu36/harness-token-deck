@@ -116,7 +116,12 @@ def test_manual_future_observes_committed_ledger_wallet_and_completed_event(tmp_
         try:
             result = future.result(2)
             assert result.trigger == "manual" and result.result.billing.batch.billed == 1
-            assert [type(e) for e in published] == [UsageChanged, WalletChanged, CollectionCompleted]
+            assert [type(e) for e in published] == [
+                UsageChanged,
+                UsageChanged,
+                WalletChanged,
+                CollectionCompleted,
+            ]
             assert snapshots == [(1, 1, result.revision)]
             assert count(writer, "inbox") == 0
             assert scheduler.scan_now().result(2).result.billing.batch.billed == 0
@@ -337,6 +342,7 @@ def test_billing_stop_between_transactions_keeps_remaining_inbox(tmp_path: Path)
         writer.execute(seed_prices)
         scan = scanner(writer, pool, home, FakeClock(AT), batch_size=1)
         scan.collect()
+        stopped.clear()  # Acceptance has its own committed usage event.
         result = scan.billing.run(should_stop=stopped.is_set)
         assert result.batch.billed == 1 and result.batch.more
         assert count(writer, "inbox") == 1

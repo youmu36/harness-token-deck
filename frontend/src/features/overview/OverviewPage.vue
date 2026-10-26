@@ -1,94 +1,59 @@
 <script setup lang="ts">
-import { computed, inject, ref } from 'vue';
-import Button from '../../ui/Button.vue';
-import { UsageNavigationKey } from '../../app/usageNavigation';
+import { computed, defineAsyncComponent, inject, ref } from 'vue';
 import { BridgeKey, type CommandData } from '../../app/ports';
+import { UsageNavigationKey } from '../../app/usageNavigation';
 import { unwrap } from '../../app/errors';
 import { useShellPreferences } from '../../app/useShellPreferences';
 import { useQuery } from '../../shared/query';
-import { useTimeRange } from '../usage-common/useTimeRange';
-import type { RangePreset, UsageFilter, UsageRange } from '../usage-common/types';
-import TimeRangeBar from '../usage-common/TimeRangeBar.vue';
-import UsageHeader from '../usage-common/UsageHeader.vue';
-import MetricsGrid from '../usage-common/MetricsGrid.vue';
-import UnpricedNotice from '../usage-common/UnpricedNotice.vue';
+import type { UsageFilter } from '../usage-common/types';
 import SectionNav from '../../ui/SectionNav.vue';
-import AnalyticsPanel from './AnalyticsPanel.vue';
-import AnalysisPage from './AnalysisPage.vue';
-import ScopeFilters from './ScopeFilters.vue';
-import { emptyScope, hasScope } from './scope';
-import UsageTrend from '../usage-common/UsageTrend.vue';
-import ModelTable from '../usage-common/ModelTable.vue';
-import HourlyDetails from '../usage-common/HourlyDetails.vue';
-import HarnessSummaryTable from './HarnessSummaryTable.vue';
-import ReconciliationNotice from '../reconciliation/ReconciliationNotice.vue';
 import InlineAlert from '../../ui/InlineAlert.vue';
-import ChoiceMenu from '../../ui/ChoiceMenu.vue';
-import type { UsageHarness } from '../usage-common/types';
-const props = defineProps<{ initialPreferences: CommandData<'preferences.get'>; analysisFilter?: Partial<UsageFilter>; canReturn?: boolean }>();
-const bridge = inject(BridgeKey)!;
-const time = useTimeRange('overview', props.initialPreferences, () => new Date(), props.analysisFilter);
-const selectedDay = ref('');
-const navigation = inject(UsageNavigationKey, undefined);
+import Button from '../../ui/Button.vue';
+import ScopeFilters from './ScopeFilters.vue';
+import PageRangeBar from './PageRangeBar.vue';
+import { useAnalysisState } from './analysisState';
+import { usePageRange } from './pageRange';
+import { emptyScope } from './scope';
+const StatisticsPanel = defineAsyncComponent(() => import('./StatisticsPanel.vue'));
+const AnalysisPage = defineAsyncComponent(() => import('./AnalysisPage.vue'));
+const props = defineProps<{initialPreferences:CommandData<'preferences.get'>;analysisFilter?:Partial<UsageFilter>;canReturn?:boolean}>();
+const bridge = inject(BridgeKey)!, navigation = inject(UsageNavigationKey,undefined);
 const preferences = useShellPreferences(props.initialPreferences);
-const section = ref('statistics');
-const scope = ref(emptyScope());
-const scoped = computed(() => hasScope(scope.value));
-const optionsQuery = useQuery('overview.exploreOptions', async () => unwrap(await bridge.call('stats.exploreOptions', {})), { events: ['pricing.changed', 'models.changed', 'wallet.changed'], coalesce: true });
-const period = ref('recent');
-const recent = computed(() => section.value === 'statistics' && period.value === 'recent' && !scoped.value);
-const status = useQuery('overview.collection', async () => unwrap(await bridge.call('collection.status', { details: false })), { events: ['sources.changed', 'collection.tick'] });
-const summary = useQuery('overview.summary', async () => {
-  const range = time.advance();
-  return unwrap(await bridge.call('stats.summary', { harness: time.filter.value.harness, start: range.start, end: range.end, offsetMinutes: range.offsetMinutes, grain: time.queryGrain.value, sections: ['trend', 'models', 'harnesses'] }));
-}, { visible: recent, deps: [time.queryKey], events: [{ name: 'usage.changed', when: event => time.filter.value.harness === 'all' || event.harnesses.includes(time.filter.value.harness) }], clearOnChange: true, coalesce: true });
-let scanCheckpoint = summary.checkpoint();
-function scanning() { scanCheckpoint = summary.checkpoint(); }
-function scanned() { void summary.refreshIfUnchanged(scanCheckpoint); }
-async function select(value: RangePreset) { try { await time.select(value); } catch { /* The page retains the error and draft. */ } }
-async function apply(value: UsageRange) { try { await time.applyCustom(value); } catch { /* The page retains the error and draft. */ } }
-async function filter(patch: Partial<UsageFilter>) { try { await time.saveFilter(patch); } catch { /* The page retains the error and draft. */ } }
+const statistics = useAnalysisState(props.initialPreferences,'statisticsView');
+const analysis = useAnalysisState(props.initialPreferences);
+if (props.analysisFilter) {
+  statistics.view.scope.harnesses = props.analysisFilter.harness && props.analysisFilter.harness !== 'all' ? [props.analysisFilter.harness] : [];
+  statistics.view.scope.modelKeys = props.analysisFilter.modelKey == null ? [] : [props.analysisFilter.modelKey];
+  statistics.view.draft = JSON.parse(JSON.stringify(statistics.view.scope));
+  statistics.view.recent = {...statistics.view.recent,...props.analysisFilter}; statistics.view.period = 'range'; analysis.view.section = 'statistics';
+}
+const section = computed({get:() => analysis.view.section === 'analysis' ? 'analysis' : 'statistics',set:value => {analysis.view.section = value as 'statistics'|'analysis';}});
+const view = computed(() => section.value === 'statistics' ? statistics.view : analysis.view);
+const mode = computed(() => preferences.snapshot.value.preferences.timezone);
+const statisticsTime = usePageRange(statistics.view,() => mode.value), analysisTime = usePageRange(analysis.view,() => mode.value);
+const time = computed(() => section.value === 'statistics' ? statisticsTime : analysisTime);
+const scope = computed(() => view.value.scope);
+const source = computed(() => scope.value.harnesses.length === 1 ? scope.value.harnesses[0]! : 'all');
+const refreshToken = ref(0);
+const optionsQuery = useQuery('overview.options',async () => unwrap(await bridge.call('stats.exploreOptions',{modelKeys:[...new Set([...scope.value.modelKeys,...(section.value === 'analysis' ? [view.value.tpsModel,...view.value.tpsCompareIds,view.value.focus].filter((id):id is string => id !== null) : [])])],modelLimit:section.value === 'statistics' ? 1 : 100})),{deps:[section,() => JSON.stringify(scope.value.modelKeys)],events:['pricing.changed','models.changed',{name:'wallet.changed',when:event => event.catalogChanged === true}],coalesce:true});
+const controlsOpen = ref(false);
+const panel = computed({get:() => analysis.view.panel,set:value => {analysis.view.panel = value;}});
 </script>
-
-<template>
-  <div class="overview-page">
-    <Button v-if="canReturn" class="return-link" @click="navigation?.back()">返回 Harness 统计</Button>
-    <UsageHeader title="数据统计与分析" harness="all" :status="status.data.value" :error="status.error.value?.message" :mode="time.mode.value" :countdown="preferences.snapshot.value.preferences.showScanCountdown" @scanning="scanning" @scanned="scanned" />
-    <SectionNav v-model="section" label="统计分析子页" :items="[{value:'statistics',label:'数据统计'}, {value:'analysis',label:'数据分析'}, {value:'quality',label:'缺失记录'}]" />
-    <ScopeFilters v-model="scope" :options="optionsQuery.data.value" />
-    <InlineAlert v-if="optionsQuery.error.value" severity="danger" retry @retry="optionsQuery.refresh">{{ optionsQuery.error.value.message }}</InlineAlert>
-    <AnalysisPage v-if="section === 'analysis' || section === 'quality'" :key="section" :scope="scope" :options="optionsQuery.data.value" :kind="section === 'quality' ? 'quality' : undefined" :harness="time.filter.value.harness" :range="time.range.value" :filter="time.filter.value" :mode="time.mode.value" @update:harness="filter({harness:$event,modelKey:null})" />
-    <template v-else>
-    <p class="text-muted page-purpose">按来源保存和查看 Token 用量、缓存命中率与本地估算成本。</p>
-    <ChoiceMenu v-if="!scoped" v-model="period" label="分析周期" :options="[{value:'recent',label:'近期范围'}, {value:'month',label:'本月'}, {value:'quarter',label:'季度'}, {value:'year',label:'年份'}, {value:'years',label:'多年份'}, {value:'all',label:'全部历史'}]" />
-    <AnalyticsPanel v-if="!recent && !scoped" :period="period as 'month' | 'quarter' | 'year' | 'years' | 'all'" :models="false" statistics :harness="time.filter.value.harness" :range="time.range.value" :filter="time.filter.value" :mode="time.mode.value" @update:harness="filter({harness:$event,modelKey:null})" />
-    <template v-if="scoped">
-      <TimeRangeBar :model-value="time.selection.value" :range="time.range.value" :mode="time.mode.value" :custom-start="time.filter.value.start" :custom-end="time.filter.value.end" @update:model-value="select" @apply="apply" />
-      <AnalysisPage kind="statistics" :scope="scope" :options="optionsQuery.data.value" :harness="time.filter.value.harness" :range="time.range.value" :filter="time.filter.value" :mode="time.mode.value" />
-    </template>
-    <template v-if="recent">
-    <ReconciliationNotice :harness="time.filter.value.harness === 'all' ? undefined : time.filter.value.harness" />
-    <TimeRangeBar :model-value="time.selection.value" :range="time.range.value" :mode="time.mode.value" :custom-start="time.filter.value.start" :custom-end="time.filter.value.end" @update:model-value="select" @apply="apply">
-      <template #source><ChoiceMenu :model-value="time.filter.value.harness" label="数据来源" :options="[
-        { value: 'all', label: '全部' }, { value: 'claude', label: 'Claude Code' }, { value: 'codex', label: 'Codex' },
-        { value: 'zcode', label: 'Zcode' }, { value: 'dsh', label: 'Deepseek Harness' },
-      ]" @update:model-value="filter({ harness: $event as UsageHarness, modelKey: null })" /></template>
-    </TimeRangeBar>
-    <InlineAlert v-if="time.error.value" severity="danger" retry @retry="time.retry">{{ time.error.value }}</InlineAlert>
-    <InlineAlert v-if="summary.error.value" severity="danger" retry @retry="summary.refresh">{{ summary.error.value.message }}</InlineAlert>
-    <UnpricedNotice :initial-preferences="initialPreferences" />
-    <MetricsGrid :metrics="summary.data.value?.metrics" :harness="time.filter.value.harness" :loading="summary.loading.value" />
-    <InlineAlert v-if="summary.data.value?.historyNotice">{{ summary.data.value.historyNotice }}</InlineAlert>
-    <HarnessSummaryTable v-if="time.filter.value.harness === 'all'" :harnesses="summary.data.value?.harnesses ?? []" />
-    <UsageTrend :summary="summary.data.value" :start="time.range.value.start" :end="time.range.value.end" :metric="time.filter.value.metric" :grain="time.trendGrain.value" :daily-only="time.dailyOnly.value" @update:metric="filter({ metric: $event })" @update:grain="filter({ grain: $event })" @select-day="selectedDay = $event" />
-    <ModelTable :models="summary.data.value?.models ?? []" />
-    <HourlyDetails :focus-bucket="selectedDay" :harness="time.filter.value.harness" :range="time.range.value" :query-key="time.queryKey.value" :models="summary.data.value?.models ?? []" :model-value="time.filter.value.modelKey" @update:model-value="filter({ modelKey: $event })" />
-    </template>
-    </template>
+<template><div class="overview-page">
+  <Button v-if="canReturn" class="return-link" @click="navigation?.back()">返回 Harness 统计</Button>
+  <div class="overview-toolbar surface" @keydown.esc="controlsOpen = false">
+    <SectionNav v-model="section" label="统计分析子页" :items="[{value:'statistics',label:'数据统计'},{value:'analysis',label:'数据分析'}]" />
+    <SectionNav v-if="section === 'analysis'" v-model="panel" label="分析主题" :items="[{value:'throughput',label:'TPS'},{value:'cost',label:'成本'},{value:'cache',label:'缓存'},{value:'value',label:'性价比'}]" />
+    <Button :aria-expanded="controlsOpen" aria-controls="overview-controls" @click="controlsOpen = !controlsOpen">{{ controlsOpen ? '收起筛选' : '筛选与时间' }}</Button>
+  <section v-show="controlsOpen" id="overview-controls" class="overview-controls" aria-label="筛选与时间">
+  <ScopeFilters :key="section" simple :model-value="scope" :draft-value="view.draft" :options="optionsQuery.data.value" @update:model-value="view.scope = {...emptyScope(),...$event} as typeof view.scope" @update:draft-value="view.draft = {...emptyScope(),...$event} as typeof view.draft" />
+  <p v-if="scope.modelKeys.length" class="carried-filter">带入的模型条件：{{ scope.modelKeys.join('、') }} <Button @click="view.scope.modelKeys = []; view.draft.modelKeys = []">清除带入条件</Button></p>
+  <PageRangeBar :key="section" :view="view" :range="time.range.value" :recent-range="time.recent.value" :mode="mode" />
+  </section>
   </div>
-</template>
-
-<style scoped>
-.supplier-consumption{padding:18px;display:grid;gap:10px}.supplier-consumption p,.supplier-consumption div{font-size:13px;}
-.return-link { justify-self: start; }.overview-page { display: grid; gap: 24px; }.overview-page > * { min-width: 0; }.collection-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
-</style>
+  <InlineAlert v-if="statistics.error.value || analysis.error.value" severity="danger" retry @retry="analysis.retry">{{ statistics.error.value || analysis.error.value }}</InlineAlert>
+  <InlineAlert v-if="optionsQuery.error.value" severity="danger" retry @retry="optionsQuery.refresh">{{ optionsQuery.error.value.message }}</InlineAlert>
+  <StatisticsPanel v-if="section === 'statistics'" :scope="scope" :range="time.range.value" :range-kind="time.rangeKind.value" :resolve-range="time.advance" :refresh-token="refreshToken" />
+  <AnalysisPage v-else hide-navigation :scope="scope" :options="optionsQuery.data.value" :harness="source" :range="time.range.value" :filter="view.recent" :range-kind="time.rangeKind.value" :resolve-range="time.advance" :mode="mode" :view="view" :refresh-token="refreshToken" />
+</div></template>
+<style scoped>.overview-page,.overview-controls{display:grid;gap:14px;min-width:0}.overview-page>*{min-width:0}.overview-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px 20px;position:sticky;top:0;z-index:15;padding:10px 12px;box-shadow:0 4px 12px #0001}.overview-toolbar>.button{margin-left:auto}.overview-controls{position:absolute;left:0;right:0;top:calc(100% + 6px);padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px #0003;max-height:calc(100vh - 180px);overflow:auto}.return-link{justify-self:start}.carried-filter{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px}</style>

@@ -79,6 +79,7 @@ class ScanRound:
         self.titles = titles
         self._cache: dict[tuple[Harness, str], _Cached] = {}
         self._initialized: set[Harness] = set(Harness) if sources_initialized else set()
+        self._file_offsets: dict[Harness, int] = {}
 
     def run(self, *, should_stop: Callable[[], bool] = lambda: False) -> ScanResult:
         sources = self.collect(should_stop=should_stop)
@@ -90,6 +91,9 @@ class ScanRound:
         for harness in Harness:
             if should_stop():
                 break
+            configured = self.store.source(harness)
+            if configured is not None and not configured.scan_enabled:
+                continue
             at = self.clock.now_utc()
             root: str | None = None
             try:
@@ -169,7 +173,16 @@ class ScanRound:
         diagnostics = set(found.diagnostics)
         available, more = found.available, False
         inserted = duplicates = files_read = 0
-        for path in found.paths:
+        start_index = min(self._file_offsets.get(harness, 0), len(found.paths))
+        self._file_offsets[harness] = 0
+        attempts = 0
+        reading_started = self.clock.monotonic()
+        for index in range(start_index, len(found.paths)):
+            path = found.paths[index]
+            if attempts >= 64 or (index > start_index and self.clock.monotonic() - reading_started >= 0.25):
+                self._file_offsets[harness] = index
+                more = True
+                break
             if should_stop():
                 more = True
                 break
@@ -192,6 +205,7 @@ class ScanRound:
                 continue
             try:
                 checkpoint = self.store.checkpoint(harness, path)
+                attempts += 1
                 batch = self.readers[harness].read(path, checkpoint, source.started_at)
                 files_read += 1
                 diagnostics.update(batch.diagnostics)
@@ -234,6 +248,10 @@ class ScanRound:
                 if key not in self._cache and len(self._cache) >= 8192:
                     self._cache.pop(next(iter(self._cache)))
                 self._cache[key] = _Cached(signature, batch.diagnostics, batch.more)
+        for (cached_harness, _), cached in self._cache.items():
+            if cached_harness == harness:
+                diagnostics.update(cached.diagnostics)
+                more = more or cached.more
         status: SourceStatus = (
             "unavailable"
             if not available

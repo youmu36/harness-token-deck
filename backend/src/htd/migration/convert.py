@@ -72,6 +72,10 @@ def require_empty_target(path: Path) -> None:
             "usage_archive",
             "wallet_rollup",
             "wallet_archive",
+            "usage_daily",
+            "usage_recent",
+            "calibration_target",
+            "reconciliation_member",
         ):
             if table in tables and db.execute(f"SELECT 1 FROM {table} LIMIT 1").fetchone() is not None:
                 raise DomainError("MIGRATION_TARGET_NOT_EMPTY", "新版已有账本或钱包凭证，不能自动导入")

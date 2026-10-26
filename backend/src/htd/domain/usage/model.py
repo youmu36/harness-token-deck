@@ -94,6 +94,8 @@ class UsageEvent:
     source_kind: SourceKind | None = None
     provider_name: str | None = None
     generation_milliseconds: int | None = None
+    native_session_id: str | None = field(default=None, compare=False)
+    parent_session_id: str | None = field(default=None, compare=False)
     time_precision: Literal["request_completion"] = field(default="request_completion", init=False)
 
     def __post_init__(self) -> None:
@@ -102,10 +104,26 @@ class UsageEvent:
             raise DomainError(USAGE_EVENT_INVALID, "去重键必须为 64 位小写十六进制", "dedupe_key")
         request_id = optional_text(self.request_id)
         session_id = optional_text(self.session_id)
+        native = (
+            self.native_session_id
+            if self.native_session_id is not None
+            else self.session_id
+            if session_id is not None
+            else None
+        )
+        if native is not None and optional_text(native) is None:
+            raise DomainError(USAGE_EVENT_INVALID, "原生会话身份无效", "native_session_id")
+        if self.parent_session_id is not None and optional_text(self.parent_session_id) is None:
+            raise DomainError(USAGE_EVENT_INVALID, "父会话身份无效", "parent_session_id")
         if request_id is None:
             raise DomainError(USAGE_EVENT_INVALID, "请求标识不能为空", "request_id")
         if session_id is None and self.harness in (Harness.CLAUDE, Harness.CODEX, Harness.DSH):
             raise DomainError(USAGE_EVENT_INVALID, "此来源必须提供会话标识", "session_id")
+        if session_id is None:
+            native = None
+        elif native is not None and optional_text(native) != session_id:
+            raise DomainError(USAGE_EVENT_INVALID, "原生会话身份与显示身份不一致", "native_session_id")
+        object.__setattr__(self, "native_session_id", native)
         object.__setattr__(self, "request_id", request_id)
         object.__setattr__(self, "provider_name", optional_text(self.provider_name))
         object.__setattr__(self, "session_id", session_id)

@@ -62,12 +62,21 @@ def install(db: sqlite3.Connection, *, at: Instant | None = None) -> None:
     )
     for statement in statements:
         db.execute(statement)
+    from htd.adapters.sqlite.session_core import install as install_session_core
+
+    install_session_core(db)
     from htd.adapters.sqlite.session_speed import install as install_session_speed
 
     install_session_speed(db)
+    from htd.adapters.sqlite.monitor_revision import install as install_monitor_revision
+
+    install_monitor_revision(db)
     from htd.adapters.sqlite.explorer_storage import install as install_explorer
 
     install_explorer(db)
+    from htd.adapters.sqlite.analysis_options import install as install_analysis_options
+
+    install_analysis_options(db)
     from htd.adapters.sqlite.output_scope import install as install_scoped_output
 
     install_scoped_output(db)
@@ -90,3 +99,10 @@ def install(db: sqlite3.Connection, *, at: Instant | None = None) -> None:
     from htd.adapters.sqlite.wallet_recovery import install as install_wallet_recovery
 
     install_wallet_recovery(db)
+    from htd.adapters.sqlite.session_compatibility import install as install_session_compatibility
+
+    install_session_compatibility(db)
+    if at is not None:
+        from htd.adapters.sqlite.reconciliation_scope import backfill as backfill_scopes
+
+        backfill_scopes(db, at)

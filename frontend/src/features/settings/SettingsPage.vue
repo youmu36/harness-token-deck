@@ -7,6 +7,7 @@ import Display from './Display.vue';
 import Sources from './Sources.vue';
 import Background from './Background.vue';
 import Data from './Data.vue';
+import DataDirectory from './DataDirectory.vue';
 import HistoryAndMigration from './HistoryAndMigration.vue';
 import About from './About.vue';
 import InlineAlert from '../../ui/InlineAlert.vue';
@@ -35,7 +36,7 @@ const hello = useQuery('settings.hello', () => bridge.call('app.hello', { client
     <Display v-if="section === 'display'" :initial="saved.snapshot.value" />
     <Sources v-else-if="section === 'sources'" :mode="saved.snapshot.value.preferences.timezone" />
     <Background v-else-if="section === 'background'" :initial="saved.snapshot.value" />
-    <template v-else-if="section === 'data'"><Data :mode="saved.snapshot.value.preferences.timezone" /><HistoryAndMigration @history="$emit('history')" @migration="$emit('migration')" /></template>
+    <template v-else-if="section === 'data'"><Data :mode="saved.snapshot.value.preferences.timezone" /><DataDirectory /><HistoryAndMigration @history="$emit('history')" @migration="$emit('migration')" /></template>
     <template v-else>
       <section class="settings-card"><h2>使用指南</h2><p class="text-muted">从模型池、价格组与倍率版本开始，再配置供应商与钱包。</p><div class="settings-actions"><Button @click="guideOpen = true">查看使用指南</Button></div></section>
       <InlineAlert v-if="hello.error.value" severity="danger" retry @retry="hello.refresh">{{ hello.error.value.message }}</InlineAlert>

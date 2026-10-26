@@ -13,6 +13,9 @@ from hypothesis import strategies as st
     ("rate", "factor", "expected"),
     [
         ("1.25", "1.5", "1.875"),
+        ("2", "1.0001", "2.0002"),
+        ("0.000001", "0.4999", "0"),
+        ("1", "0.0001", "0.0001"),
         ("0.123456", "1.001", "0.123579"),
         ("1.5", "1.75", "2.625"),
         ("0.000001", "0.5", "0.000001"),
@@ -30,7 +33,7 @@ def test_P11_exact_multiplier_vectors(rate: str | None, factor: str, expected: s
 @pytest.mark.parametrize(
     "text",
     [
-        "1.0001",
+        "1.00001",
         "-1",
         "+1",
         "1e3",

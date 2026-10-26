@@ -29,7 +29,9 @@ class SqliteSchedulerStore:
     def sources(self) -> tuple[SourceRecord, ...]:
         with self.readers.connection() as db:
             repo = SourcesRepository(db)
-            return tuple(source for h in Harness if (source := repo.get(h)) is not None)
+            return tuple(
+                source for h in Harness if (source := repo.get(h)) is not None and source.scan_enabled
+            )
 
     def watcher_status(self, available: bool) -> None:
         self.writer.execute(

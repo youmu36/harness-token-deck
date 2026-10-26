@@ -64,8 +64,9 @@ def test_slow_history_does_not_lock_monitor_and_identical_snapshot_reads_once(
                 second = executor.submit(app.statistics.summary, Harness.CODEX, window)
                 assert follower.wait(2)
                 # No deadline sleeps: a monitor must finish while history remains blocked.
-                monitor = executor.submit(app.statistics.cache_monitor, Harness.CODEX, "hour", 345)
-                assert monitor.result(2)["trend"] == []
+                monitor = executor.submit(app.statistics.cache_monitor, Harness.CODEX, "minute", 345)
+                points = cast(list[dict[str, object]], monitor.result(2)["trend"])
+                assert len(points) == 60 and all(point["recordCount"] == 0 for point in points)
                 assert not first.done()
             finally:
                 release.set()

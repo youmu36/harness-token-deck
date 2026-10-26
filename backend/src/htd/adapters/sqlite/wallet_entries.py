@@ -36,10 +36,15 @@ def daily_spending(
     db: sqlite3.Connection, vendor_id: str, offset_minutes: int, *, max_days: int = 8192
 ) -> DailySpending | None:
     """Rebuild display-only counters with exact integers, bounded independently of history size."""
-    return {
-        row["day"]: (row["seq"], int(row["original"]), row["count"])
-        for row in db.execute("SELECT * FROM wallet_daily_close WHERE vendor_id=?", (vendor_id,))
-    }
+    result: DailySpending = {}
+    for row in db.execute(
+        "SELECT day,seq,original,count FROM wallet_daily_close WHERE vendor_id=? LIMIT ?",
+        (vendor_id, max_days + 1),
+    ):
+        if len(result) >= max_days:
+            return None
+        result[row["day"]] = row["seq"], int(row["original"]), row["count"]
+    return result
 
 
 def wallet_entries(
@@ -89,9 +94,8 @@ def wallet_entries(
         rows = sorted(rows, key=lambda row: row["seq"], reverse=True)[: limit + 1]
     else:
         selected = db.execute(
-            "WITH entries AS (SELECT MIN(seq) seq,date(occurred_at,:offset) day,'consumption_daily' "
-            "kind FROM wallet_activity "
-            "WHERE vendor_id=:vendor AND kind='consumption' GROUP BY day UNION ALL "
+            "WITH entries AS (SELECT seq,day,'consumption_daily' kind FROM wallet_daily_close "
+            "WHERE vendor_id=:vendor UNION ALL "
             "SELECT seq,NULL,kind FROM wallet_activity WHERE vendor_id=:vendor AND kind<>'consumption') "
             "SELECT * FROM entries WHERE seq<:cursor AND (:kind='all' OR kind=:kind) ORDER BY seq "
             "DESC LIMIT :limit",
@@ -128,6 +132,17 @@ def wallet_entries(
             # pagination never rescans request vouchers for every selected day.
             if daily is not None and daily[row["day"]][1] is not None:
                 _, amount, count = daily[row["day"]]
+            elif (
+                daily is None
+                and (
+                    closed := db.execute(
+                        "SELECT original,count FROM wallet_daily_close WHERE vendor_id=? AND day=?",
+                        (vendor_id, row["day"]),
+                    ).fetchone()
+                )
+                is not None
+            ):
+                amount, count = int(closed["original"]), closed["count"]
             else:
                 total = db.execute(
                     "SELECT htd_exact_spending(amount_pico,count) FROM wallet_activity WHERE vendor_id=? AND "

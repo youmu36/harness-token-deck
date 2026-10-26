@@ -335,6 +335,7 @@ class WalletRepository(WalletStore):
         operation_id: str,
         record_operation: bool = True,
         target_pico: int | None = None,
+        journal: bool = True,
     ) -> WalletEntry:
         require_transaction(work, self.connection)
         pico = parse_usd_amount(target, allow_negative=True) if target_pico is None else target_pico
@@ -364,7 +365,7 @@ class WalletRepository(WalletStore):
         entry, audit = plan.records(
             entry_id=str(uuid4()), vendor_id=vendor_id, at=at, seq=self.next_seq(), operation_id=operation_id
         )
-        self.append(work, entry, calibration=audit)
+        self.append(work, entry, calibration=audit, journal=journal)
         if record_operation:
             operations.record(work, operation_id, "wallet.calibrate", params, {"entry_id": entry.id}, at=at)
         return entry

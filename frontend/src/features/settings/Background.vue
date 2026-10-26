@@ -19,7 +19,7 @@ async function setting(key: 'closeToTray' | 'startAtLogin', event: Event) {
   finally { saving.value = false; }
 }
 const bridge = inject(BridgeKey)!;
-const query = useQuery('collection.status', () => bridge.call('collection.status', {}).then(unwrap), { events: ['sources.changed', 'collection.tick'] });
+const query = useQuery('collection.status', () => bridge.call('collection.status', {details:false}).then(unwrap), { events: ['sources.changed', 'collection.tick'] });
 const command = useCommand('collection.setPaused'); const error = ref('');
 async function toggle() { error.value = ''; try { await command.run({ paused: !query.data.value!.paused }); await query.refresh(); } catch (failure) { error.value = asAppError(failure).message; } }
 </script>

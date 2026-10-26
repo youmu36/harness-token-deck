@@ -15,13 +15,16 @@ export function createMockSettings(emit: <K extends EventName>(name: K, payload:
     return { ...request, available, diagnostics: available ? [] : [request.harness === 'zcode' ? 'source_database_unavailable' : 'source_directory_unavailable'] };
   }
   const list = (): CommandData<'sources.list'> => structuredClone({ sources, revision, paused });
-  type Edit = 'sources.setPath' | 'sources.autoDetect' | 'collection.setPaused';
+  type Edit = 'sources.setPath' | 'sources.autoDetect' | 'sources.setEnabled' | 'collection.setPaused';
   function change(command: Edit, request: RequestMap[Edit]): CommandData<'sources.list'> | CommandData<'collection.setPaused'> {
     const fingerprint = canonicalPayload([command, request]); const old = receipts.get(request.operationId);
     if (old) { if (old.fingerprint !== fingerprint) return fail('OPERATION_ID_REUSED'); return structuredClone(old.result) as ReturnType<typeof change>; }
     if ('expectedRevision' in request && request.expectedRevision !== revision) return fail('SOURCES_REVISION_CONFLICT');
     const before = canonicalPayload([sources, paused]);
     if (command === 'collection.setPaused') paused = (request as RequestMap['collection.setPaused']).paused;
+    else if (command === 'sources.setEnabled') {
+      const value = request as RequestMap['sources.setEnabled']; sources.find(s => s.harness === value.harness)!.scanEnabled = value.enabled;
+    }
     else if (command === 'sources.setPath') {
       const value = request as RequestMap['sources.setPath']; const valid = validate({ harness: value.harness, path: value.path });
       const source = sources.find(s => s.harness === value.harness)!;

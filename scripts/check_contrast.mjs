@@ -10,7 +10,7 @@ export const pairs = [
   ...['ok', 'warn', 'danger', 'info'].flatMap(fg => [
     ...backgrounds.map(bg => [fg, bg, 4.5]), [fg, `${fg}-soft`, 4.5],
   ]),
-  ...['cache-bust', 'cache-loss', 'chart-1', 'chart-2', 'chart-3', 'chart-4']
+  ...['cache-bust', 'cache-loss', 'chart-1', 'chart-2', 'chart-3', 'chart-4', 'usage-input', 'usage-cache', 'usage-output']
     .flatMap(fg => backgrounds.map(bg => [fg, bg, 3])),
 ];
 

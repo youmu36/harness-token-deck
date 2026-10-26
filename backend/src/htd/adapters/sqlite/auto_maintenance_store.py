@@ -10,7 +10,14 @@ from htd.adapters.sqlite.rollup_repo import RollupRepository
 from htd.adapters.sqlite.wallet_store import WalletStore
 from htd.adapters.sqlite.writer import MAINTENANCE, WriteExecutor
 from htd.adapters.sqlite.writer import UnitOfWork as SqlWork
-from htd.application.ports import RetentionBatch, RetentionPlan, UnitOfWork
+from htd.application.ports import (
+    CostChanged,
+    RetentionBatch,
+    RetentionPlan,
+    UnitOfWork,
+    UsageChanged,
+    WalletChanged,
+)
 from htd.domain.common.errors import DomainError
 from htd.domain.common.time import Instant, format_instant
 from htd.domain.pricing.model_pool import ModelPool
@@ -25,7 +32,32 @@ def _work(work: UnitOfWork) -> SqlWork:
 
 class SqliteMaintenanceStore:
     def compact_history(self, work: UnitOfWork, *, at: Instant) -> int:
-        return RollupRepository(_work(work).connection).compact(work, at=at)
+        from htd.adapters.sqlite.calibration_legacy import capture_pending
+        from htd.adapters.sqlite.reconciliation_batches import backfill as backfill_reconciliation
+        from htd.adapters.sqlite.session_activity import seal
+        from htd.adapters.sqlite.session_core import backfill
+        from htd.adapters.sqlite.session_monitor import backfill as backfill_monitor
+        from htd.adapters.sqlite.session_recalc_recovery import recover
+
+        cost_revision = work.revision("cost")
+        backfilled = max(
+            backfill(_work(work).connection),
+            backfill_monitor(_work(work).connection),
+            backfill_reconciliation(_work(work).connection),
+        )
+        pending = max(backfilled, recover(_work(work).connection))
+        if backfilled:
+            work.emit(UsageChanged(tuple(Harness), work.touch("usage")))
+        from htd.adapters.sqlite.reconciliation_scope import backfill as backfill_scopes
+
+        scopes = backfill_scopes(_work(work).connection, at)
+        if scopes:
+            work.emit(WalletChanged(tuple(sorted(scopes)), work.touch("wallet"), remote_flows_changed=True))
+        if work.revision("cost") != cost_revision:
+            work.emit(CostChanged(work.revision("cost")))
+        capture_pending(work, _work(work).connection, at)
+        seal(_work(work).connection, at)
+        return max(pending, RollupRepository(_work(work).connection).compact(work, at=at))
 
     def __init__(self, writer: WriteExecutor) -> None:
         self.writer = writer
@@ -58,7 +90,9 @@ class SqliteMaintenanceStore:
         stamp = format_instant(cutoff)
         due = _work(work).connection.execute(
             "SELECT EXISTS(SELECT 1 FROM ledger WHERE occurred_at<?) "
-            "OR EXISTS(SELECT 1 FROM inbox WHERE occurred_at<?) "
+            "OR EXISTS(SELECT 1 FROM inbox i WHERE occurred_at<? AND NOT EXISTS(SELECT 1 FROM "
+            "session_request s WHERE s.harness=i.harness AND s.dedupe_key=i.dedupe_key "
+            "AND s.state='accepted' AND s.occurred_at=i.occurred_at)) "
             "OR EXISTS(SELECT 1 FROM usage_rollup WHERE bucket<?) "
             "OR EXISTS(SELECT 1 FROM usage_archive WHERE start_at<?)",
             (stamp, stamp, stamp, stamp),

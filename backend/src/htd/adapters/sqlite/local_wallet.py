@@ -9,6 +9,7 @@ from htd.adapters.sqlite.wallet_repo import WalletRepository
 from htd.application.ports import UnitOfWork
 from htd.domain.common.errors import DomainError
 from htd.domain.common.time import Instant, format_instant
+from htd.domain.wallet.model import Totals, Vendor
 from htd.domain.wallet.vendors import require_active
 
 
@@ -20,11 +21,18 @@ def _usd(value: str | int) -> str:
     return f"{'-' if amount < 0 and rounded else ''}{whole}" + ("." + tail if tail else "") + " USD"
 
 
-def summary(db: sqlite3.Connection, vendor: str) -> dict[str, Any]:
+def summary(
+    db: sqlite3.Connection,
+    vendor: str,
+    *,
+    vendor_record: Vendor | None = None,
+    totals: Totals | None = None,
+) -> dict[str, Any]:
     from htd.adapters.sqlite.wallet_inheritance import apply
 
     repo = WalletRepository(db)
-    model, totals = repo.vendor(vendor), repo.totals(vendor)
+    model = vendor_record if vendor_record is not None else repo.vendor(vendor)
+    totals = totals if totals is not None else repo.totals(vendor)
     r, c, a = totals.r, totals.c, totals.a
     for row in db.execute("SELECT r,c,a FROM local_wallet_total WHERE vendor_id=?", (vendor,)):
         r += int(row[0])
@@ -50,15 +58,20 @@ def remote_summary(db: sqlite3.Connection, vendor: str) -> dict[str, Any] | None
     from htd.adapters.sqlite.account_book import AccountBook
     from htd.adapters.sqlite.wallet_inheritance import apply, seed
 
-    segments = db.execute(
-        "SELECT * FROM account_segment WHERE vendor_id=? AND kind='remote' ORDER BY started_at,id", (vendor,)
-    ).fetchall()
-    if not segments:
+    r = c = a = 0
+    last = None
+    for segment in db.execute(
+        "SELECT id,r,c,a,initial_balance FROM account_segment WHERE vendor_id=? AND kind='remote' "
+        "ORDER BY started_at,id",
+        (vendor,),
+    ):
+        r += int(segment["r"])
+        c += int(segment["c"])
+        a += int(segment["a"])
+        last = segment
+    if last is None:
         inherited = seed(db, vendor)
         return dict(inherited["target"]) if inherited else None
-    r = sum(int(row["r"]) for row in segments)
-    c = sum(int(row["c"]) for row in segments)
-    a = sum(int(row["a"]) for row in segments)
     for row in db.execute("SELECT * FROM remote_wallet_correction_total WHERE vendor_id=?", (vendor,)):
         r += int(row["r"])
         c += int(row["c"])
@@ -71,8 +84,8 @@ def remote_summary(db: sqlite3.Connection, vendor: str) -> dict[str, Any] | None
         r += int(row["r"])
         c += int(row["c"])
         a += int(row["a"])
-    endpoint = AccountBook(db).latest(segments[-1]["id"])
-    balance = int(endpoint["b"]) if endpoint else int(segments[-1]["initial_balance"])
+    endpoint = AccountBook(db).latest(last["id"])
+    balance = int(endpoint["b"]) if endpoint else int(last["initial_balance"])
     override = db.execute("SELECT * FROM account_balance_override WHERE vendor_id=?", (vendor,)).fetchone()
     if override and endpoint and override["endpoint_id"] == endpoint["id"]:
         balance = int(override["balance"])

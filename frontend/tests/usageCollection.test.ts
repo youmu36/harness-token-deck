@@ -97,6 +97,7 @@ describe('collection controls', () => {
     expect(wrapper.get('button').attributes('disabled')).toBeDefined(); expect(wrapper.find('.spinning').exists()).toBe(true);
     expect(wrapper.emitted('completed')).toBeUndefined();
     const result = { completedAt: '2026-10-06T06:32:00.000Z', nextPeriodicAt: '2026-10-06T06:32:42.000Z' };
+    await vi.dynamicImportSettled();
     finish({ ok: true, data: result }); await flushPromises();
     expect(wrapper.emitted('completed')).toEqual([[result]]); expect(wrapper.get('.countdown').text()).toBe('42 秒');
     expect(wrapper.get('button').attributes('disabled')).toBeUndefined();

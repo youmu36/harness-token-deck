@@ -40,6 +40,7 @@ def parse_record(record: object) -> Result:
             # copied session history and subagent transcript files.
             dedupe_key=identity_key([request]),
             session_id=session,
+            native_session_id=cast(str, item["sessionId"]),
             request_id=request,
             model_id=optional_text(message.get("model")),
             occurred_at=format_instant(parse_instant(cast(str, item.get("timestamp")))),

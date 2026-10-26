@@ -1,15 +1,26 @@
 <script setup lang="ts">
-import { computed, nextTick, onScopeDispose, ref, useId, watch } from 'vue';
+import { computed, nextTick, onScopeDispose, ref, shallowRef, useId, watch, watchEffect } from 'vue';
 import { Check, ChevronDown } from 'lucide-vue-next';
-const props = withDefaults(defineProps<{ modelValue: string; label: string; placeholder?: string; showLabel?: boolean; selectedLabel?: string; options: readonly { value: string; label: string }[] }>(), { showLabel: true });
+type Option = { value: string; label: string };
+const props = withDefaults(defineProps<{ modelValue: string; label: string; placeholder?: string; showLabel?: boolean; selectedLabel?: string; revealOnOpen?: boolean; options: readonly Option[] | (() => readonly Option[]) }>(), { showLabel: true });
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 const id = useId();
 const open = ref(false);
+const choices = shallowRef<readonly Option[]>([]);
+watchEffect(() => {
+  choices.value = typeof props.options === 'function'
+    ? open.value || props.selectedLabel === undefined ? props.options() : []
+    : props.options;
+});
 const root = ref<HTMLElement>();
 const trigger = ref<HTMLButtonElement>();
-const selected = computed(() => props.options.find(option => option.value === props.modelValue)?.label ?? props.placeholder ?? '请选择');
-function close(focus = false) { open.value = false; if (focus) trigger.value?.focus(); }
-async function show() { open.value = true; await nextTick(); }
+const selected = computed(() => choices.value.find(option => option.value === props.modelValue)?.label ?? props.placeholder ?? '请选择');
+function close(focus = false) { open.value = false; if (focus) trigger.value?.focus({preventScroll:true}); }
+async function show() {
+  open.value = true;
+  await nextTick();
+  if (open.value && props.revealOnOpen) root.value?.querySelector<HTMLElement>('.choice-options')?.scrollIntoView?.({block:'nearest',inline:'nearest'});
+}
 async function keydown(event: KeyboardEvent) {
   if (event.key === 'Escape') { event.preventDefault(); close(true); return; }
   if (event.key === 'Tab') { close(); return; }
@@ -30,11 +41,11 @@ function select(value: string) { emit('update:modelValue', value); close(true); 
 
 <template>
   <div ref="root" class="choice-menu" @keydown="keydown" @focusout="focusout">
-    <button ref="trigger" type="button" class="choice-trigger" :aria-label="`${label}：${selected}`" :aria-expanded="open" :aria-controls="id" @click="open ? close() : show()">
+    <button ref="trigger" type="button" class="choice-trigger" :aria-label="selectedLabel ?? `${label}：${selected}`" :aria-expanded="open" :aria-controls="id" @click="open ? close() : show()">
       <span v-if="showLabel" class="choice-label">{{ label }}</span><span class="choice-value">{{ selectedLabel ?? selected }}</span><ChevronDown :size="15" aria-hidden="true" />
     </button>
     <div v-if="open" :id="id" class="choice-options" role="radiogroup" :aria-label="label">
-      <button v-for="option in options" :key="option.value" type="button" role="radio" :aria-checked="option.value === modelValue" :data-value="option.value" @click="select(option.value)">
+      <button v-for="option in choices" :key="option.value" type="button" role="radio" :aria-checked="option.value === modelValue" :data-value="option.value" @click="select(option.value)">
         <span>{{ option.label }}</span><Check v-if="option.value === modelValue" :size="15" aria-hidden="true" />
       </button>
     </div>

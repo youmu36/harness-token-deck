@@ -19,6 +19,9 @@ def mark_compacted(db: sqlite3.Connection, work: UnitOfWork, key: str) -> None:
         (key_bytes(key),),
     ).rowcount
     if changed:
+        from htd.adapters.sqlite.session_monitor import compacted
+
+        compacted(db, key)
         db.execute(
             "INSERT INTO usage_day_revision VALUES('codex',?,1) ON CONFLICT(harness,day) "
             "DO UPDATE SET value=value+1",
@@ -63,6 +66,14 @@ def supplement(db: sqlite3.Connection, work: UnitOfWork, event: UsageEvent, *, m
         (*identity, compacted, cache),
     ).rowcount
     if changed:
+        if compacted:
+            from htd.adapters.sqlite.session_monitor import compacted as monitor_compacted
+
+            monitor_compacted(db, event.dedupe_key)
+        if cache is not None:
+            from htd.adapters.sqlite.session_projection import cache_supplement
+
+            cache_supplement(db, event, cache)
         db.execute(
             "INSERT INTO usage_day_revision VALUES(?,?,1) ON CONFLICT(harness,day) "
             "DO UPDATE SET value=value+1",

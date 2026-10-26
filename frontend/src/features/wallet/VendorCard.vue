@@ -16,6 +16,7 @@ const postedR = computed(() => 'postedR' in amounts.value ? amounts.value.posted
 const postedC = computed(() => 'postedC' in amounts.value ? amounts.value.postedC ?? amounts.value.C : amounts.value.C);
 const pendingR = computed(() => 'pendingTopUpPico' in amounts.value ? amounts.value.pendingTopUpPico : '0');
 const pendingC = computed(() => 'pendingConsumptionPico' in amounts.value ? amounts.value.pendingConsumptionPico : '0');
+const pendingUpdated = computed(() => 'pendingUpdatedAt' in amounts.value ? amounts.value.pendingUpdatedAt : null);
 const totalR = computed(() => (BigInt(postedR.value)+BigInt(pastR.value)).toString());
 const totalC = computed(() => (BigInt(postedC.value)+BigInt(pastC.value)).toString());
 function action(value: WalletAction) { emit('action', value); }
@@ -31,6 +32,7 @@ function action(value: WalletAction) { emit('action', value); }
       <div><dt>过往消费</dt><dd><Money :pico="pastC" mode="usd4" /></dd></div><div class="total"><dt>消费总额</dt><dd><Money :pico="totalC" mode="usd4" /></dd></div>
     </dl>
     <p class="text-muted">累计与总额显示已生成流水的金额；待更新金额在静默结算后归入累计并清零，远程待更新金额结算前可能随观测修正。</p>
+    <p v-if="pendingUpdated" class="text-muted">待更新金额观测于 {{formatDateTime(pendingUpdated,mode)}}</p>
     <p v-if="vendor.coverageIncomplete && scope === 'local'"><Badge tone="warning">累计消费不完整</Badge><span class="quality text-muted">未定价 {{ vendor.unpricedCount }} 条，成本不完整 {{ vendor.incompleteCount }} 条</span></p>
     <p v-if="vendor.historyCoverageStart" class="text-muted">历史覆盖自 {{ formatDateTime(vendor.historyCoverageStart, mode) }}</p>
     <p v-if="scope !== 'remote' && vendor.lastCalibratedAt" class="text-muted">最近校准：{{ formatDateTime(vendor.lastCalibratedAt, mode) }}</p>

@@ -19,6 +19,7 @@ _HOST_ACTIONS = frozenset(
         "htd.openLogDir",
         "htd.quit",
         "htd.ready",
+        "htd.startupSettled",
         "htd.unready",
         "htd.preferencesFlushed",
         "htd.preferencesFlushFailed",

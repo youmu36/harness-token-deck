@@ -47,11 +47,16 @@ class CodexReader:
             d.code for d in filter_diagnostics((Diagnostic(code) for code in sorted(diagnostics)), context)
         )
 
-    def __init__(self, *, line_limit: int = 32 * 1024**2, batch_limit: int = 64 * 1024**2) -> None:
+    def __init__(
+        self, *, line_limit: int = 32 * 1024**2, batch_limit: int = 64 * 1024**2, event_limit: int = 500
+    ) -> None:
         if not 0 < line_limit <= batch_limit:
             raise ValueError("Require 0 < line_limit <= batch_limit")
+        if event_limit <= 0:
+            raise ValueError("Event limit must be positive")
         self.line_limit = line_limit
         self.batch_limit = batch_limit
+        self.event_limit = event_limit
 
     def read(self, path: str, checkpoint: CheckpointRecord, started_at: Instant) -> ReadBatch:
         try:
@@ -121,7 +126,7 @@ class CodexReader:
                 diagnostics.add(result.code)
             offset += len(line)
             consumed += len(line)
-            if consumed >= self.batch_limit:
+            if consumed >= self.batch_limit or len(events) >= self.event_limit:
                 more = offset < size
                 break
         if os.fstat(stream.fileno()).st_size < size or anchor(stream, size) != snapshot_anchor:

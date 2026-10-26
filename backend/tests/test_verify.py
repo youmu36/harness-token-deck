@@ -40,3 +40,13 @@ def test_release_only_checks_frontend_functionality_then_builds_once() -> None:
         for step in release
     )
     assert not any(step.skip for step in release)
+
+
+def test_ci_checks_publication_then_functionality_and_build_without_packaging() -> None:
+    ci = steps("ci")
+    assert ci[0].command[-2:] == ("scripts/check_publication.py", "--history")
+    assert [step.command[-2:] for step in ci if "pytest" in step.command] == [
+        ("-m", "not slow and not desktop")
+    ]
+    assert [step.command[-1] for step in ci[2:]] == ["typecheck", "test", "build"]
+    assert not any("build_release.py" in " ".join(step.command) for step in ci)

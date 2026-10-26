@@ -26,9 +26,9 @@ def register_management(
     tasks: Tasks,
     providers: ProviderScan | None = None,
 ) -> None:
-    @router.register("pricing.catalog", request=EmptyRequest, response=p.CatalogResponse, kind="read")
-    def catalog(request: EmptyRequest) -> p.CatalogResponse:
-        return p.CatalogResponse.model_validate(pricing.catalog())
+    @router.register("pricing.catalog", request=p.CatalogRequest, response=p.CatalogResponse, kind="read")
+    def catalog(request: p.CatalogRequest) -> p.CatalogResponse:
+        return p.CatalogResponse.model_validate(pricing.catalog(metadata_only=request.metadataOnly))
 
     @router.register(
         "pricing.previewSwitch", request=p.PreviewSwitchRequest, response=p.ChangeResponse, kind="read"
@@ -117,7 +117,7 @@ def register_management(
 
     @router.register("wallet.list", request=w.WalletListRequest, response=w.WalletListResponse, kind="read")
     def wallet_list(request: w.WalletListRequest) -> w.WalletListResponse:
-        return w.WalletListResponse.model_validate(wallet.list(request.includeArchived))
+        return w.WalletListResponse.model_validate(wallet.list(request.includeArchived, request.vendorId))
 
     if providers is not None:
 

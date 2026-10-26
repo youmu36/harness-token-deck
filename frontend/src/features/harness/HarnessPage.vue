@@ -4,6 +4,7 @@ import { UsageNavigationKey } from '../../app/usageNavigation';
 import { BridgeKey, type CommandData } from '../../app/ports';
 import { unwrap } from '../../app/errors';
 import { useQuery } from '../../shared/query';
+import { readShared } from '../../shared/readService';
 import { useTimeRange } from '../usage-common/useTimeRange';
 import { useShellPreferences } from '../../app/useShellPreferences';
 import { harnessNames, type Harness, type PricingSelection } from './types';
@@ -31,14 +32,14 @@ function openAnalysis() { navigation?.analyze({ ...time.filter.value, harness: p
 const preferences = useShellPreferences(props.initialPreferences);
 const monitor = ref<InstanceType<typeof CacheMonitor>>();
 const recalcOpen = ref(false);
-const status = useQuery('harness.collection', async () => unwrap(await bridge.call('collection.status', { details: false })), { events: ['sources.changed', 'collection.tick'] });
-const summary = useQuery('harness.summary', async () => {
+const status = useQuery('harness.collection', async () => unwrap(await bridge.call('collection.status', { details: false })), { events: ['sources.changed', 'collection.tick'], coalesce:true, eventIntervalMs:1000 });
+const summary = useQuery('harness.summary', async signal => {
   const range = time.advance();
-  return unwrap(await bridge.call('stats.summary', { harness: props.harness, start: range.start, end: range.end, offsetMinutes: range.offsetMinutes, grain: time.trendGrain.value, sections: ['models'] }));
-}, { deps: [time.queryKey], events: [{ name: 'usage.changed', when: event => event.harnesses.includes(props.harness) }, { name: 'collection.tick', when: () => time.filter.value.range === 'custom' && !!(time.filter.value.startNow || time.filter.value.endNow) }], coalesce: true });
-const auxiliary = useQuery('harness.auxiliary', async () => unwrap(await bridge.call('stats.auxiliaryCosts', {harness:props.harness,start:time.range.value.start,end:time.range.value.end})),{deps:[time.queryKey],events:['collection.tick'],coalesce:true});
+  return readShared(bridge, 'stats.summary', { harness: props.harness, start: range.start, end: range.end, offsetMinutes: range.offsetMinutes, grain: time.trendGrain.value, sections: ['models'] }, signal);
+}, { deps: [time.refreshKey], events: ['cost.changed', { name: 'usage.changed', when: event => event.harnesses.includes(props.harness) }, { name: 'collection.tick', when: () => time.filter.value.range === 'custom' && !!(time.filter.value.startNow || time.filter.value.endNow) }], coalesce: true, eventIntervalMs:5000 });
+const auxiliary = useQuery('harness.auxiliary', async () => props.harness === 'codex' ? unwrap(await bridge.call('stats.auxiliaryCosts', {harness:props.harness,start:time.range.value.start,end:time.range.value.end})) : {costPico:'0',models:[],revision:0},{deps:[time.refreshKey],events:['auxiliary.changed'],coalesce:true,eventIntervalMs:5000});
 watch(summary.data, value => { if (value) emit('ready'); });
-const catalog = useQuery('harness.pricing', async () => unwrap(await bridge.call('pricing.catalog', {})), { events: ['pricing.changed'] });
+const catalog = useQuery('harness.pricing', async () => unwrap(await bridge.call('pricing.catalog', {metadataOnly:true})), { events: ['pricing.changed'] });
 const switchedSelection = ref<PricingSelection>();
 const selection = computed(() => switchedSelection.value ?? catalog.data.value?.current[props.harness]);
 const currentGroup = computed(() => catalog.data.value?.groups.find(group => group.id === selection.value?.groupId));
@@ -71,7 +72,7 @@ async function filter(patch: Partial<UsageFilter>) { try { await time.saveFilter
     <InlineAlert v-if="summary.error.value" severity="danger" retry @retry="summary.refresh">{{ summary.error.value.message }}</InlineAlert>
     <MetricsGrid :metrics="summary.data.value?.metrics" :harness="harness" :loading="summary.loading.value" :auxiliary-pico="auxiliary.data.value?.costPico" />
     <InlineAlert v-if="summary.data.value?.historyNotice">{{ summary.data.value.historyNotice }}</InlineAlert>
-    <CacheMonitor ref="monitor" :harness="harness" :mode="time.filter.value.monitorMode" :timezone="time.mode.value" @update:mode="filter({ monitorMode: $event })" />
+    <CacheMonitor ref="monitor" :harness="harness" :timezone="time.mode.value" />
     <ModelTable :models="summary.data.value?.models ?? []" :auxiliary="auxiliary.data.value?.models" />
     <HourlyDetails v-if="hourlyAllowed" :harness="harness" :range="time.range.value" :query-key="time.queryKey.value" :models="summary.data.value?.models ?? []" :model-value="time.filter.value.modelKey" @update:model-value="filter({ modelKey: $event })" />
     <section v-else class="surface history-link"><h2>小时明细</h2><p>超过 7 天的小时明细集中在数据统计与分析中查看。</p><Button @click="openAnalysis">在数据统计与分析中查看小时明细</Button></section>

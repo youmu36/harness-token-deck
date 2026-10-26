@@ -175,6 +175,9 @@ class Engine:
             ):
                 active.execute("BEGIN")
                 revisions = dict(active.execute("SELECT scope,value FROM revision"))
+                cost_revision = active.execute(
+                    "SELECT value FROM calibration_revision WHERE id=1"
+                ).fetchone()[0]
                 db.execute("BEGIN IMMEDIATE")
                 try:
                     work = UnitOfWork(db)
@@ -199,6 +202,9 @@ class Engine:
                             retained += db.execute(
                                 "INSERT OR IGNORE INTO inbox VALUES(?,?,?,?,?)", (*key, *row[2:])
                             ).rowcount
+                            from htd.migration.pending import project
+
+                            project(active, db, key[0], key[1], row[3])
                     previous = db.execute(
                         "SELECT value FROM meta WHERE key='legacy_pending_retained'"
                     ).fetchone()
@@ -220,6 +226,9 @@ class Engine:
                         db.execute(
                             "UPDATE revision SET value=MAX(value,?)+1 WHERE scope=?", (revision, scope)
                         )
+                    db.execute(
+                        "UPDATE calibration_revision SET value=MAX(value,?)+1 WHERE id=1", (cost_revision,)
+                    )
                     db.commit()
                 except BaseException:
                     db.rollback()

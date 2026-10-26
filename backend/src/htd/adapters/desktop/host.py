@@ -4,7 +4,7 @@ import hashlib
 import importlib
 import logging
 import os
-from collections.abc import Callable
+from collections.abc import Callable, MutableMapping
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode, urlsplit
@@ -20,6 +20,14 @@ from htd.adapters.sqlite.window_state import WindowGeometry
 from htd.ipc.bridge import Bridge
 
 _LOG = logging.getLogger(__name__)
+
+
+def configure_rendering(environment: MutableMapping[str, str]) -> None:
+    """Avoid a GPU device/cache for this utility's two-dimensional local pages."""
+    if environment.get("HTD_WEBVIEW_RENDERING", "software").lower() == "hardware":
+        return
+    # Explicit WebView2 arguments belong to the caller, including diagnostic overrides.
+    environment.setdefault("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--disable-gpu")
 
 
 def frontend_url(*, debug: bool) -> str:
@@ -70,6 +78,7 @@ def run(
     boot = urlencode({"theme": str(theme), "logPath": str(directory / "logs/htd.log")})
     url = url.partition("#")[0] + "#" + route + "?" + (query + "&" if query else "") + boot
     enable_per_monitor_dpi()
+    configure_rendering(os.environ)
     _LOG.info("加载桌面组件")
     webview: Any = importlib.import_module("webview")
     window: Any = webview.create_window(

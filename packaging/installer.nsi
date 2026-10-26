@@ -85,8 +85,9 @@ Function ${PREFIX}InitPaths
     StrCpy $DataDir "$TestRoot\data"
     StrCpy $MenuDir "$TestRoot\start-menu"
     StrCpy $DesktopDir "$TestRoot\desktop"
+    ; The acceptance environment owns LOCALAPPDATA and any explicit override.
+    ; Preserve resolver precedence so saved-directory upgrade/uninstall is tested.
   ${EndIf}
-  System::Call 'kernel32::SetEnvironmentVariableW(w "HTD_DATA_DIR", w "$DataDir")'
 FunctionEnd
 !macroend
 !insertmacro InitPaths ""
@@ -202,6 +203,15 @@ Section "Install"
     SetErrorLevel 1
     Abort
   ${EndIf}
+  ExecWait '"$PLUGINSDIR\payload\HarnessTokenDeck.exe" --write-data-path "$PLUGINSDIR\data-path.txt"' $0
+  ${If} $0 != 0
+    SetErrorLevel 1
+    Abort
+  ${EndIf}
+  FileOpen $0 "$PLUGINSDIR\data-path.txt" r
+  FileReadUTF16LE $0 $DataDir
+  FileClose $0
+  Call CheckDirectory
   ${If} $UninstallFirst == 1
   ${AndIf} $PreviousDir != ""
     ExecWait '"$PreviousDir\Uninstall.exe" /S _?=$PreviousDir' $0
@@ -301,6 +311,14 @@ Section "Uninstall"
     SetErrorLevel 1
     Abort
   ${EndIf}
+  InitPluginsDir
+  ExecWait '"$INSTDIR\HarnessTokenDeck.exe" --write-data-path "$PLUGINSDIR\data-path.txt"' $0
+  ${If} $0 != 0
+    Goto backup_failed
+  ${EndIf}
+  FileOpen $0 "$PLUGINSDIR\data-path.txt" r
+  FileReadUTF16LE $0 $DataDir
+  FileClose $0
   ${If} $BackupRequested == 1
     IfFileExists "$DataDir\htd.sqlite3" 0 no_database
     CreateDirectory "$DesktopDir"
@@ -322,9 +340,8 @@ no_database:
   ; Release the install directory as the current output directory before removal.
   SetOutPath "$TEMP"
   ${If} $DeleteRequested == 1
-    ClearErrors
-    RMDir /r "$DataDir"
-    ${If} ${Errors}
+    ExecWait '"$INSTDIR\HarnessTokenDeck.exe" --remove-data' $0
+    ${If} $0 != 0
       Goto backup_failed
     ${EndIf}
   ${EndIf}
@@ -343,11 +360,6 @@ no_database:
   Delete "$INSTDIR\installer-state.ini"
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
-  ${If} $DeleteRequested == 1
-    IfFileExists "$DataDir\*.*" 0 +3
-      SetErrorLevel 1
-      Abort
-  ${EndIf}
   Goto done
 backup_failed:
   MessageBox MB_OK|MB_ICONSTOP "$(BackupError)" /SD IDOK

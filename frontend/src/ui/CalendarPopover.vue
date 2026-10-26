@@ -98,9 +98,9 @@ onMounted(focusDay);
 <template>
   <div class="calendar" role="dialog" aria-label="选择日期与时间" @keydown="onKeydown">
     <div class="calendar__header">
-      <button type="button" aria-label="上个月" :disabled="monthDisabled(-1)" @click="shiftMonth(-1)">‹</button>
+      <button type="button" aria-label="上个月" :disabled="following || monthDisabled(-1)" @click="shiftMonth(-1)">‹</button>
       <strong>{{ monthTitle }}</strong>
-      <button type="button" aria-label="下个月" :disabled="monthDisabled(1)" @click="shiftMonth(1)">›</button>
+      <button type="button" aria-label="下个月" :disabled="following || monthDisabled(1)" @click="shiftMonth(1)">›</button>
     </div>
     <div ref="grid" role="grid" aria-label="日期" class="calendar__grid">
       <div role="row" class="calendar__row calendar__weekdays"><span v-for="day in weekdays" :key="day" role="columnheader">{{ day }}</span></div>
@@ -108,18 +108,18 @@ onMounted(focusDay);
         <button v-for="cell in week" :key="cell.key" :data-day="cell.key" class="calendar__day"
           :class="{ muted: !cell.current, selected: cell.selected, today: cell.today }" type="button" role="gridcell"
           :aria-label="cell.label" :aria-selected="cell.selected" :aria-current="cell.today ? 'date' : undefined"
-          :disabled="cell.disabled" :tabindex="cell.key === focusKey ? 0 : -1" @click="select(cell)">
+          :disabled="following || cell.disabled" :tabindex="cell.key === focusKey ? 0 : -1" @click="select(cell)">
           {{ cell.day }}
         </button>
       </div>
     </div>
-    <div class="calendar__time">
+    <fieldset class="calendar__time" :disabled="following">
       <span>时</span><TimeList v-model="hour" :maximum="23" label="小时" @change="updateTime" />
       <span>分</span><TimeList v-model="minute" :maximum="59" label="分钟" @change="updateTime" />
-    </div>
+    </fieldset>
     <div class="calendar__actions">
-      <button type="button" @click="$emit('clear')">清除</button>
-      <button type="button" @click="$emit('now')">当前时间</button>
+      <button type="button" :disabled="following" @click="$emit('clear')">清除</button>
+      <button type="button" :disabled="following" @click="$emit('now')">当前时间</button>
       <button v-if="allowFollow" type="button" :aria-pressed="following" @click="$emit('follow')">随当前时间变动</button>
       <button v-else type="button" :disabled="disabled(today)" @click="selectToday">今天</button>
     </div>
@@ -137,7 +137,7 @@ onMounted(focusDay);
 .calendar__day.selected { color: var(--accent-contrast); background: var(--accent); }
 .calendar__day.today { box-shadow: inset 0 0 0 1px var(--accent); }
 .calendar__day:disabled { opacity: .4; }
-.calendar__time { justify-content: center; margin-top: 10px; }
+.calendar__time { justify-content: center; margin:10px 0 0;padding:0;border:0; }
 .calendar__time input { width: 60px; min-height: 32px; padding: 4px; border-radius: 4px; }
 .calendar__actions { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
 </style>

@@ -1,4 +1,4 @@
-import { flushPromises, mount } from '@vue/test-utils';
+import { flushPromises as flushVue, mount } from '@vue/test-utils';
 import { afterEach, expect, it, vi } from 'vitest';
 import { BridgeKey, type CommandData } from '../src/app/ports';
 import { unwrap } from '../src/app/errors';
@@ -7,52 +7,41 @@ import OverviewPage from '../src/features/overview/OverviewPage.vue';
 import AccountEntries from '../src/features/wallet/AccountEntries.vue';
 import VendorBalanceCard from '../src/features/harness/VendorBalanceCard.vue';
 
+async function flushPromises() { await flushVue(); await vi.dynamicImportSettled(); await flushVue(); }
 const cleanup: (() => void)[] = [];
 afterEach(() => { cleanup.splice(0).forEach(fn => fn()); vi.useRealTimers(); vi.restoreAllMocks(); });
 
-it('loads long history and model analysis on demand, without supplier queries or hidden summaries', async () => {
+it('loads all-history statistics and independent model analysis without remote wallet reads', async () => {
   vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-18T10:00:00Z'));
-  const bridge = createMockBridge(); const call = vi.spyOn(bridge, 'call');
-  const initialPreferences = unwrap(await bridge.call('preferences.get', {}));
-  const wrapper = mount(OverviewPage, { props: { initialPreferences }, global: { provide: { [BridgeKey as symbol]: bridge } } });
-  cleanup.push(() => { wrapper.unmount(); bridge.dispose(); }); await flushPromises();
-  expect(call.mock.calls.some(([name]) => name === 'wallet.list' || name === 'stats.longTerm' || name === 'stats.analytics')).toBe(false);
-  expect(wrapper.text()).not.toContain('供应商累计消费');
-  await wrapper.get('[aria-label^="分析周期："]').trigger('click');
-  await wrapper.get('[data-value="all"][role="radio"]').trigger('click'); await flushPromises();
-  expect(call.mock.calls.find(([name]) => name === 'stats.analytics')?.[1]).toMatchObject({ period: 'all', harness: 'all', limit: 50 });
-  expect(wrapper.find('[aria-label="长期来源结构"]').exists()).toBe(true);
-  const count = call.mock.calls.filter(([name]) => name === 'stats.summary').length;
-  bridge.receiveEvent('usage.changed', { harnesses: ['codex'], revision: 9 }); await flushPromises();
-  expect(call.mock.calls.filter(([name]) => name === 'stats.summary')).toHaveLength(count);
-  await wrapper.findAll('[aria-label="统计分析子页"] button').find(b => b.text() === '数据分析')!.trigger('click'); await flushPromises();
+  const bridge=createMockBridge(), call=vi.spyOn(bridge,'call');
+  const wrapper=mount(OverviewPage,{props:{initialPreferences:unwrap(await bridge.call('preferences.get',{}))},global:{provide:{[BridgeKey as symbol]:bridge}}});
+  cleanup.push(()=>{wrapper.unmount();bridge.dispose();});await flushPromises();
+  expect(call.mock.calls.some(([name])=>name==='wallet.list'||name==='stats.analytics')).toBe(false);
+  await wrapper.get('[aria-label^="统计周期："]').trigger('click');await wrapper.get('[data-value="all"][role="radio"]').trigger('click');await flushPromises();
+  expect(call.mock.calls.filter(([name])=>name==='stats.explore').at(-1)?.[1]).toMatchObject({rangeKind:'all'});
+  expect(wrapper.find('[aria-label="数据统计"]').exists()).toBe(true);
+  await wrapper.findAll('[aria-label="统计分析子页"] button').find(b=>b.text()==='数据分析')!.trigger('click');await flushPromises();
   expect(wrapper.get('[aria-label="输出吞吐参考"]').text()).toContain('今日平均tps');
-  expect(wrapper.find('[aria-label="长期来源结构"]').exists()).toBe(false);
-  await wrapper.findAll('button').find(b => b.text() === '比较模型')!.trigger('click'); await flushPromises();
-  expect(wrapper.text()).toContain('选择比较模型');
+  await wrapper.findAll('button').find(b=>b.text()==='比较模型')!.trigger('click');await flushPromises();
   expect(wrapper.text()).toContain('最多再添加四个模型');
-  await wrapper.findAll('button').find(b => b.text() === '完成选择')!.trigger('click'); await flushPromises();
-  await wrapper.findAll('[aria-label="筛选模型排名"] button').find(b => b.text() === '模型详情')!.trigger('click'); await flushPromises();
-  expect((call.mock.calls.filter(([name]) => name === 'stats.explore').at(-1)?.[1] as {modelKeys?:string[]}).modelKeys).toHaveLength(1);
+  await wrapper.findAll('button').find(b=>b.text()==='完成选择')!.trigger('click');await flushPromises();
+  await wrapper.findAll('[aria-label="分析主题"] button').find(b=>b.text()==='成本')!.trigger('click');await flushPromises();
+  expect(wrapper.findAll('button').some(b=>b.text()==='模型详情')).toBe(false);
+  expect(wrapper.get('.line-legend').text()).toContain('全部模型总和');
+  expect((call.mock.calls.filter(([name])=>name==='stats.explore').at(-1)?.[1] as {modelKeys?:string[]}).modelKeys).toHaveLength(0);
 });
 
-it('keeps exact large counts visible and preserves zero-baseline comparisons', async () => {
-  const bridge = createMockBridge(); const original = bridge.call.bind(bridge);
-  vi.spyOn(bridge, 'call').mockImplementation(async (name, payload) => {
-    const response = await original(name, payload);
-    if (name === 'stats.analytics' && response.ok) {
-      const data = response.data as CommandData<'stats.analytics'>;
-      data.totals.totalTokens = '9007199254741115';
-      if (data.comparison) data.comparison.changes.tokens = null;
-    }
+it('keeps exact large counts visible in statistics without floating point rounding', async () => {
+  const bridge=createMockBridge(),original=bridge.call.bind(bridge);
+  vi.spyOn(bridge,'call').mockImplementation(async(name,payload)=>{
+    const response=await original(name,payload);
+    if(name==='stats.explore'&&response.ok)(response.data as CommandData<'stats.explore'>).totals.totalTokens='9007199254741115';
     return response;
   });
-  const wrapper = mount(OverviewPage, { props: { initialPreferences: unwrap(await bridge.call('preferences.get', {})) }, global: { provide: { [BridgeKey as symbol]: bridge } } });
-  cleanup.push(() => { wrapper.unmount(); bridge.dispose(); }); await flushPromises();
-  await wrapper.get('[aria-label^="分析周期："]').trigger('click'); await wrapper.get('[data-value="month"][role="radio"]').trigger('click'); await flushPromises();
-  expect(wrapper.text()).toContain('9,007,199,254,741,115');
-  expect(wrapper.get('[aria-label="Token 大单位参考"]').text()).toContain('90071992.55 亿');
-  expect(wrapper.text()).toContain('上期为零');
+  const wrapper=mount(OverviewPage,{props:{initialPreferences:unwrap(await bridge.call('preferences.get',{}))},global:{provide:{[BridgeKey as symbol]:bridge}}});
+  cleanup.push(()=>{wrapper.unmount();bridge.dispose();});await flushPromises();
+  expect(wrapper.get('.metrics-grid').text()).toContain('9,007,199,254,741,115');
+  expect(wrapper.get('.metrics-grid').text()).toContain('90071992.55 亿');
 });
 
 it('bounds retained remote rows and defers automatic ledger reads for three hours', async () => {

@@ -40,7 +40,9 @@ def test_normal_ipc_messages_are_ignored_without_warning(
     assert caplog.records == []
 
 
-@pytest.mark.parametrize("action", ["htd.openLogDir", "htd.quit", "htd.ready", "htd.unready"])
+@pytest.mark.parametrize(
+    "action", ["htd.openLogDir", "htd.quit", "htd.ready", "htd.unready", "htd.startupSettled"]
+)
 def test_local_control_strings_are_forwarded(action: str) -> None:
     actions: list[str] = []
     window(actions)._host_message(None, Message(action, LOCAL_URL + "#/settings"))
@@ -62,7 +64,9 @@ def test_unknown_strings_do_not_invoke_host_actions() -> None:
     assert actions == []
 
 
-@pytest.mark.parametrize("action", ["htd.openLogDir", "htd.quit", "htd.ready", "htd.unready"])
+@pytest.mark.parametrize(
+    "action", ["htd.openLogDir", "htd.quit", "htd.ready", "htd.unready", "htd.startupSettled"]
+)
 def test_control_messages_do_not_reach_pywebview_tuple_decoder(action: str) -> None:
     received: list[object] = []
     native = window([])

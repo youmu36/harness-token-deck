@@ -19,9 +19,12 @@ from htd.adapters.collectors.dsh_reader import DshReader
 from htd.adapters.collectors.provider_metadata import provider_metadata
 from htd.adapters.collectors.zcode_reader import ZcodeReader
 from htd.adapters.credentials.winvault import LazyWinVaultCredentialStore
+from htd.adapters.data_directory import DataLocation, ensure_dataset, resolve_data_directory
+from htd.adapters.data_migration import DataDirectoryManager
 from htd.adapters.desktop.startup import set_startup
-from htd.adapters.providers.newapi import NewApiProvider
+from htd.adapters.providers.lazy import LazyNewApiProvider
 from htd.adapters.sqlite.auto_maintenance_store import SqliteMaintenanceStore
+from htd.adapters.sqlite.calibration_store import SqliteCalibrationStore
 from htd.adapters.sqlite.collection_store import SqliteCollectionStore
 from htd.adapters.sqlite.command_store import SqliteCommandStore
 from htd.adapters.sqlite.connection import ReadPool
@@ -36,10 +39,12 @@ from htd.adapters.sqlite.wallet_command_store import SqliteWalletCommandStore
 from htd.adapters.sqlite.window_state import WindowGeometry, WindowStateStore
 from htd.adapters.sqlite.writer import WriteExecutor
 from htd.adapters.watch.watcher import Watcher
+from htd.application.calibration import Calibrations
 from htd.application.collection.billing import BillInbox
 from htd.application.collection.commands import CollectionCommands
 from htd.application.collection.maintenance import AutoMaintenance
 from htd.application.collection.scan import ScanRound
+from htd.application.data_directory import DataDirectory
 from htd.application.events import InProcessEventBus
 from htd.application.maintenance import Maintenance
 from htd.application.maintenance.recalc import Recalculate
@@ -73,6 +78,7 @@ from htd.domain.usage.model import Harness
 from htd.ipc.app import SystemActions, register_app_commands
 from htd.ipc.bridge import Bridge
 from htd.ipc.commands import register_commands
+from htd.ipc.data_directory import register_data_directory
 from htd.ipc.dto.base import Revisions
 from htd.ipc.dto.events import CollectionTickEvent
 from htd.ipc.events import EventForwarder
@@ -100,11 +106,7 @@ class SystemClock:
 
 
 def default_data_dir() -> Path:
-    configured = os.environ.get("HTD_DATA_DIR")
-    if configured:
-        return Path(configured).resolve()
-    local = os.environ.get("LOCALAPPDATA")
-    return (Path(local) if local else Path.home() / "AppData/Local") / "HarnessTokenDeck"
+    return resolve_data_directory().root
 
 
 class Application:
@@ -112,6 +114,7 @@ class Application:
         self,
         data_dir: Path | None = None,
         *,
+        data_location: DataLocation | None = None,
         clock: Clock | None = None,
         discovery: Discovery | None = None,
         watcher: SourceWatcher | None = None,
@@ -121,7 +124,10 @@ class Application:
         credentials: CredentialStore | None = None,
         provider_factory: Callable[[], BalanceProvider] | None = None,
     ) -> None:
-        self.data_dir = (data_dir or default_data_dir()).resolve()
+        self.data_location = data_location or resolve_data_directory(data_dir)
+        self.data_dir = self.data_location.root
+        self.dataset_id = ensure_dataset(self.data_location)
+        self.directory_changed = False
         self.clock = clock or SystemClock()
         self.bus = InProcessEventBus()
         self._resources = ExitStack()
@@ -142,6 +148,12 @@ class Application:
             def initialize(work: UnitOfWork) -> None:
                 before = work.revision("sources")
                 for harness in Harness:
+                    snapshot = self.store.sources(work)
+                    existing = next(
+                        (source for source in snapshot.sources if source.harness == harness), None
+                    )
+                    if existing is not None and not existing.scan_enabled:
+                        continue
                     root = locator.default_path(harness)
                     available = locator.available(harness, root)
                     snapshot = self.store.sources(work)
@@ -193,13 +205,22 @@ class Application:
                     maintenance=AutoMaintenance(SqliteMaintenanceStore(self.writer), self.clock),
                     on_completed=completed,
                     before_scan=locator.prepare,
+                    drain_inbox=lambda stop: self.scan.billing.run_batch(should_stop=stop),
+                    on_maintenance=self.expire_idle_caches,
                 )
 
             self._make_scheduler = make_scheduler
             self._start_scheduler = start_scheduler
             self.scheduler = make_scheduler()
             self.preferences = Preferences(self.store, self.clock, set_startup=set_startup)
-            self.collection = CollectionCommands(self.store, locator, self.scheduler, self.clock)
+            self.collection = CollectionCommands(
+                self.store,
+                locator,
+                self.scheduler,
+                self.clock,
+                # Resolve the current coordinator after a directory/import restart.
+                on_sources_changed=lambda: self.scheduler.refresh_sources(),  # noqa: PLW0108
+            )
             self.statistics = Statistics(
                 SqliteStatisticsStore(self.readers, self.writer), self.clock, capacity=cache_capacity
             )
@@ -234,7 +255,7 @@ class Application:
                 lambda: Remote(
                     remote_store,
                     credential_store,
-                    provider_factory() if provider_factory else NewApiProvider(self.clock),
+                    provider_factory() if provider_factory else LazyNewApiProvider(self.clock),
                     self.clock,
                 ),
                 automatic=start_scheduler,
@@ -269,11 +290,23 @@ class Application:
             )
             self.router = Router()
             self.system_actions = SystemActions()
+            self.directory_manager = DataDirectoryManager(
+                self.data_location,
+                quiesce=self._quiesce_directory,
+                resume=self._resume_directory,
+                committed=self._directory_committed,
+            )
+            register_data_directory(
+                self.router,
+                DataDirectory(self.directory_manager),
+                self._restart_directory,
+            )
             self._resources.callback(self.router.close)
             register_app_commands(
                 self.router,
                 app_version=app_version(),
                 data_dir=str(self.data_dir),
+                data_dir_source=self.data_location.source,
                 revisions=self.revisions,
                 events=self.events,
                 system_actions=self.system_actions,
@@ -294,8 +327,11 @@ class Application:
             self.unpriced = Unpriced(SqliteUnpricedStore(self.writer, self.readers), self.clock)
             register_unpriced(self.router, self.unpriced)
             register_reconciliation(
-                self.router, Reconciliation(SqliteReconciliationStore(self.readers, self.writer), self.clock)
+                self.router,
+                Reconciliation(SqliteReconciliationStore(self.readers, self.writer), self.clock),
+                Calibrations(SqliteCalibrationStore(self.writer, self.readers), self.clock),
             )
+            self.directory_manager.activated()
             self.bridge = Bridge(self.router, self.events, self.system_actions)
             if start_scheduler:
                 self.scheduler.start()
@@ -325,6 +361,12 @@ class Application:
             statistics_before["entries"],
             statistics_before["estimatedBytes"],
         )
+
+    def expire_idle_caches(self) -> None:
+        """Use the existing maintenance cadence; no timer, GC or live-reader interruption."""
+        self.statistics.expire_idle_cache()
+        self.wallet_store.expire_idle_cache()
+        self.readers.expire_idle()
 
     def _install_migration(self, replace: Callable[[], None]) -> None:
         if self._closing:
@@ -359,6 +401,30 @@ class Application:
         for event in events:
             self.bus.publish(event)
 
+    def _quiesce_directory(self) -> None:
+        self.task_pool.require_idle()
+        self.remote.suspend()
+        self.scheduler.close()
+        self.readers.close()
+        self.writer.close()
+
+    def _resume_directory(self) -> None:
+        self.writer.reopen()
+        self.readers.reopen()
+        self.remote.resume()
+        self.scheduler = self._make_scheduler()
+        self.collection.scheduler = self.scheduler
+        if self._start_scheduler and not self._closing:
+            self.scheduler.start()
+
+    def _directory_committed(self) -> None:
+        self.directory_changed = True
+        self.router.park_for_restart()
+
+    def _restart_directory(self) -> None:
+        if self.directory_changed and self.system_actions.restart is not None:
+            self.system_actions.restart()
+
     def close(self, *, window_geometry: WindowGeometry | None = None) -> None:
         with self._close_lock:
             if self._closed:
@@ -369,7 +435,7 @@ class Application:
             self.remote.close()
             self.router.close()
             self.task_pool.close()
-            if window_geometry is not None:
+            if window_geometry is not None and not self.directory_changed:
                 try:
                     self.window_state.save(window_geometry)
                 except Exception:

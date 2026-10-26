@@ -16,6 +16,12 @@ class Settlement:
     method: str
 
 
+def _automatic_recharge(candidate: int) -> int:
+    # Apply the existing recognition threshold before rounding. Keep all pico
+    # digits until integer division, including values beyond float precision.
+    return (candidate + USD - 1) // USD * USD if candidate >= USD else 0
+
+
 def settle(
     b0: int, b1: int, estimate: int, *, used: int | None, manual_r: int = 0, manual_a: int = 0
 ) -> Settlement:
@@ -24,7 +30,9 @@ def settle(
             raise ValueError("A reset requires a new baseline")
         inflow = b1 - b0 + used - manual_a
         # Negative net inflow is a separate account adjustment, never a negative recharge.
-        total_r = max(manual_r, inflow if inflow >= USD else 0)
+        total_r = max(manual_r, _automatic_recharge(inflow))
+        # Reliable U remains the consumption authority. A rounding difference
+        # is explicit account adjustment/evidence, never fabricated usage.
         gap = inflow - total_r
         adjustment = gap if abs(gap) >= CENT else 0
         consumption = used if used >= CENT else 0
@@ -37,7 +45,7 @@ def settle(
             "remote_usage",
         )
     candidate = b1 - b0 + estimate - manual_a
-    inferred = (candidate + USD - 1) // USD * USD if candidate >= USD else 0
+    inferred = _automatic_recharge(candidate)
     recharge = max(0, inferred - manual_r)
     consumption = b0 + manual_r + recharge + manual_a - b1
     if consumption < 0:

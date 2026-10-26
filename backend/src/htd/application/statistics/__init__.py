@@ -1,16 +1,22 @@
 """Bounded source/day-aware query cache, retaining completed history apart from today."""
 
 from collections import OrderedDict
+from collections.abc import Generator
 from concurrent.futures import Future
-from contextlib import closing
-from threading import BoundedSemaphore, Lock
+from concurrent.futures import TimeoutError as FutureTimeout
+from contextlib import closing, contextmanager
+from threading import Lock
 from typing import Literal
 
-from htd.application.ports import StatisticsSnapshot, StatisticsStore
-from htd.domain.common.time import Clock, Instant, format_instant, parse_instant
-from htd.domain.statistics import Aggregator, Summary, Window, monitor_window, next_minute
+from htd.application.ports import EffectiveCostSnapshot, StatisticsSnapshot, StatisticsStore
+from htd.application.ports.query_control import QuerySlots, SharedReadControl, current_read
+from htd.application.query_control import analysis_read, check_read
+from htd.domain.common.errors import DomainError
+from htd.domain.common.time import Clock, Instant, parse_instant
+from htd.domain.statistics import Aggregator, Summary, Window, monitor_window
 from htd.domain.statistics.aggregator import ALL_SECTIONS, Section
 from htd.domain.statistics.analysis import AnalysisQuery
+from htd.domain.statistics.query import QueryPlan
 from htd.domain.statistics.window import Grain, MonitorMode
 from htd.domain.usage.model import Harness
 
@@ -29,14 +35,16 @@ class Statistics:
     ) -> None:
         if type(capacity) is not int or capacity < 1:
             raise ValueError("Statistics cache capacity must be positive")
-        self.store, self.clock, self.capacity = store, clock, capacity
-        self.max_bytes = max_bytes
+        self.store, self.clock, self.capacity = store, clock, min(capacity, 6)
+        # Reserve two entries / one MiB for the same service's monitor snapshots.
+        self.max_bytes = min(max_bytes, 3 * 1024**2)
         self._bytes = 0
         self._last_used = clock.monotonic()
         self._lock = Lock()
-        self._slots = BoundedSemaphore(2)
+        self._slots: QuerySlots = getattr(store, "query_slots", QuerySlots())
         self._generation = 0
         self._pending: dict[tuple[int, CacheKey, Signature], Future[Summary]] = {}
+        self._pending_controls: dict[tuple[int, CacheKey, Signature], SharedReadControl] = {}
         self._cache: OrderedDict[CacheKey, tuple[Signature, Aggregator, int]] = OrderedDict()
 
     def summary(
@@ -47,7 +55,26 @@ class Statistics:
         sections: frozenset[Section] | None = None,
         model_key: str | None = None,
     ) -> tuple[Summary, int]:
+        with analysis_read(None):
+            for _ in range(3):
+                try:
+                    return self._summary(harness, window, sections=sections, model_key=model_key)
+                except DomainError as error:
+                    if error.code != "READ_REPLAN":
+                        raise
+                    check_read()
+            raise DomainError("READ_CHANGED", "用量持续变化，请按当前条件重试", retryable=True)
+
+    def _summary(
+        self,
+        harness: Harness | Literal["all"],
+        window: Window,
+        *,
+        sections: frozenset[Section] | None = None,
+        model_key: str | None = None,
+    ) -> tuple[Summary, int]:
         selected = ALL_SECTIONS if sections is None else sections
+        costs = None
         with self.store.snapshot() as snapshot:
             with self._lock:
                 if self.clock.monotonic() - self._last_used >= 60:
@@ -71,28 +98,52 @@ class Statistics:
                 (harness, window.key, selected, model_key),
                 tuple(item for signature in signatures for item in signature),
             )
-            with self._lock:
-                future = self._pending.get(request_key)
-                owner = future is None
-                if future is None:
-                    future = Future[Summary]()
-                    self._pending[request_key] = future
             revision = snapshot.revision
-            if owner:
-                try:
-                    with self._slots:
-                        result = self._build(
-                            snapshot, harness, window, selected, model_key, parts, signatures, generation
-                        )
-                    future.set_result(result)
-                except BaseException as error:
-                    future.set_exception(error)
-                    raise
-                finally:
-                    with self._lock:
-                        self._pending.pop(request_key, None)
+            if isinstance(snapshot, EffectiveCostSnapshot):
+                costs = snapshot.costs(window.start, window.end, harness, model_key)
+        with self._lock:
+            future = self._pending.get(request_key)
+            owner = future is None
+            if future is None:
+                future = Future[Summary]()
+                self._pending[request_key] = future
+                self._pending_controls[request_key] = SharedReadControl()
+            shared = self._pending_controls[request_key]
+            reader = current_read.get()
+            assert reader is not None
+            shared.join(reader)
+        if owner:
+            token = current_read.set(shared)
+            try:
+                with self._read_slot(), self.store.snapshot() as snapshot:
+                    current = [snapshot.signature(part.start, part.end, harness) for part in parts]
+                    if current != signatures:
+                        raise DomainError("READ_REPLAN", "等待期间读取范围已变化", retryable=True)
+                    result = self._build(
+                        snapshot, harness, window, selected, model_key, parts, signatures, generation
+                    )
+                future.set_result(result)
+            except BaseException as error:
+                future.set_exception(error)
+                raise
+            finally:
+                current_read.reset(token)
+                with self._lock:
+                    self._pending.pop(request_key, None)
+                    self._pending_controls.pop(request_key, None)
+                if future.exception() is not None:
+                    shared.leave(reader)
         # Followers release their read snapshot before waiting for the shared result.
-        return future.result(), revision
+        try:
+            while True:
+                check_read()
+                try:
+                    result = future.result(timeout=0.05)
+                    return costs.summary(result) if costs is not None else result, revision
+                except FutureTimeout:
+                    continue
+        finally:
+            shared.leave(reader)
 
     def _build(
         self,
@@ -158,6 +209,7 @@ class Statistics:
                 )
                 with closing(source) as rows:
                     for row in rows:
+                        check_read()
                         aggregate.push(row)
                 size = aggregate.estimated_bytes() + len(signature) * 200
                 with self._lock:
@@ -185,45 +237,69 @@ class Statistics:
     def invalidate(self) -> None:
         with self._lock:
             self._clear()
+        clear = getattr(self.store, "clear_analysis_cache", None)
+        if clear:
+            clear()
+
+    def expire_idle_cache(self) -> None:
+        with self._lock:
+            if self._cache and self.clock.monotonic() - self._last_used >= 60:
+                self._clear()
+        expire = getattr(self.store, "expire_idle_cache", None)
+        if expire:
+            expire()
 
     def long_term(self, start: Instant, end: Instant, harness: str) -> dict[str, object]:
-        return self.store.long_term(start, end, harness)
+        with analysis_read(None), self._read_slot():
+            return self.store.long_term(start, end, harness)
+
+    def evidence(self, query: dict[str, object]) -> dict[str, object]:
+        identity = query.get("queryId")
+        with analysis_read(identity if isinstance(identity, str) else None), self._read_slot():
+            return self.store.evidence(query, self.clock.now_utc())
 
     def acknowledge_quality(self, items: list[dict[str, str]]) -> dict[str, object]:
         return self.store.acknowledge_quality(items, self.clock.now_utc())
 
     def explore(self, query: dict[str, object]) -> dict[str, object]:
-        with self._slots:
-            return self.store.explore(query, self.clock.now_utc())
+        identity = query.get("queryId")
+        with analysis_read(identity if isinstance(identity, str) else None):
+            now = self.clock.now_utc()
+            return self.store.explore(QueryPlan.build(query, now).parameters, now)
 
-    def explore_options(self) -> dict[str, object]:
-        with self._slots:
-            return self.store.explore_options()
+    @contextmanager
+    def _read_slot(self) -> Generator[None, None, None]:
+        with self._slots.acquire():
+            yield
+
+    def explore_options(self, query: dict[str, object] | None = None) -> dict[str, object]:
+        with self._read_slot():
+            return self.store.explore_options(query)
 
     def output_references(self, query: dict[str, object]) -> dict[str, object]:
-        with self._slots:
+        identity = query.get("queryId")
+        with analysis_read(identity if isinstance(identity, str) else None), self._read_slot():
             return self.store.output_references(query, self.clock.now_utc())
 
     def analytics(self, query: AnalysisQuery) -> dict[str, object]:
-        with self._slots:
+        with self._read_slot():
             return self.store.analytics(query, self.clock.now_utc())
 
     def auxiliary(self, start: Instant, end: Instant, harness: str) -> dict[str, object]:
         return self.store.auxiliary(start, end, harness)
 
-    def cache_monitor(self, harness: Harness, mode: MonitorMode, offset_minutes: int) -> dict[str, object]:
-        now = self.clock.now_utc()
-        window = monitor_window(now, mode, offset_minutes)
-        result, revision = self.summary(harness, window, sections=frozenset(("trend",)))
-        monitor = self.store.monitor_data(harness.value, now)
-        return {
-            "start": format_instant(window.start),
-            "end": format_instant(window.end),
-            "offsetMinutes": offset_minutes,
-            "grain": window.actual_grain,
-            "windowKey": "|".join(map(str, window.key)),
-            "nextRefreshAt": format_instant(next_minute(now)),
-            **monitor,
-            "trend": [point.to_dict() for point in result.trend],
-            "revision": revision,
-        }
+    def cache_monitor(
+        self,
+        harness: Harness,
+        mode: MonitorMode,
+        offset_minutes: int,
+        session_ref: str | None = None,
+        cursor: str | None = None,
+        query_id: str | None = None,
+        chart_session_ref: str | None = None,
+    ) -> dict[str, object]:
+        monitor_window(self.clock.now_utc(), mode, offset_minutes)
+        with analysis_read(query_id):
+            return self.store.monitor_data(
+                harness.value, self.clock.now_utc(), session_ref, offset_minutes, cursor, chart_session_ref
+            )

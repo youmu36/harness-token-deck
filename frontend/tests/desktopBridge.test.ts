@@ -15,6 +15,41 @@ afterEach(() => {
 });
 
 describe('desktop bridge', () => {
+  it('signals startup settlement only after page loading, pending reads and paint, once', async () => {
+    vi.useFakeTimers();
+    const postMessage = vi.fn();
+    Object.assign(window, { chrome: { webview: { postMessage } } });
+    let finish!: (value: unknown) => void;
+    window.pywebview = { api: { call: () => new Promise(resolve => { finish = resolve; }) } };
+    const bridge = desktop();
+    bridge.host!.setReady(true);
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(postMessage).toHaveBeenCalledExactlyOnceWith('htd.ready');
+    const request = bridge.call('preferences.get', {});
+    await vi.waitFor(() => expect(finish).toBeTypeOf('function'));
+    bridge.host!.setContentReady!();
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(postMessage).not.toHaveBeenCalledWith('htd.startupSettled');
+    finish({ ok: false, error: { code: 'SERVER_BUSY', message: '忙', retryable: true } });
+    await request;
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(postMessage.mock.calls.filter(([message]) => message === 'htd.startupSettled')).toHaveLength(1);
+    bridge.host!.setContentReady!();
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(postMessage.mock.calls.filter(([message]) => message === 'htd.startupSettled')).toHaveLength(1);
+  });
+
+  it('cancels a queued startup settlement on disposal', async () => {
+    vi.useFakeTimers();
+    const postMessage = vi.fn();
+    Object.assign(window, { chrome: { webview: { postMessage } } });
+    const bridge = desktop();
+    bridge.host!.setReady(true);
+    bridge.host!.setContentReady!();
+    bridge.dispose();
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(postMessage).not.toHaveBeenCalledWith('htd.startupSettled');
+  });
   it('selects preview in a browser and waits for injected desktop APIs', async () => {
     expect(hasDesktopHost()).toBe(false);
     const preview = await createBridge(); bridges.push(preview);
@@ -34,6 +69,7 @@ describe('desktop bridge', () => {
     vi.useFakeTimers();
     const request = desktop({ readyTimeoutMs: 100 }).call('preferences.get', {});
     const rejected = expect(request).rejects.toMatchObject({ code: 'BRIDGE_UNAVAILABLE' });
+    await vi.dynamicImportSettled();
     await vi.advanceTimersByTimeAsync(100);
     await rejected;
   });
@@ -58,6 +94,7 @@ describe('desktop bridge', () => {
     });
     const readFailure = expect(read).rejects.toMatchObject({ code: 'READ_TIMEOUT', info: { retryable: true } });
     const writeFailure = expect(write).rejects.toMatchObject({ code: 'WRITE_TIMEOUT', info: { retryable: true } });
+    await vi.dynamicImportSettled();
     await vi.advanceTimersByTimeAsync(100);
     await Promise.all([readFailure, writeFailure]);
     expect(call).toHaveBeenCalledTimes(2);

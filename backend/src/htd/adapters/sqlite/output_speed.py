@@ -271,12 +271,13 @@ def record(
     samples: list[tuple[str, int | None, int | None]] | None = None,
     generation_milliseconds: int | None = None,
     session_ids: list[str | None] | None = None,
+    attributions: list[tuple[str, str, str] | None] | None = None,
 ) -> None:
-    if session_ids and model_key:
+    if session_ids:
         from htd.adapters.sqlite.session_speed import record as record_sessions
 
         records = samples if samples is not None else [(occurred_at, output, generation_milliseconds)]
-        record_sessions(db, harness, model_key, display_name, records, session_ids, at)
+        record_sessions(db, harness, model_key, display_name, records, session_ids, at, attributions)
         # Rows with no session evidence retain the released fallback. Never
         # count the same known-session contribution in both reference paths.
         unknown = [sample for sample, session in zip(records, session_ids, strict=True) if not session]
@@ -440,6 +441,8 @@ def references(
     end: str,
     model_key: str | None,
     model_keys: tuple[str, ...] = (),
+    *,
+    full_range: bool = False,
 ) -> list[dict[str, Any]]:
     clause, args = ("", ()) if harness == "all" else (" AND harness=?", (harness,))
     if model_key is not None:
@@ -457,11 +460,12 @@ def references(
     # queries retain their normal month/year resolution without expanding this series.
     end_day = parse_instant(end).value.astimezone(ZoneInfo(timezone(db)))
     start_day = parse_instant(start).value.astimezone(ZoneInfo(timezone(db))).date().isoformat()
-    first_day = max(start_day, (end_day - timedelta(days=29)).date().isoformat())
+    first_day = start_day if full_range else max(start_day, (end_day - timedelta(days=29)).date().isoformat())
     for row in db.execute(
         "SELECT * FROM output_reference WHERE day>=? AND day<=?" + clause + " ORDER BY day,model_key",
         (first_day, end_day.date().isoformat(), *args),
     ):
+        _check_reference_budget(len(groups))
         key = row["day"], row["model_key"]
         group = groups.setdefault(
             key,
@@ -497,6 +501,7 @@ def references(
         "SELECT * FROM output_daily_speed WHERE day>=? AND day<=?" + clause + " ORDER BY day,model_key",
         (first_day, end_day.date().isoformat(), *args),
     ):
+        _check_reference_budget(len(result))
         result.append(
             {
                 "day": row["day"],
@@ -526,3 +531,12 @@ def references(
         }
         for _, item in sorted(combined.items())
     ]
+
+
+def _check_reference_budget(size: int) -> None:
+    from htd.application.ports.query_control import check_read
+    from htd.domain.common.errors import DomainError
+
+    check_read()
+    if size >= 10000:
+        raise DomainError("ANALYSIS_LIMIT", "吞吐日点超过读取预算，请缩小范围或减少模型")

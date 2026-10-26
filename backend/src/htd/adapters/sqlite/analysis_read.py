@@ -13,6 +13,7 @@ from htd.adapters.sqlite.wallet_closing import timezone
 from htd.domain.common.errors import DomainError
 from htd.domain.common.time import Instant, format_instant, parse_instant
 from htd.domain.statistics.analysis import AnalysisQuery, ExactMetrics, analysis_bounds, changes, shift_month
+from htd.domain.statistics.effective_cost import CostProjection
 from htd.domain.statistics.model import LedgerRow
 from htd.domain.usage.model import Harness
 
@@ -126,6 +127,35 @@ def aggregate(
             if grain != "day"
             else cursor + timedelta(days=1)
         )
+    from htd.adapters.sqlite.calibration_costs import projection
+
+    costs = projection(
+        db,
+        {
+            "start": start_text,
+            "end": end_text,
+            "harnesses": [] if query.harness == "all" else [query.harness],
+            "modelKeys": [] if query.model_key is None else [query.model_key],
+        },
+    )
+
+    def apply_costs(metrics: ExactMetrics, selected: CostProjection) -> None:
+        values = selected.costs(metrics.counts.pico)
+        metrics.estimate_pico = metrics.counts.pico
+        metrics.counts.pico = int(values["picoUsd"])
+        metrics.correction_pico = int(values["correctionPico"])
+        metrics.unallocated_correction_pico = int(values["unallocatedCorrectionPico"])
+        metrics.allocation_incomplete = values["allocationIncomplete"]
+        if metrics.allocation_incomplete:
+            metrics.missing.add("calibration_allocation")
+
+    apply_costs(result.total, costs)
+    for model, metrics in result.models.items():
+        apply_costs(metrics, costs.scoped(modelKeys=[model]))
+    for source, metrics in result.harnesses.items():
+        apply_costs(metrics, costs.scoped(harnesses=[source]))
+    for bucket, metrics in result.trend.items():
+        apply_costs(metrics, costs.period(bucket, grain, zone.key))
     return result
 
 
@@ -189,6 +219,6 @@ def analyze(db: sqlite3.Connection, query: AnalysisQuery, now: Instant) -> dict[
         "includesWholeBoundaryDays": data.boundary,
         "generatedAt": format_instant(now),
         "revision": db.execute("SELECT value FROM revision WHERE scope='usage'").fetchone()[0],
-        "basis": "本地用量与估算成本，输出吞吐按完成分钟计算",
+        "basis": "本地用量与有效成本，输出吞吐按会话开始日发布参考",
         "comparisonNotice": "按业务时区比较相同日历进度，短月与闰日对齐到上期最后一日。零基期不计算增长率。",
     }

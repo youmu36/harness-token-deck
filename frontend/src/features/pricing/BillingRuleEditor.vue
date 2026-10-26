@@ -20,12 +20,12 @@ function threshold(event: Event) { if (latest) publish({ ...latest, thresholdK: 
       <template v-if="modelValue">
         <Button v-if="modelValue.mode === 'peak'" :disabled="readonly" @click="peak = true">峰时与时区（{{ modelValue.hours.length }} 小时 / {{ modelValue.weekdays.length }} 天）</Button>
         <label v-else>阈值 K（含缓存，1K = 1000 token）<input type="number" aria-label="阈值 K" :value="modelValue.thresholdK" min="1" max="1000000" step="1" :disabled="readonly" @input="threshold" /></label>
-        <div class="extra-rates"><label v-for="(name, field) in { input: '附加输入', output: '附加输出', cache: '附加缓存命中', cacheWrite: '附加缓存创建' }" :key="field">{{ name }}<input :aria-label="name" :value="modelValue.rates[field] ?? ''" :placeholder="field === 'cacheWrite' ? '0' : '未定价'" inputmode="decimal" :disabled="readonly" @input="extra(field, $event)" /></label></div>
-        <p class="text-muted">缓存创建价格留空按 0；其余留空表示未定价，不回退到基础价格。</p>
+        <div class="extra-rates"><label v-for="(name, field) in { input: '最终输入', output: '最终输出', cache: '最终缓存命中', cacheWrite: '最终缓存创建' }" :key="field">{{ name }}<input :aria-label="name" :value="modelValue.rates[field] ?? ''" :placeholder="field === 'cacheWrite' ? '0' : '未定价'" inputmode="decimal" :disabled="readonly" @input="extra(field, $event)" /></label></div>
+        <p class="text-muted">填写触发规则后整条请求使用的最终四价（USD / 百万 Token），无需在基础价格上再加价。缓存创建价格留空按 0；其余留空表示未定价，不回退到基础价格。</p>
       </template>
     </div>
     <PeakHoursDialog v-if="peak && modelValue" :rule="modelValue" @close="peak = false" @done="publish($event); peak = false" />
     <ConfirmDialog v-model:open="removing" title="取消计费规则" message="确认移除本行的附加计费规则？保存后从现在起生效。" confirm-label="移除规则" @confirm="publish(null); removing = false" />
   </details>
 </template>
-<style scoped>.rule-editor { margin-top: 12px; font-size: 12px; }summary { cursor: pointer; color: var(--text-muted); }.rule-fields { display: grid; gap: 12px; padding-top: 12px; }.rule-fields > label { display: grid; gap: 6px; }.extra-rates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }.extra-rates label { display: grid; gap: 6px; }input, select { width: 100%; padding: 6px 8px; border-radius: 4px; }</style>
+<style scoped>.rule-editor { margin-top: 12px; font-size: 12px; }summary { cursor: pointer; color: var(--text-muted); }.rule-fields { display: grid; gap: 12px; padding-top: 12px; }.rule-fields > label { display: grid; gap: 6px; }.extra-rates { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }.extra-rates label { display: grid; gap: 6px; }input, select { width: 100%; padding: 6px 8px; border-radius: 4px; }</style>
